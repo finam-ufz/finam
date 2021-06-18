@@ -5,14 +5,19 @@ from enum import Enum
 class ComponentStatus(Enum):
     CREATED = 0
     INITIALIZED = 1
-    UPDATED = 2
-    FINISHED = 3
-    FINALIZED = 4
+    VALIDATED = 2
+    UPDATED = 3
+    FINISHED = 4
+    FINALIZED = 5
 
 
 class IModelComponent(ABC):
     @abstractmethod
     def initialize(self):
+        pass
+
+    @abstractmethod
+    def validate(self):
         pass
 
     @abstractmethod
@@ -40,23 +45,61 @@ class IModelComponent(ABC):
         pass
 
 
-class IInput(ABC):
+class Named(ABC):
+    @abstractmethod
+    def get_name(self):
+        pass
+
+
+class IInput(Named, ABC):
+    @abstractmethod
+    def get_source(self):
+        pass
+
     @abstractmethod
     def set_source(self, source):
         pass
 
+    @abstractmethod
+    def pull_data(self, time):
+        pass
 
-class IOutput(ABC):
+
+class IOutput(Named, ABC):
+    @abstractmethod
+    def get_targets(self):
+        pass
+
     @abstractmethod
     def add_target(self, target):
         pass
 
     @abstractmethod
-    def get_data(self, time):
+    def push_data(self, data, time):
         pass
 
 
-class IAdapter(IInput, IOutput, ABC):
+class IAdapter(Named, ABC):
+    @abstractmethod
+    def get_source(self):
+        pass
+
+    @abstractmethod
+    def set_source(self, source):
+        pass
+
+    @abstractmethod
+    def get_targets(self):
+        pass
+
+    @abstractmethod
+    def add_target(self, target):
+        pass
+
     @abstractmethod
     def set_data(self, data, time):
+        pass
+
+    @abstractmethod
+    def get_data(self, time):
         pass
