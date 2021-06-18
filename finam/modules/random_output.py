@@ -1,33 +1,29 @@
-from sdk import AModelComponent, AInput, AOutput
+import random
+
+from sdk import AModelComponent, AOutput
 from interfaces import ComponentStatus
 
 
-class Formind(AModelComponent):
+class RandomOutput(AModelComponent):
     def __init__(self, step):
-        super(Formind, self).__init__()
+        super(RandomOutput, self).__init__()
         self._time = 0
         self._step = step
-        self.lai = 0
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
-        self._inputs["soil_moisture"] = AInput("soil_moisture")
-        self._outputs["LAI"] = AOutput("LAI")
+        self._outputs["Random"] = AOutput("Random")
         self._status = ComponentStatus.INITIALIZED
 
     def validate(self):
-        self._outputs["LAI"].push_data(0, self.time())
+        self._outputs["Random"].push_data(random.uniform(0, 1), self.time())
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
-        soil_moisture = self._inputs["soil_moisture"].pull_data(self.time())
-
-        # Run the model step here
-        self.lai = (self.lai + soil_moisture) * 0.9
-
         self._time += self._step
 
-        self._outputs["LAI"].push_data(self.lai, self.time())
+        value = random.uniform(0, 1)
+        self._outputs["Random"].push_data(value, self.time())
 
         self._status = ComponentStatus.UPDATED
 
