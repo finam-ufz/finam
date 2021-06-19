@@ -1,6 +1,6 @@
 from adapters import NextValue, PreviousValue, LinearInterpolation, LinearIntegration
 from models import formind
-from modules import csv_printer, random_output
+from modules import csv_writer, random_output
 
 
 def run(mods, t_max):
@@ -24,27 +24,30 @@ def run(mods, t_max):
 
 
 if __name__ == "__main__":
-    random_time_series = random_output.RandomOutput(step=5)
+    rng = random_output.RandomOutput(step=5)
     formind = formind.Formind(step=25)
-    csv = csv_printer.CsvPrinter(step=5, inputs=["soil_moisture", "LAI", "soil_moisture_int", "LAI_int"])
 
-    modules = [random_time_series, formind, csv]
+    rng_csv = csv_writer.CsvWriter(path="rng.csv", step=5, inputs=["soil_moisture"])
+    formind_csv = csv_writer.CsvWriter(path="formind.csv", step=25, inputs=["soil_moisture", "LAI"])
+
+    modules = [rng, formind, rng_csv, formind_csv]
 
     for m in modules:
         m.initialize()
 
-    LinearInterpolation().link(
-        random_time_series.outputs()["Random"], formind.inputs()["soil_moisture"]
-    )
-
-    LinearInterpolation().link(
-        random_time_series.outputs()["Random"], csv.inputs()["soil_moisture"]
-    )
-    LinearInterpolation().link(formind.outputs()["LAI"], csv.inputs()["LAI"])
-
-    LinearIntegration.mean().link(formind.outputs()["LAI"], csv.inputs()["LAI_int"])
     LinearIntegration.mean().link(
-        random_time_series.outputs()["Random"], csv.inputs()["soil_moisture_int"]
+        rng.outputs()["Random"], formind.inputs()["soil_moisture"]
+    )
+
+    LinearInterpolation().link(
+        rng.outputs()["Random"], rng_csv.inputs()["soil_moisture"]
+    )
+
+    LinearIntegration.mean().link(
+        rng.outputs()["Random"], formind_csv.inputs()["soil_moisture"]
+    )
+    LinearInterpolation().link(
+        formind.outputs()["LAI"], formind_csv.inputs()["LAI"]
     )
 
     run(modules, 1000)
