@@ -2,16 +2,18 @@ from sdk import AModelComponent, Input
 from interfaces import ComponentStatus
 
 
-class CsvPrinter(AModelComponent):
-    def __init__(self, step, inputs):
-        super(CsvPrinter, self).__init__()
+class CsvWriter(AModelComponent):
+    def __init__(self, path, step, inputs):
+        super(CsvWriter, self).__init__()
+        self._path = path
         self._time = 0
         self._step = step
 
         self._input_names = inputs
         self._inputs = {inp: Input(inp) for inp in inputs}
 
-        print(";".join(["time"] + self._input_names))
+        with open(self._path, "w") as out:
+            out.write(";".join(["time"] + self._input_names) + "\n")
 
         self._status = ComponentStatus.CREATED
 
@@ -24,7 +26,8 @@ class CsvPrinter(AModelComponent):
     def update(self):
         values = [self._inputs[inp].pull_data(self.time()) for inp in self._input_names]
 
-        print(";".join(map(str, [self.time()] + values)))
+        with open(self._path, "a") as out:
+            out.write(";".join(map(str, [self.time()] + values)) + "\n")
 
         self._time += self._step
 
