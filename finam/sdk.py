@@ -54,29 +54,12 @@ class AOutput(IOutput, ABC):
 class AAdapter(IAdapter, ABC):
     def __init__(self, name):
         self.name = name
-        self.source = None
-        self.targets = []
 
     def get_name(self):
         return self.name
 
-    def get_source(self):
-        return self.source
-
-    def set_source(self, source):
-        self.source = source
-
-    def get_targets(self):
-        return self.targets
-
-    def add_target(self, target):
-        self.targets.append(target)
-
     def link(self, source, target):
-        self.set_source(source)
         source.add_target(self)
-
-        self.add_target(target)
         target.set_source(self)
 
     def push_data(self, data, time):

@@ -20,17 +20,14 @@ class PreviousValue(AAdapter):
         self.new_data = None
 
     def set_data(self, data, time):
-        self.old_data = self.new_data
+        if self.new_data is None:
+            self.old_data = data
+        else:
+            self.old_data = self.new_data
         self.new_data = data
 
     def get_data(self, time):
-        return self.data
-
-    def get_data(self, time):
-        if self.old_data is None:
-            return self.new_data
-        else:
-            return self.old_data
+        return self.old_data
 
 
 class LinearInterpolation(AAdapter):

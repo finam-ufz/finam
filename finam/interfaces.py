@@ -81,22 +81,6 @@ class IOutput(Named, ABC):
 
 class IAdapter(Named, ABC):
     @abstractmethod
-    def get_source(self):
-        pass
-
-    @abstractmethod
-    def set_source(self, source):
-        pass
-
-    @abstractmethod
-    def get_targets(self):
-        pass
-
-    @abstractmethod
-    def add_target(self, target):
-        pass
-
-    @abstractmethod
     def set_data(self, data, time):
         pass
 
