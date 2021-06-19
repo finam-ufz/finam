@@ -1,4 +1,4 @@
-from adapters import NextValue, PreviousValue, LinearInterpolation
+from adapters import NextValue, PreviousValue, LinearInterpolation, LinearIntegration
 from models import formind
 from modules import csv_printer, random_output
 
@@ -24,9 +24,9 @@ def run(mods, t_max):
 
 
 if __name__ == "__main__":
-    random_time_series = random_output.RandomOutput(step=32)
-    formind = formind.Formind(step=5)
-    csv = csv_printer.CsvPrinter(step=5, inputs=["soil_moisture", "LAI"])
+    random_time_series = random_output.RandomOutput(step=5)
+    formind = formind.Formind(step=25)
+    csv = csv_printer.CsvPrinter(step=5, inputs=["soil_moisture", "LAI", "soil_moisture_int", "LAI_int"])
 
     modules = [random_time_series, formind, csv]
 
@@ -41,5 +41,10 @@ if __name__ == "__main__":
         random_time_series.outputs()["Random"], csv.inputs()["soil_moisture"]
     )
     LinearInterpolation().link(formind.outputs()["LAI"], csv.inputs()["LAI"])
+
+    LinearIntegration.mean().link(formind.outputs()["LAI"], csv.inputs()["LAI_int"])
+    LinearIntegration.mean().link(
+        random_time_series.outputs()["Random"], csv.inputs()["soil_moisture_int"]
+    )
 
     run(modules, 1000)
