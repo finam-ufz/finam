@@ -1,4 +1,4 @@
-from sdk import AModelComponent, AInput, AOutput
+from sdk import AModelComponent, Input, Output
 from interfaces import ComponentStatus
 
 
@@ -11,8 +11,8 @@ class Formind(AModelComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
-        self._inputs["soil_moisture"] = AInput("soil_moisture")
-        self._outputs["LAI"] = AOutput("LAI")
+        self._inputs["soil_moisture"] = Input("soil_moisture")
+        self._outputs["LAI"] = Output("LAI")
         self._status = ComponentStatus.INITIALIZED
 
     def validate(self):

@@ -1,6 +1,6 @@
 import random
 
-from sdk import AModelComponent, AOutput
+from sdk import AModelComponent, Output
 from interfaces import ComponentStatus
 
 
@@ -12,7 +12,7 @@ class RandomOutput(AModelComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
-        self._outputs["Random"] = AOutput("Random")
+        self._outputs["Random"] = Output("Random")
         self._status = ComponentStatus.INITIALIZED
 
     def validate(self):

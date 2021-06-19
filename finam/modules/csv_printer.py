@@ -1,4 +1,4 @@
-from sdk import AModelComponent, AInput
+from sdk import AModelComponent, Input
 from interfaces import ComponentStatus
 
 
@@ -9,7 +9,7 @@ class CsvPrinter(AModelComponent):
         self._step = step
 
         self._input_names = inputs
-        self._inputs = {inp: AInput(inp) for inp in inputs}
+        self._inputs = {inp: Input(inp) for inp in inputs}
 
         print(";".join(["time"] + self._input_names))
 

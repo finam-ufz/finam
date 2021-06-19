@@ -14,7 +14,7 @@ class AModelComponent(IModelComponent, ABC):
         return self._outputs
 
 
-class AInput(IInput, ABC):
+class Input(IInput):
     def __init__(self, name):
         self.name = name
         self.source = None
@@ -32,7 +32,7 @@ class AInput(IInput, ABC):
         return self.source.get_data(time)
 
 
-class AOutput(IOutput, ABC):
+class Output(IOutput):
     def __init__(self, name):
         self.name = name
         self.targets = []
@@ -61,6 +61,3 @@ class AAdapter(IAdapter, ABC):
     def link(self, source, target):
         source.add_target(self)
         target.set_source(self)
-
-    def push_data(self, data, time):
-        pass
