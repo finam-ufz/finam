@@ -1,36 +1,33 @@
-import math
-
 from sdk import AModelComponent, Input, Output
 from interfaces import ComponentStatus
 
 
-class Formind(AModelComponent):
+class Ogs(AModelComponent):
     def __init__(self, step):
-        super(Formind, self).__init__()
+        super(Ogs, self).__init__()
         self._time = 0
         self._step = step
-        self.lai = 1.0
+        self.head = 0
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
-        self._inputs["soil_moisture"] = Input()
-        self._outputs["LAI"] = Output()
+        self._inputs["base_flow"] = Input()
+        self._outputs["head"] = Output()
         self._status = ComponentStatus.INITIALIZED
 
     def validate(self):
-        self._outputs["LAI"].push_data(self.lai, self.time())
+        self._outputs["head"].push_data(0, self.time())
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
-        soil_moisture = self._inputs["soil_moisture"].pull_data(self.time())
+        base_flow = self._inputs["base_flow"].pull_data(self.time())
 
         # Run the model step here
-        growth = 1.0 - math.exp(-0.1 * soil_moisture)
-        self.lai = (self.lai + growth) * 0.6
+        self.head = (self.head + base_flow) * 0.9
 
         self._time += self._step
 
-        self._outputs["LAI"].push_data(self.lai, self.time())
+        self._outputs["head"].push_data(self.head, self.time())
 
         self._status = ComponentStatus.UPDATED
 
