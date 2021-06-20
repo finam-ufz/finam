@@ -1,6 +1,6 @@
 import random
 
-from adapters import NextValue, PreviousValue, LinearInterpolation, LinearIntegration
+from adapters.time import LinearInterpolation, LinearIntegration
 from schedule import Composition
 from models import formind
 from modules import csv_writer, generators

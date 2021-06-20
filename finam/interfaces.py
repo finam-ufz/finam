@@ -55,6 +55,10 @@ class IInput(ABC):
         pass
 
     @abstractmethod
+    def source_changed(self, time):
+        pass
+
+    @abstractmethod
     def pull_data(self, time):
         pass
 
@@ -72,12 +76,14 @@ class IOutput(ABC):
     def push_data(self, data, time):
         pass
 
-
-class IAdapter(ABC):
     @abstractmethod
-    def set_data(self, data, time):
+    def notify_targets(self, time):
         pass
 
     @abstractmethod
     def get_data(self, time):
         pass
+
+
+class IAdapter(IInput, IOutput, ABC):
+    pass
