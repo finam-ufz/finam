@@ -1,11 +1,15 @@
+import random
+
 from adapters import NextValue, PreviousValue, LinearInterpolation, LinearIntegration
 from schedule import Composition
 from models import formind
-from modules import csv_writer, random_output
+from modules import csv_writer, generators
 
 
 if __name__ == "__main__":
-    rng = random_output.RandomOutput(step=5)
+    rng = generators.CallbackGenerator(
+        {"soil_moisture": lambda t: random.uniform(0, 1)}, step=5
+    )
     formind = formind.Formind(step=25)
 
     rng_csv = csv_writer.CsvWriter(path="rng.csv", step=5, inputs=["soil_moisture"])
@@ -19,15 +23,15 @@ if __name__ == "__main__":
         m.initialize()
 
     LinearIntegration.mean().link(
-        rng.outputs()["Random"], formind.inputs()["soil_moisture"]
+        rng.outputs()["soil_moisture"], formind.inputs()["soil_moisture"]
     )
 
     LinearInterpolation().link(
-        rng.outputs()["Random"], rng_csv.inputs()["soil_moisture"]
+        rng.outputs()["soil_moisture"], rng_csv.inputs()["soil_moisture"]
     )
 
     LinearIntegration.mean().link(
-        rng.outputs()["Random"], formind_csv.inputs()["soil_moisture"]
+        rng.outputs()["soil_moisture"], formind_csv.inputs()["soil_moisture"]
     )
     LinearInterpolation().link(formind.outputs()["LAI"], formind_csv.inputs()["LAI"])
 
