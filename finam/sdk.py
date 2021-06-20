@@ -18,9 +18,6 @@ class Input(IInput):
     def __init__(self):
         self.source = None
 
-    def get_source(self):
-        return self.source
-
     def set_source(self, source):
         self.source = source
 
@@ -35,9 +32,6 @@ class Output(IOutput):
     def __init__(self):
         self.targets = []
         self.data = []
-
-    def get_targets(self):
-        return self.targets
 
     def add_target(self, target):
         self.targets.append(target)
@@ -64,14 +58,9 @@ class AAdapter(IAdapter, Input, Output, ABC):
         super().__init__()
         self.source = None
         self.targets = []
-        self.data = []
-
-    def link(self, source, target):
-        source.add_target(self)
-        self.set_source(source)
-
-        target.set_source(self)
-        self.add_target(target)
 
     def push_data(self, data, time):
+        self.notify_targets(time)
+
+    def source_changed(self, time):
         self.notify_targets(time)

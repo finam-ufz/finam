@@ -5,7 +5,6 @@ from schedule import Composition
 from models import formind
 from modules import csv_writer, generators
 
-
 if __name__ == "__main__":
     rng = generators.CallbackGenerator(
         {"soil_moisture": lambda t: random.uniform(0, 1)}, step=5
@@ -22,19 +21,29 @@ if __name__ == "__main__":
     for m in modules:
         m.initialize()
 
-    time.LinearIntegration.mean().link(
-        rng.outputs()["soil_moisture"], formind.inputs()["soil_moisture"]
+    (  # RNG -> Formind
+        rng.outputs()["soil_moisture"]
+        >> time.LinearIntegration.mean()
+        >> formind.inputs()["soil_moisture"]
     )
 
-    rng.outputs()["soil_moisture"].chain(time.LinearInterpolation()).chain(
-        base.Callback(lambda v, t: v * 10.0)
-    ).chain(rng_csv.inputs()["soil_moisture"])
-
-    time.LinearIntegration.mean().link(
-        rng.outputs()["soil_moisture"], formind_csv.inputs()["soil_moisture"]
+    (  # RNG -> CSV
+        rng.outputs()["soil_moisture"]
+        >> time.LinearInterpolation()
+        >> base.Callback(lambda v, t: v * 10.0)
+        >> rng_csv.inputs()["soil_moisture"]
     )
-    time.LinearInterpolation().link(
-        formind.outputs()["LAI"], formind_csv.inputs()["LAI"]
+
+    (  # Formind input (RNG) -> CSV
+        rng.outputs()["soil_moisture"]
+        >> time.LinearIntegration.mean()
+        >> formind_csv.inputs()["soil_moisture"]
+    )
+
+    (  # Formind output (LAI) -> CSV
+        formind.outputs()["LAI"]
+        >> time.LinearInterpolation()
+        >> formind_csv.inputs()["LAI"]
     )
 
     composition = Composition(modules)

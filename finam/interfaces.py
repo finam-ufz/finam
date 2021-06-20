@@ -47,10 +47,6 @@ class IModelComponent(ABC):
 
 class IInput(ABC):
     @abstractmethod
-    def get_source(self):
-        pass
-
-    @abstractmethod
     def set_source(self, source):
         pass
 
@@ -64,10 +60,6 @@ class IInput(ABC):
 
 
 class IOutput(ABC):
-    @abstractmethod
-    def get_targets(self):
-        pass
-
     @abstractmethod
     def add_target(self, target):
         pass
@@ -88,8 +80,9 @@ class IOutput(ABC):
     def chain(self, other):
         pass
 
+    def __rshift__(self, other):
+        return self.chain(other)
+
 
 class IAdapter(IInput, IOutput, ABC):
-    @abstractmethod
-    def link(self, source, target):
-        pass
+    pass
