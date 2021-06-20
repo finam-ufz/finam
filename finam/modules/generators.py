@@ -4,26 +4,30 @@ from sdk import AModelComponent, Output
 from interfaces import ComponentStatus
 
 
-class RandomOutput(AModelComponent):
-    def __init__(self, step):
-        super(RandomOutput, self).__init__()
-        self._time = 0
+class CallbackGenerator(AModelComponent):
+    def __init__(self, callbacks, step):
+        super(CallbackGenerator, self).__init__()
+        self._callbacks = callbacks
         self._step = step
+        self._time = 0
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
-        self._outputs["Random"] = Output()
+        for key, _ in self._callbacks.items():
+            self._outputs[key] = Output()
         self._status = ComponentStatus.INITIALIZED
 
     def validate(self):
-        self._outputs["Random"].push_data(random.uniform(0, 1), self.time())
+        for key, callback in self._callbacks.items():
+            self._outputs[key].push_data(callback(self._time), self.time())
+
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
         self._time += self._step
 
-        value = random.uniform(0, 1)
-        self._outputs["Random"].push_data(value, self.time())
+        for key, callback in self._callbacks.items():
+            self._outputs[key].push_data(callback(self._time), self.time())
 
         self._status = ComponentStatus.UPDATED
 
