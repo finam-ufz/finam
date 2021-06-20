@@ -1,26 +1,7 @@
 from adapters import NextValue, PreviousValue, LinearInterpolation, LinearIntegration
+from schedule import Composition
 from models import formind
 from modules import csv_writer, random_output
-
-
-def run(mods, t_max):
-    for mod in mods:
-        mod.validate()
-
-    while True:
-        mods.sort(key=lambda m: m.time())
-        # print(models[0].__class__.__name__, models[0].time())
-
-        mods[0].update()
-
-        any_running = False
-        for mod in mods:
-            if mod.time() < t_max:
-                any_running = True
-                break
-
-        if not any_running:
-            break
 
 
 if __name__ == "__main__":
@@ -50,4 +31,5 @@ if __name__ == "__main__":
     )
     LinearInterpolation().link(formind.outputs()["LAI"], formind_csv.inputs()["LAI"])
 
-    run(modules, 1000)
+    composition = Composition(modules)
+    composition.run(1000)
