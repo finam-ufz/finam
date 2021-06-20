@@ -53,6 +53,11 @@ class Output(IOutput):
     def get_data(self, time):
         return self.data
 
+    def chain(self, other):
+        self.add_target(other)
+        other.set_source(self)
+        return other
+
 
 class AAdapter(IAdapter, Input, Output, ABC):
     def __init__(self):

@@ -84,6 +84,12 @@ class IOutput(ABC):
     def get_data(self, time):
         pass
 
+    @abstractmethod
+    def chain(self, other):
+        pass
+
 
 class IAdapter(IInput, IOutput, ABC):
-    pass
+    @abstractmethod
+    def link(self, source, target):
+        pass

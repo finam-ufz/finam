@@ -1,6 +1,6 @@
 import random
 
-from adapters.time import LinearInterpolation, LinearIntegration
+from adapters import time, base
 from schedule import Composition
 from models import formind
 from modules import csv_writer, generators
@@ -22,18 +22,20 @@ if __name__ == "__main__":
     for m in modules:
         m.initialize()
 
-    LinearIntegration.mean().link(
+    time.LinearIntegration.mean().link(
         rng.outputs()["soil_moisture"], formind.inputs()["soil_moisture"]
     )
 
-    LinearInterpolation().link(
-        rng.outputs()["soil_moisture"], rng_csv.inputs()["soil_moisture"]
-    )
+    rng.outputs()["soil_moisture"].chain(time.LinearInterpolation()).chain(
+        base.Callback(lambda v, t: v * 10.0)
+    ).chain(rng_csv.inputs()["soil_moisture"])
 
-    LinearIntegration.mean().link(
+    time.LinearIntegration.mean().link(
         rng.outputs()["soil_moisture"], formind_csv.inputs()["soil_moisture"]
     )
-    LinearInterpolation().link(formind.outputs()["LAI"], formind_csv.inputs()["LAI"])
+    time.LinearInterpolation().link(
+        formind.outputs()["LAI"], formind_csv.inputs()["LAI"]
+    )
 
     composition = Composition(modules)
     composition.run(1000)
