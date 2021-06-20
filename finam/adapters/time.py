@@ -6,7 +6,8 @@ class NextValue(AAdapter):
         super().__init__()
         self.data = None
 
-    def set_data(self, data, time):
+    def source_changed(self, time):
+        data = self.pull_data(time)
         self.data = data
 
     def get_data(self, time):
@@ -19,7 +20,8 @@ class PreviousValue(AAdapter):
         self.old_data = None
         self.new_data = None
 
-    def set_data(self, data, time):
+    def source_changed(self, time):
+        data = self.pull_data(time)
         if self.new_data is None:
             self.old_data = data
         else:
@@ -36,9 +38,9 @@ class LinearInterpolation(AAdapter):
         self.old_data = None
         self.new_data = None
 
-    def set_data(self, data, time):
+    def source_changed(self, time):
         self.old_data = self.new_data
-        self.new_data = (time, data)
+        self.new_data = (time, self.pull_data(time))
 
     def get_data(self, time):
         if self.old_data is None:
@@ -63,7 +65,8 @@ class LinearIntegration(AAdapter):
         self.prev_time = 0
         self.normalize = normalize
 
-    def set_data(self, data, time):
+    def source_changed(self, time):
+        data = self.pull_data(time)
         self.data.append((time, data))
 
     def get_data(self, time):

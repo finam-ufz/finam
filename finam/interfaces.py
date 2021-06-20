@@ -47,11 +47,11 @@ class IModelComponent(ABC):
 
 class IInput(ABC):
     @abstractmethod
-    def get_source(self):
+    def set_source(self, source):
         pass
 
     @abstractmethod
-    def set_source(self, source):
+    def source_changed(self, time):
         pass
 
     @abstractmethod
@@ -61,10 +61,6 @@ class IInput(ABC):
 
 class IOutput(ABC):
     @abstractmethod
-    def get_targets(self):
-        pass
-
-    @abstractmethod
     def add_target(self, target):
         pass
 
@@ -72,12 +68,21 @@ class IOutput(ABC):
     def push_data(self, data, time):
         pass
 
-
-class IAdapter(ABC):
     @abstractmethod
-    def set_data(self, data, time):
+    def notify_targets(self, time):
         pass
 
     @abstractmethod
     def get_data(self, time):
         pass
+
+    @abstractmethod
+    def chain(self, other):
+        pass
+
+    def __rshift__(self, other):
+        return self.chain(other)
+
+
+class IAdapter(IInput, IOutput, ABC):
+    pass

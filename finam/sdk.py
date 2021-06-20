@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from interfaces import IInput, IOutput, IAdapter, IModelComponent
 
 
@@ -18,11 +18,11 @@ class Input(IInput):
     def __init__(self):
         self.source = None
 
-    def get_source(self):
-        return self.source
-
     def set_source(self, source):
         self.source = source
+
+    def source_changed(self, time):
+        pass
 
     def pull_data(self, time):
         return self.source.get_data(time)
@@ -31,19 +31,36 @@ class Input(IInput):
 class Output(IOutput):
     def __init__(self):
         self.targets = []
-
-    def get_targets(self):
-        return self.targets
+        self.data = []
 
     def add_target(self, target):
         self.targets.append(target)
 
     def push_data(self, data, time):
+        self.data = data
+        self.notify_targets(time)
+
+    def notify_targets(self, time):
         for target in self.targets:
-            target.set_data(data, time)
+            target.source_changed(time)
+
+    def get_data(self, time):
+        return self.data
+
+    def chain(self, other):
+        self.add_target(other)
+        other.set_source(self)
+        return other
 
 
-class AAdapter(IAdapter, ABC):
-    def link(self, source, target):
-        source.add_target(self)
-        target.set_source(self)
+class AAdapter(IAdapter, Input, Output, ABC):
+    def __init__(self):
+        super().__init__()
+        self.source = None
+        self.targets = []
+
+    def push_data(self, data, time):
+        self.notify_targets(time)
+
+    def source_changed(self, time):
+        self.notify_targets(time)
