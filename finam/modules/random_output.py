@@ -12,7 +12,7 @@ class RandomOutput(AModelComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
-        self._outputs["Random"] = Output("Random")
+        self._outputs["Random"] = Output()
         self._status = ComponentStatus.INITIALIZED
 
     def validate(self):

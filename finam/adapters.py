@@ -3,7 +3,7 @@ from sdk import AAdapter
 
 class NextValue(AAdapter):
     def __init__(self):
-        super().__init__("NextValue")
+        super().__init__()
         self.data = None
 
     def set_data(self, data, time):
@@ -15,7 +15,7 @@ class NextValue(AAdapter):
 
 class PreviousValue(AAdapter):
     def __init__(self):
-        super().__init__("Previous")
+        super().__init__()
         self.old_data = None
         self.new_data = None
 
@@ -32,7 +32,7 @@ class PreviousValue(AAdapter):
 
 class LinearInterpolation(AAdapter):
     def __init__(self):
-        super().__init__("LinearInterpolation")
+        super().__init__()
         self.old_data = None
         self.new_data = None
 
@@ -58,7 +58,7 @@ class LinearIntegration(AAdapter):
         return LinearIntegration(normalize=True)
 
     def __init__(self, normalize=True):
-        super().__init__("LinearIntegration")
+        super().__init__()
         self.data = []
         self.prev_time = 0
         self.normalize = normalize

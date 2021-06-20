@@ -11,8 +11,8 @@ class Formind(AModelComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
-        self._inputs["soil_moisture"] = Input("soil_moisture")
-        self._outputs["LAI"] = Output("LAI")
+        self._inputs["soil_moisture"] = Input()
+        self._outputs["LAI"] = Output()
         self._status = ComponentStatus.INITIALIZED
 
     def validate(self):

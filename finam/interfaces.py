@@ -45,13 +45,7 @@ class IModelComponent(ABC):
         pass
 
 
-class Named(ABC):
-    @abstractmethod
-    def get_name(self):
-        pass
-
-
-class IInput(Named, ABC):
+class IInput(ABC):
     @abstractmethod
     def get_source(self):
         pass
@@ -65,7 +59,7 @@ class IInput(Named, ABC):
         pass
 
 
-class IOutput(Named, ABC):
+class IOutput(ABC):
     @abstractmethod
     def get_targets(self):
         pass
@@ -79,7 +73,7 @@ class IOutput(Named, ABC):
         pass
 
 
-class IAdapter(Named, ABC):
+class IAdapter(ABC):
     @abstractmethod
     def set_data(self, data, time):
         pass

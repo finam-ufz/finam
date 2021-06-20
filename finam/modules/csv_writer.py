@@ -10,7 +10,7 @@ class CsvWriter(AModelComponent):
         self._step = step
 
         self._input_names = inputs
-        self._inputs = {inp: Input(inp) for inp in inputs}
+        self._inputs = {inp: Input() for inp in inputs}
 
         with open(self._path, "w") as out:
             out.write(";".join(["time"] + self._input_names) + "\n")
