@@ -15,12 +15,8 @@ class AModelComponent(IModelComponent, ABC):
 
 
 class Input(IInput):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
         self.source = None
-
-    def get_name(self):
-        return self.name
 
     def get_source(self):
         return self.source
@@ -33,12 +29,8 @@ class Input(IInput):
 
 
 class Output(IOutput):
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
         self.targets = []
-
-    def get_name(self):
-        return self.name
 
     def get_targets(self):
         return self.targets
@@ -52,12 +44,6 @@ class Output(IOutput):
 
 
 class AAdapter(IAdapter, ABC):
-    def __init__(self, name):
-        self.name = name
-
-    def get_name(self):
-        return self.name
-
     def link(self, source, target):
         source.add_target(self)
         target.set_source(self)

@@ -1,4 +1,3 @@
-
 class Composition:
     def __init__(self, modules):
         self.modules = modules
@@ -20,4 +19,3 @@ class Composition:
 
             if not any_running:
                 break
-
