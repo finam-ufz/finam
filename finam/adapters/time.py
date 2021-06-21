@@ -23,13 +23,17 @@ class PreviousValue(AAdapter):
     def source_changed(self, time):
         data = self.pull_data(time)
         if self.new_data is None:
-            self.old_data = data
+            self.old_data = (time, data)
         else:
             self.old_data = self.new_data
-        self.new_data = data
+
+        self.new_data = (time, data)
 
     def get_data(self, time):
-        return self.old_data
+        if time < self.new_data[0]:
+            return self.old_data[1]
+        else:
+            return self.new_data[1]
 
 
 class LinearInterpolation(AAdapter):
