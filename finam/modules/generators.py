@@ -1,11 +1,21 @@
-import random
-
 from core.sdk import AModelComponent, Output
 from core.interfaces import ComponentStatus
 
 
 class CallbackGenerator(AModelComponent):
+    """
+    Module to generate data in fixed time intervals from a callback.
+    """
+
     def __init__(self, callbacks, step):
+        """
+        Create a new CallbackGenerator.
+
+        :param callbacks: A dictionary of callback.
+                          Keys are output name string, values are callbacks ``callback(time)``.
+                          E.g. ``callbacks={"Time": lambda t: t}``.
+        :param step: Step size for data generation.
+        """
         super(CallbackGenerator, self).__init__()
         self._callbacks = callbacks
         self._step = step

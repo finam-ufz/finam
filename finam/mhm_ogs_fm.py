@@ -18,7 +18,7 @@ Coupling flow chart, without connections to CSV output:
       V
 +-----------+ (soil moisture) -- <Mean> --> +--------------+
 | mHM 7d    |                               | Formind 365d |
-+-----------+ <------------ <Mean> -- (LAI) +--------------+
++-----------+ <------------ <Next> -- (LAI) +--------------+
  (base flow)
       |
     <Sum>
@@ -51,6 +51,8 @@ if __name__ == "__main__":
     for m in modules:
         m.initialize()
 
+    # Model coupling
+
     (  # RNG -> mHM (precipitation)
         rng.outputs()["precipitation"]
         >> time.LinearIntegration.sum()
@@ -64,7 +66,7 @@ if __name__ == "__main__":
     )
 
     (  # Formind -> mHM (LAI)
-        formind.outputs()["LAI"] >> time.PreviousValue() >> mhm.inputs()["LAI"]
+        formind.outputs()["LAI"] >> time.NextValue() >> mhm.inputs()["LAI"]
     )
 
     (  # mHM -> OGS (base_flow)
@@ -72,6 +74,8 @@ if __name__ == "__main__":
         >> time.LinearIntegration.sum()
         >> ogs.inputs()["base_flow"]
     )
+
+    # Observer coupling for CSV output
 
     (  # RNG -> CSV (precipitation)
         rng.outputs()["precipitation"]
