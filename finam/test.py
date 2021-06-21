@@ -5,6 +5,30 @@ from schedule import Composition
 from models import formind, ogs, mhm
 from modules import csv_writer, generators
 
+"""
+Coupling flow chart, without connections to CSV output:
+
++-----------+
+| Precip 1d |
++-----------+
+  (precip)
+      |
+    <Sum>
+      |
+      V
++-----------+ (soil moisture) -- <Mean> --> +--------------+
+| mHM 7d    |                               | Formind 365d |
++-----------+ <------------ <Mean> -- (LAI) +--------------+
+ (base flow)
+      |
+    <Sum>
+      |
+      V
++-----------+
+| OGS 30d   |
++-----------+
+"""
+
 if __name__ == "__main__":
     rng = generators.CallbackGenerator(
         {"precipitation": lambda t: 1.0 if random.uniform(0, 1) < 0.2 else 0.0}, step=1
