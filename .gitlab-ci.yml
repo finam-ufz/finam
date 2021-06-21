@@ -1,0 +1,7 @@
+check:
+  before_script:
+    - apt-get update && apt-get install -y python3 python3-pip
+    - pip3 install black
+  script:
+    - black . --check
+    - python3 -m unittest discover -s finam -v

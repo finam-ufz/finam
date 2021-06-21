@@ -15,7 +15,7 @@ class TestNextValue(unittest.TestCase):
 
         self.source.validate()
 
-    def test_adapter(self):
+    def test_next_value_adapter(self):
         self.assertEqual(self.adapter.get_data(0.0), 0.0)
         self.source.update()
         self.assertEqual(self.adapter.get_data(0.5), 1.0)
@@ -36,7 +36,7 @@ class TestPreviousValue(unittest.TestCase):
 
         self.source.validate()
 
-    def test_adapter(self):
+    def test_previous_value_adapter(self):
         self.assertEqual(self.adapter.get_data(0.0), 0.0)
         self.source.update()
         self.assertEqual(self.adapter.get_data(0.5), 0.0)
@@ -57,7 +57,7 @@ class TestLinearInterpolation(unittest.TestCase):
 
         self.source.validate()
 
-    def test_adapter(self):
+    def test_linear_interpolation_adapter(self):
         self.assertEqual(self.adapter.get_data(0.0), 0.0)
         self.source.update()
         self.assertEqual(self.adapter.get_data(0.5), 0.5)
@@ -78,7 +78,7 @@ class TestLinearIntegration(unittest.TestCase):
 
         self.source.validate()
 
-    def test_adapter(self):
+    def test_linear_integration_adapter(self):
         self.source.update()
         self.assertEqual(self.adapter.get_data(0.5), 0.125)
         self.assertEqual(self.adapter.get_data(1.0), 0.375)

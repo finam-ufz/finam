@@ -15,7 +15,7 @@ class TestCallback(unittest.TestCase):
 
         self.source.validate()
 
-    def test_adapter(self):
+    def test_callback_adapter(self):
         self.assertEqual(self.adapter.get_data(0), 0)
         self.source.update()
         self.assertEqual(self.adapter.get_data(0), 2)
