@@ -121,7 +121,6 @@ class LinearIntegration(AAdapter):
             return self.data[0][1]
 
         is_scalar = False
-        sum_value = None
 
         data_0 = self.data[0][1]
         if isinstance(data_0, int) or isinstance(data_0, float):
@@ -143,7 +142,8 @@ class LinearIntegration(AAdapter):
             if time <= t_old:
                 break
 
-            scale = t_new - t_old
+            scale = float(t_new - t_old)
+
             dt1 = max((self.prev_time - t_old) / scale, 0.0)
             dt2 = min((time - t_old) / scale, 1.0)
 
@@ -164,17 +164,15 @@ class LinearIntegration(AAdapter):
         if self.normalize:
             dt = time - self.prev_time
             if dt > 0:
-                if is_scalar:
-                    sum_value.data[0] /= dt
                 for j in range(len(sum_value.data)):
-                    sum_value.data[j] /= dt
+                    sum_value.data[j] /= float(dt)
 
         if len(self.data) > 2:
             self.data = self.data[-2:]
 
         self.prev_time = time
 
-        return sum_value.get(0, 0) if is_scalar else sum_value
+        return sum_value.data[0] if is_scalar else sum_value
 
 
 def _interpolate(old_value, new_value, dt):

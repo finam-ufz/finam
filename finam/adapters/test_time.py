@@ -87,7 +87,7 @@ class TestLinearGridInterpolation(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(2.0).get(2, 3), 2.0)
 
 
-class TestLinearIntegration(unittest.TestCase):
+class TestLinearIntegrationSum(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(callbacks={"Step": lambda t: t}, step=1)
         self.adapter = LinearIntegration.sum()
@@ -98,7 +98,7 @@ class TestLinearIntegration(unittest.TestCase):
 
         self.source.validate()
 
-    def test_linear_integration(self):
+    def test_linear_integration_sum(self):
         self.source.update()
         self.assertEqual(self.adapter.get_data(0.5), 0.125)
         self.assertEqual(self.adapter.get_data(1.0), 0.375)
@@ -107,7 +107,27 @@ class TestLinearIntegration(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(3.0), 4.0)
 
 
-class TestLinearGridIntegration(unittest.TestCase):
+class TestLinearIntegrationMean(unittest.TestCase):
+    def setUp(self):
+        self.source = CallbackGenerator(callbacks={"Step": lambda t: t}, step=1)
+        self.adapter = LinearIntegration.mean()
+
+        self.source.initialize()
+
+        self.source.outputs()["Step"] >> self.adapter
+
+        self.source.validate()
+
+    def test_linear_integration_mean(self):
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(0.5), 0.25)
+        self.assertEqual(self.adapter.get_data(1.0), 0.75)
+        self.source.update()
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(3.0), 2.0)
+
+
+class TestLinearGridIntegrationSum(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
             callbacks={"Grid": lambda t: create_grid(t)}, step=1
@@ -120,13 +140,35 @@ class TestLinearGridIntegration(unittest.TestCase):
 
         self.source.validate()
 
-    def test_linear_grid_integration(self):
+    def test_linear_grid_integration_sum(self):
         self.source.update()
         self.assertEqual(self.adapter.get_data(0.5).get(2, 3), 0.125)
         self.assertEqual(self.adapter.get_data(1.0).get(2, 3), 0.375)
         self.source.update()
         self.source.update()
         self.assertEqual(self.adapter.get_data(3.0).get(2, 3), 4.0)
+
+
+class TestLinearGridIntegrationMean(unittest.TestCase):
+    def setUp(self):
+        self.source = CallbackGenerator(
+            callbacks={"Grid": lambda t: create_grid(t)}, step=1
+        )
+        self.adapter = LinearIntegration.mean()
+
+        self.source.initialize()
+
+        self.source.outputs()["Grid"] >> self.adapter
+
+        self.source.validate()
+
+    def test_linear_grid_integration_sum(self):
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(0.5).get(2, 3), 0.25)
+        self.assertEqual(self.adapter.get_data(1.0).get(2, 3), 0.75)
+        self.source.update()
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(3.0).get(2, 3), 2.0)
 
 
 def create_grid(t):
