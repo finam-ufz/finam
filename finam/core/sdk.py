@@ -1,5 +1,5 @@
 from abc import ABC
-from interfaces import IInput, IOutput, IAdapter, IModelComponent
+from core.interfaces import IInput, IOutput, IAdapter, IModelComponent
 
 
 class AModelComponent(IModelComponent, ABC):
