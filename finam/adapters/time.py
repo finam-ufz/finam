@@ -1,4 +1,5 @@
 from core.sdk import AAdapter
+from data.grid import Grid
 
 
 class NextValue(AAdapter):
@@ -63,7 +64,24 @@ class LinearInterpolation(AAdapter):
             return self.new_data[1]
 
         dt = (time - self.old_data[0]) / float(self.new_data[0] - self.old_data[0])
-        return _interpolate(self.old_data[1], self.new_data[1], dt)
+
+        o = self.old_data[1]
+        n = self.new_data[1]
+
+        if (isinstance(o, int) or isinstance(o, float)) and (
+            isinstance(n, int) or isinstance(n, float)
+        ):
+            return _interpolate(o, n, dt)
+        elif isinstance(o, Grid) and isinstance(n, Grid):
+            result = Grid.create_like(o)
+            for i in range(len(result.data)):
+                result.data[i] = _interpolate(o.data[i], n.data[i], dt)
+
+            return result
+        else:
+            raise Exception(
+                f"Unsupported/incompatible data types in LinearInterpolation: {o.__class__.__name__}, {n.__class__.__name__}"
+            )
 
 
 class LinearIntegration(AAdapter):

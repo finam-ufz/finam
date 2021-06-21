@@ -64,7 +64,7 @@ class ValueToGrid(AAdapter):
         value = self.pull_data(time)
         if not (isinstance(value, float) or isinstance(value, int)):
             raise Exception(
-                f"Unsupported data type in ValueToMatrix: {value.__class__.__name__}"
+                f"Unsupported data type in ValueToGrid: {value.__class__.__name__}"
             )
 
         self.data.fill(value)
@@ -84,7 +84,7 @@ class GridToValue(AAdapter):
         grid = self.pull_data(time)
         if not isinstance(grid, Grid):
             raise Exception(
-                f"Unsupported data type in MatrixToValue: {grid.__class__.__name__}"
+                f"Unsupported data type in GridToValue: {grid.__class__.__name__}"
             )
 
         return self.func(grid.data)
