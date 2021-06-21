@@ -1,7 +1,7 @@
 import math
 
-from sdk import AModelComponent, Input, Output
-from interfaces import ComponentStatus
+from core.sdk import AModelComponent, Input, Output
+from core.interfaces import ComponentStatus
 
 
 class Formind(AModelComponent):

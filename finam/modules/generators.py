@@ -1,7 +1,7 @@
 import random
 
-from sdk import AModelComponent, Output
-from interfaces import ComponentStatus
+from core.sdk import AModelComponent, Output
+from core.interfaces import ComponentStatus
 
 
 class CallbackGenerator(AModelComponent):

@@ -1,5 +1,5 @@
-from sdk import AModelComponent, Input
-from interfaces import ComponentStatus
+from core.sdk import AModelComponent, Input
+from core.interfaces import ComponentStatus
 
 
 class CsvWriter(AModelComponent):

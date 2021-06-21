@@ -1,7 +1,7 @@
 import random
 
 from adapters import time, base
-from schedule import Composition
+from core.schedule import Composition
 from models import formind, ogs, mhm
 from modules import csv_writer, generators
 
