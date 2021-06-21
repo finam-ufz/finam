@@ -1,5 +1,5 @@
 from core.sdk import AAdapter
-from data.grid import Grid
+from data.grid import Grid, GridSpec
 
 
 class NextValue(AAdapter):
@@ -120,7 +120,19 @@ class LinearIntegration(AAdapter):
         if time <= self.data[0][0]:
             return self.data[0][1]
 
-        sum_value = 0.0
+        is_scalar = False
+        sum_value = None
+
+        data_0 = self.data[0][1]
+        if isinstance(data_0, int) or isinstance(data_0, float):
+            is_scalar = True
+            sum_value = Grid(GridSpec(1, 1))
+        elif isinstance(data_0, Grid):
+            sum_value = Grid.create_like(data_0)
+        else:
+            raise Exception(
+                f"Unsupported data type in LinearIntegration: {data_0.__class__.__name__}"
+            )
 
         for i in range(len(self.data) - 1):
             t_old, v_old = self.data[i]
@@ -135,22 +147,34 @@ class LinearIntegration(AAdapter):
             dt1 = max((self.prev_time - t_old) / scale, 0.0)
             dt2 = min((time - t_old) / scale, 1.0)
 
-            v1 = _interpolate(v_old, v_new, dt1)
-            v2 = _interpolate(v_old, v_new, dt2)
+            if is_scalar:
+                v1 = _interpolate(v_old, v_new, dt1)
+                v2 = _interpolate(v_old, v_new, dt2)
 
-            sum_value += (dt2 - dt1) * scale * 0.5 * (v1 + v2)
+                sum_value.data[0] += (dt2 - dt1) * scale * 0.5 * (v1 + v2)
+            else:
+                for j in range(len(sum_value.data)):
+                    d1 = v_old.data[j]
+                    d2 = v_new.data[j]
+                    v1 = _interpolate(d1, d2, dt1)
+                    v2 = _interpolate(d1, d2, dt2)
+
+                    sum_value.data[j] += (dt2 - dt1) * scale * 0.5 * (v1 + v2)
 
         if self.normalize:
             dt = time - self.prev_time
             if dt > 0:
-                sum_value /= dt
+                if is_scalar:
+                    sum_value.data[0] /= dt
+                for j in range(len(sum_value.data)):
+                    sum_value.data[j] /= dt
 
         if len(self.data) > 2:
             self.data = self.data[-2:]
 
         self.prev_time = time
 
-        return sum_value
+        return sum_value.get(0, 0) if is_scalar else sum_value
 
 
 def _interpolate(old_value, new_value, dt):

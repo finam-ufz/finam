@@ -66,16 +66,11 @@ class TestLinearInterpolation(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(2.0), 2.0)
 
 
-def create_grid(t):
-    grid = Grid(GridSpec(10, 5))
-    grid.fill(t)
-    return grid
-
-
 class TestLinearGridInterpolation(unittest.TestCase):
-
     def setUp(self):
-        self.source = CallbackGenerator(callbacks={"Grid": lambda t: create_grid(t)}, step=1)
+        self.source = CallbackGenerator(
+            callbacks={"Grid": lambda t: create_grid(t)}, step=1
+        )
         self.adapter = LinearInterpolation()
 
         self.source.initialize()
@@ -103,13 +98,41 @@ class TestLinearIntegration(unittest.TestCase):
 
         self.source.validate()
 
-    def test_linear_integration_adapter(self):
+    def test_linear_integration(self):
         self.source.update()
         self.assertEqual(self.adapter.get_data(0.5), 0.125)
         self.assertEqual(self.adapter.get_data(1.0), 0.375)
         self.source.update()
         self.source.update()
         self.assertEqual(self.adapter.get_data(3.0), 4.0)
+
+
+class TestLinearGridIntegration(unittest.TestCase):
+    def setUp(self):
+        self.source = CallbackGenerator(
+            callbacks={"Grid": lambda t: create_grid(t)}, step=1
+        )
+        self.adapter = LinearIntegration.sum()
+
+        self.source.initialize()
+
+        self.source.outputs()["Grid"] >> self.adapter
+
+        self.source.validate()
+
+    def test_linear_grid_integration(self):
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(0.5).get(2, 3), 0.125)
+        self.assertEqual(self.adapter.get_data(1.0).get(2, 3), 0.375)
+        self.source.update()
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(3.0).get(2, 3), 4.0)
+
+
+def create_grid(t):
+    grid = Grid(GridSpec(10, 5))
+    grid.fill(t)
+    return grid
 
 
 if __name__ == "__main__":
