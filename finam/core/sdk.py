@@ -1,8 +1,12 @@
 from abc import ABC
-from core.interfaces import IInput, IOutput, IAdapter, IModelComponent
+from .interfaces import IInput, IOutput, IAdapter, IModelComponent
 
 
 class AModelComponent(IModelComponent, ABC):
+    """
+    Abstract model component implementation.
+    """
+
     def __init__(self):
         self._inputs = {}
         self._outputs = {}
@@ -15,6 +19,10 @@ class AModelComponent(IModelComponent, ABC):
 
 
 class Input(IInput):
+    """
+    Default input implementation.
+    """
+
     def __init__(self):
         self.source = None
 
@@ -29,6 +37,10 @@ class Input(IInput):
 
 
 class Output(IOutput):
+    """
+    Default output implementation.
+    """
+
     def __init__(self):
         self.targets = []
         self.data = []
@@ -54,6 +66,10 @@ class Output(IOutput):
 
 
 class AAdapter(IAdapter, Input, Output, ABC):
+    """
+    Abstract adapter implementation.
+    """
+
     def __init__(self):
         super().__init__()
         self.source = None
