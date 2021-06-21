@@ -1,9 +1,11 @@
 import random
+import numpy as np
 
 from adapters import time, base
 from core.schedule import Composition
 from models import formind, ogs, mhm
 from modules import csv_writer, generators
+from data.grid import GridSpec
 
 """
 Coupling flow chart, without connections to CSV output:
@@ -30,18 +32,23 @@ Coupling flow chart, without connections to CSV output:
 """
 
 if __name__ == "__main__":
+
+    def precip(t):
+        p = 0.1 * (1 + int(t / (5 * 365)) % 2)
+        return random.uniform(0, 1) < p
+
     rng = generators.CallbackGenerator(
-        {"precipitation": lambda t: 1.0 if random.uniform(0, 1) < 0.2 else 0.0}, step=1
+        {"precipitation": lambda t: 1.0 if precip(t) else 0.0}, step=1
     )
-    mhm = mhm.Mhm(step=7)
+    mhm = mhm.Mhm(grid_spec=GridSpec(5, 5, cell_size=1000), step=7)
     ogs = ogs.Ogs(step=30)
-    formind = formind.Formind(step=365)
+    formind = formind.Formind(grid_spec=GridSpec(5, 5, cell_size=1000), step=365)
 
     precip_csv = csv_writer.CsvWriter(
         path="precip.csv", step=7, inputs=["precipitation"]
     )
     mhm_csv = csv_writer.CsvWriter(
-        path="mhm.csv", step=7, inputs=["soil_moisture", "base_flow"]
+        path="mhm.csv", step=7, inputs=["LAI_in", "soil_moisture", "base_flow", "ETP"]
     )
     ogs_csv = csv_writer.CsvWriter(path="ogs.csv", step=30, inputs=["head"])
     formind_csv = csv_writer.CsvWriter(path="formind.csv", step=365, inputs=["LAI"])
@@ -83,8 +90,16 @@ if __name__ == "__main__":
         >> precip_csv.inputs()["precipitation"]
     )
 
+    (  # mHM/Formind -> CSV (LAI input)
+        formind.outputs()["LAI"]
+        >> base.GridToValue(func=np.mean)
+        >> time.NextValue()
+        >> mhm_csv.inputs()["LAI_in"]
+    )
+
     (  # mHM -> CSV (soil_moisture)
         mhm.outputs()["soil_moisture"]
+        >> base.GridToValue(func=np.mean)
         >> time.LinearInterpolation()
         >> mhm_csv.inputs()["soil_moisture"]
     )
@@ -95,12 +110,17 @@ if __name__ == "__main__":
         >> mhm_csv.inputs()["base_flow"]
     )
 
+    (  # mHM -> CSV (ETP)
+        mhm.outputs()["ETP"] >> time.LinearInterpolation() >> mhm_csv.inputs()["ETP"]
+    )
+
     (  # OGS -> CSV (head)
         ogs.outputs()["head"] >> time.LinearInterpolation() >> ogs_csv.inputs()["head"]
     )
 
     (  # formind -> CSV (LAI)
         formind.outputs()["LAI"]
+        >> base.GridToValue(func=np.mean)
         >> time.LinearInterpolation()
         >> formind_csv.inputs()["LAI"]
     )
