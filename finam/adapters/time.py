@@ -2,6 +2,10 @@ from core.sdk import AAdapter
 
 
 class NextValue(AAdapter):
+    """
+    Time interpolation providing the next future value.
+    """
+
     def __init__(self):
         super().__init__()
         self.data = None
@@ -15,6 +19,10 @@ class NextValue(AAdapter):
 
 
 class PreviousValue(AAdapter):
+    """
+    Time interpolation providing the newest past value.
+    """
+
     def __init__(self):
         super().__init__()
         self.old_data = None
@@ -37,6 +45,10 @@ class PreviousValue(AAdapter):
 
 
 class LinearInterpolation(AAdapter):
+    """
+    Linear time interpolation.
+    """
+
     def __init__(self):
         super().__init__()
         self.old_data = None
@@ -51,16 +63,26 @@ class LinearInterpolation(AAdapter):
             return self.new_data[1]
 
         dt = (time - self.old_data[0]) / float(self.new_data[0] - self.old_data[0])
-        return interpolate(self.old_data[1], self.new_data[1], dt)
+        return _interpolate(self.old_data[1], self.new_data[1], dt)
 
 
 class LinearIntegration(AAdapter):
+    """
+    Time integration over the last time step of the requester.
+    """
+
     @classmethod
     def sum(cls):
+        """
+        Create a new time integration providing the sum over time (i.e. integral).
+        """
         return LinearIntegration(normalize=False)
 
     @classmethod
     def mean(cls):
+        """
+        Create a new time integration providing the mean over time.
+        """
         return LinearIntegration(normalize=True)
 
     def __init__(self, normalize=True):
@@ -95,8 +117,8 @@ class LinearIntegration(AAdapter):
             dt1 = max((self.prev_time - t_old) / scale, 0.0)
             dt2 = min((time - t_old) / scale, 1.0)
 
-            v1 = interpolate(v_old, v_new, dt1)
-            v2 = interpolate(v_old, v_new, dt2)
+            v1 = _interpolate(v_old, v_new, dt1)
+            v2 = _interpolate(v_old, v_new, dt2)
 
             sum_value += (dt2 - dt1) * scale * 0.5 * (v1 + v2)
 
@@ -113,5 +135,5 @@ class LinearIntegration(AAdapter):
         return sum_value
 
 
-def interpolate(old_value, new_value, dt):
+def _interpolate(old_value, new_value, dt):
     return old_value + dt * (new_value - old_value)

@@ -3,7 +3,18 @@ from core.interfaces import ComponentStatus
 
 
 class CsvWriter(AModelComponent):
+    """
+    Writes CSV time series with one row per time step, from multiple inputs.
+    """
+
     def __init__(self, path, step, inputs):
+        """
+        Create a new CsvWriter.
+
+        :param path: Output path
+        :param step: Step duration
+        :param inputs: List of input names that will become available for coupling
+        """
         super(CsvWriter, self).__init__()
         self._path = path
         self._time = 0
