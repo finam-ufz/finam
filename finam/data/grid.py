@@ -24,10 +24,11 @@ class GridSpec:
 class Grid:
     @classmethod
     def create_like(cls, other):
-        return Grid(copy.copy(other.spec))
+        return Grid(copy.copy(other.spec), no_data=other.no_data)
 
-    def __init__(self, grid_spec):
+    def __init__(self, grid_spec, no_data=-9999.0):
         self.spec = grid_spec
+        self.no_data = no_data
         self.data = np.zeros(self.spec.nrows * self.spec.ncols, dtype=self.spec.dtype)
 
     def contains(self, col, row):
@@ -55,4 +56,8 @@ class Grid:
         self.data.fill(value)
 
     def __eq__(self, other):
-        return self.spec == other.spec and np.array_equal(self.data, other.data)
+        return (
+            self.spec == other.spec
+            and self.no_data == other.no_data
+            and np.array_equal(self.data, other.data)
+        )

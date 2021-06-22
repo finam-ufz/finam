@@ -74,8 +74,7 @@ class LinearInterpolation(AAdapter):
             return _interpolate(o, n, dt)
         elif isinstance(o, Grid) and isinstance(n, Grid):
             result = Grid.create_like(o)
-            for i in range(len(result.data)):
-                result.data[i] = _interpolate(o.data[i], n.data[i], dt)
+            result.data = _interpolate(o.data, n.data, dt)
 
             return result
         else:
@@ -153,19 +152,15 @@ class LinearIntegration(AAdapter):
 
                 sum_value.data[0] += (dt2 - dt1) * scale * 0.5 * (v1 + v2)
             else:
-                for j in range(len(sum_value.data)):
-                    d1 = v_old.data[j]
-                    d2 = v_new.data[j]
-                    v1 = _interpolate(d1, d2, dt1)
-                    v2 = _interpolate(d1, d2, dt2)
+                v1 = _interpolate(v_old.data, v_new.data, dt1)
+                v2 = _interpolate(v_old.data, v_new.data, dt2)
 
-                    sum_value.data[j] += (dt2 - dt1) * scale * 0.5 * (v1 + v2)
+                sum_value.data += (dt2 - dt1) * scale * 0.5 * (v1 + v2)
 
         if self.normalize:
             dt = time - self.prev_time
             if dt > 0:
-                for j in range(len(sum_value.data)):
-                    sum_value.data[j] /= float(dt)
+                sum_value.data /= float(dt)
 
         if len(self.data) > 2:
             self.data = self.data[-2:]
