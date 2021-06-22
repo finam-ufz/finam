@@ -2,11 +2,18 @@ from core.sdk import AModelComponent, Input
 from core.interfaces import ComponentStatus
 from data.grid import Grid
 
-import matplotlib.pyplot as plt
-
 
 class GridView(AModelComponent):
-    def __init__(self, step):
+    """
+    Live grid viewer module.
+    """
+
+    def __init__(self, step=1):
+        """
+        Creates a grid viewer
+
+        :param step: Update/request time step in model time
+        """
         super(GridView, self).__init__()
         self._step = step
         self._time = 0
@@ -24,6 +31,8 @@ class GridView(AModelComponent):
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
+        import matplotlib.pyplot as plt
+
         grid = self._inputs["Grid"].pull_data(self.time())
 
         if not isinstance(grid, Grid):
