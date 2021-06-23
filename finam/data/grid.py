@@ -21,24 +21,41 @@ class GridSpec:
         )
 
 
-class Grid:
+class Grid(np.ndarray):
+    def __new__(cls, spec, no_data=-9999, data=None):
+        if data and len(data) != spec.nrows * spec.ncols:
+            raise Exception(
+                f"Incompatible array length for Grid construction. Expected {spec.nrows * spec.ncols}, got {len(data)}"
+            )
+
+        obj = (
+            np.asarray(data).view(cls)
+            if data
+            else np.zeros(spec.nrows * spec.ncols, dtype=spec.dtype).view(cls)
+        )
+
+        obj.spec = spec
+        obj.no_data = no_data
+        return obj
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+        self.spec = copy.copy(getattr(obj, "spec", None))
+        self.no_data = getattr(obj, "no_data", None)
+
     @classmethod
     def create_like(cls, other):
         return Grid(copy.copy(other.spec), no_data=other.no_data)
-
-    def __init__(self, grid_spec, no_data=-9999.0):
-        self.spec = grid_spec
-        self.no_data = no_data
-        self.data = np.zeros(self.spec.nrows * self.spec.ncols, dtype=self.spec.dtype)
 
     def contains(self, col, row):
         return 0 <= row < self.spec.nrows and 0 <= col < self.spec.ncols
 
     def get(self, col, row):
-        return self.data[col + row * self.spec.ncols]
+        return self[col + row * self.spec.ncols]
 
     def set(self, col, row, value):
-        self.data[col + row * self.spec.ncols] = value
+        self[col + row * self.spec.ncols] = value
 
     def to_cell(self, x, y):
         spec = self.spec
@@ -52,12 +69,9 @@ class Grid:
         y = spec.yll + spec.cell_size * (row + 0.5)
         return x, y
 
-    def fill(self, value):
-        self.data.fill(value)
-
     def __eq__(self, other):
         return (
             self.spec == other.spec
             and self.no_data == other.no_data
-            and np.array_equal(self.data, other.data)
+            and np.array_equal(self, other)
         )

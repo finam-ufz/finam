@@ -20,7 +20,7 @@ class Callback(AAdapter):
         return self.callback(self.pull_data(time), time)
 
 
-class GridCallback(AAdapter):
+class PerCellCallback(AAdapter):
     """
     Transform grid data using a per-cell callback.
     """
