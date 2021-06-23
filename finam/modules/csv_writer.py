@@ -37,6 +37,12 @@ class CsvWriter(AModelComponent):
     def update(self):
         values = [self._inputs[inp].pull_data(self.time()) for inp in self._input_names]
 
+        for value in values:
+            if not (isinstance(value, int) or isinstance(value, float)):
+                raise Exception(
+                    f"Unsupported data type in CsvWriter: {value.__class__.__name__}"
+                )
+
         with open(self._path, "a") as out:
             out.write(";".join(map(str, [self.time()] + values)) + "\n")
 

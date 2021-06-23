@@ -1,15 +1,20 @@
 import math
+import random
 
 from core.sdk import AModelComponent, Input, Output
 from core.interfaces import ComponentStatus
+from data.grid import Grid
 
 
 class Formind(AModelComponent):
-    def __init__(self, step):
+    def __init__(self, grid_spec, step):
         super(Formind, self).__init__()
         self._time = 0
         self._step = step
-        self.lai = 1.0
+
+        self.lai = Grid(grid_spec)
+        self.lai.fill(1.0)
+
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
@@ -24,9 +29,22 @@ class Formind(AModelComponent):
     def update(self):
         soil_moisture = self._inputs["soil_moisture"].pull_data(self.time())
 
+        if not isinstance(soil_moisture, Grid):
+            raise Exception(
+                f"Unsupported data type for soil_moisture in Formind: {soil_moisture.__class__.__name__}"
+            )
+
+        if self.lai.spec != soil_moisture.spec:
+            raise Exception(
+                f"Grid specifications not matching for soil_moisture in Formind."
+            )
+
         # Run the model step here
-        growth = 1.0 - math.exp(-0.1 * soil_moisture)
-        self.lai = (self.lai + growth) * 0.6
+        for i in range(len(self.lai.data)):
+            growth = (1.0 - math.exp(-0.1 * soil_moisture.data[i])) * random.uniform(
+                0.5, 1.0
+            )
+            self.lai.data[i] = (self.lai.data[i] + growth) * 0.9
 
         self._time += self._step
 
