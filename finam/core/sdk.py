@@ -3,19 +3,25 @@ Implementations of the coupling interfaces for simpler development of modules an
 """
 
 from abc import ABC
-from .interfaces import IInput, IOutput, IAdapter, IModelComponent, ComponentStatus
+from .interfaces import (
+    IInput,
+    IOutput,
+    IAdapter,
+    IComponent,
+    ITimeComponent,
+    ComponentStatus,
+)
 
 
-class AModelComponent(IModelComponent, ABC):
+class AComponent(IComponent, ABC):
     """
-    Abstract model component implementation.
+    Abstract component implementation.
     """
 
     def __init__(self):
         self._status = None
         self._inputs = {}
         self._outputs = {}
-        self._time = 0
 
     def initialize(self):
         assert (
@@ -50,11 +56,21 @@ class AModelComponent(IModelComponent, ABC):
     def outputs(self):
         return self._outputs
 
-    def time(self):
-        return self._time
-
     def status(self):
         return self._status
+
+
+class ATimeComponent(ITimeComponent, AComponent, ABC):
+    """
+    Abstract component with time step implementation.
+    """
+
+    def __init__(self):
+        super(ATimeComponent, self).__init__()
+        self._time = 0
+
+    def time(self):
+        return self._time
 
 
 class Input(IInput):
@@ -79,6 +95,21 @@ class Input(IInput):
 
     def pull_data(self, time):
         return self.source.get_data(time)
+
+
+class CallbackInput(Input, IInput):
+    """
+    Input implementation calling a callback when notified.
+
+    Use for components without time step.
+    """
+
+    def __init__(self, callback):
+        self.source = None
+        self.callback = callback
+
+    def source_changed(self, time):
+        self.callback(time)
 
 
 class Output(IOutput):

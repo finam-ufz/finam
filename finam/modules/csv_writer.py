@@ -1,8 +1,8 @@
-from core.sdk import AModelComponent, Input
+from core.sdk import ATimeComponent, Input
 from core.interfaces import ComponentStatus
 
 
-class CsvWriter(AModelComponent):
+class CsvWriter(ATimeComponent):
     """
     Writes CSV time series with one row per time step, from multiple inputs.
     """

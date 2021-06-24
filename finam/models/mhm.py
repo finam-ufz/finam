@@ -21,12 +21,12 @@ Output ``ETP`` is the average of ``etp`` over all cells. ``base_flow`` is the su
 
 import math
 
-from core.sdk import AModelComponent, Input, Output
+from core.sdk import ATimeComponent, Input, Output
 from core.interfaces import ComponentStatus
 from data.grid import Grid
 
 
-class Mhm(AModelComponent):
+class Mhm(ATimeComponent):
     def __init__(self, grid_spec, step):
         super(Mhm, self).__init__()
         self._time = 0

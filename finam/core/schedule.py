@@ -2,7 +2,7 @@
 Driver/scheduler for executing a coupled model composition.
 """
 
-from .interfaces import IAdapter, NoBranchAdapter
+from .interfaces import ITimeComponent, IAdapter, NoBranchAdapter
 
 
 class Composition:
@@ -32,13 +32,17 @@ class Composition:
         for mod in self.modules:
             mod.validate()
 
-        while True:
-            self.modules.sort(key=lambda m: m.time())
+        time_modules = list(
+            filter(lambda m: isinstance(m, ITimeComponent), self.modules)
+        )
 
-            self.modules[0].update()
+        while True:
+            time_modules.sort(key=lambda m: m.time())
+
+            time_modules[0].update()
 
             any_running = False
-            for mod in self.modules:
+            for mod in time_modules:
                 if mod.time() < t_max:
                     any_running = True
                     break

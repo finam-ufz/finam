@@ -37,9 +37,9 @@ class ComponentStatus(Enum):
     FINALIZED = 6
 
 
-class IModelComponent(ABC):
+class IComponent(ABC):
     """
-    Interface for model components.
+    Interface for components.
     """
 
     @abstractmethod
@@ -90,15 +90,6 @@ class IModelComponent(ABC):
         pass
 
     @abstractmethod
-    def time(self):
-        """
-        The component's current simulation time.
-
-        :return: current time stamp
-        """
-        pass
-
-    @abstractmethod
     def status(self):
         """
         The component's current status.
@@ -122,6 +113,21 @@ class IModelComponent(ABC):
         The component's outputs.
 
         :return: dictionary of outputs by name
+        """
+        pass
+
+
+class ITimeComponent(IComponent, ABC):
+    """
+    Interface for components with a time step.
+    """
+
+    @abstractmethod
+    def time(self):
+        """
+        The component's current simulation time.
+
+        :return: current time stamp
         """
         pass
 

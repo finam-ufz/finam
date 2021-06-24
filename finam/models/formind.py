@@ -15,12 +15,12 @@ For each grid cell, calculations in each model step are as follows:
 import math
 import random
 
-from core.sdk import AModelComponent, Input, Output
+from core.sdk import ATimeComponent, Input, Output
 from core.interfaces import ComponentStatus
 from data.grid import Grid
 
 
-class Formind(AModelComponent):
+class Formind(ATimeComponent):
     def __init__(self, grid_spec, step):
         super(Formind, self).__init__()
         self._time = 0
