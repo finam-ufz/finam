@@ -46,8 +46,10 @@ class Composition:
             mod.finalize()
 
     def validate(self):
+        """
+        Validates the coupling setup by checking for dangling inputs and disallowed branching connections.
+        """
         for mod in self.modules:
-            # Check for unconnected inputs
             for (name, inp) in mod.inputs().items():
                 par_inp = inp.get_source()
                 while True:
@@ -60,19 +62,18 @@ class Composition:
 
                     par_inp = par_inp.get_source()
 
-            # Check non-branching adapters
             for (name, out) in mod.outputs().items():
                 targets = [(out, False)]
 
                 while len(targets) > 0:
-                    o, no_branch = targets.pop()
-                    no_branch = no_branch or isinstance(o, NoBranchAdapter)
+                    target, no_branch = targets.pop()
+                    no_branch = no_branch or isinstance(target, NoBranchAdapter)
 
-                    curr_targets = o.get_targets()
+                    curr_targets = target.get_targets()
 
                     assert (not no_branch) or len(
                         curr_targets
-                    ) <= 1, f"Disallowed branching of output '{name}' for module {mod.__class__.__name__} ({o.__class__.__name__})"
+                    ) <= 1, f"Disallowed branching of output '{name}' for module {mod.__class__.__name__} ({target.__class__.__name__})"
 
                     for target in curr_targets:
                         if isinstance(target, IAdapter):
