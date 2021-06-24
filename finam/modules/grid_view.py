@@ -36,9 +36,11 @@ class GridView(AComponent):
     def validate(self):
         super().validate()
 
+        self.update_plot()
+
         self._status = ComponentStatus.VALIDATED
 
-    def data_changed(self, time):
+    def data_changed(self, caller, time):
         self._time = time
         if (
             self._status == ComponentStatus.VALIDATED
@@ -49,6 +51,11 @@ class GridView(AComponent):
     def update(self):
         super().update()
 
+        self.update_plot()
+
+        self._status = ComponentStatus.UPDATED
+
+    def update_plot(self):
         import matplotlib.pyplot as plt
 
         grid = self._inputs["Grid"].pull_data(self._time)
@@ -74,8 +81,6 @@ class GridView(AComponent):
 
         self._figure.canvas.draw()
         self._figure.canvas.flush_events()
-
-        self._status = ComponentStatus.UPDATED
 
     def finalize(self):
         super().finalize()

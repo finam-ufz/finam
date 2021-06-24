@@ -109,7 +109,7 @@ class CallbackInput(Input, IInput):
         self.callback = callback
 
     def source_changed(self, time):
-        self.callback(time)
+        self.callback(self, time)
 
 
 class Output(IOutput):
