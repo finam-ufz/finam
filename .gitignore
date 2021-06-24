@@ -1,2 +1,7 @@
+
 __pycache__/
+
+/docs/build/
+/docs/finam.*
+/docs/modules.rst
 *.csv
