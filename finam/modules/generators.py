@@ -23,17 +23,29 @@ class CallbackGenerator(AModelComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
+        super().initialize()
+
         for key, _ in self._callbacks.items():
             self._outputs[key] = Output()
+
         self._status = ComponentStatus.INITIALIZED
 
-    def validate(self):
+    def connect(self):
+        super().connect()
+
         for key, callback in self._callbacks.items():
             self._outputs[key].push_data(callback(self._time), self.time())
+
+        self._status = ComponentStatus.CONNECTED
+
+    def validate(self):
+        super().validate()
 
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
+        super().update()
+
         self._time += self._step
 
         for key, callback in self._callbacks.items():
@@ -42,6 +54,8 @@ class CallbackGenerator(AModelComponent):
         self._status = ComponentStatus.UPDATED
 
     def finalize(self):
+        super().finalize()
+
         self._status = ComponentStatus.FINALIZED
 
     def time(self):

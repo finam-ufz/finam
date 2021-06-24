@@ -1,5 +1,5 @@
 from abc import ABC
-from .interfaces import IInput, IOutput, IAdapter, IModelComponent
+from .interfaces import IInput, IOutput, IAdapter, IModelComponent, ComponentStatus
 
 
 class AModelComponent(IModelComponent, ABC):
@@ -8,14 +8,49 @@ class AModelComponent(IModelComponent, ABC):
     """
 
     def __init__(self):
+        self._status = None
         self._inputs = {}
         self._outputs = {}
+        self._time = 0
+
+    def initialize(self):
+        assert (
+            self._status == ComponentStatus.CREATED
+        ), f"Unexpected model state {self._status} in {self.__class__.__name__}"
+
+    def connect(self):
+        assert (
+            self._status == ComponentStatus.INITIALIZED
+        ), f"Unexpected model state {self._status} in {self.__class__.__name__}"
+
+    def validate(self):
+        assert (
+            self._status == ComponentStatus.CONNECTED
+        ), f"Unexpected model state {self._status} in {self.__class__.__name__}"
+
+    def update(self):
+        assert (
+            self._status == ComponentStatus.VALIDATED
+            or self._status == ComponentStatus.UPDATED
+        ), f"Unexpected model state {self._status} in {self.__class__.__name__}"
+
+    def finalize(self):
+        assert (
+            self._status == ComponentStatus.UPDATED
+            or self._status == ComponentStatus.FINISHED
+        ), f"Unexpected model state {self._status} in {self.__class__.__name__}"
 
     def inputs(self):
         return self._inputs
 
     def outputs(self):
         return self._outputs
+
+    def time(self):
+        return self._time
+
+    def status(self):
+        return self._status
 
 
 class Input(IInput):
@@ -27,7 +62,13 @@ class Input(IInput):
         self.source = None
 
     def set_source(self, source):
+        assert (
+            self.source is None
+        ), "Source of input is already set! (You probably tried to connect multiple outputs to a single input)"
         self.source = source
+
+    def get_source(self):
+        return self.source
 
     def source_changed(self, time):
         pass
@@ -47,6 +88,9 @@ class Output(IOutput):
 
     def add_target(self, target):
         self.targets.append(target)
+
+    def get_targets(self):
+        return self.targets
 
     def push_data(self, data, time):
         self.data = data

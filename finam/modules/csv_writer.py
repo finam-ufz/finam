@@ -29,12 +29,23 @@ class CsvWriter(AModelComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
+        super().initialize()
+
         self._status = ComponentStatus.INITIALIZED
 
+    def connect(self):
+        super().connect()
+
+        self._status = ComponentStatus.CONNECTED
+
     def validate(self):
+        super().validate()
+
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
+        super().update()
+
         values = [self._inputs[inp].pull_data(self.time()) for inp in self._input_names]
 
         for value in values:
@@ -51,10 +62,6 @@ class CsvWriter(AModelComponent):
         self._status = ComponentStatus.UPDATED
 
     def finalize(self):
+        super().finalize()
+
         self._status = ComponentStatus.FINALIZED
-
-    def time(self):
-        return self._time
-
-    def status(self):
-        return self._status

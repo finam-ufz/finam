@@ -11,15 +11,27 @@ class Ogs(AModelComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
+        super().initialize()
+
         self._inputs["base_flow"] = Input()
         self._outputs["head"] = Output()
+
         self._status = ComponentStatus.INITIALIZED
 
-    def validate(self):
+    def connect(self):
+        super().connect()
         self._outputs["head"].push_data(0, self.time())
+
+        self._status = ComponentStatus.CONNECTED
+
+    def validate(self):
+        super().validate()
+
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
+        super().update()
+
         base_flow = self._inputs["base_flow"].pull_data(self.time())
 
         # Run the model step here
@@ -32,10 +44,6 @@ class Ogs(AModelComponent):
         self._status = ComponentStatus.UPDATED
 
     def finalize(self):
+        super().finalize()
+
         self._status = ComponentStatus.FINALIZED
-
-    def time(self):
-        return self._time
-
-    def status(self):
-        return self._status
