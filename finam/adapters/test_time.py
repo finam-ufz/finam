@@ -14,6 +14,7 @@ class TestNextValue(unittest.TestCase):
 
         self.source.outputs()["Step"] >> self.adapter
 
+        self.source.connect()
         self.source.validate()
 
     def test_next_value(self):
@@ -35,6 +36,7 @@ class TestPreviousValue(unittest.TestCase):
 
         self.source.outputs()["Step"] >> self.adapter
 
+        self.source.connect()
         self.source.validate()
 
     def test_previous_value(self):
@@ -54,6 +56,8 @@ class TestLinearInterpolation(unittest.TestCase):
 
         self.source.initialize()
         self.source.outputs()["Step"] >> self.adapter
+
+        self.source.connect()
         self.source.validate()
 
     def test_linear_interpolation(self):
@@ -75,6 +79,8 @@ class TestLinearGridInterpolation(unittest.TestCase):
 
         self.source.initialize()
         self.source.outputs()["Grid"] >> self.adapter
+
+        self.source.connect()
         self.source.validate()
 
     def test_linear_grid_interpolation(self):
@@ -96,6 +102,7 @@ class TestLinearIntegrationSum(unittest.TestCase):
 
         self.source.outputs()["Step"] >> self.adapter
 
+        self.source.connect()
         self.source.validate()
 
     def test_linear_integration_sum(self):
@@ -116,6 +123,7 @@ class TestLinearIntegrationMean(unittest.TestCase):
 
         self.source.outputs()["Step"] >> self.adapter
 
+        self.source.connect()
         self.source.validate()
 
     def test_linear_integration_mean(self):
@@ -138,6 +146,7 @@ class TestLinearGridIntegrationSum(unittest.TestCase):
 
         self.source.outputs()["Grid"] >> self.adapter
 
+        self.source.connect()
         self.source.validate()
 
     def test_linear_grid_integration_sum(self):
@@ -160,6 +169,7 @@ class TestLinearGridIntegrationMean(unittest.TestCase):
 
         self.source.outputs()["Grid"] >> self.adapter
 
+        self.source.connect()
         self.source.validate()
 
     def test_linear_grid_integration_sum(self):

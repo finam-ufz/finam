@@ -18,15 +18,28 @@ class Formind(AModelComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
+        super().initialize()
+
         self._inputs["soil_moisture"] = Input()
         self._outputs["LAI"] = Output()
+
         self._status = ComponentStatus.INITIALIZED
 
-    def validate(self):
+    def connect(self):
+        super().connect()
+
         self._outputs["LAI"].push_data(self.lai, self.time())
+
+        self._status = ComponentStatus.CONNECTED
+
+    def validate(self):
+        super().validate()
+
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
+        super().update()
+
         soil_moisture = self._inputs["soil_moisture"].pull_data(self.time())
 
         if not isinstance(soil_moisture, Grid):
@@ -53,10 +66,6 @@ class Formind(AModelComponent):
         self._status = ComponentStatus.UPDATED
 
     def finalize(self):
+        super().finalize()
+
         self._status = ComponentStatus.FINALIZED
-
-    def time(self):
-        return self._time
-
-    def status(self):
-        return self._status

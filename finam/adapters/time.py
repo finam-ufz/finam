@@ -1,5 +1,4 @@
 from core.sdk import AAdapter
-from data.grid import Grid, GridSpec
 
 
 class NextValue(AAdapter):

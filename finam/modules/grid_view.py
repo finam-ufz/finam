@@ -23,14 +23,25 @@ class GridView(AModelComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
+        super().initialize()
+
         self._inputs["Grid"] = Input()
 
         self._status = ComponentStatus.INITIALIZED
 
+    def connect(self):
+        super().connect()
+
+        self._status = ComponentStatus.CONNECTED
+
     def validate(self):
+        super().validate()
+
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
+        super().update()
+
         import matplotlib.pyplot as plt
 
         grid = self._inputs["Grid"].pull_data(self.time())
@@ -61,10 +72,6 @@ class GridView(AModelComponent):
         self._status = ComponentStatus.UPDATED
 
     def finalize(self):
+        super().finalize()
+
         self._status = ComponentStatus.FINALIZED
-
-    def time(self):
-        return self._time
-
-    def status(self):
-        return self._status

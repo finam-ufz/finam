@@ -14,20 +14,33 @@ class Mhm(AModelComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
+        super().initialize()
+
         self._inputs["precipitation"] = Input()
         self._inputs["LAI"] = Input()
         self._outputs["soil_moisture"] = Output()
         self._outputs["base_flow"] = Output()
         self._outputs["ETP"] = Output()
+
         self._status = ComponentStatus.INITIALIZED
 
-    def validate(self):
+    def connect(self):
+        super().connect()
+
         self._outputs["soil_moisture"].push_data(self.soil_moisture, self.time())
         self._outputs["base_flow"].push_data(0.0, self.time())
         self._outputs["ETP"].push_data(0.0, self.time())
+
+        self._status = ComponentStatus.CONNECTED
+
+    def validate(self):
+        super().validate()
+
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
+        super().update()
+
         precipitation = self._inputs["precipitation"].pull_data(self.time())
 
         if not (isinstance(precipitation, int) or isinstance(precipitation, float)):
@@ -46,6 +59,7 @@ class Mhm(AModelComponent):
             raise Exception(f"Grid specifications not matching for LAI in Mhm.")
 
         # Run the model step here
+        base_flow = 0.0
         total_base_flow = 0.0
         mean_evaporation = 0.0
         for i in range(len(self.soil_moisture.data)):
@@ -70,10 +84,6 @@ class Mhm(AModelComponent):
         self._status = ComponentStatus.UPDATED
 
     def finalize(self):
+        super().finalize()
+
         self._status = ComponentStatus.FINALIZED
-
-    def time(self):
-        return self._time
-
-    def status(self):
-        return self._status

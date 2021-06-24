@@ -35,6 +35,8 @@ class TimeSeriesView(AModelComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
+        super().initialize()
+
         import matplotlib.pyplot as plt
 
         self._figure, self._axes = plt.subplots()
@@ -42,10 +44,19 @@ class TimeSeriesView(AModelComponent):
 
         self._status = ComponentStatus.INITIALIZED
 
+    def connect(self):
+        super().connect()
+
+        self._status = ComponentStatus.CONNECTED
+
     def validate(self):
+        super().validate()
+
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
+        super().update()
+
         if self._lines is None:
             self._lines = [
                 self._axes.plot([], [], label=h)[0] for h in self._input_names
@@ -79,6 +90,8 @@ class TimeSeriesView(AModelComponent):
         self._status = ComponentStatus.UPDATED
 
     def finalize(self):
+        super().finalize()
+
         self._status = ComponentStatus.FINALIZED
 
     def time(self):

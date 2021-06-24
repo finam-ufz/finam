@@ -18,6 +18,9 @@ class Composition:
         :param t_max: simulation to to simulate to
         """
         for mod in self.modules:
+            mod.connect()
+
+        for mod in self.modules:
             mod.validate()
 
         while True:
@@ -33,3 +36,6 @@ class Composition:
 
             if not any_running:
                 break
+
+        for mod in self.modules:
+            mod.finalize()

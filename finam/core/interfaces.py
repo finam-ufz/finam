@@ -13,10 +13,11 @@ class ComponentStatus(Enum):
 
     CREATED = 0
     INITIALIZED = 1
-    VALIDATED = 2
-    UPDATED = 3
-    FINISHED = 4
-    FINALIZED = 5
+    CONNECTED = 2
+    VALIDATED = 3
+    UPDATED = 4
+    FINISHED = 5
+    FINALIZED = 6
 
 
 class IModelComponent(ABC):
@@ -35,10 +36,18 @@ class IModelComponent(ABC):
         pass
 
     @abstractmethod
+    def connect(self):
+        """
+        Push initial values to outputs.
+
+        After the method call, the component should have status CONNECTED.
+        """
+        pass
+
+    @abstractmethod
     def validate(self):
         """
         Validate the correctness of the component's settings and coupling.
-        Push initial values to outputs.
 
         After the method call, the component should have status VALIDATED.
         """

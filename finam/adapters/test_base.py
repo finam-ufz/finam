@@ -17,6 +17,7 @@ class TestCallback(unittest.TestCase):
 
         self.source.outputs()["Step"] >> self.adapter
 
+        self.source.connect()
         self.source.validate()
 
     def test_callback_adapter(self):
@@ -39,6 +40,7 @@ class TestGridCallback(unittest.TestCase):
 
         self.source.outputs()["Grid"] >> self.adapter
 
+        self.source.connect()
         self.source.validate()
 
     def test_grid_callback_adapter(self):
@@ -59,11 +61,14 @@ class TestGridToValue(unittest.TestCase):
         grid.fill(1.0)
 
         self.source = CallbackGenerator(callbacks={"Grid": lambda t: grid}, step=1)
+
         self.source.initialize()
 
     def test_grid_to_value_mean(self):
         self.adapter = GridToValue(func=np.mean)
         self.source.outputs()["Grid"] >> self.adapter
+
+        self.source.connect()
         self.source.validate()
 
         self.assertEqual(self.adapter.get_data(0), 1.0)
@@ -71,6 +76,8 @@ class TestGridToValue(unittest.TestCase):
     def test_grid_to_value_sum(self):
         self.adapter = GridToValue(func=np.sum)
         self.source.outputs()["Grid"] >> self.adapter
+
+        self.source.connect()
         self.source.validate()
 
         self.assertEqual(self.adapter.get_data(0), 200.0)
@@ -82,11 +89,14 @@ class TestValueToGrid(unittest.TestCase):
         matrix.fill(1.0)
 
         self.source = CallbackGenerator(callbacks={"Value": lambda t: 1.0}, step=1)
+
         self.source.initialize()
 
     def test_value_to_grid(self):
         self.adapter = ValueToGrid(GridSpec(10, 10))
         self.source.outputs()["Value"] >> self.adapter
+
+        self.source.connect()
         self.source.validate()
 
         reference = Grid(GridSpec(10, 10))
