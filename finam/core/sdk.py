@@ -62,7 +62,13 @@ class Input(IInput):
         self.source = None
 
     def set_source(self, source):
+        assert (
+            self.source is None
+        ), "Source of input is already set! (You probably tried to connect multiple outputs to a single input)"
         self.source = source
+
+    def get_source(self):
+        return self.source
 
     def source_changed(self, time):
         pass
@@ -82,6 +88,9 @@ class Output(IOutput):
 
     def add_target(self, target):
         self.targets.append(target)
+
+    def get_targets(self):
+        return self.targets
 
     def push_data(self, data, time):
         self.data = data

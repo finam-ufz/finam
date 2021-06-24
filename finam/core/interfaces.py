@@ -124,6 +124,15 @@ class IInput(ABC):
         pass
 
     @abstractmethod
+    def get_source(self):
+        """
+        Get the input's source output or adapter
+
+        :return: The input's source
+        """
+        pass
+
+    @abstractmethod
     def source_changed(self, time):
         """
         Informs the input that a new output is available.
@@ -154,6 +163,15 @@ class IOutput(ABC):
         Add a target input or adapter for this output.
 
         :param target: the target to add
+        """
+        pass
+
+    @abstractmethod
+    def get_targets(self):
+        """
+        Get target inputs and adapters for this output.
+
+        :return: A list of targets
         """
         pass
 
@@ -210,6 +228,14 @@ class IOutput(ABC):
 class IAdapter(IInput, IOutput, ABC):
     """
     Interface for adapters.
+    """
+
+    pass
+
+
+class NoBranchAdapter:
+    """
+    Interface to mark adapters as allowing only a single end point.
     """
 
     pass

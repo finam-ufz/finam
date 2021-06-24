@@ -1,3 +1,4 @@
+from core.interfaces import NoBranchAdapter
 from core.sdk import AAdapter
 
 
@@ -70,7 +71,7 @@ class LinearInterpolation(AAdapter):
         return _interpolate(o, n, dt)
 
 
-class LinearIntegration(AAdapter):
+class LinearIntegration(AAdapter, NoBranchAdapter):
     """
     Time integration over the last time step of the requester.
     """
