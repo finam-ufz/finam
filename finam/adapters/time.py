@@ -107,15 +107,7 @@ class LinearIntegration(AAdapter):
         if time <= self.data[0][0]:
             return self.data[0][1]
 
-        data_0 = self.data[0][1]
-        if isinstance(data_0, int) or isinstance(data_0, float):
-            sum_value = 0.0
-        elif isinstance(data_0, Grid):
-            sum_value = Grid.create_like(data_0)
-        else:
-            raise Exception(
-                f"Unsupported data type in LinearIntegration: {data_0.__class__.__name__}"
-            )
+        sum_value = None
 
         for i in range(len(self.data) - 1):
             t_old, v_old = self.data[i]
@@ -134,7 +126,8 @@ class LinearIntegration(AAdapter):
             v1 = _interpolate(v_old, v_new, dt1)
             v2 = _interpolate(v_old, v_new, dt2)
 
-            sum_value += (dt2 - dt1) * scale * 0.5 * (v1 + v2)
+            value = (dt2 - dt1) * scale * 0.5 * (v1 + v2)
+            sum_value = value if sum_value is None else sum_value + value
 
         if self.normalize:
             dt = time - self.prev_time
