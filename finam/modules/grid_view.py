@@ -1,18 +1,16 @@
-from core.sdk import AComponent, CallbackInput
+from core.sdk import AComponent, ATimeComponent, Input, CallbackInput
 from core.interfaces import ComponentStatus
 from data.grid import Grid
 
 
 class GridView(AComponent):
     """
-    Live grid viewer module.
+    Live grid viewer module, updating on pushed input changes.
     """
 
     def __init__(self):
         """
         Creates a grid viewer
-
-        :param step: Update/request time step in model time
         """
         super(GridView, self).__init__()
         self._time = 0
@@ -86,3 +84,28 @@ class GridView(AComponent):
         super().finalize()
 
         self._status = ComponentStatus.FINALIZED
+
+
+class TimedGridView(ATimeComponent, GridView):
+    """
+    Live grid viewer module, updating in regular intervals.
+    """
+
+    def __init__(self, step=1):
+        """
+        Creates a grid viewer
+
+        :param step: Update/request time step in model time
+        """
+        super(TimedGridView, self).__init__()
+        self._step = step
+
+    def initialize(self):
+        super().initialize()
+
+        self._inputs["Grid"] = Input()
+
+    def update(self):
+        super().update()
+
+        self._time += self._step
