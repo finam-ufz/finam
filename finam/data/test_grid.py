@@ -4,6 +4,12 @@ from .grid import Grid, GridSpec
 
 
 class TestGrid(unittest.TestCase):
+    def test_subclassing(self):
+        grid = Grid(GridSpec(10, 5))
+        grid_1 = grid + 1
+        self.assertEqual(grid_1.__class__, Grid)
+        self.assertEqual(grid_1[0], 1)
+
     def test_contains(self):
         spec = GridSpec(20, 10)
         grid = Grid(spec)

@@ -40,7 +40,7 @@ class GridView(AModelComponent):
                 f"Unsupported data type in GridView: {grid.__class__.__name__}"
             )
 
-        img = grid.data.reshape(grid.spec.nrows, grid.spec.ncols)
+        img = grid.reshape(grid.spec.nrows, grid.spec.ncols)
 
         if self._image is None:
             self._figure, ax = plt.subplots()

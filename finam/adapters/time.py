@@ -68,19 +68,7 @@ class LinearInterpolation(AAdapter):
         o = self.old_data[1]
         n = self.new_data[1]
 
-        if (isinstance(o, int) or isinstance(o, float)) and (
-            isinstance(n, int) or isinstance(n, float)
-        ):
-            return _interpolate(o, n, dt)
-        elif isinstance(o, Grid) and isinstance(n, Grid):
-            result = Grid.create_like(o)
-            result.data = _interpolate(o.data, n.data, dt)
-
-            return result
-        else:
-            raise Exception(
-                f"Unsupported/incompatible data types in LinearInterpolation: {o.__class__.__name__}, {n.__class__.__name__}"
-            )
+        return _interpolate(o, n, dt)
 
 
 class LinearIntegration(AAdapter):
@@ -119,12 +107,9 @@ class LinearIntegration(AAdapter):
         if time <= self.data[0][0]:
             return self.data[0][1]
 
-        is_scalar = False
-
         data_0 = self.data[0][1]
         if isinstance(data_0, int) or isinstance(data_0, float):
-            is_scalar = True
-            sum_value = Grid(GridSpec(1, 1))
+            sum_value = 0.0
         elif isinstance(data_0, Grid):
             sum_value = Grid.create_like(data_0)
         else:
@@ -146,28 +131,22 @@ class LinearIntegration(AAdapter):
             dt1 = max((self.prev_time - t_old) / scale, 0.0)
             dt2 = min((time - t_old) / scale, 1.0)
 
-            if is_scalar:
-                v1 = _interpolate(v_old, v_new, dt1)
-                v2 = _interpolate(v_old, v_new, dt2)
+            v1 = _interpolate(v_old, v_new, dt1)
+            v2 = _interpolate(v_old, v_new, dt2)
 
-                sum_value.data[0] += (dt2 - dt1) * scale * 0.5 * (v1 + v2)
-            else:
-                v1 = _interpolate(v_old.data, v_new.data, dt1)
-                v2 = _interpolate(v_old.data, v_new.data, dt2)
-
-                sum_value.data += (dt2 - dt1) * scale * 0.5 * (v1 + v2)
+            sum_value += (dt2 - dt1) * scale * 0.5 * (v1 + v2)
 
         if self.normalize:
             dt = time - self.prev_time
             if dt > 0:
-                sum_value.data /= float(dt)
+                sum_value /= float(dt)
 
         if len(self.data) > 2:
             self.data = self.data[-2:]
 
         self.prev_time = time
 
-        return sum_value.data[0] if is_scalar else sum_value
+        return sum_value
 
 
 def _interpolate(old_value, new_value, dt):
