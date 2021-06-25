@@ -1,1 +1,1 @@
-from . import base, time
+from . import base, probe, time
