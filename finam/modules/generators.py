@@ -57,9 +57,3 @@ class CallbackGenerator(AModelComponent):
         super().finalize()
 
         self._status = ComponentStatus.FINALIZED
-
-    def time(self):
-        return self._time
-
-    def status(self):
-        return self._status
