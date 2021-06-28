@@ -1,3 +1,7 @@
+"""
+Unit tests for the adapters.base module.
+"""
+
 import unittest
 
 import numpy as np
@@ -5,7 +9,7 @@ import numpy as np
 from modules.generators import CallbackGenerator
 from data.grid import Grid, GridSpec
 
-from .base import Callback, PerCellCallback, GridToValue, ValueToGrid
+from .base import Callback, GridCellCallback, GridToValue, ValueToGrid
 
 
 class TestCallback(unittest.TestCase):
@@ -34,7 +38,7 @@ class TestGridCallback(unittest.TestCase):
         grid.fill(1.0)
 
         self.source = CallbackGenerator(callbacks={"Grid": lambda t: grid}, step=1)
-        self.adapter = PerCellCallback(callback=lambda x, y, v, t: v + t + x)
+        self.adapter = GridCellCallback(callback=lambda x, y, v, t: v + t + x)
 
         self.source.initialize()
 

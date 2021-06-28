@@ -1,3 +1,7 @@
+"""
+Unit tests for the adapters.time module.
+"""
+
 import unittest
 
 from modules.generators import CallbackGenerator

@@ -1,3 +1,7 @@
+"""
+Basic data transformation adapters.
+"""
+
 from core.sdk import AAdapter
 from data.grid import Grid
 
@@ -20,7 +24,7 @@ class Callback(AAdapter):
         return self.callback(self.pull_data(time), time)
 
 
-class PerCellCallback(AAdapter):
+class GridCellCallback(AAdapter):
     """
     Transform grid data using a per-cell callback.
     """
