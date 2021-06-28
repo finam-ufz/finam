@@ -5,18 +5,18 @@ An example coupling setup with elements labelled by the required interfaces:
 
 .. code-block:: text
 
-                                                                       +-----------------+
-                                                 .------------> IInput | IModelComponent |
-                                                /                      +-----------------+
-    +-------------------+                      /                       +-----------------+
-    |                   | IOutput --> IAdapter --> IAdapter --> IInput |                 |
-    |                   |                                              |                 |
-    |  IModelComponent  | IInput <--------- IAdapter <-------- IOutput | IModelComponent |
-    |                   |                                              |                 |
-    |                   | IInput <-- IAdapter <-- IAdapter <-- IOutput |                 |
-    +-------------------+                                              +-----------------+
+                                                                       +------------------+    
+                                                 .------------> IInput | IComponent       |
+                                                /                      +------------------+
+    +-------------------+                      /                       +------------------+
+    |                   | IOutput --> IAdapter --> IAdapter --> IInput |                  |
+    |  IComponent       |                                              |  IComponent      |
+    |    or             | IInput <--------- IAdapter <-------- IOutput |    or            |
+    |  ITimeComponent   |                                              |  ITimeComponent  |
+    |                   | IInput <-- IAdapter <-- IAdapter <-- IOutput |                  |
+    +-------------------+                                              +------------------+
 
-    ---> = data glow
+    ---> = data flow
 """
 
 from abc import ABC, abstractmethod
