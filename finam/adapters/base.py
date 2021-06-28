@@ -1,3 +1,7 @@
+"""
+Basic data transformation adapters.
+"""
+
 from core.sdk import AAdapter
 from data.grid import Grid
 

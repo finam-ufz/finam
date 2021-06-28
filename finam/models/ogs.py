@@ -1,3 +1,7 @@
+"""
+Dummy models mimicking OGS.
+"""
+
 from core.sdk import AModelComponent, Input, Output
 from core.interfaces import ComponentStatus
 

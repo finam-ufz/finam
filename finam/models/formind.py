@@ -1,3 +1,7 @@
+"""
+Dummy models mimicking Formind.
+"""
+
 import math
 import random
 

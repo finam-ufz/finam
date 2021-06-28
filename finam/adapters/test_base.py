@@ -1,3 +1,7 @@
+"""
+Unit tests for the adapters.base module.
+"""
+
 import unittest
 
 import numpy as np

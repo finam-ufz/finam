@@ -1,3 +1,7 @@
+"""
+Dummy models mimicking mHM.
+"""
+
 import math
 
 from core.sdk import AModelComponent, Input, Output

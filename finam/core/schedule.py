@@ -1,3 +1,7 @@
+"""
+Driver/scheduler for executing a coupled model composition.
+"""
+
 from .interfaces import IAdapter, NoBranchAdapter
 
 

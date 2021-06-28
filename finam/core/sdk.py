@@ -1,3 +1,7 @@
+"""
+Implementations of the coupling interfaces for simpler development of modules and adapters.
+"""
+
 from abc import ABC
 from .interfaces import IInput, IOutput, IAdapter, IModelComponent, ComponentStatus
 
