@@ -3,8 +3,7 @@ import numpy as np
 
 from adapters import time, base
 from core.schedule import Composition
-from models import formind, ogs, mhm
-from modules import csv_writer, generators, grid_view, time_series_view
+from modules import generators, grid_view, time_series_view
 from data.grid import Grid, GridSpec
 
 """
@@ -30,7 +29,7 @@ if __name__ == "__main__":
         return grid
 
     generator = generators.CallbackGenerator({"Grid": generate_grid}, step=10)
-    viewer = grid_view.GridView()
+    viewer = grid_view.TimedGridView()
     plot = time_series_view.TimeSeriesView(
         inputs=["Linear (1)", "Mean (50)"], intervals=[1, 50]
     )

@@ -10,11 +10,11 @@ Calculations in each model step are as follows:
     head(t + \Delta t) = (head(t) + base\_flow) * 0.9
 """
 
-from core.sdk import AModelComponent, Input, Output
+from core.sdk import ATimeComponent, Input, Output
 from core.interfaces import ComponentStatus
 
 
-class Ogs(AModelComponent):
+class Ogs(ATimeComponent):
     def __init__(self, step):
         super(Ogs, self).__init__()
         self._time = 0

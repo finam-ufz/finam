@@ -19,6 +19,8 @@ class NextValue(AAdapter):
         data = self.pull_data(time)
         self.data = data
 
+        self.notify_targets(time)
+
     def get_data(self, time):
         return self.data
 
@@ -42,6 +44,8 @@ class PreviousValue(AAdapter):
 
         self.new_data = (time, data)
 
+        self.notify_targets(time)
+
     def get_data(self, time):
         if time < self.new_data[0]:
             return self.old_data[1]
@@ -62,6 +66,8 @@ class LinearInterpolation(AAdapter):
     def source_changed(self, time):
         self.old_data = self.new_data
         self.new_data = (time, self.pull_data(time))
+
+        self.notify_targets(time)
 
     def get_data(self, time):
         if self.old_data is None:
@@ -104,6 +110,8 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
     def source_changed(self, time):
         data = self.pull_data(time)
         self.data.append((time, data))
+
+        self.notify_targets(time)
 
     def get_data(self, time):
         if len(self.data) == 1:

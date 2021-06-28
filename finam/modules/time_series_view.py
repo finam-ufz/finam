@@ -1,8 +1,8 @@
-from core.sdk import AModelComponent, Input
+from core.sdk import ATimeComponent, Input
 from core.interfaces import ComponentStatus
 
 
-class TimeSeriesView(AModelComponent):
+class TimeSeriesView(ATimeComponent):
     """
     Live time series viewer.
     """

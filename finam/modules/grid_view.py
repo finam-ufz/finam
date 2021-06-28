@@ -1,21 +1,18 @@
-from core.sdk import AModelComponent, Input
+from core.sdk import AComponent, ATimeComponent, Input, CallbackInput
 from core.interfaces import ComponentStatus
 from data.grid import Grid
 
 
-class GridView(AModelComponent):
+class GridView(AComponent):
     """
-    Live grid viewer module.
+    Live grid viewer module, updating on pushed input changes.
     """
 
-    def __init__(self, step=1):
+    def __init__(self):
         """
         Creates a grid viewer
-
-        :param step: Update/request time step in model time
         """
         super(GridView, self).__init__()
-        self._step = step
         self._time = 0
         self._image = None
         self._figure = None
@@ -25,7 +22,7 @@ class GridView(AModelComponent):
     def initialize(self):
         super().initialize()
 
-        self._inputs["Grid"] = Input()
+        self._inputs["Grid"] = CallbackInput(self.data_changed)
 
         self._status = ComponentStatus.INITIALIZED
 
@@ -37,14 +34,29 @@ class GridView(AModelComponent):
     def validate(self):
         super().validate()
 
+        self.update_plot()
+
         self._status = ComponentStatus.VALIDATED
+
+    def data_changed(self, caller, time):
+        self._time = time
+        if (
+            self._status == ComponentStatus.VALIDATED
+            or self._status == ComponentStatus.UPDATED
+        ):
+            self.update()
 
     def update(self):
         super().update()
 
+        self.update_plot()
+
+        self._status = ComponentStatus.UPDATED
+
+    def update_plot(self):
         import matplotlib.pyplot as plt
 
-        grid = self._inputs["Grid"].pull_data(self.time())
+        grid = self._inputs["Grid"].pull_data(self._time)
 
         if not isinstance(grid, Grid):
             raise Exception(
@@ -60,18 +72,40 @@ class GridView(AModelComponent):
             self._figure.show()
 
             self._image = ax.imshow(img)
-            self._text = ax.text(5, 5, f"T: {self.time()}", transform=None, fontsize=14)
+            self._text = ax.text(5, 5, f"T: {self._time}", transform=None, fontsize=14)
         else:
             self._image.set_data(img)
-            self._text.set_text(f"T: {self.time()}")
+            self._text.set_text(f"T: {self._time}")
 
         self._figure.canvas.draw()
         self._figure.canvas.flush_events()
-
-        self._time += self._step
-        self._status = ComponentStatus.UPDATED
 
     def finalize(self):
         super().finalize()
 
         self._status = ComponentStatus.FINALIZED
+
+
+class TimedGridView(ATimeComponent, GridView):
+    """
+    Live grid viewer module, updating in regular intervals.
+    """
+
+    def __init__(self, step=1):
+        """
+        Creates a grid viewer
+
+        :param step: Update/request time step in model time
+        """
+        super(TimedGridView, self).__init__()
+        self._step = step
+
+    def initialize(self):
+        super().initialize()
+
+        self._inputs["Grid"] = Input()
+
+    def update(self):
+        super().update()
+
+        self._time += self._step

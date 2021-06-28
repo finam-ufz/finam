@@ -5,18 +5,18 @@ An example coupling setup with elements labelled by the required interfaces:
 
 .. code-block:: text
 
-                                                                       +-----------------+
-                                                 .------------> IInput | IModelComponent |
-                                                /                      +-----------------+
-    +-------------------+                      /                       +-----------------+
-    |                   | IOutput --> IAdapter --> IAdapter --> IInput |                 |
-    |                   |                                              |                 |
-    |  IModelComponent  | IInput <--------- IAdapter <-------- IOutput | IModelComponent |
-    |                   |                                              |                 |
-    |                   | IInput <-- IAdapter <-- IAdapter <-- IOutput |                 |
-    +-------------------+                                              +-----------------+
+                                                                       +------------------+    
+                                                 .------------> IInput | IComponent       |
+                                                /                      +------------------+
+    +-------------------+                      /                       +------------------+
+    |                   | IOutput --> IAdapter --> IAdapter --> IInput |                  |
+    |  IComponent       |                                              |  IComponent      |
+    |    or             | IInput <--------- IAdapter <-------- IOutput |    or            |
+    |  ITimeComponent   |                                              |  ITimeComponent  |
+    |                   | IInput <-- IAdapter <-- IAdapter <-- IOutput |                  |
+    +-------------------+                                              +------------------+
 
-    ---> = data glow
+    ---> = data flow
 """
 
 from abc import ABC, abstractmethod
@@ -37,9 +37,9 @@ class ComponentStatus(Enum):
     FINALIZED = 6
 
 
-class IModelComponent(ABC):
+class IComponent(ABC):
     """
-    Interface for model components.
+    Interface for components.
     """
 
     @abstractmethod
@@ -90,15 +90,6 @@ class IModelComponent(ABC):
         pass
 
     @abstractmethod
-    def time(self):
-        """
-        The component's current simulation time.
-
-        :return: current time stamp
-        """
-        pass
-
-    @abstractmethod
     def status(self):
         """
         The component's current status.
@@ -122,6 +113,21 @@ class IModelComponent(ABC):
         The component's outputs.
 
         :return: dictionary of outputs by name
+        """
+        pass
+
+
+class ITimeComponent(IComponent, ABC):
+    """
+    Interface for components with a time step.
+    """
+
+    @abstractmethod
+    def time(self):
+        """
+        The component's current simulation time.
+
+        :return: current time stamp
         """
         pass
 

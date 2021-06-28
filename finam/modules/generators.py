@@ -1,8 +1,8 @@
-from core.sdk import AModelComponent, Output
+from core.sdk import ATimeComponent, Output
 from core.interfaces import ComponentStatus
 
 
-class CallbackGenerator(AModelComponent):
+class CallbackGenerator(ATimeComponent):
     """
     Module to generate data in fixed time intervals from a callback.
     """
