@@ -1,5 +1,22 @@
 """
-Dummy models mimicking mHM.
+Dummy model mimicking mHM.
+
+From an input scalar ``precipitation`` and an input grid ``LAI``,
+it calculates the output grid ``soil_moisture`` and output scalars ``base_flow`` and ``ETP``.
+
+For each grid cell, calculations in each model step are as follows:
+
+.. math::
+
+    sm_{temp} = soil\_moisture(t) + precipitation
+
+    bf = 0.1 * sm_{temp}
+
+    etp = 0.5 * sm_{temp} * (1.0 - e^{-0.05 * LAI})
+
+    soil\_moisture(t + \Delta t) = sm_{temp} - (bf + etp)
+
+Output ``ETP`` is the average of ``etp`` over all cells. ``base_flow`` is the sum of ``bf`` over all cells.
 """
 
 import math

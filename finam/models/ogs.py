@@ -1,5 +1,13 @@
 """
-Dummy models mimicking OGS.
+Dummy model mimicking OGS.
+
+From an input scalar ``base_flow``, it calculates the output scalar ``head``.
+
+Calculations in each model step are as follows:
+
+.. math::
+
+    head(t + \Delta t) = (head(t) + base\_flow) * 0.9
 """
 
 from core.sdk import AModelComponent, Input, Output

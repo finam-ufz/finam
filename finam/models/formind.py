@@ -1,5 +1,15 @@
 """
-Dummy models mimicking Formind.
+Dummy model mimicking Formind.
+
+From an input grid ``soil_moisture``, it calculates the output grid ``LAI``.
+
+For each grid cell, calculations in each model step are as follows:
+
+.. math::
+
+    growth = (1.0 - e^{-0.1 * soil\_moisture}) * U(0.5..1.0)
+
+    LAI(t + \Delta t) = 0.9 * (LAI(t) + growth)
 """
 
 import math

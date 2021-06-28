@@ -7,7 +7,7 @@ from .interfaces import IAdapter, NoBranchAdapter
 
 class Composition:
     """
-    Composition of linked components.
+    A composition of linked components.
     """
 
     def __init__(self, modules):
@@ -22,7 +22,7 @@ class Composition:
         """
         Run this composition using the loop-based update strategy.
 
-        :param t_max: simulation to to simulate to
+        :param t_max: simulation time up to which to simulate
         """
         self.validate()
 

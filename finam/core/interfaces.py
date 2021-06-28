@@ -1,5 +1,22 @@
 """
 Interface definitions for the coupling framework.
+
+An example coupling setup with elements labelled by the required interfaces:
+
+.. code-block:: text
+
+                                                                       +-----------------+
+                                                 .------------> IInput | IModelComponent |
+                                                /                      +-----------------+
+    +-------------------+                      /                       +-----------------+
+    |                   | IOutput --> IAdapter --> IAdapter --> IInput |                 |
+    |                   |                                              |                 |
+    |  IModelComponent  | IInput <--------- IAdapter <-------- IOutput | IModelComponent |
+    |                   |                                              |                 |
+    |                   | IInput <-- IAdapter <-- IAdapter <-- IOutput |                 |
+    +-------------------+                                              +-----------------+
+
+    ---> = data glow
 """
 
 from abc import ABC, abstractmethod
