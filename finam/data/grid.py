@@ -3,6 +3,10 @@ import copy
 
 
 class GridSpec:
+    """
+    Spatial and element type specification of a grid.
+    """
+
     def __init__(self, ncols, nrows, cell_size=1.0, xll=0.0, yll=0.0, dtype=np.float64):
         self.ncols = ncols
         self.nrows = nrows
@@ -22,6 +26,15 @@ class GridSpec:
 
 
 class Grid(np.ndarray):
+    """
+    Grid data structure for exchange between models.
+    Can be used in numpy calculations in combination with scalars. E.g.:
+
+    .. code-block:: python
+
+        new_grid = grid_1 + grid_2 * 0.5
+    """
+
     def __new__(cls, spec, no_data=-9999, data=None):
         if data and len(data) != spec.nrows * spec.ncols:
             raise Exception(

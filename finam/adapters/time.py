@@ -78,12 +78,13 @@ class LinearInterpolation(AAdapter):
 class LinearIntegration(AAdapter, NoBranchAdapter):
     """
     Time integration over the last time step of the requester.
+    Can be used to obtain Area Under Curve (i.e. integral), or temporal average.
     """
 
     @classmethod
     def sum(cls):
         """
-        Create a new time integration providing the sum over time (i.e. integral).
+        Create a new time integration providing the sum over time (i.e. integral, AUC).
         """
         return LinearIntegration(normalize=False)
 
