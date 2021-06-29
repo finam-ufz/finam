@@ -7,3 +7,6 @@ A minimal interface specification and exemplary implementation for exploration a
 * [Models](./finam/models)
 * [Other modules](./finam/modules)
 * [Adapters](./finam/adapters)
+
+For detailed documentation, see module `core` [sources](finam/core/__init__.py)
+and [docs](https://landtech.pages.ufz.de/finam-prototype/finam.core.html).
