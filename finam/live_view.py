@@ -1,3 +1,19 @@
+"""
+Simple coupling setup demonstrating temporal integration using live view modules.
+
+Coupling flow chart:
+
+.. code-block:: text
+
+    +-----------------+                ,--<Lin>---- 1d -> +-----------------+
+    | Random grid 10d | (grid) -- <G2V>                   | Plot viewer 1d  |
+    +-----------------+       \        `--<Mean>-- 50d -> +-----------------+
+                               \ 
+                                \                 +-----------------+
+                                 '-- <Lin> -----> | Grid viewer 1d  |
+                                                  +-----------------+
+"""
+
 import random
 import numpy as np
 
@@ -6,18 +22,6 @@ from core.schedule import Composition
 from modules import generators, grid_view, time_series_view
 from data.grid import Grid, GridSpec
 
-"""
-Coupling flow chart:
-
-                                    
-+-----------------+                ,--<Lin>---- 1d -> +-----------------+
-| Random grid 10d | (grid) -- <G2V>                   | Plot viewer 1d  |
-+-----------------+       \        `--<Mean>-- 50d -> +-----------------+
-                           \
-                            \                 +-----------------+
-                             '-- <Lin> -----> | Grid viewer 1d  |
-                                              +-----------------+
-"""
 if __name__ == "__main__":
 
     def generate_grid(t):
