@@ -18,6 +18,15 @@ class Composition:
         """
         self.modules = modules
 
+    def initialize(self):
+        """
+        Initialize all modules.
+
+        After the call, module inputs and outputs are available for linking.
+        """
+        for mod in self.modules:
+            mod.initialize()
+
     def run(self, t_max):
         """
         Run this composition using the loop-based update strategy.
