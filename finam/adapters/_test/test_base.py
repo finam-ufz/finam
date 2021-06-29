@@ -9,7 +9,7 @@ import numpy as np
 from modules.generators import CallbackGenerator
 from data.grid import Grid, GridSpec
 
-from .base import Callback, GridCellCallback, GridToValue, ValueToGrid
+from ..base import Callback, GridCellCallback, GridToValue, ValueToGrid
 
 
 class TestCallback(unittest.TestCase):

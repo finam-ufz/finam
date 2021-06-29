@@ -1,6 +1,6 @@
 import unittest
 
-from .grid import Grid, GridSpec
+from ..grid import Grid, GridSpec
 
 
 class TestGrid(unittest.TestCase):

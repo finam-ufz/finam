@@ -54,10 +54,10 @@ if __name__ == "__main__":
         path="formind.csv", step=365, inputs=["soil_moisture_in", "LAI"]
     )
 
-    modules = [precipitation, mhm, ogs, formind, mhm_csv, ogs_csv, formind_csv]
-
-    for m in modules:
-        m.initialize()
+    composition = Composition(
+        [precipitation, mhm, ogs, formind, mhm_csv, ogs_csv, formind_csv]
+    )
+    composition.initialize()
 
     # Model coupling
 
@@ -139,5 +139,4 @@ if __name__ == "__main__":
         >> formind_csv.inputs()["soil_moisture_in"]
     )
 
-    composition = Composition(modules)
     composition.run(365 * 25)

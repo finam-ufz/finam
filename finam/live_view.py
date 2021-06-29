@@ -34,10 +34,8 @@ if __name__ == "__main__":
         inputs=["Linear (1)", "Mean (50)"], intervals=[1, 50]
     )
 
-    modules = [generator, viewer, plot]
-
-    for m in modules:
-        m.initialize()
+    composition = Composition([generator, viewer, plot])
+    composition.initialize()
 
     (
         generator.outputs()["Grid"]
@@ -50,5 +48,4 @@ if __name__ == "__main__":
     grid_mean >> time.LinearInterpolation() >> plot.inputs()["Linear (1)"]
     grid_mean >> time.LinearIntegration.mean() >> plot.inputs()["Mean (50)"]
 
-    composition = Composition(modules)
     composition.run(1000)

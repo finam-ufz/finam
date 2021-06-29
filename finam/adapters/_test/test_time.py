@@ -6,7 +6,7 @@ import unittest
 
 from modules.generators import CallbackGenerator
 from data.grid import Grid, GridSpec
-from .time import LinearInterpolation, LinearIntegration, NextValue, PreviousValue
+from ..time import LinearInterpolation, LinearIntegration, NextValue, PreviousValue
 
 
 class TestNextValue(unittest.TestCase):

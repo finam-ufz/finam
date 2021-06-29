@@ -31,9 +31,6 @@ class CsvWriter(ATimeComponent):
         self._input_names = inputs
         self._inputs = {inp: Input() for inp in inputs}
 
-        with open(self._path, "w") as out:
-            out.write(";".join(["time"] + self._input_names) + "\n")
-
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
@@ -48,6 +45,9 @@ class CsvWriter(ATimeComponent):
 
     def validate(self):
         super().validate()
+
+        with open(self._path, "w") as out:
+            out.write(";".join(["time"] + self._input_names) + "\n")
 
         self._status = ComponentStatus.VALIDATED
 

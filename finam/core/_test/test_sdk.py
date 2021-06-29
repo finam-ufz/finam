@@ -4,7 +4,7 @@ Unit tests for the sdk implementations.
 
 import unittest
 
-from .sdk import AAdapter
+from ..sdk import AAdapter
 
 
 class DummyAdapter(AAdapter):
