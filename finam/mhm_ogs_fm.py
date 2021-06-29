@@ -1,3 +1,31 @@
+"""
+Coupling setup realizing the first LandTrans coupling step.
+
+Coupling flow chart, without connections to CSV output:
+
+.. code-block:: text
+
+    +-----------+
+    | Precip 1d |
+    +-----------+
+      (precip)
+          |
+        <Sum>
+          |
+          V
+    +-----------+ (soil moisture) -- <Mean> --> +--------------+
+    | mHM 7d    |                               | Formind 365d |
+    +-----------+ <-- <Next> ------------ (LAI) +--------------+
+     (base flow)
+          |
+        <Sum>
+          |
+          V
+    +-----------+
+    | OGS 30d   |
+    +-----------+
+"""
+
 import random
 import numpy as np
 
@@ -7,29 +35,6 @@ from models import formind, ogs, mhm
 from modules import csv_writer, generators
 from data.grid import GridSpec
 
-"""
-Coupling flow chart, without connections to CSV output:
-
-+-----------+
-| Precip 1d |
-+-----------+
-  (precip)
-      |
-    <Sum>
-      |
-      V
-+-----------+ (soil moisture) -- <Mean> --> +--------------+
-| mHM 7d    |                               | Formind 365d |
-+-----------+ <-- <Next> ------------ (LAI) +--------------+
- (base flow)
-      |
-    <Sum>
-      |
-      V
-+-----------+
-| OGS 30d   |
-+-----------+
-"""
 
 if __name__ == "__main__":
 

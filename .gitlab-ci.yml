@@ -18,7 +18,7 @@ documentation:
     - pip3 install sphinx numpy
   script:
     - export PYTHONPATH="."
-    - sphinx-apidoc --module-first -o docs finam
+    - sphinx-apidoc --separate -o docs finam
     - sphinx-build -W -b html docs docs/build
     - mv docs/build public/
   artifacts:
