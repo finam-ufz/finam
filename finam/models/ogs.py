@@ -3,6 +3,12 @@ Dummy model mimicking OGS.
 
 From an input scalar ``base_flow``, it calculates the output scalar ``head``.
 
+.. code-block:: text
+
+                  +---------+
+    --> base_flow |   OGS   | head -->
+                  +---------+
+
 Calculations in each model step are as follows:
 
 .. math::

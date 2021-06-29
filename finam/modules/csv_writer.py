@@ -5,6 +5,14 @@ from core.interfaces import ComponentStatus
 class CsvWriter(ATimeComponent):
     """
     Writes CSV time series with one row per time step, from multiple inputs.
+
+    .. code-block:: text
+
+                     +-----------+
+        --> [custom] |           |
+        --> [custom] | CsvWriter |
+        --> [......] |           |
+                     +-----------+
     """
 
     def __init__(self, path, step, inputs):

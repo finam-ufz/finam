@@ -4,6 +4,14 @@ Dummy model mimicking mHM.
 From an input scalar ``precipitation`` and an input grid ``LAI``,
 it calculates the output grid ``soil_moisture`` and output scalars ``base_flow`` and ``ETP``.
 
+.. code-block:: text
+
+                      +---------+
+    --> precipitation |         | soil_moisture -->
+                      |   mHM   | base_flow -->
+              --> LAI |         | ETP -->
+                      +---------+
+
 For each grid cell, calculations in each model step are as follows:
 
 .. math::
@@ -66,18 +74,18 @@ class Mhm(ATimeComponent):
 
         if not (isinstance(precipitation, int) or isinstance(precipitation, float)):
             raise Exception(
-                f"Unsupported data type for precipitation in Mhm: {precipitation.__class__.__name__}"
+                f"Unsupported data type for precipitation in mHM: {precipitation.__class__.__name__}"
             )
 
         lai = self._inputs["LAI"].pull_data(self.time())
 
         if not isinstance(lai, Grid):
             raise Exception(
-                f"Unsupported data type for LAI in Mhm: {lai.__class__.__name__}"
+                f"Unsupported data type for LAI in mHM: {lai.__class__.__name__}"
             )
 
         if self.soil_moisture.spec != lai.spec:
-            raise Exception(f"Grid specifications not matching for LAI in Mhm.")
+            raise Exception(f"Grid specifications not matching for LAI in mHM.")
 
         # Run the model step here
         base_flow = 0.0
