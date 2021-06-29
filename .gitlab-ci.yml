@@ -1,3 +1,5 @@
+image: python
+
 stages:
   - build
   - deploy
@@ -5,7 +7,6 @@ stages:
 check:
   stage: build
   before_script:
-    - apt-get update && apt-get install -y python3 python3-pip
     - pip3 install black numpy
   script:
     - black . --check
@@ -14,7 +15,6 @@ check:
 documentation:
   stage: build
   before_script:
-    - apt-get update && apt-get install -y python3 python3-pip
     - pip3 install sphinx numpy
   script:
     - export PYTHONPATH="."
