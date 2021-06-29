@@ -6,6 +6,12 @@ from data.grid import Grid
 class GridView(AComponent):
     """
     Live grid viewer module, updating on pushed input changes.
+
+    .. code-block:: text
+
+                 +----------+
+        --> Grid | GridView |
+                 +----------+
     """
 
     def __init__(self):
@@ -89,6 +95,12 @@ class GridView(AComponent):
 class TimedGridView(ATimeComponent, GridView):
     """
     Live grid viewer module, updating in regular intervals.
+
+    .. code-block:: text
+
+                 +---------------+
+        --> Grid | TimedGridView |
+                 +---------------+
     """
 
     def __init__(self, step=1):

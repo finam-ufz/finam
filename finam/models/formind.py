@@ -3,6 +3,12 @@ Dummy model mimicking Formind.
 
 From an input grid ``soil_moisture``, it calculates the output grid ``LAI``.
 
+.. code-block:: text
+
+                      +---------+
+    --> soil_moisture | Formind | LAI -->
+                      +---------+
+
 For each grid cell, calculations in each model step are as follows:
 
 .. math::

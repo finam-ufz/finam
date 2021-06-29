@@ -4,15 +4,23 @@ from core.interfaces import ComponentStatus
 
 class CallbackGenerator(ATimeComponent):
     """
-    Module to generate data in fixed time intervals from a callback.
+    Module to generate data in fixed time intervals from multiple callbacks.
+
+    .. code-block:: text
+
+        +-------------------+
+        |                   | [custom] -->
+        | CallbackGenerator | [custom] -->
+        |                   | [......] -->
+        +-------------------+
     """
 
     def __init__(self, callbacks, step):
         """
         Create a new CallbackGenerator.
 
-        :param callbacks: A dictionary of callback.
-                          Keys are output name string, values are callbacks ``callback(time)``.
+        :param callbacks: A dictionary of callbacks.
+                          Keys are output name strings, values are callbacks ``callback(time)``.
                           E.g. ``callbacks={"Time": lambda t: t}``.
         :param step: Step size for data generation.
         """
