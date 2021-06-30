@@ -88,9 +88,6 @@ class ScheduleView(AComponent):
         self._figure.canvas.draw()
         self._figure.canvas.flush_events()
 
-        self._figure.canvas.draw()
-        self._figure.canvas.flush_events()
-
     def finalize(self):
         super().finalize()
 

@@ -27,6 +27,7 @@ Coupling flow chart, without connections to CSV output:
 """
 
 import random
+import time as sys_time
 import numpy as np
 
 from adapters import time, base
@@ -61,8 +62,22 @@ if __name__ == "__main__":
 
     schedule = schedule_view.ScheduleView(inputs=["mHM", "OGS", "Formind"])
 
+    sleep = generators.CallbackGenerator(
+        {"time": lambda t: sys_time.sleep(0.04)}, step=1
+    )
+
     composition = Composition(
-        [precipitation, mhm, ogs, formind, mhm_csv, ogs_csv, formind_csv, schedule]
+        [
+            precipitation,
+            mhm,
+            ogs,
+            formind,
+            mhm_csv,
+            ogs_csv,
+            formind_csv,
+            schedule,
+            sleep,
+        ]
     )
     composition.initialize()
 
@@ -148,20 +163,10 @@ if __name__ == "__main__":
 
     # Observer coupling for schedule view
 
-    (  # mHM -> schedule
-        mhm.outputs()["soil_moisture"]
-        >> time.LinearInterpolation()
-        >> schedule.inputs()["mHM"]
-    )
+    (mhm.outputs()["soil_moisture"] >> schedule.inputs()["mHM"])  # mHM -> schedule
 
-    (  # OGS -> schedule
-        ogs.outputs()["head"] >> time.LinearInterpolation() >> schedule.inputs()["OGS"]
-    )
+    (ogs.outputs()["head"] >> schedule.inputs()["OGS"])  # OGS -> schedule
 
-    (  # Formind -> schedule
-        formind.outputs()["LAI"]
-        >> time.LinearInterpolation()
-        >> schedule.inputs()["Formind"]
-    )
+    (formind.outputs()["LAI"] >> schedule.inputs()["Formind"])  # Formind -> schedule
 
     composition.run(365 * 25)
