@@ -15,7 +15,7 @@ check:
 documentation:
   stage: build
   before_script:
-    - pip3 install sphinx numpy
+    - pip3 install sphinx numpy pandas
   script:
     - export PYTHONPATH="."
     - sphinx-apidoc --separate -o docs finam

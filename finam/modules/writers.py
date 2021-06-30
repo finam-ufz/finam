@@ -1,7 +1,11 @@
+"""
+Modules for writing data.
+"""
+
 import numpy as np
 
-from core.sdk import ATimeComponent, Input
 from core.interfaces import ComponentStatus
+from core.sdk import ATimeComponent, Input
 from data import assert_type
 
 
@@ -18,15 +22,15 @@ class CsvWriter(ATimeComponent):
         --> [custom] | CsvWriter |
         --> [......] |           |
                      +-----------+
+
+    :param path: Output path
+    :param step: Step duration
+    :param inputs: List of input names that will become available for coupling
     """
 
     def __init__(self, path, step, inputs):
         """
         Create a new CsvWriter.
-
-        :param path: Output path
-        :param step: Step duration
-        :param inputs: List of input names that will become available for coupling
         """
         super(CsvWriter, self).__init__()
         self._path = path

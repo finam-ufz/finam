@@ -33,7 +33,7 @@ import numpy as np
 from adapters import time, base
 from core.schedule import Composition
 from models import formind, ogs, mhm
-from modules import csv_writer, generators
+from modules import writers, generators
 from modules.visual import schedule
 from data.grid import GridSpec
 
@@ -52,15 +52,15 @@ if __name__ == "__main__":
     ogs = ogs.Ogs(step=30)
     formind = formind.Formind(grid_spec=GridSpec(5, 5, cell_size=1000), step=365)
 
-    mhm_csv = csv_writer.CsvWriter(
+    mhm_csv = writers.CsvWriter(
         path="mhm.csv",
         step=7,
         inputs=["precip_in", "LAI_in", "soil_moisture", "GW_recharge", "ETP"],
     )
-    ogs_csv = csv_writer.CsvWriter(
+    ogs_csv = writers.CsvWriter(
         path="ogs.csv", step=30, inputs=["GW_recharge_in", "head"]
     )
-    formind_csv = csv_writer.CsvWriter(
+    formind_csv = writers.CsvWriter(
         path="formind.csv", step=365, inputs=["soil_moisture_in", "LAI"]
     )
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     composition = Composition(
         [precipitation, mhm, ogs, formind, mhm_csv, ogs_csv, formind_csv]
-        + ([schedule_view, sleep_mod] if schedule else [])
+        + ([schedule_view, sleep_mod] if schedule_view else [])
     )
     composition.initialize()
 
@@ -163,7 +163,7 @@ if __name__ == "__main__":
 
     # Observer coupling for schedule view
 
-    if schedule:
+    if schedule_view:
         (
             mhm.outputs()["soil_moisture"] >> schedule_view.inputs()["mHM (7d)"]
         )  # mHM -> schedule
