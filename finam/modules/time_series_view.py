@@ -1,5 +1,6 @@
 from core.sdk import ATimeComponent, Input
 from core.interfaces import ComponentStatus
+from data import assert_type
 
 
 class TimeSeriesView(ATimeComponent):
@@ -74,10 +75,8 @@ class TimeSeriesView(ATimeComponent):
         for i, inp in enumerate(self._input_names):
             if self._updates % self._intervals[i] == 0:
                 value = self._inputs[inp].pull_data(self.time())
-                if not (isinstance(value, int) or isinstance(value, float)):
-                    raise Exception(
-                        f"Unsupported data type in TimeSeriesView: {value.__class__.__name__}"
-                    )
+                assert_type(self, inp, value, [int, float])
+
                 self._x[i].append(self.time())
                 self._data[i].append(value)
 

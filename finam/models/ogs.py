@@ -18,6 +18,7 @@ Calculations in each model step are as follows:
 
 from core.sdk import ATimeComponent, Input, Output
 from core.interfaces import ComponentStatus
+from data import assert_type
 
 
 class Ogs(ATimeComponent):
@@ -50,15 +51,22 @@ class Ogs(ATimeComponent):
     def update(self):
         super().update()
 
+        # Retrieve inputs
         base_flow = self._inputs["base_flow"].pull_data(self.time())
+
+        # Check input data types
+        assert_type(self, "base_flow", base_flow, [int, float])
 
         # Run the model step here
         self.head = (self.head + base_flow) * 0.9
 
+        # Increment model time
         self._time += self._step
 
+        # Push model state to outputs
         self._outputs["head"].push_data(self.head, self.time())
 
+        # Update component status
         self._status = ComponentStatus.UPDATED
 
     def finalize(self):

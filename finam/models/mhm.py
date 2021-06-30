@@ -31,6 +31,7 @@ import math
 
 from core.sdk import ATimeComponent, Input, Output
 from core.interfaces import ComponentStatus
+from data import assert_type
 from data.grid import Grid
 
 
@@ -70,20 +71,13 @@ class Mhm(ATimeComponent):
     def update(self):
         super().update()
 
+        # Retrieve inputs
         precipitation = self._inputs["precipitation"].pull_data(self.time())
-
-        if not (isinstance(precipitation, int) or isinstance(precipitation, float)):
-            raise Exception(
-                f"Unsupported data type for precipitation in mHM: {precipitation.__class__.__name__}"
-            )
-
         lai = self._inputs["LAI"].pull_data(self.time())
 
-        if not isinstance(lai, Grid):
-            raise Exception(
-                f"Unsupported data type for LAI in mHM: {lai.__class__.__name__}"
-            )
-
+        # Check input data types
+        assert_type(self, "precipitation", precipitation, [int, float])
+        assert_type(self, "LAI", lai, [Grid])
         if self.soil_moisture.spec != lai.spec:
             raise Exception(f"Grid specifications not matching for LAI in mHM.")
 
@@ -104,12 +98,15 @@ class Mhm(ATimeComponent):
 
         mean_evaporation /= float(len(self.soil_moisture.data))
 
+        # Increment model time
         self._time += self._step
 
+        # Push model state to outputs
         self._outputs["soil_moisture"].push_data(self.soil_moisture, self.time())
         self._outputs["base_flow"].push_data(base_flow, self.time())
         self._outputs["ETP"].push_data(mean_evaporation, self.time())
 
+        # Update component status
         self._status = ComponentStatus.UPDATED
 
     def finalize(self):

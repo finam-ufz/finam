@@ -1,5 +1,6 @@
 from core.sdk import AComponent, ATimeComponent, Input, CallbackInput
 from core.interfaces import ComponentStatus
+from data import assert_type
 from data.grid import Grid
 
 
@@ -63,11 +64,7 @@ class GridView(AComponent):
         import matplotlib.pyplot as plt
 
         grid = self._inputs["Grid"].pull_data(self._time)
-
-        if not isinstance(grid, Grid):
-            raise Exception(
-                f"Unsupported data type in GridView: {grid.__class__.__name__}"
-            )
+        assert_type(self, "Grid", grid, [Grid])
 
         img = grid.reshape(grid.spec.nrows, grid.spec.ncols)
 

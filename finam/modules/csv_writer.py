@@ -1,5 +1,6 @@
 from core.sdk import ATimeComponent, Input
 from core.interfaces import ComponentStatus
+from data import assert_type
 
 
 class CsvWriter(ATimeComponent):
@@ -56,11 +57,8 @@ class CsvWriter(ATimeComponent):
 
         values = [self._inputs[inp].pull_data(self.time()) for inp in self._input_names]
 
-        for value in values:
-            if not (isinstance(value, int) or isinstance(value, float)):
-                raise Exception(
-                    f"Unsupported data type in CsvWriter: {value.__class__.__name__}"
-                )
+        for (value, name) in zip(values, self._input_names):
+            assert_type(self, name, value, [int, float])
 
         with open(self._path, "a") as out:
             out.write(";".join(map(str, [self.time()] + values)) + "\n")

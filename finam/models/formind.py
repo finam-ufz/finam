@@ -23,6 +23,7 @@ import random
 
 from core.sdk import ATimeComponent, Input, Output
 from core.interfaces import ComponentStatus
+from data import assert_type
 from data.grid import Grid
 
 
@@ -60,13 +61,11 @@ class Formind(ATimeComponent):
     def update(self):
         super().update()
 
+        # Retrieve inputs
         soil_moisture = self._inputs["soil_moisture"].pull_data(self.time())
 
-        if not isinstance(soil_moisture, Grid):
-            raise Exception(
-                f"Unsupported data type for soil_moisture in Formind: {soil_moisture.__class__.__name__}"
-            )
-
+        # Check input data types
+        assert_type(self, "soil_moisture", soil_moisture, [Grid])
         if self.lai.spec != soil_moisture.spec:
             raise Exception(
                 f"Grid specifications not matching for soil_moisture in Formind."
@@ -79,10 +78,13 @@ class Formind(ATimeComponent):
             )
             self.lai.data[i] = (self.lai.data[i] + growth) * 0.9
 
+        # Increment model time
         self._time += self._step
 
+        # Push model state to outputs
         self._outputs["LAI"].push_data(self.lai, self.time())
 
+        # Update component status
         self._status = ComponentStatus.UPDATED
 
     def finalize(self):
