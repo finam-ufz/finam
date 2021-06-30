@@ -16,17 +16,17 @@ class TimeSeriesView(ATimeComponent):
         --> [custom] | TimeSeriesView |
         --> [......] |                |
                      +----------------+
+
+    :param inputs: List of input names (plot series) that will become available for coupling
+    :param intervals: List of interval values to interleave data retrieval of certain inputs.
+                      Values are numbers of updates, i.e. whole-numbered factors for ``step``
+    :param step: Update/request time step in model time
+    :param update_interval: Redraw interval (independent of data retrieval)
     """
 
     def __init__(self, inputs, intervals=None, step=1, update_interval=1):
         """
         Create a time series viewer.
-
-        :param inputs: List of input names (plot series) that will become available for coupling
-        :param intervals: List of interval values to interleave data retrieval of certain inputs.
-                          Values are numbers of updates, i.e. whole-numbered factors for ``step``
-        :param step: Update/request time step in model time
-        :param update_interval: Redraw interval (independent of data retrieval)
         """
         super(TimeSeriesView, self).__init__()
         self._step = step

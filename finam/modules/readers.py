@@ -1,7 +1,7 @@
 """
 Modules for reading data.
 """
-import pandas
+
 from core.interfaces import ComponentStatus
 from core.sdk import ATimeComponent, Output
 

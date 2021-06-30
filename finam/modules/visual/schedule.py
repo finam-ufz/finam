@@ -15,6 +15,8 @@ class ScheduleView(AComponent):
         --> [custom] | ScheduleView |
         --> [......] |              |
                      +--------------+
+
+    :param inputs: List of input names that will become available for coupling
     """
 
     def __init__(self, inputs):

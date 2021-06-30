@@ -40,3 +40,7 @@ class TestGrid(unittest.TestCase):
 
         self.assertEqual(grid.get(0, 0), 0.0)
         self.assertEqual(grid.get(1, 2), 1.0)
+
+
+if __name__ == "__main__":
+    unittest.main()
