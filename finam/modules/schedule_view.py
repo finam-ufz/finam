@@ -30,10 +30,10 @@ class ScheduleView(AComponent):
         import matplotlib.pyplot as plt
 
         self._figure, self._axes = plt.subplots(figsize=(8, 3))
-        self._figure.subplots_adjust(right=0.98, top=0.95)
         self._axes.set_yticks(range(len(self._input_names)))
         self._axes.set_yticklabels(self._input_names)
 
+        self._figure.tight_layout()
         self._figure.show()
 
         self._status = ComponentStatus.INITIALIZED

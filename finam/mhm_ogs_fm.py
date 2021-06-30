@@ -39,6 +39,9 @@ from data.grid import GridSpec
 
 if __name__ == "__main__":
 
+    show_schedule = True
+    sleep_seconds = 0.04
+
     def precip(t):
         p = 0.1 * (1 + int(t / (5 * 365)) % 2)
         return 1.0 if random.uniform(0, 1) < p else 0.0
@@ -60,11 +63,14 @@ if __name__ == "__main__":
         path="formind.csv", step=365, inputs=["soil_moisture_in", "LAI"]
     )
 
-    schedule = schedule_view.ScheduleView(inputs=["mHM", "OGS", "Formind"])
+    schedule = None
+    sleep = None
+    if show_schedule:
+        schedule = schedule_view.ScheduleView(inputs=["mHM (7d)", "OGS (30d)", "Formind (365d)"])
 
-    sleep = generators.CallbackGenerator(
-        {"time": lambda t: sys_time.sleep(0.04)}, step=1
-    )
+        sleep = generators.CallbackGenerator(
+            {"time": lambda t: sys_time.sleep(sleep_seconds)}, step=1
+        )
 
     composition = Composition(
         [
@@ -74,10 +80,8 @@ if __name__ == "__main__":
             formind,
             mhm_csv,
             ogs_csv,
-            formind_csv,
-            schedule,
-            sleep,
-        ]
+            formind_csv
+        ] + ([schedule, sleep] if schedule else [])
     )
     composition.initialize()
 
@@ -163,10 +167,9 @@ if __name__ == "__main__":
 
     # Observer coupling for schedule view
 
-    (mhm.outputs()["soil_moisture"] >> schedule.inputs()["mHM"])  # mHM -> schedule
-
-    (ogs.outputs()["head"] >> schedule.inputs()["OGS"])  # OGS -> schedule
-
-    (formind.outputs()["LAI"] >> schedule.inputs()["Formind"])  # Formind -> schedule
+    if schedule:
+        (mhm.outputs()["soil_moisture"] >> schedule.inputs()["mHM (7d)"])  # mHM -> schedule
+        (ogs.outputs()["head"] >> schedule.inputs()["OGS (30d)"])  # OGS -> schedule
+        (formind.outputs()["LAI"] >> schedule.inputs()["Formind (365d)"])  # Formind -> schedule
 
     composition.run(365 * 25)
