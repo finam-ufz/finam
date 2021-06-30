@@ -50,10 +50,10 @@ if __name__ == "__main__":
     mhm_csv = csv_writer.CsvWriter(
         path="mhm.csv",
         step=7,
-        inputs=["precip_in", "LAI_in", "soil_moisture", "base_flow", "ETP"],
+        inputs=["precip_in", "LAI_in", "soil_moisture", "GW_recharge", "ETP"],
     )
     ogs_csv = csv_writer.CsvWriter(
-        path="ogs.csv", step=30, inputs=["base_flow_in", "head"]
+        path="ogs.csv", step=30, inputs=["GW_recharge_in", "head"]
     )
     formind_csv = csv_writer.CsvWriter(
         path="formind.csv", step=365, inputs=["soil_moisture_in", "LAI"]
@@ -83,9 +83,9 @@ if __name__ == "__main__":
     )
 
     (  # mHM -> OGS (base_flow)
-        mhm.outputs()["base_flow"]
+        mhm.outputs()["GW_recharge"]
         >> time.LinearIntegration.sum()
-        >> ogs.inputs()["base_flow"]
+        >> ogs.inputs()["GW_recharge"]
     )
 
     # Observer coupling for CSV output
@@ -111,9 +111,9 @@ if __name__ == "__main__":
     )
 
     (  # mHM -> CSV (base_flow)
-        mhm.outputs()["base_flow"]
+        mhm.outputs()["GW_recharge"]
         >> time.LinearInterpolation()
-        >> mhm_csv.inputs()["base_flow"]
+        >> mhm_csv.inputs()["GW_recharge"]
     )
 
     (  # mHM -> CSV (ETP)
@@ -125,9 +125,9 @@ if __name__ == "__main__":
     )
 
     (  # OGS -> CSV (base_flow_in)
-        mhm.outputs()["base_flow"]
+        mhm.outputs()["GW_recharge"]
         >> time.LinearIntegration.sum()
-        >> ogs_csv.inputs()["base_flow_in"]
+        >> ogs_csv.inputs()["GW_recharge_in"]
     )
 
     (  # formind -> CSV (LAI)

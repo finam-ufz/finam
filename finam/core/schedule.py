@@ -46,9 +46,8 @@ class Composition:
         )
 
         while True:
-            time_modules.sort(key=lambda m: m.time())
-
-            time_modules[0].update()
+            to_update = min(time_modules, key=lambda m: m.time())
+            to_update.update()
 
             any_running = False
             for mod in time_modules:

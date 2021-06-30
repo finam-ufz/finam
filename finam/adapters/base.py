@@ -3,6 +3,7 @@ Basic data transformation adapters.
 """
 
 from core.sdk import AAdapter
+from data import assert_type
 from data.grid import Grid
 
 
@@ -40,11 +41,7 @@ class GridCellCallback(AAdapter):
 
     def get_data(self, time):
         inp = self.pull_data(time)
-
-        if not isinstance(inp, Grid):
-            raise Exception(
-                f"Unsupported data type in GridCallback: {inp.__class__.__name__}"
-            )
+        assert_type(self, "input", inp, [Grid])
 
         out = Grid.create_like(inp)
 
@@ -66,10 +63,7 @@ class ValueToGrid(AAdapter):
 
     def get_data(self, time):
         value = self.pull_data(time)
-        if not (isinstance(value, float) or isinstance(value, int)):
-            raise Exception(
-                f"Unsupported data type in ValueToGrid: {value.__class__.__name__}"
-            )
+        assert_type(self, "input", value, [int, float])
 
         self.data.fill(value)
         return self.data
@@ -86,9 +80,6 @@ class GridToValue(AAdapter):
 
     def get_data(self, time):
         grid = self.pull_data(time)
-        if not isinstance(grid, Grid):
-            raise Exception(
-                f"Unsupported data type in GridToValue: {grid.__class__.__name__}"
-            )
+        assert_type(self, "input", grid, [Grid])
 
         return self.func(grid.data)
