@@ -19,7 +19,7 @@ import numpy as np
 
 from adapters import time, base
 from core.schedule import Composition
-from modules import generators, grid_view, time_series_view
+from modules import generators, grid_view, time_series_view, schedule_view
 from data.grid import Grid, GridSpec
 
 if __name__ == "__main__":

@@ -32,7 +32,7 @@ import numpy as np
 from adapters import time, base
 from core.schedule import Composition
 from models import formind, ogs, mhm
-from modules import csv_writer, generators
+from modules import csv_writer, generators, schedule_view
 from data.grid import GridSpec
 
 
@@ -59,8 +59,10 @@ if __name__ == "__main__":
         path="formind.csv", step=365, inputs=["soil_moisture_in", "LAI"]
     )
 
+    schedule = schedule_view.ScheduleView(inputs=["mHM", "OGS", "Formind"])
+
     composition = Composition(
-        [precipitation, mhm, ogs, formind, mhm_csv, ogs_csv, formind_csv]
+        [precipitation, mhm, ogs, formind, mhm_csv, ogs_csv, formind_csv, schedule]
     )
     composition.initialize()
 
@@ -142,6 +144,24 @@ if __name__ == "__main__":
         >> base.GridToValue(func=np.mean)
         >> time.LinearIntegration.mean()
         >> formind_csv.inputs()["soil_moisture_in"]
+    )
+
+    # Observer coupling for schedule view
+
+    (  # mHM -> schedule
+        mhm.outputs()["soil_moisture"]
+        >> time.LinearInterpolation()
+        >> schedule.inputs()["mHM"]
+    )
+
+    (  # OGS -> schedule
+        ogs.outputs()["head"] >> time.LinearInterpolation() >> schedule.inputs()["OGS"]
+    )
+
+    (  # Formind -> schedule
+        formind.outputs()["LAI"]
+        >> time.LinearInterpolation()
+        >> schedule.inputs()["Formind"]
     )
 
     composition.run(365 * 25)
