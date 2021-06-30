@@ -8,7 +8,7 @@ it calculates the output grid ``soil_moisture`` and output scalars ``base_flow``
 
                       +---------+
     --> precipitation |         | soil_moisture -->
-                      |   mHM   | base_flow -->
+                      |   mHM   | GW_recharge -->
               --> LAI |         | ETP -->
                       +---------+
 
@@ -18,13 +18,13 @@ For each grid cell, calculations in each model step are as follows:
 
     sm_{temp} = soil\_moisture(t) + precipitation
 
-    bf = 0.1 * sm_{temp}
+    gwr = 0.1 * sm_{temp}
 
     etp = 0.5 * sm_{temp} * (1.0 - e^{-0.05 * LAI})
 
-    soil\_moisture(t + \Delta t) = sm_{temp} - (bf + etp)
+    soil\_moisture(t + \Delta t) = sm_{temp} - (gwr + etp)
 
-Output ``ETP`` is the average of ``etp`` over all cells. ``base_flow`` is the sum of ``bf`` over all cells.
+Output ``ETP`` is the average of ``etp`` over all cells. ``GW_recharge`` is the sum of ``gwr`` over all cells.
 """
 
 import math
@@ -49,7 +49,7 @@ class Mhm(ATimeComponent):
         self._inputs["precipitation"] = Input()
         self._inputs["LAI"] = Input()
         self._outputs["soil_moisture"] = Output()
-        self._outputs["base_flow"] = Output()
+        self._outputs["GW_recharge"] = Output()
         self._outputs["ETP"] = Output()
 
         self._status = ComponentStatus.INITIALIZED
@@ -58,7 +58,7 @@ class Mhm(ATimeComponent):
         super().connect()
 
         self._outputs["soil_moisture"].push_data(self.soil_moisture, self.time())
-        self._outputs["base_flow"].push_data(0.0, self.time())
+        self._outputs["GW_recharge"].push_data(0.0, self.time())
         self._outputs["ETP"].push_data(0.0, self.time())
 
         self._status = ComponentStatus.CONNECTED
@@ -83,17 +83,17 @@ class Mhm(ATimeComponent):
 
         # Run the model step here
         base_flow = 0.0
-        total_base_flow = 0.0
+        total_recharge = 0.0
         mean_evaporation = 0.0
         for i in range(len(self.soil_moisture.data)):
             sm = self.soil_moisture.data[i]
             sm += precipitation
-            base_flow = 0.1 * sm
+            recharge = 0.1 * sm
             evaporation = 0.5 * sm * (1.0 - math.exp(-0.05 * lai.data[i]))
-            sm -= base_flow + evaporation
+            sm -= recharge + evaporation
             self.soil_moisture.data[i] = sm
 
-            total_base_flow += base_flow
+            total_recharge += recharge
             mean_evaporation += evaporation
 
         mean_evaporation /= float(len(self.soil_moisture.data))
@@ -103,7 +103,7 @@ class Mhm(ATimeComponent):
 
         # Push model state to outputs
         self._outputs["soil_moisture"].push_data(self.soil_moisture, self.time())
-        self._outputs["base_flow"].push_data(base_flow, self.time())
+        self._outputs["GW_recharge"].push_data(total_recharge, self.time())
         self._outputs["ETP"].push_data(mean_evaporation, self.time())
 
         # Update component status

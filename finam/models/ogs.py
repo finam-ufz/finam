@@ -5,15 +5,15 @@ From an input scalar ``base_flow``, it calculates the output scalar ``head``.
 
 .. code-block:: text
 
-                  +---------+
-    --> base_flow |   OGS   | head -->
-                  +---------+
+                    +---------+
+    --> GW_recharge |   OGS   | head -->
+                    +---------+
 
 Calculations in each model step are as follows:
 
 .. math::
 
-    head(t + \Delta t) = (head(t) + base\_flow) * 0.9
+    head(t + \Delta t) = (head(t) + GW\_recharge) * 0.9
 """
 
 from core.sdk import ATimeComponent, Input, Output
@@ -32,7 +32,7 @@ class Ogs(ATimeComponent):
     def initialize(self):
         super().initialize()
 
-        self._inputs["base_flow"] = Input()
+        self._inputs["GW_recharge"] = Input()
         self._outputs["head"] = Output()
 
         self._status = ComponentStatus.INITIALIZED
@@ -52,13 +52,13 @@ class Ogs(ATimeComponent):
         super().update()
 
         # Retrieve inputs
-        base_flow = self._inputs["base_flow"].pull_data(self.time())
+        recharge = self._inputs["GW_recharge"].pull_data(self.time())
 
         # Check input data types
-        assert_type(self, "base_flow", base_flow, [int, float])
+        assert_type(self, "GW_recharge", recharge, [int, float])
 
         # Run the model step here
-        self.head = (self.head + base_flow) * 0.9
+        self.head = (self.head + recharge) * 0.9
 
         # Increment model time
         self._time += self._step

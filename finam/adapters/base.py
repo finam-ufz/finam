@@ -80,6 +80,6 @@ class GridToValue(AAdapter):
 
     def get_data(self, time):
         grid = self.pull_data(time)
-        assert_type(self, "grid", grid, [Grid])
+        assert_type(self, "input", grid, [Grid])
 
         return self.func(grid.data)
