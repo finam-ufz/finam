@@ -33,7 +33,8 @@ import numpy as np
 from adapters import time, base
 from core.schedule import Composition
 from models import formind, ogs, mhm
-from modules import csv_writer, generators, schedule_view
+from modules import csv_writer, generators
+from modules.visual import schedule
 from data.grid import GridSpec
 
 
@@ -63,25 +64,20 @@ if __name__ == "__main__":
         path="formind.csv", step=365, inputs=["soil_moisture_in", "LAI"]
     )
 
-    schedule = None
-    sleep = None
+    schedule_view = None
+    sleep_mod = None
     if show_schedule:
-        schedule = schedule_view.ScheduleView(inputs=["mHM (7d)", "OGS (30d)", "Formind (365d)"])
+        schedule_view = schedule.ScheduleView(
+            inputs=["mHM (7d)", "OGS (30d)", "Formind (365d)"]
+        )
 
-        sleep = generators.CallbackGenerator(
+        sleep_mod = generators.CallbackGenerator(
             {"time": lambda t: sys_time.sleep(sleep_seconds)}, step=1
         )
 
     composition = Composition(
-        [
-            precipitation,
-            mhm,
-            ogs,
-            formind,
-            mhm_csv,
-            ogs_csv,
-            formind_csv
-        ] + ([schedule, sleep] if schedule else [])
+        [precipitation, mhm, ogs, formind, mhm_csv, ogs_csv, formind_csv]
+        + ([schedule_view, sleep_mod] if schedule else [])
     )
     composition.initialize()
 
@@ -168,8 +164,14 @@ if __name__ == "__main__":
     # Observer coupling for schedule view
 
     if schedule:
-        (mhm.outputs()["soil_moisture"] >> schedule.inputs()["mHM (7d)"])  # mHM -> schedule
-        (ogs.outputs()["head"] >> schedule.inputs()["OGS (30d)"])  # OGS -> schedule
-        (formind.outputs()["LAI"] >> schedule.inputs()["Formind (365d)"])  # Formind -> schedule
+        (
+            mhm.outputs()["soil_moisture"] >> schedule_view.inputs()["mHM (7d)"]
+        )  # mHM -> schedule
+        (
+            ogs.outputs()["head"] >> schedule_view.inputs()["OGS (30d)"]
+        )  # OGS -> schedule
+        (
+            formind.outputs()["LAI"] >> schedule_view.inputs()["Formind (365d)"]
+        )  # Formind -> schedule
 
     composition.run(365 * 25)

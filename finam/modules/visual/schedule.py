@@ -4,12 +4,22 @@ from core.interfaces import ComponentStatus
 
 class ScheduleView(AComponent):
     """
-    TODO
+    Live visualization of module update schedule.
+
+    Takes inputs of arbitrary types and simply plots the time of notifications of each input.
+
+    .. code-block:: text
+
+                     +--------------+
+        --> [custom] |              |
+        --> [custom] | ScheduleView |
+        --> [......] |              |
+                     +--------------+
     """
 
     def __init__(self, inputs):
         """
-        Creates a schedule viewer
+        Create a schedule viewer
         """
         super(ScheduleView, self).__init__()
         self._time = 0

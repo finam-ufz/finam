@@ -9,6 +9,8 @@ class CsvWriter(ATimeComponent):
     """
     Writes CSV time series with one row per time step, from multiple inputs.
 
+    Expects all inputs to be scalar values.
+
     .. code-block:: text
 
                      +-----------+

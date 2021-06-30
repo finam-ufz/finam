@@ -7,6 +7,8 @@ class TimeSeriesView(ATimeComponent):
     """
     Live time series viewer.
 
+    Expects all inputs to be scalar values.
+
     .. code-block:: text
 
                      +----------------+
