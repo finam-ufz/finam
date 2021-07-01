@@ -4,12 +4,24 @@ from core.interfaces import ComponentStatus
 
 class ScheduleView(AComponent):
     """
-    TODO
+    Live visualization of module update schedule.
+
+    Takes inputs of arbitrary types and simply plots the time of notifications of each input.
+
+    .. code-block:: text
+
+                     +--------------+
+        --> [custom] |              |
+        --> [custom] | ScheduleView |
+        --> [......] |              |
+                     +--------------+
+
+    :param inputs: List of input names that will become available for coupling
     """
 
     def __init__(self, inputs):
         """
-        Creates a schedule viewer
+        Create a schedule viewer
         """
         super(ScheduleView, self).__init__()
         self._time = 0
@@ -30,10 +42,10 @@ class ScheduleView(AComponent):
         import matplotlib.pyplot as plt
 
         self._figure, self._axes = plt.subplots(figsize=(8, 3))
-        self._figure.subplots_adjust(right=0.98, top=0.95)
         self._axes.set_yticks(range(len(self._input_names)))
         self._axes.set_yticklabels(self._input_names)
 
+        self._figure.tight_layout()
         self._figure.show()
 
         self._status = ComponentStatus.INITIALIZED

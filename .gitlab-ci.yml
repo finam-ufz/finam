@@ -7,7 +7,7 @@ stages:
 check:
   stage: build
   before_script:
-    - pip3 install black numpy
+    - pip3 install black numpy pandas
   script:
     - black . --check
     - python3 -m unittest discover -s finam -v

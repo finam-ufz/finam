@@ -1,11 +1,19 @@
-from core.sdk import ATimeComponent, Input
+"""
+Modules for writing data.
+"""
+
+import numpy as np
+
 from core.interfaces import ComponentStatus
+from core.sdk import ATimeComponent, Input
 from data import assert_type
 
 
 class CsvWriter(ATimeComponent):
     """
     Writes CSV time series with one row per time step, from multiple inputs.
+
+    Expects all inputs to be scalar values.
 
     .. code-block:: text
 
@@ -14,15 +22,15 @@ class CsvWriter(ATimeComponent):
         --> [custom] | CsvWriter |
         --> [......] |           |
                      +-----------+
+
+    :param path: Output path
+    :param step: Step duration
+    :param inputs: List of input names that will become available for coupling
     """
 
     def __init__(self, path, step, inputs):
         """
         Create a new CsvWriter.
-
-        :param path: Output path
-        :param step: Step duration
-        :param inputs: List of input names that will become available for coupling
         """
         super(CsvWriter, self).__init__()
         self._path = path
@@ -31,6 +39,8 @@ class CsvWriter(ATimeComponent):
 
         self._input_names = inputs
         self._inputs = {inp: Input() for inp in inputs}
+
+        self._rows = []
 
         self._status = ComponentStatus.CREATED
 
@@ -47,9 +57,6 @@ class CsvWriter(ATimeComponent):
     def validate(self):
         super().validate()
 
-        with open(self._path, "w") as out:
-            out.write(";".join(["time"] + self._input_names) + "\n")
-
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
@@ -60,8 +67,7 @@ class CsvWriter(ATimeComponent):
         for (value, name) in zip(values, self._input_names):
             assert_type(self, name, value, [int, float])
 
-        with open(self._path, "a") as out:
-            out.write(";".join(map(str, [self.time()] + values)) + "\n")
+        self._rows.append([self.time()] + values)
 
         self._time += self._step
 
@@ -69,5 +75,14 @@ class CsvWriter(ATimeComponent):
 
     def finalize(self):
         super().finalize()
+
+        np.savetxt(
+            self._path,
+            self._rows,
+            fmt="%s",
+            delimiter=";",
+            header=";".join(["time"] + self._input_names),
+            comments="",
+        )
 
         self._status = ComponentStatus.FINALIZED

@@ -10,13 +10,13 @@ from data.grid import Grid
 class Callback(AAdapter):
     """
     Transform data using a callback.
+
+    :param callback: A callback ``callback(data, time)``, returning the transformed date.
     """
 
     def __init__(self, callback):
         """
         Create a new Callback generator.
-
-        :param callback: A callback ``callback(data, time)``, returning the transformed date.
         """
         super().__init__()
         self.callback = callback
@@ -28,13 +28,13 @@ class Callback(AAdapter):
 class GridCellCallback(AAdapter):
     """
     Transform grid data using a per-cell callback.
+
+    :param callback: A callback ``callback(col, row, data, time)``, returning the transformed cell value.
     """
 
     def __init__(self, callback):
         """
         Create a new Callback generator.
-
-        :param callback: A callback ``callback(col, row, data, time)``, returning the transformed cell value.
         """
         super().__init__()
         self.callback = callback

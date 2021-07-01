@@ -33,11 +33,15 @@ import numpy as np
 from adapters import time, base
 from core.schedule import Composition
 from models import formind, ogs, mhm
-from modules import csv_writer, generators, schedule_view
+from modules import writers, generators
+from modules.visual import schedule
 from data.grid import GridSpec
 
 
 if __name__ == "__main__":
+
+    show_schedule = True
+    sleep_seconds = 0.04
 
     def precip(t):
         p = 0.1 * (1 + int(t / (5 * 365)) % 2)
@@ -48,36 +52,32 @@ if __name__ == "__main__":
     ogs = ogs.Ogs(step=30)
     formind = formind.Formind(grid_spec=GridSpec(5, 5, cell_size=1000), step=365)
 
-    mhm_csv = csv_writer.CsvWriter(
+    mhm_csv = writers.CsvWriter(
         path="mhm.csv",
         step=7,
         inputs=["precip_in", "LAI_in", "soil_moisture", "GW_recharge", "ETP"],
     )
-    ogs_csv = csv_writer.CsvWriter(
+    ogs_csv = writers.CsvWriter(
         path="ogs.csv", step=30, inputs=["GW_recharge_in", "head"]
     )
-    formind_csv = csv_writer.CsvWriter(
+    formind_csv = writers.CsvWriter(
         path="formind.csv", step=365, inputs=["soil_moisture_in", "LAI"]
     )
 
-    schedule = schedule_view.ScheduleView(inputs=["mHM", "OGS", "Formind"])
+    schedule_view = None
+    sleep_mod = None
+    if show_schedule:
+        schedule_view = schedule.ScheduleView(
+            inputs=["mHM (7d)", "OGS (30d)", "Formind (365d)"]
+        )
 
-    sleep = generators.CallbackGenerator(
-        {"time": lambda t: sys_time.sleep(0.04)}, step=1
-    )
+        sleep_mod = generators.CallbackGenerator(
+            {"time": lambda t: sys_time.sleep(sleep_seconds)}, step=1
+        )
 
     composition = Composition(
-        [
-            precipitation,
-            mhm,
-            ogs,
-            formind,
-            mhm_csv,
-            ogs_csv,
-            formind_csv,
-            schedule,
-            sleep,
-        ]
+        [precipitation, mhm, ogs, formind, mhm_csv, ogs_csv, formind_csv]
+        + ([schedule_view, sleep_mod] if schedule_view else [])
     )
     composition.initialize()
 
@@ -163,10 +163,15 @@ if __name__ == "__main__":
 
     # Observer coupling for schedule view
 
-    (mhm.outputs()["soil_moisture"] >> schedule.inputs()["mHM"])  # mHM -> schedule
-
-    (ogs.outputs()["head"] >> schedule.inputs()["OGS"])  # OGS -> schedule
-
-    (formind.outputs()["LAI"] >> schedule.inputs()["Formind"])  # Formind -> schedule
+    if schedule_view:
+        (
+            mhm.outputs()["soil_moisture"] >> schedule_view.inputs()["mHM (7d)"]
+        )  # mHM -> schedule
+        (
+            ogs.outputs()["head"] >> schedule_view.inputs()["OGS (30d)"]
+        )  # OGS -> schedule
+        (
+            formind.outputs()["LAI"] >> schedule_view.inputs()["Formind (365d)"]
+        )  # Formind -> schedule
 
     composition.run(365 * 25)

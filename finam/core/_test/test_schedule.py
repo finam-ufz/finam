@@ -7,7 +7,7 @@ import unittest
 from ..interfaces import ComponentStatus
 from ..schedule import Composition
 from modules.generators import CallbackGenerator
-from modules.csv_writer import CsvWriter
+from modules.writers import CsvWriter
 from adapters.base import Callback
 from adapters.time import LinearIntegration
 

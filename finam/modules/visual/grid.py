@@ -17,7 +17,7 @@ class GridView(AComponent):
 
     def __init__(self):
         """
-        Creates a grid viewer
+        Create a grid viewer
         """
         super(GridView, self).__init__()
         self._time = 0

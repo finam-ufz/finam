@@ -13,16 +13,16 @@ class CallbackGenerator(ATimeComponent):
         | CallbackGenerator | [custom] -->
         |                   | [......] -->
         +-------------------+
+
+    :param callbacks: A dictionary of callbacks.
+                      Keys are output name strings, values are callbacks ``callback(time)``.
+                      E.g. ``callbacks={"Time": lambda t: t}``.
+    :param step: Step size for data generation.
     """
 
     def __init__(self, callbacks, step):
         """
         Create a new CallbackGenerator.
-
-        :param callbacks: A dictionary of callbacks.
-                          Keys are output name strings, values are callbacks ``callback(time)``.
-                          E.g. ``callbacks={"Time": lambda t: t}``.
-        :param step: Step size for data generation.
         """
         super(CallbackGenerator, self).__init__()
         self._callbacks = callbacks

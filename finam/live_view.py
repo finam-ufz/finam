@@ -19,7 +19,8 @@ import numpy as np
 
 from adapters import time, base
 from core.schedule import Composition
-from modules import generators, grid_view, time_series_view, schedule_view
+from modules import generators
+from modules.visual import grid, time_series
 from data.grid import Grid, GridSpec
 
 if __name__ == "__main__":
@@ -33,8 +34,8 @@ if __name__ == "__main__":
         return grid
 
     generator = generators.CallbackGenerator({"Grid": generate_grid}, step=10)
-    viewer = grid_view.TimedGridView()
-    plot = time_series_view.TimeSeriesView(
+    viewer = grid.TimedGridView()
+    plot = time_series.TimeSeriesView(
         inputs=["Linear (1)", "Mean (50)"], intervals=[1, 50]
     )
 
