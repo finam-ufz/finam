@@ -2,7 +2,7 @@
 Driver/scheduler for executing a coupled model composition.
 """
 
-from .interfaces import ITimeComponent, IAdapter, NoBranchAdapter
+from .interfaces import ITimeComponent, IMpiComponent, IAdapter, NoBranchAdapter
 
 
 class Composition:
@@ -10,13 +10,29 @@ class Composition:
     A composition of linked components.
     """
 
-    def __init__(self, modules):
+    def __init__(self, modules, mpi_rank=0):
         """
         Create a new coupling composition.
 
         :param modules: modules in the composition
         """
         self.modules = modules
+        self.mpi_rank = mpi_rank
+
+    def run_mpi(self):
+        """
+        Run MPI processes is not on rank 0.
+
+        :return: true if on rank 0, false otherwise
+        """
+        if self.mpi_rank == 0:
+            return True
+
+        for mod in self.modules:
+            if isinstance(mod, IMpiComponent):
+                mod.run_mpi()
+
+        return False
 
     def initialize(self):
         """
