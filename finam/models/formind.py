@@ -33,13 +33,16 @@ class Formind(ATimeComponent):
         self._time = 0
         self._step = step
 
-        self.lai = Grid(grid_spec)
-        self.lai.fill(1.0)
+        self._grid_spec = grid_spec
+        self.lai = None
 
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
         super().initialize()
+
+        self.lai = Grid(self._grid_spec)
+        self.lai.fill(1.0)
 
         self._inputs["soil_moisture"] = Input()
         self._outputs["LAI"] = Output()
