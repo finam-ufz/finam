@@ -13,6 +13,10 @@ from data import assert_type
 from data.grid import Grid
 
 
+TAG_DATA = 0
+TAG_STOP = 1
+
+
 class FormindCell:
     def __init__(self):
         self.lai = 1.0
@@ -88,7 +92,7 @@ class Formind(ATimeComponent, IMpiComponent):
         print(f"Connecting ({self._comm.Get_size() - 1}+1 processes)...")
         for rank in range(1, self._comm.Get_size()):
             r = self.indices[rank - 1]
-            self._comm.Recv(self.lai.data[r.start : r.stop], source=rank)
+            self._comm.Recv(self.lai.data[r.start : r.stop], source=rank, tag=TAG_DATA)
 
         print("   Connecting done")
 
@@ -118,15 +122,13 @@ class Formind(ATimeComponent, IMpiComponent):
         size = self._comm.Get_size()
         for rank in range(1, size):
             r = self.indices[rank - 1]
-            self._comm.send(True, dest=rank)
-
             data_slice = soil_moisture.data[r.start : r.stop]
-            self._comm.Send(data_slice, dest=rank)
+            self._comm.Send(data_slice, dest=rank, tag=TAG_DATA)
 
         for rank in range(1, size):
             r = self.indices[rank - 1]
             data_slice = self.lai.data[r.start : r.stop]
-            self._comm.Recv(data_slice, source=rank)
+            self._comm.Recv(data_slice, source=rank, tag=TAG_DATA)
 
         # Increment model time
         self._time += self._step
@@ -142,7 +144,7 @@ class Formind(ATimeComponent, IMpiComponent):
 
         print("Disconnecting...")
         for rank in range(1, self._comm.Get_size()):
-            self._comm.send(False, dest=rank)
+            self._comm.send(True, dest=rank, tag=TAG_STOP)
 
         self._comm.Disconnect()
         print("   Disconnecting done")
@@ -150,6 +152,8 @@ class Formind(ATimeComponent, IMpiComponent):
         self._status = ComponentStatus.FINALIZED
 
     def run_mpi(self):
+        from mpi4py import MPI
+
         if mpi.is_null(self._comm):
             return
 
@@ -167,11 +171,19 @@ class Formind(ATimeComponent, IMpiComponent):
         self._comm.Send(lai_buffer, dest=0)
 
         while True:
-            if not self._comm.recv(source=0):
+
+            info = MPI.Status()
+            self._comm.Probe(source=0, tag=MPI.ANY_TAG, status=info)
+
+            if info.tag == TAG_STOP:
                 self._comm.Disconnect()
                 break
+            elif info.tag != TAG_DATA:
+                raise Exception(
+                    f"Invalid message tag {info.tag} received in Formind worker"
+                )
 
-            self._comm.Recv(data_buffer, source=0)
+            self._comm.Recv(data_buffer, source=0, tag=TAG_DATA)
 
             for i, cell in enumerate(worker.cells):
                 cell.soil_moisture = data_buffer[i]
@@ -179,4 +191,4 @@ class Formind(ATimeComponent, IMpiComponent):
             worker.step()
 
             fill_lai_buffer(worker.cells, lai_buffer)
-            self._comm.Send(lai_buffer, dest=0)
+            self._comm.Send(lai_buffer, dest=0, tag=TAG_DATA)

@@ -27,11 +27,11 @@ def run():
         return 1.0 if random.uniform(0, 1) < p else 0.0
 
     precipitation_comp = generators.CallbackGenerator({"precipitation": precip}, step=1)
-    mhm_comp = mhm.Mhm(grid_spec=GridSpec(5, 5, cell_size=1000), step=7)
+    mhm_comp = mhm.Mhm(grid_spec=GridSpec(25, 25, cell_size=1000), step=7)
     ogs_comp = ogs.Ogs(step=30)
     formind_comp = formind_mpi.Formind(
         comm=communicators["formind"],
-        grid_spec=GridSpec(5, 5, cell_size=1000),
+        grid_spec=GridSpec(25, 25, cell_size=1000),
         step=365,
     )
 
