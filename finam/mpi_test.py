@@ -4,12 +4,13 @@ The mHM/OGS/Formind setup, with Formind using multiple MPI processes.
 
 import random
 import argparse
+import numpy as np
 
-from adapters import time
+from adapters import base, time
 from core import mpi
 from core.schedule import Composition
 from models import formind_mpi, ogs, mhm
-from modules import generators
+from modules import generators, writers
 from data.grid import GridSpec
 
 
@@ -34,8 +35,14 @@ def run():
         step=365,
     )
 
+    mhm_csv = writers.CsvWriter(
+        path="mhm.csv",
+        step=7,
+        inputs=["precip_in", "LAI_in", "soil_moisture", "GW_recharge", "ETP"],
+    )
+
     composition = Composition(
-        [precipitation_comp, mhm_comp, ogs_comp, formind_comp], mpi_rank=rank
+        [precipitation_comp, mhm_comp, ogs_comp, formind_comp, mhm_csv], mpi_rank=rank
     )
 
     if not composition.run_mpi():
@@ -65,6 +72,40 @@ def run():
         mhm_comp.outputs()["GW_recharge"]
         >> time.LinearIntegration.sum()
         >> ogs_comp.inputs()["GW_recharge"]
+    )
+
+    # Observer coupling for CSV output
+
+    (  # RNG -> CSV (precipitation)
+        precipitation_comp.outputs()["precipitation"]
+        >> time.LinearIntegration.sum()
+        >> mhm_csv.inputs()["precip_in"]
+    )
+
+    (  # mHM/Formind -> CSV (LAI input)
+        formind_comp.outputs()["LAI"]
+        >> base.GridToValue(func=np.mean)
+        >> time.NextValue()
+        >> mhm_csv.inputs()["LAI_in"]
+    )
+
+    (  # mHM -> CSV (soil_moisture)
+        mhm_comp.outputs()["soil_moisture"]
+        >> base.GridToValue(func=np.mean)
+        >> time.LinearInterpolation()
+        >> mhm_csv.inputs()["soil_moisture"]
+    )
+
+    (  # mHM -> CSV (base_flow)
+        mhm_comp.outputs()["GW_recharge"]
+        >> time.LinearInterpolation()
+        >> mhm_csv.inputs()["GW_recharge"]
+    )
+
+    (  # mHM -> CSV (ETP)
+        mhm_comp.outputs()["ETP"]
+        >> time.LinearInterpolation()
+        >> mhm_csv.inputs()["ETP"]
     )
 
     composition.run(365 * 25)
