@@ -32,7 +32,7 @@ import numpy as np
 
 from adapters import time, base
 from core.schedule import Composition
-from models import formind, ogs, mhm
+from models import formind_simple, ogs, mhm
 from modules import writers, generators
 from modules.visual import schedule
 from data.grid import GridSpec
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     precipitation = generators.CallbackGenerator({"precipitation": precip}, step=1)
     mhm = mhm.Mhm(grid_spec=GridSpec(5, 5, cell_size=1000), step=7)
     ogs = ogs.Ogs(step=30)
-    formind = formind.Formind(grid_spec=GridSpec(5, 5, cell_size=1000), step=365)
+    formind = formind_simple.Formind(grid_spec=GridSpec(5, 5, cell_size=1000), step=365)
 
     mhm_csv = writers.CsvWriter(
         path="mhm.csv",

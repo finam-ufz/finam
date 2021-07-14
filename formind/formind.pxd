@@ -7,3 +7,6 @@ cdef extern from "formind.h":
         void initialize()
         void update()
         void finalize()
+
+        double getLai()
+        void setSoilMoisture(double sm)

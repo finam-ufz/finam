@@ -30,7 +30,7 @@ version_str = f"{version.major}.{version.minor}"
 platform = "win" if sys.platform == "win32" else "linux"
 
 path = f"build/lib.{platform}-amd64-{version_str}/"
-file = glob.glob(path+"formind.*")[0]
+file = glob.glob(path + "formind.*")[0]
 ext = "pyd" if os.name == "nt" else "so"
 
 shutil.copyfile(file, f"formind.{ext}")

@@ -19,6 +19,9 @@ class Formind {
         void initialize();
         void update();
         void finalize();
+
+        double getLai();
+        void setSoilMoisture(double sm);
 };
 
 #endif

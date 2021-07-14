@@ -4,17 +4,22 @@ cdef class Model():
     
     def __cinit__(self, int seed):
         self.formind = new Formind(seed)
-    
+
     def __dealloc__(self):
-        if self.formind is not NULL:
-            del self.formind
-            self.formind = NULL
-       
+        del self.formind
+        self.formind = NULL
+
     def initialize(self):
-        self.formind[0].initialize()
+        self.formind.initialize()
  
     def update(self):
-        self.formind[0].update()
+        self.formind.update()
 
     def finalize(self):
-        self.formind[0].finalize()
+        self.formind.finalize()
+
+    def getLai(self):
+        return self.formind.getLai();
+
+    def setSoilMoisture(self, double sm):
+        self.formind.setSoilMoisture(sm);
