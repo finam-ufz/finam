@@ -1,10 +1,19 @@
 #ifndef FORMIND_H
 #define FORMIND_H
 
+#include <random>
+
 class Formind {
-    int time;
+    private:
+        int time;
+        double soil_moisture;
+        double lai;
+
+        std::default_random_engine eng;
+        std::uniform_real_distribution<float> distr;
+
     public:
-        Formind();
+        Formind(int seed);
         ~Formind();
 
         void initialize();

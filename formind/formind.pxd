@@ -3,7 +3,7 @@
 
 cdef extern from "formind.h":
     cdef cppclass Formind:
-        Formind()
+        Formind(int seed)
         void initialize()
         void update()
         void finalize()

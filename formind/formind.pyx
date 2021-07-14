@@ -2,8 +2,8 @@ cdef class Model():
     
     cdef Formind *formind
     
-    def __cinit__(self):
-        self.formind = new Formind()
+    def __cinit__(self, int seed):
+        self.formind = new Formind(seed)
     
     def __dealloc__(self):
         if self.formind is not NULL:
