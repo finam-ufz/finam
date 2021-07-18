@@ -6,8 +6,8 @@ To use this model component from the project's root directory, run ``export PYTH
 """
 
 import math
-import random
 import numpy as np
+from multiprocessing import Pipe, Process
 
 from core import mpi
 from core.sdk import ATimeComponent, Input, Output
@@ -20,15 +20,37 @@ TAG_STOP = 1
 
 
 class FormindWorker:
-    def __init__(self, processes, index, total_cells):
-        from formind import Model
-
+    def __init__(self, processes, index, total_cells, par_file):
         self.indices = calc_indices(processes, total_cells)[index]
-        self.cells = [Model(random.random()) for _ in self.indices]
+        self.cells = [create_cell(par_file) for _ in self.indices]
 
-    def update(self):
-        for cell in self.cells:
-            cell.update()
+
+def create_cell(par_file):
+    parent_conn, child_conn = Pipe()
+    p = Process(target=run_cell, args=(child_conn, par_file))
+    p.start()
+
+    return parent_conn
+
+
+def run_cell(conn, par_file):
+    from pyformind_finam import Model
+
+    model = Model()
+    model.read_par_file(par_file)
+    model.start()
+
+    conn.send(model.get_lai())
+
+    while True:
+        msg = conn.recv()
+
+        if msg is None:
+            break
+
+        model.set_soil_water(msg)
+        model.step()
+        conn.send(model.get_lai())
 
 
 def calc_indices(processes, total_cells):
@@ -45,19 +67,20 @@ def calc_indices(processes, total_cells):
 
 def fill_lai_buffer(cells, buffer):
     for i, cell in enumerate(cells):
-        buffer[i] = cell.getLai()
+        buffer[i] = cell.recv()
 
 
 class Formind(ATimeComponent, IMpiComponent):
-    def __init__(self, comm, grid_spec, step):
+    def __init__(self, comm, grid_spec, par_file, step):
         super(Formind, self).__init__()
         self._comm = comm
         self._time = 0
         self._step = step
 
+        self.par_file = par_file
+
         self._grid_spec = grid_spec
         self.lai = None
-        self.lai_buffers = None
 
         self.indices = None
 
@@ -69,14 +92,12 @@ class Formind(ATimeComponent, IMpiComponent):
 
         self.lai = Grid(self._grid_spec)
 
-        self._inputs["soil_moisture"] = Input()
+        self._inputs["soil_water"] = Input()
         self._outputs["LAI"] = Output()
 
         self.indices = calc_indices(
             processes=self._comm.Get_size() - 1, total_cells=len(self.lai.data)
         )
-
-        self.lai_buffers = [np.empty(len(r), dtype=np.float64) for r in self.indices]
 
         self._status = ComponentStatus.INITIALIZED
 
@@ -103,20 +124,20 @@ class Formind(ATimeComponent, IMpiComponent):
         super().update()
 
         # Retrieve inputs
-        soil_moisture = self._inputs["soil_moisture"].pull_data(self.time())
+        soil_water = self._inputs["soil_water"].pull_data(self.time())
 
         # Check input data types
-        assert_type(self, "soil_moisture", soil_moisture, [Grid])
-        if self.lai.spec != soil_moisture.spec:
+        assert_type(self, "soil_water", soil_water, [Grid])
+        if self.lai.spec != soil_water.spec:
             raise Exception(
-                f"Grid specifications not matching for soil_moisture in Formind."
+                f"Grid specifications not matching for soil_water in Formind."
             )
 
         print(f"Updating MPI processes (t={self._time})...")
         size = self._comm.Get_size()
         for rank in range(1, size):
             r = self.indices[rank - 1]
-            data_slice = soil_moisture.data[r.start : r.stop]
+            data_slice = soil_water.data[r.start : r.stop]
             self._comm.Send(data_slice, dest=rank, tag=TAG_DATA)
 
         for rank in range(1, size):
@@ -156,6 +177,7 @@ class Formind(ATimeComponent, IMpiComponent):
             processes=self._comm.Get_size() - 1,
             index=self._comm.Get_rank() - 1,
             total_cells=total_cells,
+            par_file=self.par_file,
         )
 
         data_buffer = np.empty(len(worker.cells), dtype=np.float64)
@@ -165,11 +187,12 @@ class Formind(ATimeComponent, IMpiComponent):
         self._comm.Send(lai_buffer, dest=0)
 
         while True:
-
             info = MPI.Status()
             self._comm.Probe(source=0, tag=MPI.ANY_TAG, status=info)
 
             if info.tag == TAG_STOP:
+                for c in worker.cells:
+                    c.send(None)
                 self._comm.Disconnect()
                 break
             elif info.tag != TAG_DATA:
@@ -180,9 +203,7 @@ class Formind(ATimeComponent, IMpiComponent):
             self._comm.Recv(data_buffer, source=0, tag=TAG_DATA)
 
             for i, cell in enumerate(worker.cells):
-                cell.setSoilMoisture(data_buffer[i])
-
-            worker.update()
+                cell.send(data_buffer[i])
 
             fill_lai_buffer(worker.cells, lai_buffer)
             self._comm.Send(lai_buffer, dest=0, tag=TAG_DATA)

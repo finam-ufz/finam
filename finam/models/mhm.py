@@ -2,12 +2,12 @@
 Dummy model mimicking mHM.
 
 From an input scalar ``precipitation`` and an input grid ``LAI``,
-it calculates the output grid ``soil_moisture`` and output scalars ``base_flow`` and ``ETP``.
+it calculates the output grid ``soil_water`` and output scalars ``base_flow`` and ``ETP``.
 
 .. code-block:: text
 
                       +---------+
-    --> precipitation |         | soil_moisture -->
+    --> precipitation |         | soil_water -->
                       |   mHM   | GW_recharge -->
               --> LAI |         | ETP -->
                       +---------+
@@ -42,18 +42,18 @@ class Mhm(ATimeComponent):
         self._step = step
 
         self._grid_spec = grid_spec
-        self.soil_moisture = None
+        self.soil_water = None
 
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
         super().initialize()
 
-        self.soil_moisture = Grid(self._grid_spec)
+        self.soil_water = Grid(self._grid_spec)
 
         self._inputs["precipitation"] = Input()
         self._inputs["LAI"] = Input()
-        self._outputs["soil_moisture"] = Output()
+        self._outputs["soil_water"] = Output()
         self._outputs["GW_recharge"] = Output()
         self._outputs["ETP"] = Output()
 
@@ -62,7 +62,7 @@ class Mhm(ATimeComponent):
     def connect(self):
         super().connect()
 
-        self._outputs["soil_moisture"].push_data(self.soil_moisture, self.time())
+        self._outputs["soil_water"].push_data(self.soil_water, self.time())
         self._outputs["GW_recharge"].push_data(0.0, self.time())
         self._outputs["ETP"].push_data(0.0, self.time())
 
@@ -83,31 +83,31 @@ class Mhm(ATimeComponent):
         # Check input data types
         assert_type(self, "precipitation", precipitation, [int, float])
         assert_type(self, "LAI", lai, [Grid])
-        if self.soil_moisture.spec != lai.spec:
+        if self.soil_water.spec != lai.spec:
             raise Exception(f"Grid specifications not matching for LAI in mHM.")
 
         # Run the model step here
         base_flow = 0.0
         total_recharge = 0.0
         mean_evaporation = 0.0
-        for i in range(len(self.soil_moisture.data)):
-            sm = self.soil_moisture.data[i]
+        for i in range(len(self.soil_water.data)):
+            sm = self.soil_water.data[i]
             sm += precipitation
             recharge = 0.1 * sm
             evaporation = 0.5 * sm * (1.0 - math.exp(-0.05 * lai.data[i]))
             sm -= recharge + evaporation
-            self.soil_moisture.data[i] = sm
+            self.soil_water.data[i] = sm
 
             total_recharge += recharge
             mean_evaporation += evaporation
 
-        mean_evaporation /= float(len(self.soil_moisture.data))
+        mean_evaporation /= float(len(self.soil_water.data))
 
         # Increment model time
         self._time += self._step
 
         # Push model state to outputs
-        self._outputs["soil_moisture"].push_data(self.soil_moisture, self.time())
+        self._outputs["soil_water"].push_data(self.soil_water, self.time())
         self._outputs["GW_recharge"].push_data(total_recharge, self.time())
         self._outputs["ETP"].push_data(mean_evaporation, self.time())
 
