@@ -24,6 +24,7 @@ def run():
         return grid
 
     sw_comp = generators.CallbackGenerator({"soil_water": soil_water}, step=1)
+
     formind_comp = formind_mpi.Formind(
         comm=communicators["formind"],
         grid_spec=GridSpec(5, 5, cell_size=1000),
