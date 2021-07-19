@@ -20,10 +20,10 @@ def run():
     def soil_water(t):
         grid = Grid(GridSpec(5, 5, cell_size=1000))
         for i in range(len(grid.data)):
-            grid.data[i] = 25.0 + i * 0.1
+            grid.data[i] = (t / 365) % 5 * 2.0 + np.random.uniform(10.0, 30.0)
         return grid
 
-    sw_comp = generators.CallbackGenerator({"soil_water": soil_water}, step=365)
+    sw_comp = generators.CallbackGenerator({"soil_water": soil_water}, step=1)
     formind_comp = formind_mpi.Formind(
         comm=communicators["formind"],
         grid_spec=GridSpec(5, 5, cell_size=1000),
@@ -31,13 +31,21 @@ def run():
         par_file="formind/formind_parameters/beech_forest.par",
     )
 
+    soil_water_csv = writers.CsvWriter(
+        path="soil_water.csv",
+        step=1,
+        inputs=["SW"],
+    )
+
     formind_csv = writers.CsvWriter(
         path="formind.csv",
         step=365,
-        inputs=["SW_in", "LAI"],
+        inputs=["SW_in", "RW_in", "LAI"],
     )
 
-    composition = Composition([sw_comp, formind_comp, formind_csv], mpi_rank=rank)
+    composition = Composition(
+        [sw_comp, formind_comp, soil_water_csv, formind_csv], mpi_rank=rank
+    )
 
     if not composition.run_mpi():
         exit(0)
@@ -48,15 +56,29 @@ def run():
 
     (
         sw_comp.outputs()["soil_water"]
-        >> time.LinearInterpolation()
-        >> formind_comp.inputs()["soil_water"]
+        >> formind_mpi.SoilWaterAdapter(pwp=20.0, fc=40.0)
+        >> formind_comp.inputs()["reduction_factor"]
     )
 
     (
         sw_comp.outputs()["soil_water"]
         >> base.GridToValue(func=np.mean)
         >> time.LinearInterpolation()
+        >> soil_water_csv.inputs()["SW"]
+    )
+
+    (
+        sw_comp.outputs()["soil_water"]
+        >> base.GridToValue(func=np.mean)
+        >> time.LinearIntegration.mean()
         >> formind_csv.inputs()["SW_in"]
+    )
+
+    (
+        sw_comp.outputs()["soil_water"]
+        >> formind_mpi.SoilWaterAdapter(pwp=20.0, fc=40.0)
+        >> base.GridToValue(func=np.mean)
+        >> formind_csv.inputs()["RW_in"]
     )
 
     (

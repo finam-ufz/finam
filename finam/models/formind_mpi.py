@@ -10,8 +10,8 @@ import numpy as np
 from multiprocessing import Pipe, Process
 
 from core import mpi
-from core.sdk import ATimeComponent, Input, Output
-from core.interfaces import ComponentStatus, IMpiComponent
+from core.sdk import ATimeComponent, Input, Output, AAdapter
+from core.interfaces import ComponentStatus, IMpiComponent, NoBranchAdapter
 from data import assert_type
 from data.grid import Grid
 
@@ -48,7 +48,7 @@ def run_cell(conn, par_file):
         if msg is None:
             break
 
-        model.set_soil_water(msg)
+        model.set_reduction_factor(msg)
         model.step()
         conn.send(model.get_lai())
 
@@ -92,7 +92,7 @@ class Formind(ATimeComponent, IMpiComponent):
 
         self.lai = Grid(self._grid_spec)
 
-        self._inputs["soil_water"] = Input()
+        self._inputs["reduction_factor"] = Input()
         self._outputs["LAI"] = Output()
 
         self.indices = calc_indices(
@@ -124,20 +124,20 @@ class Formind(ATimeComponent, IMpiComponent):
         super().update()
 
         # Retrieve inputs
-        soil_water = self._inputs["soil_water"].pull_data(self.time())
+        reduction_factor = self._inputs["reduction_factor"].pull_data(self.time())
 
         # Check input data types
-        assert_type(self, "soil_water", soil_water, [Grid])
-        if self.lai.spec != soil_water.spec:
+        assert_type(self, "reduction_factor", reduction_factor, [Grid])
+        if self.lai.spec != reduction_factor.spec:
             raise Exception(
-                f"Grid specifications not matching for soil_water in Formind."
+                f"Grid specifications not matching for reduction_factor in Formind."
             )
 
         print(f"Updating MPI processes (t={self._time})...")
         size = self._comm.Get_size()
         for rank in range(1, size):
             r = self.indices[rank - 1]
-            data_slice = soil_water.data[r.start : r.stop]
+            data_slice = reduction_factor.data[r.start : r.stop]
             self._comm.Send(data_slice, dest=rank, tag=TAG_DATA)
 
         for rank in range(1, size):
@@ -207,3 +207,46 @@ class Formind(ATimeComponent, IMpiComponent):
 
             fill_lai_buffer(worker.cells, lai_buffer)
             self._comm.Send(lai_buffer, dest=0, tag=TAG_DATA)
+
+
+class SoilWaterAdapter(AAdapter, NoBranchAdapter):
+    def __init__(self, pwp, fc):
+        super().__init__()
+
+        self.pwp = pwp
+        self.fc = fc
+        self.msw = pwp + 0.4 * (fc - pwp)
+
+        self.factor_sum = None
+        self.counter = 0
+
+    def source_changed(self, time):
+        data = self.pull_data(time)
+
+        if self.factor_sum is None:
+            self.factor_sum = Grid.create_like(data)
+
+        for i in range(len(self.factor_sum.data)):
+            self.factor_sum.data[i] += calc_reduction_factor(
+                data.data[i], self.pwp, self.msw
+            )
+        self.counter += 1
+
+        self.notify_targets(time)
+
+    def get_data(self, time):
+        result = self.factor_sum / self.counter
+
+        self.factor_sum.fill(0.0)
+        self.counter = 0
+
+        return result
+
+
+def calc_reduction_factor(sw, pwp, msw):
+    if sw < pwp:
+        return 0.0
+    elif sw > msw:
+        return 1.0
+    else:
+        return (sw - pwp) / (msw - pwp)
