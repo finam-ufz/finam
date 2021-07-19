@@ -1,5 +1,13 @@
 """
 The mHM/OGS/Formind setup, with Formind using multiple MPI processes.
+
+To run this example from the project's root directory, run ``export PYTHONPATH="./formind"`` before
+(``set PYTHONPATH=./formind`` on Windows).
+
+This example must be run using ``mpirun``:
+
+* ``mpirun -n 4 python finam/mpi_test.py --mpi formind 3``, or
+* ``mpiexec -n 4 python finam/mpi_test.py --mpi formind 3`` on Windows.
 """
 
 import random

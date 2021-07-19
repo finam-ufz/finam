@@ -1,5 +1,8 @@
 """
 Dummy model mimicking Formind. Uses multiple MPI processes.
+
+To use this model component from the project's root directory, run ``export PYTHONPATH="./formind"`` before
+(``set PYTHONPATH=./formind`` on Windows).
 """
 
 import math
@@ -12,29 +15,20 @@ from core.interfaces import ComponentStatus, IMpiComponent
 from data import assert_type
 from data.grid import Grid
 
-
 TAG_DATA = 0
 TAG_STOP = 1
 
 
-class FormindCell:
-    def __init__(self):
-        self.lai = 1.0
-        self.soil_moisture = 0.0
-
-    def step(self):
-        growth = (1.0 - math.exp(-0.1 * self.soil_moisture)) * random.uniform(0.5, 1.0)
-        self.lai = (self.lai + growth) * 0.9
-
-
 class FormindWorker:
     def __init__(self, processes, index, total_cells):
-        self.indices = calc_indices(processes, total_cells)[index]
-        self.cells = [FormindCell() for _ in self.indices]
+        from formind import Model
 
-    def step(self):
+        self.indices = calc_indices(processes, total_cells)[index]
+        self.cells = [Model(random.random()) for _ in self.indices]
+
+    def update(self):
         for cell in self.cells:
-            cell.step()
+            cell.update()
 
 
 def calc_indices(processes, total_cells):
@@ -51,7 +45,7 @@ def calc_indices(processes, total_cells):
 
 def fill_lai_buffer(cells, buffer):
     for i, cell in enumerate(cells):
-        buffer[i] = cell.lai
+        buffer[i] = cell.getLai()
 
 
 class Formind(ATimeComponent, IMpiComponent):
@@ -186,9 +180,9 @@ class Formind(ATimeComponent, IMpiComponent):
             self._comm.Recv(data_buffer, source=0, tag=TAG_DATA)
 
             for i, cell in enumerate(worker.cells):
-                cell.soil_moisture = data_buffer[i]
+                cell.setSoilMoisture(data_buffer[i])
 
-            worker.step()
+            worker.update()
 
             fill_lai_buffer(worker.cells, lai_buffer)
             self._comm.Send(lai_buffer, dest=0, tag=TAG_DATA)
