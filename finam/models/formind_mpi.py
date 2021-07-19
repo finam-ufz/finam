@@ -224,12 +224,13 @@ class SoilWaterAdapter(AAdapter, NoBranchAdapter):
         data = self.pull_data(time)
 
         if self.factor_sum is None:
-            self.factor_sum = Grid.create_like(data)
+            if isinstance(data, Grid):
+                self.factor_sum = Grid.create_like(data)
+            else:
+                self.factor_sum = 0.0
 
-        for i in range(len(self.factor_sum.data)):
-            self.factor_sum.data[i] += calc_reduction_factor(
-                data.data[i], self.pwp, self.msw
-            )
+        f = calc_reduction_factor(data, self.pwp, self.msw)
+        self.factor_sum += f
         self.counter += 1
 
         self.notify_targets(time)
@@ -237,16 +238,15 @@ class SoilWaterAdapter(AAdapter, NoBranchAdapter):
     def get_data(self, time):
         result = self.factor_sum / self.counter
 
-        self.factor_sum.fill(0.0)
+        if isinstance(self.factor_sum, Grid):
+            self.factor_sum.fill(0.0)
+        else:
+            self.factor_sum = 0
+
         self.counter = 0
 
         return result
 
 
 def calc_reduction_factor(sw, pwp, msw):
-    if sw < pwp:
-        return 0.0
-    elif sw > msw:
-        return 1.0
-    else:
-        return (sw - pwp) / (msw - pwp)
+    return (np.clip(sw, pwp, msw) - pwp) / (msw - pwp)
