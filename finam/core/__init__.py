@@ -86,4 +86,4 @@ When data is pulled from downstream the adapter, it does its calculations
 Time-related adapters should still forward notifications, just as usual adapters do.
 """
 
-from . import interfaces, sdk, schedule
+from . import interfaces, sdk, schedule, mpi

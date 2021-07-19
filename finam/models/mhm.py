@@ -40,11 +40,16 @@ class Mhm(ATimeComponent):
         super(Mhm, self).__init__()
         self._time = 0
         self._step = step
-        self.soil_moisture = Grid(grid_spec)
+
+        self._grid_spec = grid_spec
+        self.soil_moisture = None
+
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
         super().initialize()
+
+        self.soil_moisture = Grid(self._grid_spec)
 
         self._inputs["precipitation"] = Input()
         self._inputs["LAI"] = Input()
