@@ -20,7 +20,7 @@ def run():
     def soil_water(t):
         grid = Grid(GridSpec(5, 5, cell_size=1000))
         for i in range(len(grid.data)):
-            grid.data[i] = (t / 365) % 5 * 2.0 + np.random.uniform(10.0, 30.0)
+            grid.data[i] = 40.0 if t / 365 < 10 else 10.0  # (t / 365) % 5 * 2.0 + np.random.uniform(10.0, 30.0)
         return grid
 
     sw_comp = generators.CallbackGenerator({"soil_water": soil_water}, step=1)
