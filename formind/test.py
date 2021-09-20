@@ -1,10 +1,15 @@
-import formind
+from pyformind_finam import Model
 
-model = formind.Model(100)
+par_file = "formind_parameters/beech_forest.par"
 
-model.initialize()
+sw = 30
+model = Model()
+model.read_par_file(par_file)
 
-for i in range(10):
-    model.update()
+model.start()
 
-model.finalize()
+for i in range(30):
+    model.set_soil_water(float(sw))
+    model.step()
+
+print(f"{sw};{model.get_lai()};{model.get_biomass()};{model.get_photo_production()}")

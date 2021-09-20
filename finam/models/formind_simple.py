@@ -1,13 +1,13 @@
 """
 Dummy model mimicking Formind.
 
-From an input grid ``soil_moisture``, it calculates the output grid ``LAI``.
+From an input grid ``soil_water``, it calculates the output grid ``LAI``.
 
 .. code-block:: text
 
-                      +---------+
-    --> soil_moisture | Formind | LAI -->
-                      +---------+
+                   +---------+
+    --> soil_water | Formind | LAI -->
+                   +---------+
 
 For each grid cell, calculations in each model step are as follows:
 
@@ -44,7 +44,7 @@ class Formind(ATimeComponent):
         self.lai = Grid(self._grid_spec)
         self.lai.fill(1.0)
 
-        self._inputs["soil_moisture"] = Input()
+        self._inputs["soil_water"] = Input()
         self._outputs["LAI"] = Output()
 
         self._status = ComponentStatus.INITIALIZED
@@ -65,18 +65,18 @@ class Formind(ATimeComponent):
         super().update()
 
         # Retrieve inputs
-        soil_moisture = self._inputs["soil_moisture"].pull_data(self.time())
+        soil_water = self._inputs["soil_water"].pull_data(self.time())
 
         # Check input data types
-        assert_type(self, "soil_moisture", soil_moisture, [Grid])
-        if self.lai.spec != soil_moisture.spec:
+        assert_type(self, "soil_water", soil_water, [Grid])
+        if self.lai.spec != soil_water.spec:
             raise Exception(
-                f"Grid specifications not matching for soil_moisture in Formind."
+                f"Grid specifications not matching for soil_water in Formind."
             )
 
         # Run the model step here
         for i in range(len(self.lai.data)):
-            growth = (1.0 - math.exp(-0.1 * soil_moisture.data[i])) * random.uniform(
+            growth = (1.0 - math.exp(-0.1 * soil_water.data[i])) * random.uniform(
                 0.5, 1.0
             )
             self.lai.data[i] = (self.lai.data[i] + growth) * 0.9

@@ -55,13 +55,13 @@ if __name__ == "__main__":
     mhm_csv = writers.CsvWriter(
         path="mhm.csv",
         step=7,
-        inputs=["precip_in", "LAI_in", "soil_moisture", "GW_recharge", "ETP"],
+        inputs=["precip_in", "LAI_in", "soil_water", "GW_recharge", "ETP"],
     )
     ogs_csv = writers.CsvWriter(
         path="ogs.csv", step=30, inputs=["GW_recharge_in", "head"]
     )
     formind_csv = writers.CsvWriter(
-        path="formind.csv", step=365, inputs=["soil_moisture_in", "LAI"]
+        path="formind.csv", step=365, inputs=["soil_water_in", "LAI"]
     )
 
     schedule_view = None
@@ -90,9 +90,9 @@ if __name__ == "__main__":
     )
 
     (  # mHM -> Formind (soil moisture)
-        mhm.outputs()["soil_moisture"]
+        mhm.outputs()["soil_water"]
         >> time.LinearIntegration.mean()
-        >> formind.inputs()["soil_moisture"]
+        >> formind.inputs()["soil_water"]
     )
 
     (  # Formind -> mHM (LAI)
@@ -120,11 +120,11 @@ if __name__ == "__main__":
         >> mhm_csv.inputs()["LAI_in"]
     )
 
-    (  # mHM -> CSV (soil_moisture)
-        mhm.outputs()["soil_moisture"]
+    (  # mHM -> CSV (soil_water)
+        mhm.outputs()["soil_water"]
         >> base.GridToValue(func=np.mean)
         >> time.LinearInterpolation()
-        >> mhm_csv.inputs()["soil_moisture"]
+        >> mhm_csv.inputs()["soil_water"]
     )
 
     (  # mHM -> CSV (base_flow)
@@ -154,18 +154,18 @@ if __name__ == "__main__":
         >> formind_csv.inputs()["LAI"]
     )
 
-    (  # formind -> CSV (soil_moisture_in)
-        mhm.outputs()["soil_moisture"]
+    (  # formind -> CSV (soil_water_in)
+        mhm.outputs()["soil_water"]
         >> base.GridToValue(func=np.mean)
         >> time.LinearIntegration.mean()
-        >> formind_csv.inputs()["soil_moisture_in"]
+        >> formind_csv.inputs()["soil_water_in"]
     )
 
     # Observer coupling for schedule view
 
     if schedule_view:
         (
-            mhm.outputs()["soil_moisture"] >> schedule_view.inputs()["mHM (7d)"]
+            mhm.outputs()["soil_water"] >> schedule_view.inputs()["mHM (7d)"]
         )  # mHM -> schedule
         (
             ogs.outputs()["head"] >> schedule_view.inputs()["OGS (30d)"]

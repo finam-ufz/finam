@@ -10,3 +10,21 @@ A minimal interface specification and exemplary implementation for exploration a
 
 For detailed documentation, see module `core` [sources](finam/core/__init__.py)
 and [docs](https://landtech.pages.ufz.de/finam-prototype/finam.core.html).
+
+## Running examples
+
+Run the MPI example from the project root:
+
+Linux
+
+```
+export PYTHONPATH="."
+mpirun -n 4 python finam/formind_mpi_test.py --mpi formind 3
+```
+
+Windows
+
+```
+set PYTHONPATH=.
+mpiexec -n 4 python finam/formind_mpi_test.py --mpi formind 3
+```

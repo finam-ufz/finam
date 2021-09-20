@@ -35,18 +35,19 @@ def run():
         return 1.0 if random.uniform(0, 1) < p else 0.0
 
     precipitation_comp = generators.CallbackGenerator({"precipitation": precip}, step=1)
-    mhm_comp = mhm.Mhm(grid_spec=GridSpec(25, 25, cell_size=1000), step=7)
+    mhm_comp = mhm.Mhm(grid_spec=GridSpec(5, 5, cell_size=1000), step=7)
     ogs_comp = ogs.Ogs(step=30)
     formind_comp = formind_mpi.Formind(
         comm=communicators["formind"],
-        grid_spec=GridSpec(25, 25, cell_size=1000),
+        grid_spec=GridSpec(5, 5, cell_size=1000),
         step=365,
+        par_file="formind/formind_parameters/beech_forest.par",
     )
 
     mhm_csv = writers.CsvWriter(
         path="mhm.csv",
         step=7,
-        inputs=["precip_in", "LAI_in", "soil_moisture", "GW_recharge", "ETP"],
+        inputs=["precip_in", "LAI_in", "soil_water", "GW_recharge", "ETP"],
     )
 
     composition = Composition(
@@ -67,9 +68,9 @@ def run():
     )
 
     (  # mHM -> Formind (soil moisture)
-        mhm_comp.outputs()["soil_moisture"]
+        mhm_comp.outputs()["soil_water"]
         >> time.LinearIntegration.mean()
-        >> formind_comp.inputs()["soil_moisture"]
+        >> formind_comp.inputs()["soil_water"]
     )
 
     (  # Formind -> mHM (LAI)
@@ -97,11 +98,11 @@ def run():
         >> mhm_csv.inputs()["LAI_in"]
     )
 
-    (  # mHM -> CSV (soil_moisture)
-        mhm_comp.outputs()["soil_moisture"]
+    (  # mHM -> CSV (soil_water)
+        mhm_comp.outputs()["soil_water"]
         >> base.GridToValue(func=np.mean)
         >> time.LinearInterpolation()
-        >> mhm_csv.inputs()["soil_moisture"]
+        >> mhm_csv.inputs()["soil_water"]
     )
 
     (  # mHM -> CSV (base_flow)
