@@ -1,5 +1,5 @@
 """
-Dummy model mimicking Formind. Uses multiple MPI processes.
+Formind coupling test. Uses multiple MPI processes.
 
 To use this model component from the project's root directory, run ``export PYTHONPATH="./formind"`` before
 (``set PYTHONPATH=./formind`` on Windows).
@@ -86,6 +86,8 @@ class Formind(ATimeComponent, IMpiComponent):
         super().connect()
 
         print(f"Connecting ({self._comm.Get_size() - 1}+1 processes)...")
+
+        # TODO: Formind needs to calculate LAI after initialization!
         for rank in range(1, self._comm.Get_size()):
             r = self.indices[rank - 1]
             self._comm.Recv(self.lai.data[r.start : r.stop], source=rank, tag=TAG_DATA)
