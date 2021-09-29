@@ -1,5 +1,5 @@
 """
-Dummy model mimicking Formind. Uses multiple MPI processes.
+Formind coupling test. Uses multiple MPI processes.
 
 To use this model component from the project's root directory, run ``export PYTHONPATH="./formind"`` before
 (``set PYTHONPATH=./formind`` on Windows).
@@ -7,7 +7,6 @@ To use this model component from the project's root directory, run ``export PYTH
 
 import math
 import numpy as np
-from multiprocessing import Pipe, Process
 
 from core import mpi
 from core.sdk import ATimeComponent, Input, Output, AAdapter
@@ -26,31 +25,13 @@ class FormindWorker:
 
 
 def create_cell(par_file):
-    parent_conn, child_conn = Pipe()
-    p = Process(target=run_cell, args=(child_conn, par_file))
-    p.start()
-
-    return parent_conn
-
-
-def run_cell(conn, par_file):
     from pyformind_finam import Model
 
     model = Model()
     model.read_par_file(par_file)
     model.start()
 
-    conn.send(model.get_lai())
-
-    while True:
-        msg = conn.recv()
-
-        if msg is None:
-            break
-
-        model.set_reduction_factor(msg)
-        model.step()
-        conn.send(model.get_lai())
+    return model
 
 
 def calc_indices(processes, total_cells):
@@ -67,7 +48,7 @@ def calc_indices(processes, total_cells):
 
 def fill_lai_buffer(cells, buffer):
     for i, cell in enumerate(cells):
-        buffer[i] = cell.recv()
+        buffer[i] = cell.get_lai()
 
 
 class Formind(ATimeComponent, IMpiComponent):
@@ -105,6 +86,8 @@ class Formind(ATimeComponent, IMpiComponent):
         super().connect()
 
         print(f"Connecting ({self._comm.Get_size() - 1}+1 processes)...")
+
+        # TODO: Formind needs to calculate LAI after initialization!
         for rank in range(1, self._comm.Get_size()):
             r = self.indices[rank - 1]
             self._comm.Recv(self.lai.data[r.start : r.stop], source=rank, tag=TAG_DATA)
@@ -191,8 +174,6 @@ class Formind(ATimeComponent, IMpiComponent):
             self._comm.Probe(source=0, tag=MPI.ANY_TAG, status=info)
 
             if info.tag == TAG_STOP:
-                for c in worker.cells:
-                    c.send(None)
                 self._comm.Disconnect()
                 break
             elif info.tag != TAG_DATA:
@@ -203,7 +184,8 @@ class Formind(ATimeComponent, IMpiComponent):
             self._comm.Recv(data_buffer, source=0, tag=TAG_DATA)
 
             for i, cell in enumerate(worker.cells):
-                cell.send(data_buffer[i])
+                cell.set_reduction_factor(data_buffer[i])
+                cell.step()
 
             fill_lai_buffer(worker.cells, lai_buffer)
             self._comm.Send(lai_buffer, dest=0, tag=TAG_DATA)

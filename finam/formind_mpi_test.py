@@ -6,6 +6,7 @@ from core import mpi
 from core.schedule import Composition
 from models import formind_mpi
 from modules import generators, writers
+from modules.visual import time_series
 from data.grid import Grid, GridSpec
 
 
@@ -20,7 +21,9 @@ def run():
     def soil_water(t):
         grid = Grid(GridSpec(5, 5, cell_size=1000))
         for i in range(len(grid.data)):
-            grid.data[i] = (t / 365) % 5 * 2.0 + np.random.uniform(10.0, 30.0)
+            grid.data[i] = (
+                40.0 if t / 365 < 10 else 10.0
+            )  # (t / 365) % 5 * 2.0 + np.random.uniform(10.0, 30.0)
         return grid
 
     sw_comp = generators.CallbackGenerator({"soil_water": soil_water}, step=1)
@@ -38,14 +41,18 @@ def run():
         inputs=["SW"],
     )
 
-    formind_csv = writers.CsvWriter(
-        path="formind.csv",
+    formind_plot = time_series.TimeSeriesView(
         step=365,
-        inputs=["SW_in", "RW_in", "LAI"],
+        inputs=["RW_in", "LAI"],
+    )
+
+    sw_plot = time_series.TimeSeriesView(
+        step=365,
+        inputs=["SW_in"],
     )
 
     composition = Composition(
-        [sw_comp, formind_comp, soil_water_csv, formind_csv], mpi_rank=rank
+        [sw_comp, formind_comp, soil_water_csv, formind_plot, sw_plot], mpi_rank=rank
     )
 
     if not composition.run_mpi():
@@ -72,21 +79,21 @@ def run():
         sw_comp.outputs()["soil_water"]
         >> base.GridToValue(func=np.mean)
         >> time.LinearIntegration.mean()
-        >> formind_csv.inputs()["SW_in"]
+        >> sw_plot.inputs()["SW_in"]
     )
 
     (
         sw_comp.outputs()["soil_water"]
         >> formind_mpi.SoilWaterAdapter(pwp=20.0, fc=40.0)
         >> base.GridToValue(func=np.mean)
-        >> formind_csv.inputs()["RW_in"]
+        >> formind_plot.inputs()["RW_in"]
     )
 
     (
         formind_comp.outputs()["LAI"]
         >> base.GridToValue(func=np.mean)
         >> time.LinearInterpolation()
-        >> formind_csv.inputs()["LAI"]
+        >> formind_plot.inputs()["LAI"]
     )
 
     composition.run(365 * 25)

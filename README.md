@@ -18,13 +18,13 @@ Run the MPI example from the project root:
 Linux
 
 ```
-export PYTHONPATH="."
+export PYTHONPATH="formind"
 mpirun -n 4 python finam/formind_mpi_test.py --mpi formind 3
 ```
 
 Windows
 
 ```
-set PYTHONPATH=.
+set PYTHONPATH=formind
 mpiexec -n 4 python finam/formind_mpi_test.py --mpi formind 3
 ```
