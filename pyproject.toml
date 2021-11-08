@@ -1,0 +1,21 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "setuptools_scm[toml]>=3.5",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/finam/_version.py"
+write_to_template = "__version__ = '{version}'"
+local_scheme = "no-local-version"
+fallback_version = "0.0.0.dev0"
+
+[tool.black]
+exclude = "_version.py"
+target-version = [
+    "py36",
+    "py37",
+    "py38",
+]
