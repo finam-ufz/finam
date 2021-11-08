@@ -29,10 +29,10 @@ Output ``ETP`` is the average of ``etp`` over all cells. ``GW_recharge`` is the 
 
 import math
 
-from core.sdk import ATimeComponent, Input, Output
-from core.interfaces import ComponentStatus
-from data import assert_type
-from data.grid import Grid
+from ..core.sdk import ATimeComponent, Input, Output
+from ..core.interfaces import ComponentStatus
+from ..data import assert_type
+from ..data.grid import Grid
 
 
 class Mhm(ATimeComponent):

@@ -1,5 +1,5 @@
-from core.sdk import ATimeComponent, Output
-from core.interfaces import ComponentStatus
+from ..core.sdk import ATimeComponent, Output
+from ..core.interfaces import ComponentStatus
 
 
 class CallbackGenerator(ATimeComponent):

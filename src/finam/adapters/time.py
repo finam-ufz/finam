@@ -2,8 +2,8 @@
 Adapters that deal with time, like temporal interpolation and integration.
 """
 
-from core.interfaces import NoBranchAdapter
-from core.sdk import AAdapter
+from ..core.interfaces import NoBranchAdapter
+from ..core.sdk import AAdapter
 
 
 class NextValue(AAdapter):

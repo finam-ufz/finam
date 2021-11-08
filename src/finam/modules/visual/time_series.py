@@ -1,6 +1,6 @@
-from core.sdk import ATimeComponent, Input
-from core.interfaces import ComponentStatus
-from data import assert_type
+from ...core.sdk import ATimeComponent, Input
+from ...core.interfaces import ComponentStatus
+from ...data import assert_type
 
 
 class TimeSeriesView(ATimeComponent):

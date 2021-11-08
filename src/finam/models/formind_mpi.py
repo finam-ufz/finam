@@ -8,11 +8,11 @@ To use this model component from the project's root directory, run ``export PYTH
 import math
 import numpy as np
 
-from core import mpi
-from core.sdk import ATimeComponent, Input, Output, AAdapter
-from core.interfaces import ComponentStatus, IMpiComponent, NoBranchAdapter
-from data import assert_type
-from data.grid import Grid
+from ..core import mpi
+from ..core.sdk import ATimeComponent, Input, Output, AAdapter
+from ..core.interfaces import ComponentStatus, IMpiComponent, NoBranchAdapter
+from ..data import assert_type
+from ..data.grid import Grid
 
 TAG_DATA = 0
 TAG_STOP = 1

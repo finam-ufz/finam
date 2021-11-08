@@ -4,9 +4,9 @@ Modules for writing data.
 
 import numpy as np
 
-from core.interfaces import ComponentStatus
-from core.sdk import ATimeComponent, Input
-from data import assert_type
+from ..core.interfaces import ComponentStatus
+from ..core.sdk import ATimeComponent, Input
+from ..data import assert_type
 
 
 class CsvWriter(ATimeComponent):

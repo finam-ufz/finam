@@ -2,9 +2,9 @@
 Basic data transformation adapters.
 """
 
-from core.sdk import AAdapter
-from data import assert_type
-from data.grid import Grid
+from ..core.sdk import AAdapter
+from ..data import assert_type
+from ..data.grid import Grid
 
 
 class Callback(AAdapter):

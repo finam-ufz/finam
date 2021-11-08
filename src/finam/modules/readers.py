@@ -2,8 +2,8 @@
 Modules for reading data.
 """
 
-from core.interfaces import ComponentStatus
-from core.sdk import ATimeComponent, Output
+from ..core.interfaces import ComponentStatus
+from ..core.sdk import ATimeComponent, Output
 
 
 class CsvReader(ATimeComponent):

@@ -1,5 +1,5 @@
-from core.sdk import AComponent, ATimeComponent, Input, CallbackInput
-from core.interfaces import ComponentStatus
+from ...core.sdk import AComponent, ATimeComponent, Input, CallbackInput
+from ...core.interfaces import ComponentStatus
 
 
 class ScheduleView(AComponent):

@@ -1,7 +1,7 @@
-from core.sdk import AComponent, ATimeComponent, Input, CallbackInput
-from core.interfaces import ComponentStatus
-from data import assert_type
-from data.grid import Grid
+from ...core.sdk import AComponent, ATimeComponent, Input, CallbackInput
+from ...core.interfaces import ComponentStatus
+from ...data import assert_type
+from ...data.grid import Grid
 
 
 class GridView(AComponent):
