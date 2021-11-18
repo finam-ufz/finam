@@ -2,8 +2,8 @@ import unittest
 from os import path
 from tempfile import TemporaryDirectory
 
-from core.interfaces import ComponentStatus
-from ..readers import CsvReader
+from finam.core.interfaces import ComponentStatus
+from finam.modules.readers import CsvReader
 
 
 class TestCsvReader(unittest.TestCase):

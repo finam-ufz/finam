@@ -4,8 +4,8 @@ Unit tests for the adapters.probe module.
 
 import unittest
 
-from core.sdk import Input, Output
-from ..probe import CallbackProbe
+from finam.core.sdk import Input, Output
+from finam.adapters.probe import CallbackProbe
 
 
 class TestProbe(unittest.TestCase):

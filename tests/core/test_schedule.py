@@ -4,9 +4,9 @@ Unit tests for the driver/scheduler.
 
 import unittest
 
-from ..interfaces import ComponentStatus, NoBranchAdapter
-from ..sdk import ATimeComponent, AAdapter, Input, Output
-from ..schedule import Composition
+from finam.core.interfaces import ComponentStatus, NoBranchAdapter
+from finam.core.sdk import ATimeComponent, AAdapter, Input, Output
+from finam.core.schedule import Composition
 
 
 class MockupComponent(ATimeComponent):

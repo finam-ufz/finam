@@ -4,8 +4,8 @@ Unit tests for the sdk implementations.
 
 import unittest
 
-from ..interfaces import ComponentStatus
-from ..sdk import AAdapter, CallbackInput, ATimeComponent, Output
+from finam.core.interfaces import ComponentStatus
+from finam.core.sdk import AAdapter, CallbackInput, ATimeComponent, Output
 
 
 class MockupAdapter(AAdapter):
