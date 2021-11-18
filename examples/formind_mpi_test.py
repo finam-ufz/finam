@@ -1,13 +1,13 @@
 import argparse
 import numpy as np
 
-from adapters import base, time
-from core import mpi
-from core.schedule import Composition
-from models import formind_mpi
-from modules import generators, writers
-from modules.visual import time_series
-from data.grid import Grid, GridSpec
+from finam.adapters import base, time
+from finam.core import mpi
+from finam.core.schedule import Composition
+from finam.models import formind_mpi
+from finam.modules import generators, writers
+from finam.modules.visual import time_series
+from finam.data.grid import Grid, GridSpec
 
 
 def run():

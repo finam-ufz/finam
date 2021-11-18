@@ -17,11 +17,11 @@ Coupling flow chart:
 import random
 import numpy as np
 
-from adapters import time, base
-from core.schedule import Composition
-from modules import generators
-from modules.visual import grid, time_series
-from data.grid import Grid, GridSpec
+from finam.adapters import time, base
+from finam.core.schedule import Composition
+from finam.modules import generators
+from finam.modules.visual import grid, time_series
+from finam.data.grid import Grid, GridSpec
 
 if __name__ == "__main__":
 

@@ -30,12 +30,12 @@ import random
 import time as sys_time
 import numpy as np
 
-from adapters import time, base
-from core.schedule import Composition
-from models import formind_simple, ogs, mhm
-from modules import writers, generators
-from modules.visual import schedule
-from data.grid import GridSpec
+from finam.adapters import time, base
+from finam.core.schedule import Composition
+from finam.models import formind_simple, ogs, mhm
+from finam.modules import writers, generators
+from finam.modules.visual import schedule
+from finam.data.grid import GridSpec
 
 
 if __name__ == "__main__":
