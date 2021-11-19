@@ -1,4 +1,4 @@
-Welcome to the finam-prototype documentation!
+Welcome to the finam documentation!
 =============================================
 
 .. toctree::
