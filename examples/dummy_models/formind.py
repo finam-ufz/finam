@@ -21,10 +21,10 @@ For each grid cell, calculations in each model step are as follows:
 import math
 import random
 
-from ..core.sdk import ATimeComponent, Input, Output
-from ..core.interfaces import ComponentStatus
-from ..data import assert_type
-from ..data.grid import Grid
+from finam.core.sdk import ATimeComponent, Input, Output
+from finam.core.interfaces import ComponentStatus
+from finam.data import assert_type
+from finam.data.grid import Grid
 
 
 class Formind(ATimeComponent):
