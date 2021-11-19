@@ -18,7 +18,7 @@ documentation:
   before_script:
     - pip3 install sphinx numpy
   script:
-    - export PYTHONPATH="src"
+    - pip3 install --editable .
     - sphinx-apidoc --separate -o docs src/finam
     - sphinx-build -W -b html docs docs/build
     - mv docs/build public/
