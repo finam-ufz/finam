@@ -1,8 +1,8 @@
 import unittest
 
-from ..formind_mpi import SoilWaterAdapter
-from data.grid import Grid, GridSpec
-from modules.generators import CallbackGenerator
+from finam.models.formind_mpi import SoilWaterAdapter
+from finam.data.grid import Grid, GridSpec
+from finam.modules.generators import CallbackGenerator
 
 
 def create_grid(value):

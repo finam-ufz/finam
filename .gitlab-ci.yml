@@ -10,7 +10,8 @@ check:
     - pip3 install black numpy pandas
   script:
     - black . --check
-    - python3 -m unittest discover -s finam -v
+    - pip3 install --editable .
+    - python3 -m unittest discover -s tests -v
 
 documentation:
   stage: build

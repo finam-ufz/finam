@@ -6,10 +6,10 @@ import unittest
 
 import numpy as np
 
-from modules.generators import CallbackGenerator
-from data.grid import Grid, GridSpec
+from finam.modules.generators import CallbackGenerator
+from finam.data.grid import Grid, GridSpec
 
-from ..base import Callback, GridCellCallback, GridToValue, ValueToGrid
+from finam.adapters.base import Callback, GridCellCallback, GridToValue, ValueToGrid
 
 
 class TestCallback(unittest.TestCase):
