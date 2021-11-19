@@ -1,30 +1,21 @@
-# FINAM Python prototype
+# FINAM
 
-A minimal interface specification and exemplary implementation for exploration and testing.
+A lightweight framework for component-based model coupling.
 
-* [Interfaces](./finam/core/interfaces.py)
-* [SDK](./finam/core/sdk.py)
-* [Models](./finam/models)
-* [Other modules](./finam/modules)
-* [Adapters](./finam/adapters)
+* [Interfaces](./src/finam/core/interfaces.py)
+* [SDK](./src/finam/core/sdk.py)
+* [Modules](./src/finam/modules)
+* [Adapters](./src/finam/adapters)
 
-For detailed documentation, see module `core` [sources](finam/core/__init__.py)
-and [docs](https://landtech.pages.ufz.de/finam-prototype/finam.core.html).
+For detailed documentation, see module `core` [sources](./src/finam/core/__init__.py)
+and the [docs](https://finam.pages.ufz.de/finam/finam.core.html).
 
-## Running examples
+## Examples
 
-Run the MPI example from the project root:
+Examples and dummy model implementations can be found in folder [`examples`](./examples/).
 
-Linux
-
-```
-export PYTHONPATH="formind"
-mpirun -n 4 python finam/formind_mpi_test.py --mpi formind 3
-```
-
-Windows
+Run the model coupling example from the project root:
 
 ```
-set PYTHONPATH=formind
-mpiexec -n 4 python finam/formind_mpi_test.py --mpi formind 3
+python examples/mhm_ogs_fm.py
 ```
