@@ -16,9 +16,9 @@ Calculations in each model step are as follows:
     head(t + \Delta t) = (head(t) + GW\_recharge) * 0.9
 """
 
-from ..core.sdk import ATimeComponent, Input, Output
-from ..core.interfaces import ComponentStatus
-from ..data import assert_type
+from finam.core.sdk import ATimeComponent, Input, Output
+from finam.core.interfaces import ComponentStatus
+from finam.data import assert_type
 
 
 class Ogs(ATimeComponent):

@@ -32,10 +32,11 @@ import numpy as np
 
 from finam.adapters import time, base
 from finam.core.schedule import Composition
-from finam.models import formind_simple, ogs, mhm
 from finam.modules import writers, generators
 from finam.modules.visual import schedule
 from finam.data.grid import GridSpec
+
+from dummy_models import formind, ogs, mhm
 
 
 if __name__ == "__main__":
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     precipitation = generators.CallbackGenerator({"precipitation": precip}, step=1)
     mhm = mhm.Mhm(grid_spec=GridSpec(5, 5, cell_size=1000), step=7)
     ogs = ogs.Ogs(step=30)
-    formind = formind_simple.Formind(grid_spec=GridSpec(5, 5, cell_size=1000), step=365)
+    formind = formind.Formind(grid_spec=GridSpec(5, 5, cell_size=1000), step=365)
 
     mhm_csv = writers.CsvWriter(
         path="mhm.csv",
