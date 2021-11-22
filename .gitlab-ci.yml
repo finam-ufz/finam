@@ -9,16 +9,17 @@ check:
   before_script:
     - pip3 install black numpy pandas
   script:
-    - black . --check
-    - python3 -m unittest discover -s finam -v
+    - black --check --diff --color .
+    - pip3 install --editable .[test]
+    - python -m pytest --cov finam --cov-report term-missing -v tests/
 
 documentation:
   stage: build
   before_script:
     - pip3 install sphinx numpy
   script:
-    - export PYTHONPATH="."
-    - sphinx-apidoc --separate -o docs finam
+    - pip3 install --editable .
+    - sphinx-apidoc --separate -o docs src/finam
     - sphinx-build -W -b html docs docs/build
     - mv docs/build public/
   artifacts:

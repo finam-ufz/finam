@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath("../finam"))
 
 # -- Project information -----------------------------------------------------
 
-project = "finam-prototype"
+project = "finam"
 copyright = "2021, Team LandTECH"
 author = "Team LandTECH"
 
