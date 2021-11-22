@@ -9,9 +9,9 @@ check:
   before_script:
     - pip3 install black numpy pandas
   script:
-    - black . --check
-    - pip3 install --editable .
-    - python3 -m unittest discover -s tests -v
+    - black --check --diff --color .
+    - pip3 install --editable .[test]
+    - python -m pytest --cov finam --cov-report term-missing -v tests/
 
 documentation:
   stage: build
