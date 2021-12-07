@@ -96,6 +96,10 @@ class TestComposition(unittest.TestCase):
         self.assertEqual(module.status(), ComponentStatus.FINALIZED)
         self.assertEqual(module.time(), 2)
 
+    def test_check_composition(self):
+        with self.assertRaises(AssertionError):
+            _comp = Composition(["not a component"])
+
     def test_validate_branching(self):
         module = MockupComponent(callbacks={"Output": lambda t: t}, step=1)
         composition = Composition([module])
