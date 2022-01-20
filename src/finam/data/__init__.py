@@ -2,8 +2,6 @@
 Specialized data types for exchanges between models/modules.
 """
 
-from . import grid
-
 
 def assert_type(cls, slot, obj, types):
     for t in types:
