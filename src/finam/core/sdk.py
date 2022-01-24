@@ -85,6 +85,10 @@ class Input(IInput):
         assert (
             self.source is None
         ), "Source of input is already set! (You probably tried to connect multiple outputs to a single input)"
+        assert isinstance(
+            source, IOutput
+        ), "Only IOutput can be set as source for Input"
+
         self.source = source
 
     def get_source(self):
@@ -122,6 +126,8 @@ class Output(IOutput):
         self.data = []
 
     def add_target(self, target):
+        assert isinstance(target, IInput), "Only IInput can added as target for IOutput"
+
         self.targets.append(target)
 
     def get_targets(self):

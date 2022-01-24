@@ -2,7 +2,13 @@
 Driver/scheduler for executing a coupled model composition.
 """
 
-from .interfaces import ITimeComponent, IMpiComponent, IAdapter, NoBranchAdapter
+from .interfaces import (
+    IComponent,
+    ITimeComponent,
+    IMpiComponent,
+    IAdapter,
+    NoBranchAdapter,
+)
 
 
 class Composition:
@@ -16,6 +22,9 @@ class Composition:
 
         :param modules: modules in the composition
         """
+        for module in modules:
+            assert isinstance(module, IComponent)
+
         self.modules = modules
         self.mpi_rank = mpi_rank
 

@@ -168,7 +168,7 @@ class IInput(ABC):
         Retrieve the data from the input's source.
 
         :param time: simulation time to get the data for
-        :return: data set fot the given simulation time
+        :return: data set for the given simulation time
         """
         pass
 
