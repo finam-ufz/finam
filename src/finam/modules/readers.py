@@ -1,6 +1,7 @@
 """
 Modules for reading data.
 """
+from datetime import datetime
 
 from ..core.interfaces import ComponentStatus
 from ..core.sdk import ATimeComponent, Output
@@ -23,14 +24,15 @@ class CsvReader(ATimeComponent):
     :param outputs: Column names that will become available as outputs for coupling
     """
 
-    def __init__(self, path, time_column, outputs):
+    def __init__(self, path, time_column, outputs, date_format=None):
         """
         Create a new CsvReader.
         """
         super(CsvReader, self).__init__()
         self._path = path
-        self._time = 0
+        self._time = None
         self._time_column = time_column
+        self._date_format = date_format
         self._data = None
         self._row_index = 0
 
@@ -51,7 +53,7 @@ class CsvReader(ATimeComponent):
     def connect(self):
         super().connect()
 
-        self._push_row(self._data.iloc[self._row_index])
+        self._time = self._push_row(self._data.iloc[self._row_index])
         self._row_index += 1
 
         self._status = ComponentStatus.CONNECTED
@@ -78,7 +80,12 @@ class CsvReader(ATimeComponent):
         self._status = ComponentStatus.FINALIZED
 
     def _push_row(self, row):
-        time = row[self._time_column]
+        if self._date_format is None:
+            time = datetime.fromisoformat(row[self._time_column])
+        else:
+            time = datetime.strptime(row[self._time_column], self._date_format)
+
         for o in self._output_names:
             self._outputs[o].push_data(row[o], time)
+
         return time

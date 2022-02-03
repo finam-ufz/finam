@@ -89,7 +89,7 @@ class TestChaining(unittest.TestCase):
 
         adapter1 >> adapter3
 
-        with self.assertRaises(AssertionError) as context:
+        with self.assertRaises(ValueError) as context:
             adapter2 >> adapter3
 
         self.assertTrue("Source of input is already set!" in str(context.exception))
@@ -98,6 +98,7 @@ class TestChaining(unittest.TestCase):
 class TestOutput(unittest.TestCase):
     def test_push_notify(self):
         counter = 0
+        t = datetime(2000, 1, 1)
 
         def callback(clr, time):
             nonlocal counter
@@ -108,10 +109,10 @@ class TestOutput(unittest.TestCase):
 
         out >> inp
 
-        out.push_data(100, 0)
+        out.push_data(100, t)
 
-        self.assertEqual(out.get_data(0), 100)
-        self.assertEqual(inp.pull_data(0), 100)
+        self.assertEqual(out.get_data(t), 100)
+        self.assertEqual(inp.pull_data(t), 100)
         self.assertEqual(counter, 1)
 
 
@@ -119,6 +120,7 @@ class TestCallbackInput(unittest.TestCase):
     def test_callback_input(self):
         caller = None
         counter = 0
+        t = datetime(2000, 1, 1)
 
         def callback(clr, time):
             nonlocal caller
@@ -128,7 +130,7 @@ class TestCallbackInput(unittest.TestCase):
 
         inp = CallbackInput(callback=callback)
 
-        inp.source_changed(0.0)
+        inp.source_changed(t)
 
         self.assertEqual(caller, inp)
         self.assertEqual(counter, 1)

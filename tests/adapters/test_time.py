@@ -182,7 +182,7 @@ class TestLinearIntegrationMean(unittest.TestCase):
 class TestLinearGridIntegrationSum(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: create_grid(t)},
+            callbacks={"Grid": lambda t: create_grid(t.day - 1)},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -215,7 +215,7 @@ class TestLinearGridIntegrationSum(unittest.TestCase):
 class TestLinearGridIntegrationMean(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: create_grid(t)},
+            callbacks={"Grid": lambda t: create_grid(t.day - 1)},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -242,7 +242,7 @@ class TestLinearGridIntegrationMean(unittest.TestCase):
 
 def create_grid(t):
     grid = Grid(GridSpec(10, 5))
-    grid.fill(t.day - 1)
+    grid.fill(t)
     return grid
 
 

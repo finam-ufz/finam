@@ -166,7 +166,6 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
 
         if self.normalize and len(self.data) > 1:
             dt = time - self.prev_time
-            print(dt)
             if dt.total_seconds() > 0:
                 sum_value /= dt
 
