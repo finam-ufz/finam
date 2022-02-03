@@ -15,6 +15,8 @@ Coupling flow chart:
 """
 
 import random
+from datetime import timedelta, datetime
+
 import numpy as np
 
 from finam.adapters import time, base
@@ -33,10 +35,15 @@ if __name__ == "__main__":
 
         return grid
 
-    generator = generators.CallbackGenerator({"Grid": generate_grid}, step=10)
-    viewer = grid.TimedGridView()
+    generator = generators.CallbackGenerator(
+        {"Grid": generate_grid}, start=datetime(2000, 1, 1), step=timedelta(days=10)
+    )
+    viewer = grid.TimedGridView(start=datetime(2000, 1, 1), step=timedelta(days=1))
     plot = time_series.TimeSeriesView(
-        inputs=["Linear (1)", "Mean (50)"], intervals=[1, 50]
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=1),
+        inputs=["Linear (1)", "Mean (50)"],
+        intervals=[1, 50],
     )
 
     composition = Composition([generator, viewer, plot])
@@ -53,4 +60,4 @@ if __name__ == "__main__":
     grid_mean >> time.LinearInterpolation() >> plot.inputs()["Linear (1)"]
     grid_mean >> time.LinearIntegration.mean() >> plot.inputs()["Mean (50)"]
 
-    composition.run(1000)
+    composition.run(datetime(2003, 1, 1))

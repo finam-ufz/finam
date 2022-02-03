@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from ...core.sdk import AComponent, ATimeComponent, Input, CallbackInput
 from ...core.interfaces import ComponentStatus
 from ...data import assert_type
@@ -20,7 +22,7 @@ class GridView(AComponent):
         Create a grid viewer
         """
         super(GridView, self).__init__()
-        self._time = 0
+        self._time = None
         self._image = None
         self._figure = None
         self._text = None
@@ -41,11 +43,12 @@ class GridView(AComponent):
     def validate(self):
         super().validate()
 
-        self.update_plot()
-
         self._status = ComponentStatus.VALIDATED
 
     def data_changed(self, caller, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         self._time = time
         if (
             self._status == ComponentStatus.VALIDATED
@@ -100,13 +103,20 @@ class TimedGridView(ATimeComponent, GridView):
                  +---------------+
     """
 
-    def __init__(self, step=1):
+    def __init__(self, start, step):
         """
         Creates a grid viewer
 
         :param step: Update/request time step in model time
         """
         super(TimedGridView, self).__init__()
+
+        if not isinstance(start, datetime):
+            raise ValueError("Start must be of type datetime")
+        if not isinstance(step, timedelta):
+            raise ValueError("Step must be of type timedelta")
+
+        self._time = start
         self._step = step
 
     def initialize(self):
