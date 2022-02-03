@@ -104,11 +104,11 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
     """
 
     @classmethod
-    def sum(cls):
+    def sum(cls, time_unit=None):
         """
         Create a new time integration providing the sum over time (i.e. integral, AUC).
         """
-        return LinearIntegration(normalize=False)
+        return LinearIntegration(normalize=False, time_unit=time_unit)
 
     @classmethod
     def mean(cls):
@@ -117,10 +117,11 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         """
         return LinearIntegration(normalize=True)
 
-    def __init__(self, normalize=True):
+    def __init__(self, normalize=True, time_unit=None):
         super().__init__()
         self.data = []
         self.prev_time = None
+        self.time_unit = time_unit
         self.normalize = normalize
 
     def source_changed(self, time):
@@ -164,10 +165,13 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
 
             sum_value = value if sum_value is None else sum_value + value
 
-        if self.normalize and len(self.data) > 1:
-            dt = time - self.prev_time
-            if dt.total_seconds() > 0:
-                sum_value /= dt
+        if self.normalize:
+            if len(self.data) > 1:
+                dt = time - self.prev_time
+                if dt.total_seconds() > 0:
+                    sum_value /= dt
+        elif self.time_unit:
+            sum_value /= self.time_unit
 
         if len(self.data) > 2:
             self.data = self.data[-2:]
