@@ -3,6 +3,7 @@ Unit tests for the adapters.time module.
 """
 
 import unittest
+from datetime import timedelta, datetime
 
 from finam.modules.generators import CallbackGenerator
 from finam.data.grid import Grid, GridSpec
@@ -16,7 +17,12 @@ from finam.adapters.time import (
 
 class TestNextValue(unittest.TestCase):
     def setUp(self):
-        self.source = CallbackGenerator(callbacks={"Step": lambda t: t}, step=1)
+        self.source = CallbackGenerator(
+            callbacks={"Step": lambda t: t.day - 1},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
+
         self.adapter = NextValue()
 
         self.source.initialize()
@@ -27,18 +33,23 @@ class TestNextValue(unittest.TestCase):
         self.source.validate()
 
     def test_next_value(self):
-        self.assertEqual(self.adapter.get_data(0.0), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0)), 0.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(0.5), 1.0)
-        self.assertEqual(self.adapter.get_data(1.0), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12)), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)), 1.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(1.5), 2.0)
-        self.assertEqual(self.adapter.get_data(2.0), 2.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 2.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
 
 
 class TestPreviousValue(unittest.TestCase):
     def setUp(self):
-        self.source = CallbackGenerator(callbacks={"Step": lambda t: t}, step=1)
+        self.source = CallbackGenerator(
+            callbacks={"Step": lambda t: t.day - 1},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
+
         self.adapter = PreviousValue()
 
         self.source.initialize()
@@ -49,18 +60,23 @@ class TestPreviousValue(unittest.TestCase):
         self.source.validate()
 
     def test_previous_value(self):
-        self.assertEqual(self.adapter.get_data(0.0), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0)), 0.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(0.5), 0.0)
-        self.assertEqual(self.adapter.get_data(1.0), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12)), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)), 1.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(1.5), 1.0)
-        self.assertEqual(self.adapter.get_data(2.0), 2.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
 
 
 class TestLinearInterpolation(unittest.TestCase):
     def setUp(self):
-        self.source = CallbackGenerator(callbacks={"Step": lambda t: t}, step=1)
+        self.source = CallbackGenerator(
+            callbacks={"Step": lambda t: t.day - 1},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
+
         self.adapter = LinearInterpolation()
 
         self.source.initialize()
@@ -70,20 +86,23 @@ class TestLinearInterpolation(unittest.TestCase):
         self.source.validate()
 
     def test_linear_interpolation(self):
-        self.assertEqual(self.adapter.get_data(0.0), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0)), 0.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(0.5), 0.5)
-        self.assertEqual(self.adapter.get_data(1.0), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12)), 0.5)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)), 1.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(1.5), 1.5)
-        self.assertEqual(self.adapter.get_data(2.0), 2.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 1.5)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
 
 
 class TestLinearGridInterpolation(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: create_grid(t)}, step=1
+            callbacks={"Grid": lambda t: create_grid(t.day - 1)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
         )
+
         self.adapter = LinearInterpolation()
 
         self.source.initialize()
@@ -93,18 +112,23 @@ class TestLinearGridInterpolation(unittest.TestCase):
         self.source.validate()
 
     def test_linear_grid_interpolation(self):
-        self.assertEqual(self.adapter.get_data(0.0).get(2, 3), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0)).get(2, 3), 0.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(0.5).get(2, 3), 0.5)
-        self.assertEqual(self.adapter.get_data(1.0).get(2, 3), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12)).get(2, 3), 0.5)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)).get(2, 3), 1.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(1.5).get(2, 3), 1.5)
-        self.assertEqual(self.adapter.get_data(2.0).get(2, 3), 2.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)).get(2, 3), 1.5)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)).get(2, 3), 2.0)
 
 
 class TestLinearIntegrationSum(unittest.TestCase):
     def setUp(self):
-        self.source = CallbackGenerator(callbacks={"Step": lambda t: t}, step=1)
+        self.source = CallbackGenerator(
+            callbacks={"Step": lambda t: t.day - 1},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
+
         self.adapter = LinearIntegration.sum()
 
         self.source.initialize()
@@ -116,16 +140,27 @@ class TestLinearIntegrationSum(unittest.TestCase):
 
     def test_linear_integration_sum(self):
         self.source.update()
-        self.assertEqual(self.adapter.get_data(0.5), 0.125)
-        self.assertEqual(self.adapter.get_data(1.0), 0.375)
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 1, 12)), timedelta(hours=3)
+        )
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 2, 0)), timedelta(hours=9)
+        )
         self.source.update()
         self.source.update()
-        self.assertEqual(self.adapter.get_data(3.0), 4.0)
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 4, 0)), timedelta(days=4)
+        )
 
 
 class TestLinearIntegrationMean(unittest.TestCase):
     def setUp(self):
-        self.source = CallbackGenerator(callbacks={"Step": lambda t: t}, step=1)
+        self.source = CallbackGenerator(
+            callbacks={"Step": lambda t: t.day - 1},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
+
         self.adapter = LinearIntegration.mean()
 
         self.source.initialize()
@@ -137,18 +172,21 @@ class TestLinearIntegrationMean(unittest.TestCase):
 
     def test_linear_integration_mean(self):
         self.source.update()
-        self.assertEqual(self.adapter.get_data(0.5), 0.25)
-        self.assertEqual(self.adapter.get_data(1.0), 0.75)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12)), 0.25)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)), 0.75)
         self.source.update()
         self.source.update()
-        self.assertEqual(self.adapter.get_data(3.0), 2.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 4, 0)), 2.0)
 
 
 class TestLinearGridIntegrationSum(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: create_grid(t)}, step=1
+            callbacks={"Grid": lambda t: create_grid(t)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
         )
+
         self.adapter = LinearIntegration.sum()
 
         self.source.initialize()
@@ -160,18 +198,28 @@ class TestLinearGridIntegrationSum(unittest.TestCase):
 
     def test_linear_grid_integration_sum(self):
         self.source.update()
-        self.assertEqual(self.adapter.get_data(0.5).get(2, 3), 0.125)
-        self.assertEqual(self.adapter.get_data(1.0).get(2, 3), 0.375)
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 1, 12)).get(2, 3),
+            timedelta(hours=3),
+        )
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 2, 0)).get(2, 3), timedelta(hours=9)
+        )
         self.source.update()
         self.source.update()
-        self.assertEqual(self.adapter.get_data(3.0).get(2, 3), 4.0)
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 4, 0)).get(2, 3), timedelta(days=4)
+        )
 
 
 class TestLinearGridIntegrationMean(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: create_grid(t)}, step=1
+            callbacks={"Grid": lambda t: create_grid(t)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
         )
+
         self.adapter = LinearIntegration.mean()
 
         self.source.initialize()
@@ -181,18 +229,20 @@ class TestLinearGridIntegrationMean(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-    def test_linear_grid_integration_sum(self):
+    def test_linear_grid_integration_mean(self):
         self.source.update()
-        self.assertEqual(self.adapter.get_data(0.5).get(2, 3), 0.25)
-        self.assertEqual(self.adapter.get_data(1.0).get(2, 3), 0.75)
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 1, 12)).get(2, 3), 0.25
+        )
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)).get(2, 3), 0.75)
         self.source.update()
         self.source.update()
-        self.assertEqual(self.adapter.get_data(3.0).get(2, 3), 2.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 4, 0)).get(2, 3), 2.0)
 
 
 def create_grid(t):
     grid = Grid(GridSpec(10, 5))
-    grid.fill(t)
+    grid.fill(t.day - 1)
     return grid
 
 

@@ -3,6 +3,8 @@ Implementations of the coupling interfaces for simpler development of modules an
 """
 
 from abc import ABC
+from datetime import datetime, timedelta
+
 from .interfaces import (
     IInput,
     IOutput,
@@ -67,9 +69,12 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
 
     def __init__(self):
         super(ATimeComponent, self).__init__()
-        self._time = 0
+        self._time = None
 
     def time(self):
+        if not isinstance(self._time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         return self._time
 
 
@@ -82,12 +87,13 @@ class Input(IInput):
         self.source = None
 
     def set_source(self, source):
-        assert (
-            self.source is None
-        ), "Source of input is already set! (You probably tried to connect multiple outputs to a single input)"
-        assert isinstance(
-            source, IOutput
-        ), "Only IOutput can be set as source for Input"
+        if self.source is not None:
+            raise ValueError(
+                "Source of input is already set! (You probably tried to connect multiple outputs to a single input)"
+            )
+
+        if not isinstance(source, IOutput):
+            raise ValueError("Only IOutput can be set as source for Input")
 
         self.source = source
 
@@ -98,6 +104,9 @@ class Input(IInput):
         pass
 
     def pull_data(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         return self.source.get_data(time)
 
 
@@ -113,6 +122,9 @@ class CallbackInput(Input, IInput):
         self.callback = callback
 
     def source_changed(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         self.callback(self, time)
 
 
@@ -134,14 +146,23 @@ class Output(IOutput):
         return self.targets
 
     def push_data(self, data, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         self.data = data
         self.notify_targets(time)
 
     def notify_targets(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         for target in self.targets:
             target.source_changed(time)
 
     def get_data(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         return self.data
 
     def chain(self, other):
@@ -161,7 +182,13 @@ class AAdapter(IAdapter, Input, Output, ABC):
         self.targets = []
 
     def push_data(self, data, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         self.notify_targets(time)
 
     def source_changed(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         self.notify_targets(time)

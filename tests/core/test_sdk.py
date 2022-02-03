@@ -3,6 +3,7 @@ Unit tests for the sdk implementations.
 """
 
 import unittest
+from datetime import datetime
 
 from finam.core.interfaces import ComponentStatus
 from finam.core.sdk import AAdapter, CallbackInput, ATimeComponent, Output
@@ -17,14 +18,16 @@ class MockupAdapter(AAdapter):
 
 
 class MockupComponent(ATimeComponent):
-    pass
+    def __init__(self):
+        super().__init__()
+        self._time = datetime(2000, 1, 1)
 
 
 class TestComponent(unittest.TestCase):
     def test_component_status(self):
         component = MockupComponent()
 
-        self.assertEqual(component.time(), 0)
+        self.assertEqual(component.time(), datetime(2000, 1, 1))
 
         component._status = ComponentStatus.CREATED
         component.initialize()

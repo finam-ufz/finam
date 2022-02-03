@@ -1,6 +1,7 @@
 """
 Driver/scheduler for executing a coupled model composition.
 """
+from datetime import datetime
 
 from .interfaces import (
     IComponent,
@@ -59,6 +60,9 @@ class Composition:
         :param t_max: simulation time up to which to simulate
         """
         self.validate()
+
+        if not isinstance(t_max, datetime):
+            raise ValueError("t_max must be of type datetime")
 
         for mod in self.modules:
             mod.connect()

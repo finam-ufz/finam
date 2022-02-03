@@ -3,6 +3,7 @@ Unit tests for the driver/scheduler.
 """
 
 import unittest
+from datetime import datetime, timedelta
 
 from finam.core.interfaces import ComponentStatus, NoBranchAdapter
 from finam.core.sdk import ATimeComponent, AAdapter, Input, Output
@@ -15,9 +16,13 @@ class MockupComponent(ATimeComponent):
         Create a new CallbackGenerator.
         """
         super(MockupComponent, self).__init__()
+
+        if not isinstance(step, timedelta):
+            raise ValueError("Step must be of type timedelta")
+
         self._callbacks = callbacks
         self._step = step
-        self._time = 0
+        self._time = datetime(2000, 1, 1)
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
@@ -84,24 +89,24 @@ class NbAdapter(AAdapter, NoBranchAdapter):
 
 class TestComposition(unittest.TestCase):
     def test_init_run(self):
-        module = MockupComponent(callbacks={"Output": lambda t: t}, step=1)
+        module = MockupComponent(callbacks={"Output": lambda t: t}, step=timedelta(1.0))
         composition = Composition([module])
         composition.initialize()
 
         self.assertEqual(module.status(), ComponentStatus.INITIALIZED)
         self.assertEqual(len(module.outputs()), 1)
 
-        composition.run(t_max=2.0)
+        composition.run(t_max=datetime(2000, 1, 31))
 
         self.assertEqual(module.status(), ComponentStatus.FINALIZED)
-        self.assertEqual(module.time(), 2)
+        self.assertEqual(module.time(), datetime(2000, 1, 31))
 
     def test_check_composition(self):
         with self.assertRaises(AssertionError):
             _comp = Composition(["not a component"])
 
     def test_validate_branching(self):
-        module = MockupComponent(callbacks={"Output": lambda t: t}, step=1)
+        module = MockupComponent(callbacks={"Output": lambda t: t}, step=timedelta(1.0))
         composition = Composition([module])
         composition.initialize()
 

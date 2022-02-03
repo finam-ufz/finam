@@ -1,6 +1,7 @@
 """
 Adapters that deal with time, like temporal interpolation and integration.
 """
+from datetime import datetime
 
 from ..core.interfaces import NoBranchAdapter
 from ..core.sdk import AAdapter
@@ -16,12 +17,18 @@ class NextValue(AAdapter):
         self.data = None
 
     def source_changed(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         data = self.pull_data(time)
         self.data = data
 
         self.notify_targets(time)
 
     def get_data(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         return self.data
 
 
@@ -36,6 +43,9 @@ class PreviousValue(AAdapter):
         self.new_data = None
 
     def source_changed(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         data = self.pull_data(time)
         if self.new_data is None:
             self.old_data = (time, data)
@@ -47,6 +57,9 @@ class PreviousValue(AAdapter):
         self.notify_targets(time)
 
     def get_data(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         if time < self.new_data[0]:
             return self.old_data[1]
         else:
@@ -70,10 +83,13 @@ class LinearInterpolation(AAdapter):
         self.notify_targets(time)
 
     def get_data(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         if self.old_data is None:
             return self.new_data[1]
 
-        dt = (time - self.old_data[0]) / float(self.new_data[0] - self.old_data[0])
+        dt = (time - self.old_data[0]) / (self.new_data[0] - self.old_data[0])
 
         o = self.old_data[1]
         n = self.new_data[1]
@@ -104,16 +120,22 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
     def __init__(self, normalize=True):
         super().__init__()
         self.data = []
-        self.prev_time = 0
+        self.prev_time = None
         self.normalize = normalize
 
     def source_changed(self, time):
         data = self.pull_data(time)
         self.data.append((time, data))
 
+        if self.prev_time is None:
+            self.prev_time = time
+
         self.notify_targets(time)
 
     def get_data(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
         if len(self.data) == 1:
             return self.data[0][1]
 
@@ -131,21 +153,22 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
             if time <= t_old:
                 break
 
-            scale = float(t_new - t_old)
+            scale = t_new - t_old
 
             dt1 = max((self.prev_time - t_old) / scale, 0.0)
             dt2 = min((time - t_old) / scale, 1.0)
 
             v1 = _interpolate(v_old, v_new, dt1)
             v2 = _interpolate(v_old, v_new, dt2)
-
             value = (dt2 - dt1) * scale * 0.5 * (v1 + v2)
+
             sum_value = value if sum_value is None else sum_value + value
 
-        if self.normalize:
+        if self.normalize and len(self.data) > 1:
             dt = time - self.prev_time
-            if dt > 0:
-                sum_value /= float(dt)
+            print(dt)
+            if dt.total_seconds() > 0:
+                sum_value /= dt
 
         if len(self.data) > 2:
             self.data = self.data[-2:]
