@@ -58,6 +58,6 @@ if __name__ == "__main__":
     grid_mean = generator.outputs()["Grid"] >> base.GridToValue(func=np.mean)
 
     grid_mean >> time.LinearInterpolation() >> plot.inputs()["Linear (1)"]
-    grid_mean >> time.LinearIntegration.mean() >> plot.inputs()["Mean (50)"]
+    grid_mean >> time.LinearIntegration() >> plot.inputs()["Mean (50)"]
 
     composition.run(datetime(2003, 1, 1))

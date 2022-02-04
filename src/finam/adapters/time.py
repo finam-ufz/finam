@@ -1,10 +1,12 @@
 """
 Adapters that deal with time, like temporal interpolation and integration.
 """
+import numpy as np
 from datetime import datetime
 
 from ..core.interfaces import NoBranchAdapter
 from ..core.sdk import AAdapter
+from ..data.grid import Grid
 
 
 class NextValue(AAdapter):
@@ -100,29 +102,13 @@ class LinearInterpolation(AAdapter):
 class LinearIntegration(AAdapter, NoBranchAdapter):
     """
     Time integration over the last time step of the requester.
-    Can be used to obtain Area Under Curve (i.e. integral), or temporal average.
+    Calculates the temporal average.
     """
 
-    @classmethod
-    def sum(cls, time_unit=None):
-        """
-        Create a new time integration providing the sum over time (i.e. integral, AUC).
-        """
-        return LinearIntegration(normalize=False, time_unit=time_unit)
-
-    @classmethod
-    def mean(cls):
-        """
-        Create a new time integration providing the mean over time.
-        """
-        return LinearIntegration(normalize=True)
-
-    def __init__(self, normalize=True, time_unit=None):
+    def __init__(self):
         super().__init__()
         self.data = []
         self.prev_time = None
-        self.time_unit = time_unit
-        self.normalize = normalize
 
     def source_changed(self, time):
         data = self.pull_data(time)
@@ -165,13 +151,12 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
 
             sum_value = value if sum_value is None else sum_value + value
 
-        if self.normalize:
-            dt = time - self.prev_time
-            if dt.total_seconds() > 0:
-                sum_value /= dt
+        dt = time - self.prev_time
+        if dt.total_seconds() > 0:
+            sum_value /= dt
 
-        elif self.time_unit:
-            sum_value /= self.time_unit
+        if isinstance(sum_value, np.ndarray):
+            sum_value = sum_value.astype(dtype=np.float64, copy=False)
 
         if len(self.data) > 2:
             self.data = self.data[-2:]

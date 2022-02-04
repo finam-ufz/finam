@@ -30,6 +30,28 @@ class Callback(AAdapter):
         return self.callback(d, time)
 
 
+class Scale(AAdapter):
+    """
+    Scales the input.
+
+    :param scale: Scale factor.
+    """
+
+    def __init__(self, scale):
+        """
+        Create a new Scale generator.
+        """
+        super().__init__()
+        self.scale = scale
+
+    def get_data(self, time):
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
+
+        d = self.pull_data(time)
+        return d * self.scale
+
+
 class GridCellCallback(AAdapter):
     """
     Transform grid data using a per-cell callback.

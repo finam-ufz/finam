@@ -124,3 +124,7 @@ class Mhm(ATimeComponent):
         super().finalize()
 
         self._status = ComponentStatus.FINALIZED
+
+    @property
+    def step(self):
+        return self._step
