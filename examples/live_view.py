@@ -60,4 +60,4 @@ if __name__ == "__main__":
     grid_mean >> time.LinearInterpolation() >> plot.inputs()["Linear (1)"]
     grid_mean >> time.LinearIntegration() >> plot.inputs()["Mean (50)"]
 
-    composition.run(datetime(2003, 1, 1))
+    composition.run(datetime(2000, 7, 1))

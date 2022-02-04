@@ -203,4 +203,4 @@ if __name__ == "__main__":
             formind.outputs()["LAI"] >> schedule_view.inputs()["Formind (365d)"]
         )  # Formind -> schedule
 
-    composition.run(datetime(2025, 1, 1))
+    composition.run(datetime(2002, 1, 1))

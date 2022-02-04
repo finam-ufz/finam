@@ -10,7 +10,13 @@ import numpy as np
 from finam.modules.generators import CallbackGenerator
 from finam.data.grid import Grid, GridSpec
 
-from finam.adapters.base import Callback, Scale, GridCellCallback, GridToValue, ValueToGrid
+from finam.adapters.base import (
+    Callback,
+    Scale,
+    GridCellCallback,
+    GridToValue,
+    ValueToGrid,
+)
 
 
 class TestCallback(unittest.TestCase):
