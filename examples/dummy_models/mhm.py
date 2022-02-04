@@ -112,7 +112,6 @@ class Mhm(ATimeComponent):
 
         # Increment model time
         self._time += self._step
-
         # Push model state to outputs
         self._outputs["soil_water"].push_data(self.soil_water, self.time())
         self._outputs["GW_recharge"].push_data(total_recharge, self.time())

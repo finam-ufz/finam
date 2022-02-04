@@ -166,10 +166,10 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
             sum_value = value if sum_value is None else sum_value + value
 
         if self.normalize:
-            if len(self.data) > 1:
-                dt = time - self.prev_time
-                if dt.total_seconds() > 0:
-                    sum_value /= dt
+            dt = time - self.prev_time
+            if dt.total_seconds() > 0:
+                sum_value /= dt
+
         elif self.time_unit:
             sum_value /= self.time_unit
 

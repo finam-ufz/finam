@@ -47,7 +47,7 @@ if __name__ == "__main__":
     day = timedelta(days=1)
 
     show_schedule = True
-    sleep_seconds = 0.04
+    sleep_seconds = 0.0001
 
     def precip(t):
         tt = (t - start_date).days
