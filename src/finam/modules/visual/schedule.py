@@ -71,7 +71,10 @@ class ScheduleView(AComponent):
         self._caller = caller
         self._time = time
 
-        if self._status == ComponentStatus.UPDATED:
+        if (
+            self._status == ComponentStatus.UPDATED
+            or self._status == ComponentStatus.VALIDATED
+        ):
             self.update()
         else:
             self.update_plot()

@@ -111,13 +111,13 @@ if __name__ == "__main__":
 
     (  # RNG -> mHM (precipitation)
         precipitation.outputs()["precipitation"]
-        >> time.LinearIntegration.sum(time_unit=day)
+        >> time.LinearIntegration()
         >> mhm.inputs()["precipitation"]
     )
 
     (  # mHM -> Formind (soil moisture)
         mhm.outputs()["soil_water"]
-        >> time.LinearIntegration.mean()
+        >> time.LinearIntegration()
         >> formind.inputs()["soil_water"]
     )
 
@@ -127,7 +127,8 @@ if __name__ == "__main__":
 
     (  # mHM -> OGS (base_flow)
         mhm.outputs()["GW_recharge"]
-        >> time.LinearIntegration.sum(time_unit=day)
+        >> time.LinearIntegration()
+        >> base.Scale(ogs.step.days)
         >> ogs.inputs()["GW_recharge"]
     )
 
@@ -135,7 +136,8 @@ if __name__ == "__main__":
 
     (  # RNG -> CSV (precipitation)
         precipitation.outputs()["precipitation"]
-        >> time.LinearIntegration.sum(time_unit=day)
+        >> time.LinearIntegration()
+        >> base.Scale(mhm_csv._step.days)
         >> mhm_csv.inputs()["precip_in"]
     )
 
@@ -169,7 +171,8 @@ if __name__ == "__main__":
 
     (  # OGS -> CSV (base_flow_in)
         mhm.outputs()["GW_recharge"]
-        >> time.LinearIntegration.sum(time_unit=day)
+        >> time.LinearIntegration()
+        >> base.Scale(ogs_csv._step.days)
         >> ogs_csv.inputs()["GW_recharge_in"]
     )
 
@@ -183,7 +186,7 @@ if __name__ == "__main__":
     (  # formind -> CSV (soil_water_in)
         mhm.outputs()["soil_water"]
         >> base.GridToValue(func=np.mean)
-        >> time.LinearIntegration.mean()
+        >> time.LinearIntegration()
         >> formind_csv.inputs()["soil_water_in"]
     )
 
@@ -200,4 +203,4 @@ if __name__ == "__main__":
             formind.outputs()["LAI"] >> schedule_view.inputs()["Formind (365d)"]
         )  # Formind -> schedule
 
-    composition.run(datetime(2025, 1, 1))
+    composition.run(datetime(2002, 1, 1))

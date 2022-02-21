@@ -10,7 +10,13 @@ import numpy as np
 from finam.modules.generators import CallbackGenerator
 from finam.data.grid import Grid, GridSpec
 
-from finam.adapters.base import Callback, GridCellCallback, GridToValue, ValueToGrid
+from finam.adapters.base import (
+    Callback,
+    Scale,
+    GridCellCallback,
+    GridToValue,
+    ValueToGrid,
+)
 
 
 class TestCallback(unittest.TestCase):
@@ -22,6 +28,32 @@ class TestCallback(unittest.TestCase):
         )
 
         self.adapter = Callback(callback=lambda v, t: v * 2)
+
+        self.source.initialize()
+
+        self.source.outputs()["Step"] >> self.adapter
+
+        self.source.connect()
+        self.source.validate()
+
+    def test_callback_adapter(self):
+        t = datetime(2000, 1, 1)
+        self.assertEqual(self.adapter.get_data(t), 0)
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(t), 2)
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(t), 4)
+
+
+class TestScale(unittest.TestCase):
+    def setUp(self):
+        self.source = CallbackGenerator(
+            callbacks={"Step": lambda t: t.day - 1},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
+
+        self.adapter = Scale(scale=2.0)
 
         self.source.initialize()
 

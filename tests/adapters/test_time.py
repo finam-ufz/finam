@@ -121,7 +121,7 @@ class TestLinearGridInterpolation(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)).get(2, 3), 2.0)
 
 
-class TestLinearIntegrationSum(unittest.TestCase):
+class TestLinearIntegration(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
             callbacks={"Step": lambda t: t.day - 1},
@@ -129,7 +129,7 @@ class TestLinearIntegrationSum(unittest.TestCase):
             step=timedelta(1.0),
         )
 
-        self.adapter = LinearIntegration.sum()
+        self.adapter = LinearIntegration()
 
         self.source.initialize()
 
@@ -138,39 +138,7 @@ class TestLinearIntegrationSum(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-    def test_linear_integration_sum(self):
-        self.source.update()
-        self.assertEqual(
-            self.adapter.get_data(datetime(2000, 1, 1, 12)), timedelta(hours=3)
-        )
-        self.assertEqual(
-            self.adapter.get_data(datetime(2000, 1, 2, 0)), timedelta(hours=9)
-        )
-        self.source.update()
-        self.source.update()
-        self.assertEqual(
-            self.adapter.get_data(datetime(2000, 1, 4, 0)), timedelta(days=4)
-        )
-
-
-class TestLinearIntegrationMean(unittest.TestCase):
-    def setUp(self):
-        self.source = CallbackGenerator(
-            callbacks={"Step": lambda t: t.day - 1},
-            start=datetime(2000, 1, 1),
-            step=timedelta(1.0),
-        )
-
-        self.adapter = LinearIntegration.mean()
-
-        self.source.initialize()
-
-        self.source.outputs()["Step"] >> self.adapter
-
-        self.source.connect()
-        self.source.validate()
-
-    def test_linear_integration_mean(self):
+    def test_linear_integration(self):
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12)), 0.25)
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)), 0.75)
@@ -179,7 +147,7 @@ class TestLinearIntegrationMean(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 4, 0)), 2.0)
 
 
-class TestLinearGridIntegrationSum(unittest.TestCase):
+class TestLinearGridIntegration(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
             callbacks={"Grid": lambda t: create_grid(t.day - 1)},
@@ -187,7 +155,7 @@ class TestLinearGridIntegrationSum(unittest.TestCase):
             step=timedelta(1.0),
         )
 
-        self.adapter = LinearIntegration.sum()
+        self.adapter = LinearIntegration()
 
         self.source.initialize()
 
@@ -196,40 +164,7 @@ class TestLinearGridIntegrationSum(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-    def test_linear_grid_integration_sum(self):
-        self.source.update()
-        self.assertEqual(
-            self.adapter.get_data(datetime(2000, 1, 1, 12)).get(2, 3),
-            timedelta(hours=3),
-        )
-        self.assertEqual(
-            self.adapter.get_data(datetime(2000, 1, 2, 0)).get(2, 3), timedelta(hours=9)
-        )
-        self.source.update()
-        self.source.update()
-        self.assertEqual(
-            self.adapter.get_data(datetime(2000, 1, 4, 0)).get(2, 3), timedelta(days=4)
-        )
-
-
-class TestLinearGridIntegrationMean(unittest.TestCase):
-    def setUp(self):
-        self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: create_grid(t.day - 1)},
-            start=datetime(2000, 1, 1),
-            step=timedelta(1.0),
-        )
-
-        self.adapter = LinearIntegration.mean()
-
-        self.source.initialize()
-
-        self.source.outputs()["Grid"] >> self.adapter
-
-        self.source.connect()
-        self.source.validate()
-
-    def test_linear_grid_integration_mean(self):
+    def test_linear_grid_integration(self):
         self.source.update()
         self.assertEqual(
             self.adapter.get_data(datetime(2000, 1, 1, 12)).get(2, 3), 0.25
