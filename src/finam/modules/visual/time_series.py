@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from ...core.sdk import ATimeComponent, Input
 from ...core.interfaces import ComponentStatus
 from ...data import assert_type
@@ -24,15 +26,21 @@ class TimeSeriesView(ATimeComponent):
     :param update_interval: Redraw interval (independent of data retrieval)
     """
 
-    def __init__(self, inputs, intervals=None, step=1, update_interval=1):
+    def __init__(self, inputs, start, step, intervals=None, update_interval=1):
         """
         Create a time series viewer.
         """
         super(TimeSeriesView, self).__init__()
+
+        if not isinstance(start, datetime):
+            raise ValueError("Start must be of type datetime")
+        if not isinstance(step, timedelta):
+            raise ValueError("Step must be of type timedelta")
+
         self._step = step
         self._update_interval = update_interval
         self._intervals = intervals if intervals else [1 for _ in inputs]
-        self._time = 0
+        self._time = start
         self._updates = 0
         self._figure = None
         self._axes = None
@@ -49,8 +57,13 @@ class TimeSeriesView(ATimeComponent):
         super().initialize()
 
         import matplotlib.pyplot as plt
+        import matplotlib.dates as mdates
 
         self._figure, self._axes = plt.subplots()
+        date_format = mdates.AutoDateFormatter(self._axes.xaxis)
+        self._axes.xaxis.set_major_formatter(date_format)
+        self._axes.tick_params(axis="x", labelrotation=20)
+
         self._figure.show()
 
         self._status = ComponentStatus.INITIALIZED

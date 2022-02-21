@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from ...core.sdk import AComponent, ATimeComponent, Input, CallbackInput
 from ...core.interfaces import ComponentStatus
 
@@ -24,12 +26,12 @@ class ScheduleView(AComponent):
         Create a schedule viewer
         """
         super(ScheduleView, self).__init__()
-        self._time = 0
+        self._time = None
         self._caller = None
         self._figure = None
         self._axes = None
         self._lines = None
-        self._x = [[0] for _ in inputs]
+        self._x = [[] for _ in inputs]
 
         self._input_names = inputs
         self._inputs = {inp: CallbackInput(self.data_changed) for inp in inputs}
@@ -40,8 +42,13 @@ class ScheduleView(AComponent):
         super().initialize()
 
         import matplotlib.pyplot as plt
+        import matplotlib.dates as mdates
 
         self._figure, self._axes = plt.subplots(figsize=(8, 3))
+
+        date_format = mdates.AutoDateFormatter(self._axes.xaxis)
+        self._axes.xaxis.set_major_formatter(date_format)
+        self._axes.tick_params(axis="x", labelrotation=20)
         self._axes.set_yticks(range(len(self._input_names)))
         self._axes.set_yticklabels(self._input_names)
 
@@ -57,9 +64,7 @@ class ScheduleView(AComponent):
 
     def validate(self):
         super().validate()
-
         self.update_plot()
-
         self._status = ComponentStatus.VALIDATED
 
     def data_changed(self, caller, time):
@@ -67,10 +72,12 @@ class ScheduleView(AComponent):
         self._time = time
 
         if (
-            self._status == ComponentStatus.VALIDATED
-            or self._status == ComponentStatus.UPDATED
+            self._status == ComponentStatus.UPDATED
+            or self._status == ComponentStatus.VALIDATED
         ):
             self.update()
+        else:
+            self.update_plot()
 
     def update(self):
         super().update()
@@ -82,7 +89,7 @@ class ScheduleView(AComponent):
     def update_plot(self):
         if self._lines is None:
             self._lines = [
-                self._axes.plot([0], i, marker="+", label=h)[0]
+                self._axes.plot([datetime.min], i, marker="+", label=h)[0]
                 for i, h in enumerate(self._input_names)
             ]
 

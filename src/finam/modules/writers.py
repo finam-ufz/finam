@@ -1,6 +1,7 @@
 """
 Modules for writing data.
 """
+from datetime import datetime, timedelta
 
 import numpy as np
 
@@ -28,14 +29,20 @@ class CsvWriter(ATimeComponent):
     :param inputs: List of input names that will become available for coupling
     """
 
-    def __init__(self, path, step, inputs):
+    def __init__(self, path, start, step, inputs):
         """
         Create a new CsvWriter.
         """
         super(CsvWriter, self).__init__()
+
+        if not isinstance(start, datetime):
+            raise ValueError("Start must be of type datetime")
+        if not isinstance(step, timedelta):
+            raise ValueError("Step must be of type timedelta")
+
         self._path = path
-        self._time = 0
         self._step = step
+        self._time = start
 
         self._input_names = inputs
         self._inputs = {inp: Input() for inp in inputs}
@@ -67,7 +74,7 @@ class CsvWriter(ATimeComponent):
         for (value, name) in zip(values, self._input_names):
             assert_type(self, name, value, [int, float])
 
-        self._rows.append([self.time()] + values)
+        self._rows.append([self.time().isoformat()] + values)
 
         self._time += self._step
 

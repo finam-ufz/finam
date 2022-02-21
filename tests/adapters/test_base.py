@@ -3,18 +3,30 @@ Unit tests for the adapters.base module.
 """
 
 import unittest
+from datetime import datetime, timedelta
 
 import numpy as np
 
 from finam.modules.generators import CallbackGenerator
 from finam.data.grid import Grid, GridSpec
 
-from finam.adapters.base import Callback, GridCellCallback, GridToValue, ValueToGrid
+from finam.adapters.base import (
+    Callback,
+    Scale,
+    GridCellCallback,
+    GridToValue,
+    ValueToGrid,
+)
 
 
 class TestCallback(unittest.TestCase):
     def setUp(self):
-        self.source = CallbackGenerator(callbacks={"Step": lambda t: t}, step=1)
+        self.source = CallbackGenerator(
+            callbacks={"Step": lambda t: t.day - 1},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
+
         self.adapter = Callback(callback=lambda v, t: v * 2)
 
         self.source.initialize()
@@ -25,11 +37,38 @@ class TestCallback(unittest.TestCase):
         self.source.validate()
 
     def test_callback_adapter(self):
-        self.assertEqual(self.adapter.get_data(0), 0)
+        t = datetime(2000, 1, 1)
+        self.assertEqual(self.adapter.get_data(t), 0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(0), 2)
+        self.assertEqual(self.adapter.get_data(t), 2)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(0), 4)
+        self.assertEqual(self.adapter.get_data(t), 4)
+
+
+class TestScale(unittest.TestCase):
+    def setUp(self):
+        self.source = CallbackGenerator(
+            callbacks={"Step": lambda t: t.day - 1},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
+
+        self.adapter = Scale(scale=2.0)
+
+        self.source.initialize()
+
+        self.source.outputs()["Step"] >> self.adapter
+
+        self.source.connect()
+        self.source.validate()
+
+    def test_callback_adapter(self):
+        t = datetime(2000, 1, 1)
+        self.assertEqual(self.adapter.get_data(t), 0)
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(t), 2)
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(t), 4)
 
 
 class TestGridCallback(unittest.TestCase):
@@ -37,8 +76,13 @@ class TestGridCallback(unittest.TestCase):
         grid = Grid(GridSpec(20, 10))
         grid.fill(1.0)
 
-        self.source = CallbackGenerator(callbacks={"Grid": lambda t: grid}, step=1)
-        self.adapter = GridCellCallback(callback=lambda x, y, v, t: v + t + x)
+        self.source = CallbackGenerator(
+            callbacks={"Grid": lambda t: grid},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
+
+        self.adapter = GridCellCallback(callback=lambda x, y, v, t: v + (t.day - 1) + x)
 
         self.source.initialize()
 
@@ -48,15 +92,19 @@ class TestGridCallback(unittest.TestCase):
         self.source.validate()
 
     def test_grid_callback_adapter(self):
-        self.assertEqual(self.adapter.get_data(0).get(0, 0), 1.0)
-        self.assertEqual(self.adapter.get_data(0).get(1, 0), 2.0)
-        self.assertEqual(self.adapter.get_data(0).get(2, 0), 3.0)
+        t = datetime(2000, 1, 1)
+
+        self.assertEqual(self.adapter.get_data(t).get(0, 0), 1.0)
+        self.assertEqual(self.adapter.get_data(t).get(1, 0), 2.0)
+        self.assertEqual(self.adapter.get_data(t).get(2, 0), 3.0)
 
         self.source.update()
 
-        self.assertEqual(self.adapter.get_data(1).get(0, 0), 2.0)
-        self.assertEqual(self.adapter.get_data(1).get(1, 0), 3.0)
-        self.assertEqual(self.adapter.get_data(1).get(2, 0), 4.0)
+        t = datetime(2000, 1, 2)
+
+        self.assertEqual(self.adapter.get_data(t).get(0, 0), 2.0)
+        self.assertEqual(self.adapter.get_data(t).get(1, 0), 3.0)
+        self.assertEqual(self.adapter.get_data(t).get(2, 0), 4.0)
 
 
 class TestGridToValue(unittest.TestCase):
@@ -64,7 +112,11 @@ class TestGridToValue(unittest.TestCase):
         grid = Grid(GridSpec(20, 10))
         grid.fill(1.0)
 
-        self.source = CallbackGenerator(callbacks={"Grid": lambda t: grid}, step=1)
+        self.source = CallbackGenerator(
+            callbacks={"Grid": lambda t: grid},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
 
         self.source.initialize()
 
@@ -75,7 +127,7 @@ class TestGridToValue(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-        self.assertEqual(self.adapter.get_data(0), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1)), 1.0)
 
     def test_grid_to_value_sum(self):
         self.adapter = GridToValue(func=np.sum)
@@ -84,7 +136,7 @@ class TestGridToValue(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-        self.assertEqual(self.adapter.get_data(0), 200.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1)), 200.0)
 
 
 class TestValueToGrid(unittest.TestCase):
@@ -92,7 +144,11 @@ class TestValueToGrid(unittest.TestCase):
         matrix = Grid(GridSpec(10, 10))
         matrix.fill(1.0)
 
-        self.source = CallbackGenerator(callbacks={"Value": lambda t: 1.0}, step=1)
+        self.source = CallbackGenerator(
+            callbacks={"Value": lambda t: 1.0},
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
 
         self.source.initialize()
 
@@ -106,7 +162,7 @@ class TestValueToGrid(unittest.TestCase):
         reference = Grid(GridSpec(10, 10))
         reference.fill(1.0)
 
-        self.assertEqual(self.adapter.get_data(0), reference)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1)), reference)
 
 
 if __name__ == "__main__":

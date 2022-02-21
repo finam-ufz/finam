@@ -1,3 +1,5 @@
+from datetime import timedelta, datetime
+
 from ..core.sdk import ATimeComponent, Output
 from ..core.interfaces import ComponentStatus
 
@@ -20,14 +22,20 @@ class CallbackGenerator(ATimeComponent):
     :param step: Step size for data generation.
     """
 
-    def __init__(self, callbacks, step):
+    def __init__(self, callbacks, start, step):
         """
         Create a new CallbackGenerator.
         """
         super(CallbackGenerator, self).__init__()
+
+        if not isinstance(start, datetime):
+            raise ValueError("Start must be of type datetime")
+        if not isinstance(step, timedelta):
+            raise ValueError("Step must be of type timedelta")
+
         self._callbacks = callbacks
         self._step = step
-        self._time = 0
+        self._time = start
         self._status = ComponentStatus.CREATED
 
     def initialize(self):

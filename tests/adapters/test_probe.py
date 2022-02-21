@@ -3,6 +3,7 @@ Unit tests for the adapters.probe module.
 """
 
 import unittest
+from datetime import datetime
 
 from finam.core.sdk import Input, Output
 from finam.adapters.probe import CallbackProbe
@@ -25,11 +26,11 @@ class TestProbe(unittest.TestCase):
 
         out >> adapter >> inp
 
-        out.push_data(100, 0)
-        inp.pull_data(0)
+        out.push_data(100, datetime(2000, 1, 1))
+        inp.pull_data(datetime(2000, 1, 1))
 
         self.assertEqual(data, 100)
-        self.assertEqual(time, 0)
+        self.assertEqual(time, datetime(2000, 1, 1))
 
 
 if __name__ == "__main__":

@@ -28,6 +28,7 @@ Output ``ETP`` is the average of ``etp`` over all cells. ``GW_recharge`` is the 
 """
 
 import math
+from datetime import datetime, timedelta
 
 from finam.core.sdk import ATimeComponent, Input, Output
 from finam.core.interfaces import ComponentStatus
@@ -36,9 +37,15 @@ from finam.data.grid import Grid
 
 
 class Mhm(ATimeComponent):
-    def __init__(self, grid_spec, step):
+    def __init__(self, grid_spec, start, step):
         super(Mhm, self).__init__()
-        self._time = 0
+
+        if not isinstance(start, datetime):
+            raise ValueError("Start must be of type datetime")
+        if not isinstance(step, timedelta):
+            raise ValueError("Step must be of type timedelta")
+
+        self._time = start
         self._step = step
 
         self._grid_spec = grid_spec
@@ -105,7 +112,6 @@ class Mhm(ATimeComponent):
 
         # Increment model time
         self._time += self._step
-
         # Push model state to outputs
         self._outputs["soil_water"].push_data(self.soil_water, self.time())
         self._outputs["GW_recharge"].push_data(total_recharge, self.time())
@@ -118,3 +124,7 @@ class Mhm(ATimeComponent):
         super().finalize()
 
         self._status = ComponentStatus.FINALIZED
+
+    @property
+    def step(self):
+        return self._step
