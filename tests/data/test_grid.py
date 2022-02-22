@@ -27,11 +27,11 @@ class TestGrid(unittest.TestCase):
         spec = GridSpec(20, 10, cell_size=1000, xll=10000, yll=5000)
         grid = Grid(spec)
 
-        self.assertEqual(grid.to_cell(10500, 5500), (0, 0))
-        self.assertEqual(grid.to_xy(0, 0), (10500, 5500))
+        self.assertEqual(grid.to_cell(10500, 5500), (0, 9))
+        self.assertEqual(grid.to_xy(0, 9), (10500, 5500))
 
-        self.assertEqual(grid.to_cell(12500, 6500), (2, 1))
-        self.assertEqual(grid.to_xy(2, 1), (12500, 6500))
+        self.assertEqual(grid.to_cell(12500, 6500), (2, 8))
+        self.assertEqual(grid.to_xy(2, 8), (12500, 6500))
 
     def test_set_get(self):
         spec = GridSpec(10, 5)
