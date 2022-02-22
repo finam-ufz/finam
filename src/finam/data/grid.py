@@ -73,13 +73,14 @@ class Grid(np.ndarray):
     def to_cell(self, x, y):
         spec = self.spec
         col = int((x - spec.xll) / spec.cell_size)
-        row = int((y - spec.yll) / spec.cell_size)
+        row = self.spec.nrows - 1 - int((y - spec.yll) / spec.cell_size)
         return col, row
 
     def to_xy(self, col, row):
         spec = self.spec
+        r = self.spec.nrows - 1 - row
         x = spec.xll + spec.cell_size * (col + 0.5)
-        y = spec.yll + spec.cell_size * (row + 0.5)
+        y = spec.yll + spec.cell_size * (r + 0.5)
         return x, y
 
     def __eq__(self, other):
