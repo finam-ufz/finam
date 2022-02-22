@@ -36,14 +36,14 @@ class Grid(np.ndarray):
     """
 
     def __new__(cls, spec, no_data=-9999, data=None):
-        if data and len(data) != spec.nrows * spec.ncols:
+        if data is not None and len(data) != spec.nrows * spec.ncols:
             raise Exception(
                 f"Incompatible array length for Grid construction. Expected {spec.nrows * spec.ncols}, got {len(data)}"
             )
 
         obj = (
             np.asarray(data).view(cls)
-            if data
+            if data is not None
             else np.zeros(spec.nrows * spec.ncols, dtype=spec.dtype).view(cls)
         )
 
