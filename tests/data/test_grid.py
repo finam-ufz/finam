@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 
 from finam.data.grid import Grid, GridSpec
 
@@ -35,6 +36,15 @@ class TestGrid(unittest.TestCase):
     def test_set_get(self):
         spec = GridSpec(10, 5)
         grid = Grid(spec)
+
+        grid.set(1, 2, 1.0)
+
+        self.assertEqual(grid.get(0, 0), 0.0)
+        self.assertEqual(grid.get(1, 2), 1.0)
+
+    def test_with_data(self):
+        spec = GridSpec(10, 5)
+        grid = Grid(spec, data=np.zeros(10 * 5))
 
         grid.set(1, 2, 1.0)
 
