@@ -2,6 +2,10 @@
 
 ## [unpublished]
 
+### Changes
+
+* Vertical/Y grid indices are now flipped, to conform with (typical) NetCDF and ASCII grid format
+
 ### Bug fixes
 
 * Fix check for `None` data in `Grid` constructor
