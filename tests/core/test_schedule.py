@@ -2,7 +2,6 @@
 Unit tests for the driver/scheduler.
 """
 
-from multiprocessing.sharedctypes import Value
 import unittest
 from datetime import datetime, timedelta
 
