@@ -78,12 +78,12 @@ class Composition:
         )
 
         while True:
-            to_update = min(time_modules, key=lambda m: m.time())
+            to_update = min(time_modules, key=lambda m: m.time)
             to_update.update()
 
             any_running = False
             for mod in time_modules:
-                if mod.time() < t_max:
+                if mod.time < t_max:
                     any_running = True
                     break
 
@@ -98,7 +98,7 @@ class Composition:
         Validates the coupling setup by checking for dangling inputs and disallowed branching connections.
         """
         for mod in self.modules:
-            for (name, inp) in mod.inputs().items():
+            for (name, inp) in mod.inputs.items():
                 par_inp = inp.get_source()
                 while True:
                     if par_inp is None:
@@ -111,7 +111,7 @@ class Composition:
 
                     par_inp = par_inp.get_source()
 
-            for (name, out) in mod.outputs().items():
+            for (name, out) in mod.outputs.items():
                 targets = [(out, False)]
 
                 while len(targets) > 0:

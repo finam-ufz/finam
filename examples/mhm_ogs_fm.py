@@ -110,97 +110,95 @@ if __name__ == "__main__":
     # Model coupling
 
     (  # RNG -> mHM (precipitation)
-        precipitation.outputs()["precipitation"]
+        precipitation.outputs["precipitation"]
         >> time.LinearIntegration()
-        >> mhm.inputs()["precipitation"]
+        >> mhm.inputs["precipitation"]
     )
 
     (  # mHM -> Formind (soil moisture)
-        mhm.outputs()["soil_water"]
+        mhm.outputs["soil_water"]
         >> time.LinearIntegration()
-        >> formind.inputs()["soil_water"]
+        >> formind.inputs["soil_water"]
     )
 
     (  # Formind -> mHM (LAI)
-        formind.outputs()["LAI"] >> time.NextValue() >> mhm.inputs()["LAI"]
+        formind.outputs["LAI"] >> time.NextValue() >> mhm.inputs["LAI"]
     )
 
     (  # mHM -> OGS (base_flow)
-        mhm.outputs()["GW_recharge"]
+        mhm.outputs["GW_recharge"]
         >> time.LinearIntegration()
         >> base.Scale(ogs.step.days)
-        >> ogs.inputs()["GW_recharge"]
+        >> ogs.inputs["GW_recharge"]
     )
 
     # Observer coupling for CSV output
 
     (  # RNG -> CSV (precipitation)
-        precipitation.outputs()["precipitation"]
+        precipitation.outputs["precipitation"]
         >> time.LinearIntegration()
         >> base.Scale(mhm_csv._step.days)
-        >> mhm_csv.inputs()["precip_in"]
+        >> mhm_csv.inputs["precip_in"]
     )
 
     (  # mHM/Formind -> CSV (LAI input)
-        formind.outputs()["LAI"]
+        formind.outputs["LAI"]
         >> base.GridToValue(func=np.mean)
         >> time.NextValue()
-        >> mhm_csv.inputs()["LAI_in"]
+        >> mhm_csv.inputs["LAI_in"]
     )
 
     (  # mHM -> CSV (soil_water)
-        mhm.outputs()["soil_water"]
+        mhm.outputs["soil_water"]
         >> base.GridToValue(func=np.mean)
         >> time.LinearInterpolation()
-        >> mhm_csv.inputs()["soil_water"]
+        >> mhm_csv.inputs["soil_water"]
     )
 
     (  # mHM -> CSV (base_flow)
-        mhm.outputs()["GW_recharge"]
+        mhm.outputs["GW_recharge"]
         >> time.LinearInterpolation()
-        >> mhm_csv.inputs()["GW_recharge"]
+        >> mhm_csv.inputs["GW_recharge"]
     )
 
     (  # mHM -> CSV (ETP)
-        mhm.outputs()["ETP"] >> time.LinearInterpolation() >> mhm_csv.inputs()["ETP"]
+        mhm.outputs["ETP"] >> time.LinearInterpolation() >> mhm_csv.inputs["ETP"]
     )
 
     (  # OGS -> CSV (head)
-        ogs.outputs()["head"] >> time.LinearInterpolation() >> ogs_csv.inputs()["head"]
+        ogs.outputs["head"] >> time.LinearInterpolation() >> ogs_csv.inputs["head"]
     )
 
     (  # OGS -> CSV (base_flow_in)
-        mhm.outputs()["GW_recharge"]
+        mhm.outputs["GW_recharge"]
         >> time.LinearIntegration()
         >> base.Scale(ogs_csv._step.days)
-        >> ogs_csv.inputs()["GW_recharge_in"]
+        >> ogs_csv.inputs["GW_recharge_in"]
     )
 
     (  # formind -> CSV (LAI)
-        formind.outputs()["LAI"]
+        formind.outputs["LAI"]
         >> base.GridToValue(func=np.mean)
         >> time.LinearInterpolation()
-        >> formind_csv.inputs()["LAI"]
+        >> formind_csv.inputs["LAI"]
     )
 
     (  # formind -> CSV (soil_water_in)
-        mhm.outputs()["soil_water"]
+        mhm.outputs["soil_water"]
         >> base.GridToValue(func=np.mean)
         >> time.LinearIntegration()
-        >> formind_csv.inputs()["soil_water_in"]
+        >> formind_csv.inputs["soil_water_in"]
     )
 
     # Observer coupling for schedule view
 
     if schedule_view:
         (
-            mhm.outputs()["soil_water"] >> schedule_view.inputs()["mHM (7d)"]
+            mhm.outputs["soil_water"] >> schedule_view.inputs["mHM (7d)"]
         )  # mHM -> schedule
+        (ogs.outputs["head"] >> schedule_view.inputs["OGS (30d)"])  # OGS -> schedule
         (
-            ogs.outputs()["head"] >> schedule_view.inputs()["OGS (30d)"]
-        )  # OGS -> schedule
-        (
-            formind.outputs()["LAI"] >> schedule_view.inputs()["Formind (365d)"]
+            formind.outputs["LAI"] >> schedule_view.inputs["Formind (365d)"]
         )  # Formind -> schedule
 
     composition.run(datetime(2002, 1, 1))

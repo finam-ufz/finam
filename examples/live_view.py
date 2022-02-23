@@ -8,7 +8,7 @@ Coupling flow chart:
     +-----------------+                ,--<Lin>---- 1d -> +-----------------+
     | Random grid 10d | (grid) -- <G2V>                   | Plot viewer 1d  |
     +-----------------+       \        `--<Mean>-- 50d -> +-----------------+
-                               \ 
+                               \
                                 \                 +-----------------+
                                  '-- <Lin> -----> | Grid viewer 1d  |
                                                   +-----------------+
@@ -49,15 +49,11 @@ if __name__ == "__main__":
     composition = Composition([generator, viewer, plot])
     composition.initialize()
 
-    (
-        generator.outputs()["Grid"]
-        >> time.LinearInterpolation()
-        >> viewer.inputs()["Grid"]
-    )
+    (generator.outputs["Grid"] >> time.LinearInterpolation() >> viewer.inputs["Grid"])
 
-    grid_mean = generator.outputs()["Grid"] >> base.GridToValue(func=np.mean)
+    grid_mean = generator.outputs["Grid"] >> base.GridToValue(func=np.mean)
 
-    grid_mean >> time.LinearInterpolation() >> plot.inputs()["Linear (1)"]
-    grid_mean >> time.LinearIntegration() >> plot.inputs()["Mean (50)"]
+    grid_mean >> time.LinearInterpolation() >> plot.inputs["Linear (1)"]
+    grid_mean >> time.LinearIntegration() >> plot.inputs["Mean (50)"]
 
     composition.run(datetime(2000, 7, 1))

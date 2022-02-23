@@ -50,7 +50,7 @@ class CallbackGenerator(ATimeComponent):
         super().connect()
 
         for key, callback in self._callbacks.items():
-            self._outputs[key].push_data(callback(self._time), self.time())
+            self._outputs[key].push_data(callback(self._time), self.time)
 
         self._status = ComponentStatus.CONNECTED
 
@@ -65,7 +65,7 @@ class CallbackGenerator(ATimeComponent):
         self._time += self._step
 
         for key, callback in self._callbacks.items():
-            self._outputs[key].push_data(callback(self._time), self.time())
+            self._outputs[key].push_data(callback(self._time), self.time)
 
         self._status = ComponentStatus.UPDATED
 

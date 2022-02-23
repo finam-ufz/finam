@@ -37,7 +37,7 @@ class MockupComponent(ATimeComponent):
         super().connect()
 
         for key, callback in self._callbacks.items():
-            self._outputs[key].push_data(callback(self._time), self.time())
+            self._outputs[key].push_data(callback(self._time), self.time)
 
         self._status = ComponentStatus.CONNECTED
 
@@ -52,7 +52,7 @@ class MockupComponent(ATimeComponent):
         self._time += self._step
 
         for key, callback in self._callbacks.items():
-            self._outputs[key].push_data(callback(self._time), self.time())
+            self._outputs[key].push_data(callback(self._time), self.time)
 
         self._status = ComponentStatus.UPDATED
 
@@ -93,13 +93,13 @@ class TestComposition(unittest.TestCase):
         composition = Composition([module])
         composition.initialize()
 
-        self.assertEqual(module.status(), ComponentStatus.INITIALIZED)
-        self.assertEqual(len(module.outputs()), 1)
+        self.assertEqual(module.status, ComponentStatus.INITIALIZED)
+        self.assertEqual(len(module.outputs), 1)
 
         composition.run(t_max=datetime(2000, 1, 31))
 
-        self.assertEqual(module.status(), ComponentStatus.FINALIZED)
-        self.assertEqual(module.time(), datetime(2000, 1, 31))
+        self.assertEqual(module.status, ComponentStatus.FINALIZED)
+        self.assertEqual(module.time, datetime(2000, 1, 31))
 
     def test_check_composition(self):
         with self.assertRaises(ValueError):
@@ -111,7 +111,7 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         non_branching_adapter = (
-            module.outputs()["Output"]
+            module.outputs["Output"]
             >> NbAdapter()
             >> CallbackAdapter(callback=lambda data, time: data)
         )

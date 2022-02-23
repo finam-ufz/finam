@@ -69,9 +69,9 @@ class Mhm(ATimeComponent):
     def connect(self):
         super().connect()
 
-        self._outputs["soil_water"].push_data(self.soil_water, self.time())
-        self._outputs["GW_recharge"].push_data(0.0, self.time())
-        self._outputs["ETP"].push_data(0.0, self.time())
+        self._outputs["soil_water"].push_data(self.soil_water, self.time)
+        self._outputs["GW_recharge"].push_data(0.0, self.time)
+        self._outputs["ETP"].push_data(0.0, self.time)
 
         self._status = ComponentStatus.CONNECTED
 
@@ -84,8 +84,8 @@ class Mhm(ATimeComponent):
         super().update()
 
         # Retrieve inputs
-        precipitation = self._inputs["precipitation"].pull_data(self.time())
-        lai = self._inputs["LAI"].pull_data(self.time())
+        precipitation = self._inputs["precipitation"].pull_data(self.time)
+        lai = self._inputs["LAI"].pull_data(self.time)
 
         # Check input data types
         assert_type(self, "precipitation", precipitation, [int, float])
@@ -113,9 +113,9 @@ class Mhm(ATimeComponent):
         # Increment model time
         self._time += self._step
         # Push model state to outputs
-        self._outputs["soil_water"].push_data(self.soil_water, self.time())
-        self._outputs["GW_recharge"].push_data(total_recharge, self.time())
-        self._outputs["ETP"].push_data(mean_evaporation, self.time())
+        self._outputs["soil_water"].push_data(self.soil_water, self.time)
+        self._outputs["GW_recharge"].push_data(total_recharge, self.time)
+        self._outputs["ETP"].push_data(mean_evaporation, self.time)
 
         # Update component status
         self._status = ComponentStatus.UPDATED

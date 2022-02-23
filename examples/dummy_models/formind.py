@@ -59,7 +59,7 @@ class Formind(ATimeComponent):
     def connect(self):
         super().connect()
 
-        self._outputs["LAI"].push_data(self.lai, self.time())
+        self._outputs["LAI"].push_data(self.lai, self.time)
 
         self._status = ComponentStatus.CONNECTED
 
@@ -72,7 +72,7 @@ class Formind(ATimeComponent):
         super().update()
 
         # Retrieve inputs
-        soil_water = self._inputs["soil_water"].pull_data(self.time())
+        soil_water = self._inputs["soil_water"].pull_data(self.time)
 
         # Check input data types
         assert_type(self, "soil_water", soil_water, [Grid])
@@ -92,7 +92,7 @@ class Formind(ATimeComponent):
         self._time += self._step
 
         # Push model state to outputs
-        self._outputs["LAI"].push_data(self.lai, self.time())
+        self._outputs["LAI"].push_data(self.lai, self.time)
 
         # Update component status
         self._status = ComponentStatus.UPDATED

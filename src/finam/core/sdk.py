@@ -65,12 +65,15 @@ class AComponent(IComponent, ABC):
                 f"Unexpected model state {self._status} in {self.name}"
             )
 
+    @property
     def inputs(self):
         return self._inputs
 
+    @property
     def outputs(self):
         return self._outputs
 
+    @property
     def status(self):
         return self._status
 
@@ -84,6 +87,7 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
         super(ATimeComponent, self).__init__()
         self._time = None
 
+    @property
     def time(self):
         if not isinstance(self._time, datetime):
             raise ValueError("Time must be of type datetime")
