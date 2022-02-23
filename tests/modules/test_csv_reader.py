@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 
 from finam.core.interfaces import ComponentStatus
 from finam.modules.readers import CsvReader
+from finam.core.sdk import FinamStatusError
 
 
 class TestCsvReader(unittest.TestCase):
@@ -62,7 +63,7 @@ class TestCsvReader(unittest.TestCase):
             self.assertEqual(reader.time(), datetime(2000, 1, 17))
             self.assertEqual(reader.status(), ComponentStatus.FINISHED)
 
-            with self.assertRaises(AssertionError) as context:
+            with self.assertRaises(FinamStatusError) as context:
                 reader.update()
 
 

@@ -102,7 +102,7 @@ class TestComposition(unittest.TestCase):
         self.assertEqual(module.time(), datetime(2000, 1, 31))
 
     def test_check_composition(self):
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             _comp = Composition(["not a component"])
 
     def test_validate_branching(self):
@@ -119,7 +119,7 @@ class TestComposition(unittest.TestCase):
         non_branching_adapter >> CallbackAdapter(callback=lambda data, time: data)
         non_branching_adapter >> CallbackAdapter(callback=lambda data, time: data)
 
-        with self.assertRaises(AssertionError) as context:
+        with self.assertRaises(ValueError) as context:
             composition.validate()
 
         self.assertTrue("Disallowed branching" in str(context.exception))
@@ -129,7 +129,7 @@ class TestComposition(unittest.TestCase):
         composition = Composition([module])
         composition.initialize()
 
-        with self.assertRaises(AssertionError) as context:
+        with self.assertRaises(ValueError) as context:
             composition.validate()
 
         self.assertTrue("Unconnected input" in str(context.exception))
