@@ -15,6 +15,10 @@ from .interfaces import (
 )
 
 
+class FinamStatusError(Exception):
+    """Error for wrong status in Component."""
+
+
 class AComponent(IComponent, ABC):
     """
     Abstract component implementation.
@@ -26,31 +30,40 @@ class AComponent(IComponent, ABC):
         self._outputs = {}
 
     def initialize(self):
-        assert (
-            self._status == ComponentStatus.CREATED
-        ), f"Unexpected model state {self._status} in {self.__class__.__name__}"
+        if self._status != ComponentStatus.CREATED:
+            raise FinamStatusError(
+                f"Unexpected model state {self._status} in {self.name}"
+            )
 
     def connect(self):
-        assert (
-            self._status == ComponentStatus.INITIALIZED
-        ), f"Unexpected model state {self._status} in {self.__class__.__name__}"
+        if self._status != ComponentStatus.INITIALIZED:
+            raise FinamStatusError(
+                f"Unexpected model state {self._status} in {self.name}"
+            )
 
     def validate(self):
-        assert (
-            self._status == ComponentStatus.CONNECTED
-        ), f"Unexpected model state {self._status} in {self.__class__.__name__}"
+        if self._status != ComponentStatus.CONNECTED:
+            raise FinamStatusError(
+                f"Unexpected model state {self._status} in {self.name}"
+            )
 
     def update(self):
-        assert (
+        if not (
             self._status == ComponentStatus.VALIDATED
             or self._status == ComponentStatus.UPDATED
-        ), f"Unexpected model state {self._status} in {self.__class__.__name__}"
+        ):
+            raise FinamStatusError(
+                f"Unexpected model state {self._status} in {self.name}"
+            )
 
     def finalize(self):
-        assert (
+        if not (
             self._status == ComponentStatus.UPDATED
             or self._status == ComponentStatus.FINISHED
-        ), f"Unexpected model state {self._status} in {self.__class__.__name__}"
+        ):
+            raise FinamStatusError(
+                f"Unexpected model state {self._status} in {self.name}"
+            )
 
     def inputs(self):
         return self._inputs
@@ -89,7 +102,8 @@ class Input(IInput):
     def set_source(self, source):
         if self.source is not None:
             raise ValueError(
-                "Source of input is already set! (You probably tried to connect multiple outputs to a single input)"
+                "Source of input is already set! "
+                "(You probably tried to connect multiple outputs to a single input)"
             )
 
         if not isinstance(source, IOutput):
@@ -138,7 +152,8 @@ class Output(IOutput):
         self.data = []
 
     def add_target(self, target):
-        assert isinstance(target, IInput), "Only IInput can added as target for IOutput"
+        if not isinstance(target, IInput):
+            raise ValueError("Only IInput can added as target for IOutput")
 
         self.targets.append(target)
 

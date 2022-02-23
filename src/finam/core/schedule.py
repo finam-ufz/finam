@@ -24,7 +24,10 @@ class Composition:
         :param modules: modules in the composition
         """
         for module in modules:
-            assert isinstance(module, IComponent)
+            if not isinstance(module, IComponent):
+                raise ValueError(
+                    "Composition: modules need to be instances of 'IComponent'."
+                )
 
         self.modules = modules
         self.mpi_rank = mpi_rank
@@ -98,9 +101,10 @@ class Composition:
             for (name, inp) in mod.inputs().items():
                 par_inp = inp.get_source()
                 while True:
-                    assert (
-                        par_inp is not None
-                    ), f"Unconnected input '{name}' for module {mod.__class__.__name__}"
+                    if par_inp is None:
+                        raise ValueError(
+                            f"Unconnected input '{name}' for module {mod.name}"
+                        )
 
                     if not isinstance(par_inp, IAdapter):
                         break
@@ -116,9 +120,10 @@ class Composition:
 
                     curr_targets = target.get_targets()
 
-                    assert (not no_branch) or len(
-                        curr_targets
-                    ) <= 1, f"Disallowed branching of output '{name}' for module {mod.__class__.__name__} ({target.__class__.__name__})"
+                    if no_branch and len(curr_targets) > 1:
+                        raise ValueError(
+                            f"Disallowed branching of output '{name}' for module {mod.name} ({target.__class__.__name__})"
+                        )
 
                     for target in curr_targets:
                         if isinstance(target, IAdapter):

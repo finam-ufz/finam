@@ -99,6 +99,11 @@ class IComponent(ABC):
         """
         pass
 
+    @property
+    def name(self):
+        """Class name."""
+        return self.__class__.__name__
+
 
 class ITimeComponent(IComponent, ABC):
     """
