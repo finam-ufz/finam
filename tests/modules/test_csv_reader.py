@@ -35,20 +35,20 @@ class TestCsvReader(unittest.TestCase):
 
             reader.initialize()
 
-            self.assertEqual(len(reader.outputs()), 2)
+            self.assertEqual(len(reader.outputs), 2)
 
             reader.connect()
             reader.validate()
 
             self.assertEqual(reader.time(), datetime(2000, 1, 1))
-            self.assertEqual(reader.outputs()["X"].get_data(datetime(2000, 1, 1)), 1)
-            self.assertEqual(reader.outputs()["Y"].get_data(datetime(2000, 1, 1)), 7)
+            self.assertEqual(reader.outputs["X"].get_data(datetime(2000, 1, 1)), 1)
+            self.assertEqual(reader.outputs["Y"].get_data(datetime(2000, 1, 1)), 7)
 
             reader.update()
 
             self.assertEqual(reader.time(), datetime(2000, 1, 2))
-            self.assertEqual(reader.outputs()["X"].get_data(datetime(2000, 1, 2)), 2)
-            self.assertEqual(reader.outputs()["Y"].get_data(datetime(2000, 1, 2)), 8)
+            self.assertEqual(reader.outputs["X"].get_data(datetime(2000, 1, 2)), 2)
+            self.assertEqual(reader.outputs["Y"].get_data(datetime(2000, 1, 2)), 8)
 
             reader.update()
             self.assertEqual(reader.time(), datetime(2000, 1, 3))
@@ -61,7 +61,7 @@ class TestCsvReader(unittest.TestCase):
 
             reader.update()
             self.assertEqual(reader.time(), datetime(2000, 1, 17))
-            self.assertEqual(reader.status(), ComponentStatus.FINISHED)
+            self.assertEqual(reader.status, ComponentStatus.FINISHED)
 
             with self.assertRaises(FinamStatusError) as context:
                 reader.update()

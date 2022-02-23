@@ -31,7 +31,7 @@ class TestCallback(unittest.TestCase):
 
         self.source.initialize()
 
-        self.source.outputs()["Step"] >> self.adapter
+        self.source.outputs["Step"] >> self.adapter
 
         self.source.connect()
         self.source.validate()
@@ -57,7 +57,7 @@ class TestScale(unittest.TestCase):
 
         self.source.initialize()
 
-        self.source.outputs()["Step"] >> self.adapter
+        self.source.outputs["Step"] >> self.adapter
 
         self.source.connect()
         self.source.validate()
@@ -86,7 +86,7 @@ class TestGridCallback(unittest.TestCase):
 
         self.source.initialize()
 
-        self.source.outputs()["Grid"] >> self.adapter
+        self.source.outputs["Grid"] >> self.adapter
 
         self.source.connect()
         self.source.validate()
@@ -122,7 +122,7 @@ class TestGridToValue(unittest.TestCase):
 
     def test_grid_to_value_mean(self):
         self.adapter = GridToValue(func=np.mean)
-        self.source.outputs()["Grid"] >> self.adapter
+        self.source.outputs["Grid"] >> self.adapter
 
         self.source.connect()
         self.source.validate()
@@ -131,7 +131,7 @@ class TestGridToValue(unittest.TestCase):
 
     def test_grid_to_value_sum(self):
         self.adapter = GridToValue(func=np.sum)
-        self.source.outputs()["Grid"] >> self.adapter
+        self.source.outputs["Grid"] >> self.adapter
 
         self.source.connect()
         self.source.validate()
@@ -154,7 +154,7 @@ class TestValueToGrid(unittest.TestCase):
 
     def test_value_to_grid(self):
         self.adapter = ValueToGrid(GridSpec(10, 10))
-        self.source.outputs()["Value"] >> self.adapter
+        self.source.outputs["Value"] >> self.adapter
 
         self.source.connect()
         self.source.validate()

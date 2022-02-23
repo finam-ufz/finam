@@ -42,19 +42,19 @@ if __name__ == "__main__":
     # Model coupling
 
     (  # RNG -> mHM (precipitation)
-        precipitation.outputs()["precipitation"]
+        precipitation.outputs["precipitation"]
         >> time.LinearIntegration()
-        >> mhm.inputs()["precipitation"]
+        >> mhm.inputs["precipitation"]
     )
 
     (  # mHM -> Formind (soil moisture)
-        mhm.outputs()["soil_water"]
+        mhm.outputs["soil_water"]
         >> time.LinearIntegration()
-        >> formind.inputs()["soil_water"]
+        >> formind.inputs["soil_water"]
     )
 
     (  # Formind -> mHM (LAI)
-        formind.outputs()["LAI"] >> time.NextValue() >> mhm.inputs()["LAI"]
+        formind.outputs["LAI"] >> time.NextValue() >> mhm.inputs["LAI"]
     )
 
     composition.run(datetime(2025, 1, 1))

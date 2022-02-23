@@ -93,12 +93,12 @@ class TestComposition(unittest.TestCase):
         composition = Composition([module])
         composition.initialize()
 
-        self.assertEqual(module.status(), ComponentStatus.INITIALIZED)
-        self.assertEqual(len(module.outputs()), 1)
+        self.assertEqual(module.status, ComponentStatus.INITIALIZED)
+        self.assertEqual(len(module.outputs), 1)
 
         composition.run(t_max=datetime(2000, 1, 31))
 
-        self.assertEqual(module.status(), ComponentStatus.FINALIZED)
+        self.assertEqual(module.status, ComponentStatus.FINALIZED)
         self.assertEqual(module.time(), datetime(2000, 1, 31))
 
     def test_check_composition(self):
@@ -111,7 +111,7 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         non_branching_adapter = (
-            module.outputs()["Output"]
+            module.outputs["Output"]
             >> NbAdapter()
             >> CallbackAdapter(callback=lambda data, time: data)
         )
