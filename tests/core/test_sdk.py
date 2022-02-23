@@ -6,7 +6,13 @@ import unittest
 from datetime import datetime
 
 from finam.core.interfaces import ComponentStatus
-from finam.core.sdk import AAdapter, CallbackInput, ATimeComponent, Output
+from finam.core.sdk import (
+    AAdapter,
+    CallbackInput,
+    ATimeComponent,
+    Output,
+    FinamStatusError,
+)
 
 
 class MockupAdapter(AAdapter):
@@ -33,21 +39,21 @@ class TestComponent(unittest.TestCase):
         component.initialize()
 
         component._status = ComponentStatus.FINALIZED
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(FinamStatusError):
             component.initialize()
 
         component._status = ComponentStatus.INITIALIZED
         component.connect()
 
         component._status = ComponentStatus.FINALIZED
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(FinamStatusError):
             component.connect()
 
         component._status = ComponentStatus.CONNECTED
         component.validate()
 
         component._status = ComponentStatus.FINALIZED
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(FinamStatusError):
             component.validate()
 
         component._status = ComponentStatus.VALIDATED
@@ -57,14 +63,14 @@ class TestComponent(unittest.TestCase):
         component.update()
 
         component._status = ComponentStatus.FINALIZED
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(FinamStatusError):
             component.update()
 
         component._status = ComponentStatus.UPDATED
         component.finalize()
 
         component._status = ComponentStatus.FINALIZED
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(FinamStatusError):
             component.update()
 
 
