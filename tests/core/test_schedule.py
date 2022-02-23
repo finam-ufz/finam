@@ -37,7 +37,7 @@ class MockupComponent(ATimeComponent):
         super().connect()
 
         for key, callback in self._callbacks.items():
-            self._outputs[key].push_data(callback(self._time), self.time())
+            self._outputs[key].push_data(callback(self._time), self.time)
 
         self._status = ComponentStatus.CONNECTED
 
@@ -52,7 +52,7 @@ class MockupComponent(ATimeComponent):
         self._time += self._step
 
         for key, callback in self._callbacks.items():
-            self._outputs[key].push_data(callback(self._time), self.time())
+            self._outputs[key].push_data(callback(self._time), self.time)
 
         self._status = ComponentStatus.UPDATED
 
@@ -99,7 +99,7 @@ class TestComposition(unittest.TestCase):
         composition.run(t_max=datetime(2000, 1, 31))
 
         self.assertEqual(module.status, ComponentStatus.FINALIZED)
-        self.assertEqual(module.time(), datetime(2000, 1, 31))
+        self.assertEqual(module.time, datetime(2000, 1, 31))
 
     def test_check_composition(self):
         with self.assertRaises(ValueError):

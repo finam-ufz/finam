@@ -78,12 +78,12 @@ class Composition:
         )
 
         while True:
-            to_update = min(time_modules, key=lambda m: m.time())
+            to_update = min(time_modules, key=lambda m: m.time)
             to_update.update()
 
             any_running = False
             for mod in time_modules:
-                if mod.time() < t_max:
+                if mod.time < t_max:
                     any_running = True
                     break
 

@@ -69,12 +69,12 @@ class CsvWriter(ATimeComponent):
     def update(self):
         super().update()
 
-        values = [self._inputs[inp].pull_data(self.time()) for inp in self._input_names]
+        values = [self._inputs[inp].pull_data(self.time) for inp in self._input_names]
 
         for (value, name) in zip(values, self._input_names):
             assert_type(self, name, value, [int, float])
 
-        self._rows.append([self.time().isoformat()] + values)
+        self._rows.append([self.time.isoformat()] + values)
 
         self._time += self._step
 

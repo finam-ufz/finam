@@ -89,10 +89,10 @@ class TimeSeriesView(ATimeComponent):
 
         for i, inp in enumerate(self._input_names):
             if self._updates % self._intervals[i] == 0:
-                value = self._inputs[inp].pull_data(self.time())
+                value = self._inputs[inp].pull_data(self.time)
                 assert_type(self, inp, value, [int, float])
 
-                self._x[i].append(self.time())
+                self._x[i].append(self.time)
                 self._data[i].append(value)
 
         if self._updates % self._update_interval == 0:

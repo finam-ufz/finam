@@ -33,7 +33,7 @@ class TestComponent(unittest.TestCase):
     def test_component_status(self):
         component = MockupComponent()
 
-        self.assertEqual(component.time(), datetime(2000, 1, 1))
+        self.assertEqual(component.time, datetime(2000, 1, 1))
 
         component._status = ComponentStatus.CREATED
         component.initialize()

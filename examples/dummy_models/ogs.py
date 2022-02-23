@@ -46,7 +46,7 @@ class Ogs(ATimeComponent):
 
     def connect(self):
         super().connect()
-        self._outputs["head"].push_data(0, self.time())
+        self._outputs["head"].push_data(0, self.time)
 
         self._status = ComponentStatus.CONNECTED
 
@@ -59,7 +59,7 @@ class Ogs(ATimeComponent):
         super().update()
 
         # Retrieve inputs
-        recharge = self._inputs["GW_recharge"].pull_data(self.time())
+        recharge = self._inputs["GW_recharge"].pull_data(self.time)
 
         # Check input data types
         assert_type(self, "GW_recharge", recharge, [int, float])
@@ -71,7 +71,7 @@ class Ogs(ATimeComponent):
         self._time += self._step
 
         # Push model state to outputs
-        self._outputs["head"].push_data(self.head, self.time())
+        self._outputs["head"].push_data(self.head, self.time)
 
         # Update component status
         self._status = ComponentStatus.UPDATED
