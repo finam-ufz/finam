@@ -228,6 +228,11 @@ class IOutput(ABC):
     def __rshift__(self, other):
         return self.chain(other)
 
+    @property
+    def has_targets(self):
+        """Flag if this output instance has any targets."""
+        return bool(self.get_targets())
+
 
 class IAdapter(IInput, IOutput, ABC):
     """Interface for adapters."""

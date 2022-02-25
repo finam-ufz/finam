@@ -11,7 +11,10 @@ check:
   script:
     - black --check --diff --color .
     - pip3 install --editable .[test]
-    - python -m pytest --cov finam --cov-report term-missing -v tests/
+    - python -m pytest --cov finam --cov-report term-missing --cov-report xml:cov.xml -v tests/
+  artifacts:
+    reports:
+      cobertura: cov.xml
 
 documentation:
   stage: build
