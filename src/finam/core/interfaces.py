@@ -67,6 +67,7 @@ class IComponent(ABC):
         After the method call, the component should have status FINALIZED.
         """
 
+    @property
     @abstractmethod
     def status(self):
         """
@@ -75,6 +76,7 @@ class IComponent(ABC):
         :return: current status (a ``ComponentStatus``)
         """
 
+    @property
     @abstractmethod
     def inputs(self):
         """
@@ -83,6 +85,7 @@ class IComponent(ABC):
         :return: dictionary of inputs by name
         """
 
+    @property
     @abstractmethod
     def outputs(self):
         """
@@ -102,6 +105,7 @@ class ITimeComponent(IComponent, ABC):
     Interface for components with a time step.
     """
 
+    @property
     @abstractmethod
     def time(self):
         """
