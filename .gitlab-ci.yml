@@ -7,10 +7,12 @@ stages:
 check:
   stage: build
   before_script:
-    - pip3 install black numpy pandas
+    - pip3 install black numpy pandas 'pylint<3' 'isort[colors]<6'
   script:
-    - black --check --diff --color .
     - pip3 install --editable .[test]
+    - black --check --diff --color .
+    - isort --check --diff --color .
+    - pylint src/finam
     - python -m pytest --cov finam --cov-report term-missing --cov-report xml:cov.xml -v tests/
   artifacts:
     reports:
