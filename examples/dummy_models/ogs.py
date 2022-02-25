@@ -17,14 +17,14 @@ Calculations in each model step are as follows:
 """
 from datetime import datetime, timedelta
 
-from finam.core.sdk import ATimeComponent, Input, Output
 from finam.core.interfaces import ComponentStatus
+from finam.core.sdk import ATimeComponent, Input, Output
 from finam.data import assert_type
 
 
 class Ogs(ATimeComponent):
     def __init__(self, start, step):
-        super(Ogs, self).__init__()
+        super().__init__()
 
         if not isinstance(start, datetime):
             raise ValueError("Start must be of type datetime")

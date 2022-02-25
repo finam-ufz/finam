@@ -3,15 +3,14 @@ Coupling setup realizing the first LandTrans coupling step.
 """
 
 import random
-from datetime import timedelta, datetime
-
-from finam.adapters import time
-from finam.core.schedule import Composition
-from finam.modules import generators
-from finam.data.grid import GridSpec
+from datetime import datetime, timedelta
 
 from dummy_models import formind, mhm
 
+from finam.adapters import time
+from finam.core.schedule import Composition
+from finam.data.grid import GridSpec
+from finam.modules import generators
 
 if __name__ == "__main__":
 

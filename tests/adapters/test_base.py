@@ -7,16 +7,15 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam.modules.generators import CallbackGenerator
-from finam.data.grid import Grid, GridSpec
-
 from finam.adapters.base import (
     Callback,
-    Scale,
     GridCellCallback,
     GridToValue,
+    Scale,
     ValueToGrid,
 )
+from finam.data.grid import Grid, GridSpec
+from finam.modules.generators import CallbackGenerator
 
 
 class TestCallback(unittest.TestCase):

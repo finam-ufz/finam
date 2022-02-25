@@ -1,4 +1,5 @@
 import unittest
+
 import numpy as np
 
 from finam.data.grid import Grid, GridSpec

@@ -22,15 +22,15 @@ import math
 import random
 from datetime import datetime, timedelta
 
-from finam.core.sdk import ATimeComponent, Input, Output
 from finam.core.interfaces import ComponentStatus
+from finam.core.sdk import ATimeComponent, Input, Output
 from finam.data import assert_type
 from finam.data.grid import Grid
 
 
 class Formind(ATimeComponent):
     def __init__(self, grid_spec, start, step):
-        super(Formind, self).__init__()
+        super().__init__()
 
         if not isinstance(start, datetime):
             raise ValueError("Start must be of type datetime")

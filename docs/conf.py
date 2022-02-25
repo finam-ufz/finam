@@ -2,29 +2,54 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import datetime
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../finam"))
-
+from finam import __version__ as ver
 
 # -- Project information -----------------------------------------------------
 
 project = "finam"
-copyright = "2021, Team LandTECH"
+copyright = f"2021 - {datetime.datetime.now().year}, Team LandTECH"
 author = "Team LandTECH"
 
-# The full version, including alpha/beta/rc tags
-release = "0.1.0"
-
+# The short X.Y version.
+version = ver
+# The full version, including alpha/beta/rc tags.
+release = ver
 
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["sphinx.ext.autodoc", "sphinx.ext.autosummary"]
+extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",  # parameters look better than with numpydoc only
+    "numpydoc",
+    "m2r2",  # markdown includes
+]
 autosummary_generate = True
+# dont show __init__ docstring
+autoclass_content = "class"
+# sort class members
+autodoc_member_order = "groupwise"
+# add all members
+autodoc_default_options = {
+    "members": True,
+    "undoc-members": True,
+    "inherited-members": True,
+    "show-inheritance": True,
+}
+napoleon_use_admonition_for_notes = True
+numpydoc_show_class_members = True
+numpydoc_class_members_toctree = False
+numpydoc_show_inherited_class_members = True
+
+source_suffix = [".rst", ".md"]
+master_doc = "contents"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

@@ -4,6 +4,7 @@ Specialized data types for exchanges between models/modules.
 
 
 def assert_type(cls, slot, obj, types):
+    """Type assertion."""
     for t in types:
         if isinstance(obj, t):
             return

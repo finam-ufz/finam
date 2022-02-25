@@ -7,10 +7,12 @@ stages:
 check:
   stage: build
   before_script:
-    - pip3 install black numpy pandas
+    - pip3 install black pandas 'pylint<3' 'isort[colors]<6'
   script:
-    - black --check --diff --color .
     - pip3 install --editable .[test]
+    - black --check --diff --color .
+    - isort --check --diff --color .
+    - pylint src/finam
     - python -m pytest --cov finam --cov-report term-missing --cov-report xml:cov.xml -v tests/
   artifacts:
     reports:
@@ -18,10 +20,8 @@ check:
 
 documentation:
   stage: build
-  before_script:
-    - pip3 install sphinx numpy
   script:
-    - pip3 install --editable .
+    - pip3 install --editable .[doc]
     - sphinx-apidoc --separate -o docs src/finam
     - sphinx-build -W -b html docs docs/build
     - mv docs/build public/

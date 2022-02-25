@@ -15,15 +15,15 @@ Coupling flow chart:
 """
 
 import random
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam.adapters import time, base
+from finam.adapters import base, time
 from finam.core.schedule import Composition
+from finam.data.grid import Grid, GridSpec
 from finam.modules import generators
 from finam.modules.visual import grid, time_series
-from finam.data.grid import Grid, GridSpec
 
 if __name__ == "__main__":
 
