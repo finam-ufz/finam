@@ -1,4 +1,5 @@
 """MPI utilities."""
+# pylint: disable=E0401
 
 
 def is_null(comm):
