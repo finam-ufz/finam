@@ -31,7 +31,7 @@ class CsvReader(ATimeComponent):
     """
 
     def __init__(self, path, time_column, outputs, date_format=None):
-        super(CsvReader, self).__init__()
+        super().__init__()
         self._path = path
         self._time = None
         self._time_column = time_column

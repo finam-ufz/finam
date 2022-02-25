@@ -36,7 +36,7 @@ class TimeSeriesView(ATimeComponent):
     """
 
     def __init__(self, inputs, start, step, intervals=None, update_interval=1):
-        super(TimeSeriesView, self).__init__()
+        super().__init__()
 
         if not isinstance(start, datetime):
             raise ValueError("Start must be of type datetime")

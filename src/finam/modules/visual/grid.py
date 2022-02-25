@@ -19,7 +19,7 @@ class GridView(AComponent):
     """
 
     def __init__(self):
-        super(GridView, self).__init__()
+        super().__init__()
         self._time = None
         self._image = None
         self._figure = None
@@ -134,7 +134,7 @@ class TimedGridView(ATimeComponent, GridView):
     """
 
     def __init__(self, start, step):
-        super(TimedGridView, self).__init__()
+        super().__init__()
 
         if not isinstance(start, datetime):
             raise ValueError("Start must be of type datetime")

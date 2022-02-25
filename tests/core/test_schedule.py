@@ -12,7 +12,7 @@ from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
 
 class MockupComponent(ATimeComponent):
     def __init__(self, callbacks, step):
-        super(MockupComponent, self).__init__()
+        super().__init__()
 
         if not isinstance(step, timedelta):
             raise ValueError("Step must be of type timedelta")
@@ -61,7 +61,7 @@ class MockupComponent(ATimeComponent):
 
 class MockupConsumerComponent(ATimeComponent):
     def __init__(self):
-        super(MockupConsumerComponent, self).__init__()
+        super().__init__()
         self._status = ComponentStatus.CREATED
 
     def initialize(self):

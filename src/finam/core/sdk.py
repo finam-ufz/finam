@@ -105,7 +105,7 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
     """Abstract component with time step implementation."""
 
     def __init__(self):
-        super(ATimeComponent, self).__init__()
+        super().__init__()
         self._time = None
 
     @property

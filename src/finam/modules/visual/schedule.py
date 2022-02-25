@@ -26,7 +26,7 @@ class ScheduleView(AComponent):
     """
 
     def __init__(self, inputs):
-        super(ScheduleView, self).__init__()
+        super().__init__()
         self._time = None
         self._caller = None
         self._figure = None

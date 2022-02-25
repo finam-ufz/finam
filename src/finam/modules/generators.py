@@ -28,7 +28,7 @@ class CallbackGenerator(ATimeComponent):
     """
 
     def __init__(self, callbacks, start, step):
-        super(CallbackGenerator, self).__init__()
+        super().__init__()
 
         if not isinstance(start, datetime):
             raise ValueError("Start must be of type datetime")

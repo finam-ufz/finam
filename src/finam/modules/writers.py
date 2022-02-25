@@ -36,7 +36,7 @@ class CsvWriter(ATimeComponent):
     """
 
     def __init__(self, path, start, step, inputs):
-        super(CsvWriter, self).__init__()
+        super().__init__()
 
         if not isinstance(start, datetime):
             raise ValueError("Start must be of type datetime")

@@ -124,7 +124,8 @@ class Composition:
 
                     if no_branch and len(curr_targets) > 1:
                         raise ValueError(
-                            f"Disallowed branching of output '{name}' for module {mod.name} ({target.__class__.__name__})"
+                            f"Disallowed branching of output '{name}' for "
+                            f"module {mod.name} ({target.__class__.__name__})"
                         )
 
                     for target in curr_targets:
