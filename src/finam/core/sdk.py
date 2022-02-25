@@ -189,11 +189,6 @@ class Output(IOutput):
         other.set_source(self)
         return other
 
-    @property
-    def has_targets(self):
-        """Flag if this output instance has any targets."""
-        return bool(self.targets)
-
 
 class AAdapter(IAdapter, Input, Output, ABC):
     """
