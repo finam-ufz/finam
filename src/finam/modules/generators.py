@@ -7,7 +7,7 @@ from ..core.sdk import ATimeComponent, Output
 
 
 class CallbackGenerator(ATimeComponent):
-    """Module to generate data in fixed time intervals from multiple callbacks.
+    """Component to generate data in fixed time intervals from multiple callbacks.
 
     .. code-block:: text
 
