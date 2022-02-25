@@ -1,5 +1,5 @@
 """Grid definitions."""
-
+# pylint: disable=W0201
 import copy
 
 import numpy as np

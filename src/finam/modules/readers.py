@@ -1,6 +1,7 @@
 """
 Modules for reading data.
 """
+# pylint: disable=E1101
 from datetime import datetime
 
 from ..core.interfaces import ComponentStatus
