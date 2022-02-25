@@ -12,7 +12,7 @@ and the [docs](https://finam.pages.ufz.de/finam/finam.core.html).
 
 ## Examples
 
-Examples and dummy model implementations can be found in folder [`examples`](./examples/).
+Examples and dummy model implementations can be found in folder [examples](./examples/).
 
 Run the model coupling example from the project root:
 
