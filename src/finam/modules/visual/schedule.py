@@ -3,7 +3,7 @@
 from datetime import datetime
 
 from ...core.interfaces import ComponentStatus
-from ...core.sdk import AComponent, ATimeComponent, CallbackInput, Input
+from ...core.sdk import AComponent, CallbackInput
 
 
 class ScheduleView(AComponent):
@@ -94,10 +94,7 @@ class ScheduleView(AComponent):
         self._caller = caller
         self._time = time
 
-        if (
-            self._status == ComponentStatus.UPDATED
-            or self._status == ComponentStatus.VALIDATED
-        ):
+        if self._status in (ComponentStatus.UPDATED, ComponentStatus.VALIDATED):
             self.update()
         else:
             self.update_plot()

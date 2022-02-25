@@ -7,7 +7,6 @@ import numpy as np
 
 from ..core.interfaces import NoBranchAdapter
 from ..core.sdk import AAdapter
-from ..data.grid import Grid
 
 
 class NextValue(AAdapter):
@@ -99,8 +98,8 @@ class PreviousValue(AAdapter):
 
         if time < self.new_data[0]:
             return self.old_data[1]
-        else:
-            return self.new_data[1]
+
+        return self.new_data[1]
 
 
 class LinearInterpolation(AAdapter):

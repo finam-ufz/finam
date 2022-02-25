@@ -70,10 +70,7 @@ class GridView(AComponent):
             raise ValueError("Time must be of type datetime")
 
         self._time = time
-        if (
-            self._status == ComponentStatus.UPDATED
-            or self._status == ComponentStatus.VALIDATED
-        ):
+        if self._status in (ComponentStatus.UPDATED, ComponentStatus.VALIDATED):
             self.update()
         else:
             self.update_plot()

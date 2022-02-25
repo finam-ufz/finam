@@ -3,7 +3,7 @@ Implementations of the coupling interfaces for simpler development of modules an
 """
 
 from abc import ABC
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from .interfaces import (
     ComponentStatus,
@@ -64,10 +64,7 @@ class AComponent(IComponent, ABC):
 
         After the method call, the component should have status UPDATED or FINISHED.
         """
-        if not (
-            self._status == ComponentStatus.VALIDATED
-            or self._status == ComponentStatus.UPDATED
-        ):
+        if not self._status in (ComponentStatus.VALIDATED, ComponentStatus.UPDATED):
             raise FinamStatusError(
                 f"Unexpected model state {self._status} in {self.name}"
             )
@@ -77,10 +74,7 @@ class AComponent(IComponent, ABC):
 
         After the method call, the component should have status FINALIZED.
         """
-        if not (
-            self._status == ComponentStatus.UPDATED
-            or self._status == ComponentStatus.FINISHED
-        ):
+        if not self._status in (ComponentStatus.UPDATED, ComponentStatus.FINISHED):
             raise FinamStatusError(
                 f"Unexpected model state {self._status} in {self.name}"
             )
@@ -180,7 +174,7 @@ class Input(IInput):
         return self.source.get_data(time)
 
 
-class CallbackInput(Input, IInput):
+class CallbackInput(Input):
     """Input implementation calling a callback when notified.
 
     Use for components without time step.
@@ -192,6 +186,7 @@ class CallbackInput(Input, IInput):
     """
 
     def __init__(self, callback):
+        super().__init__()
         self.source = None
         self.callback = callback
 
