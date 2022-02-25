@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
-from ...core.sdk import ATimeComponent, Input
 from ...core.interfaces import ComponentStatus
+from ...core.sdk import ATimeComponent, Input
 from ...data import assert_type
 
 
@@ -56,8 +56,8 @@ class TimeSeriesView(ATimeComponent):
     def initialize(self):
         super().initialize()
 
-        import matplotlib.pyplot as plt
         import matplotlib.dates as mdates
+        import matplotlib.pyplot as plt
 
         self._figure, self._axes = plt.subplots()
         date_format = mdates.AutoDateFormatter(self._axes.xaxis)

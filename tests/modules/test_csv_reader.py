@@ -4,8 +4,8 @@ from os import path
 from tempfile import TemporaryDirectory
 
 from finam.core.interfaces import ComponentStatus
-from finam.modules.readers import CsvReader
 from finam.core.sdk import FinamStatusError
+from finam.modules.readers import CsvReader
 
 
 class TestCsvReader(unittest.TestCase):

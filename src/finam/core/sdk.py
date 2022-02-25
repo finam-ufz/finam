@@ -6,12 +6,12 @@ from abc import ABC
 from datetime import datetime, timedelta
 
 from .interfaces import (
-    IInput,
-    IOutput,
+    ComponentStatus,
     IAdapter,
     IComponent,
+    IInput,
+    IOutput,
     ITimeComponent,
-    ComponentStatus,
 )
 
 

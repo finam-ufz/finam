@@ -22,8 +22,8 @@ import math
 import random
 from datetime import datetime, timedelta
 
-from finam.core.sdk import ATimeComponent, Input, Output
 from finam.core.interfaces import ComponentStatus
+from finam.core.sdk import ATimeComponent, Input, Output
 from finam.data import assert_type
 from finam.data.grid import Grid
 

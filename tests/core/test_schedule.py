@@ -6,8 +6,8 @@ import unittest
 from datetime import datetime, timedelta
 
 from finam.core.interfaces import ComponentStatus, NoBranchAdapter
-from finam.core.sdk import ATimeComponent, AAdapter, Input, Output
 from finam.core.schedule import Composition
+from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
 
 
 class MockupComponent(ATimeComponent):

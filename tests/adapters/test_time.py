@@ -3,16 +3,16 @@ Unit tests for the adapters.time module.
 """
 
 import unittest
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
-from finam.modules.generators import CallbackGenerator
-from finam.data.grid import Grid, GridSpec
 from finam.adapters.time import (
-    LinearInterpolation,
     LinearIntegration,
+    LinearInterpolation,
     NextValue,
     PreviousValue,
 )
+from finam.data.grid import Grid, GridSpec
+from finam.modules.generators import CallbackGenerator
 
 
 class TestNextValue(unittest.TestCase):

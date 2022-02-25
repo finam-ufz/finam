@@ -4,10 +4,10 @@ Driver/scheduler for executing a coupled model composition.
 from datetime import datetime
 
 from .interfaces import (
-    IComponent,
-    ITimeComponent,
-    IMpiComponent,
     IAdapter,
+    IComponent,
+    IMpiComponent,
+    ITimeComponent,
     NoBranchAdapter,
 )
 

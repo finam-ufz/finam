@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
-from ...core.sdk import AComponent, ATimeComponent, Input, CallbackInput
 from ...core.interfaces import ComponentStatus
+from ...core.sdk import AComponent, ATimeComponent, CallbackInput, Input
 from ...data import assert_type
 from ...data.grid import Grid
 

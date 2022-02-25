@@ -28,18 +28,16 @@ Coupling flow chart, without connections to CSV output:
 
 import random
 import time as sys_time
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 import numpy as np
+from dummy_models import formind, mhm, ogs
 
-from finam.adapters import time, base
+from finam.adapters import base, time
 from finam.core.schedule import Composition
-from finam.modules import writers, generators
-from finam.modules.visual import schedule
 from finam.data.grid import GridSpec
-
-from dummy_models import formind, ogs, mhm
-
+from finam.modules import generators, writers
+from finam.modules.visual import schedule
 
 if __name__ == "__main__":
 

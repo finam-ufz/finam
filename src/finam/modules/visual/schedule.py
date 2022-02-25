@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from ...core.sdk import AComponent, ATimeComponent, Input, CallbackInput
 from ...core.interfaces import ComponentStatus
+from ...core.sdk import AComponent, ATimeComponent, CallbackInput, Input
 
 
 class ScheduleView(AComponent):
@@ -41,8 +41,8 @@ class ScheduleView(AComponent):
     def initialize(self):
         super().initialize()
 
-        import matplotlib.pyplot as plt
         import matplotlib.dates as mdates
+        import matplotlib.pyplot as plt
 
         self._figure, self._axes = plt.subplots(figsize=(8, 3))
 

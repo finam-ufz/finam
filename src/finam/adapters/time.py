@@ -1,8 +1,9 @@
 """
 Adapters that deal with time, like temporal interpolation and integration.
 """
-import numpy as np
 from datetime import datetime
+
+import numpy as np
 
 from ..core.interfaces import NoBranchAdapter
 from ..core.sdk import AAdapter

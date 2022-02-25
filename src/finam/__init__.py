@@ -2,10 +2,7 @@
 A prototype for model coupling - interfaces and driver.
 """
 
-from . import core
-from . import adapters
-from . import modules
-from . import data
+from . import adapters, core, data, modules
 
 try:
     from ._version import __version__

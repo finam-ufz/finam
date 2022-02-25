@@ -1,7 +1,7 @@
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
-from ..core.sdk import ATimeComponent, Output
 from ..core.interfaces import ComponentStatus
+from ..core.sdk import ATimeComponent, Output
 
 
 class CallbackGenerator(ATimeComponent):
