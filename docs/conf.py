@@ -38,10 +38,10 @@ autoclass_content = "class"
 autodoc_member_order = "groupwise"
 # add all members
 autodoc_default_options = {
-    'members': True,
-    'undoc-members': True,
-    'inherited-members': True,
-    'show-inheritance': True,
+    "members": True,
+    "undoc-members": True,
+    "inherited-members": True,
+    "show-inheritance": True,
 }
 napoleon_use_admonition_for_notes = True
 numpydoc_show_class_members = True
