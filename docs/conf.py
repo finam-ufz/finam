@@ -37,7 +37,9 @@ autoclass_content = "class"
 # sort class members
 autodoc_member_order = "groupwise"
 napoleon_use_admonition_for_notes = True
+numpydoc_show_class_members = True
 numpydoc_class_members_toctree = False
+numpydoc_show_inherited_class_members = True
 
 source_suffix = [".rst", ".md"]
 master_doc = "contents"
