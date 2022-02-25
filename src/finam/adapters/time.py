@@ -11,15 +11,20 @@ from ..data.grid import Grid
 
 
 class NextValue(AAdapter):
-    """
-    Time interpolation providing the next future value.
-    """
+    """Time interpolation providing the next future value."""
 
     def __init__(self):
         super().__init__()
         self.data = None
 
     def source_changed(self, time):
+        """Informs the input that a new output is available.
+
+        Parameters
+        ----------
+        time : datetime
+            Simulation time of the notification.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 
@@ -29,6 +34,18 @@ class NextValue(AAdapter):
         self.notify_targets(time)
 
     def get_data(self, time):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 
@@ -36,9 +53,7 @@ class NextValue(AAdapter):
 
 
 class PreviousValue(AAdapter):
-    """
-    Time interpolation providing the newest past value.
-    """
+    """Time interpolation providing the newest past value."""
 
     def __init__(self):
         super().__init__()
@@ -46,6 +61,13 @@ class PreviousValue(AAdapter):
         self.new_data = None
 
     def source_changed(self, time):
+        """Informs the input that a new output is available.
+
+        Parameters
+        ----------
+        time : datetime
+            Simulation time of the notification.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 
@@ -60,6 +82,18 @@ class PreviousValue(AAdapter):
         self.notify_targets(time)
 
     def get_data(self, time):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 
@@ -70,9 +104,7 @@ class PreviousValue(AAdapter):
 
 
 class LinearInterpolation(AAdapter):
-    """
-    Linear time interpolation.
-    """
+    """Linear time interpolation."""
 
     def __init__(self):
         super().__init__()
@@ -80,12 +112,31 @@ class LinearInterpolation(AAdapter):
         self.new_data = None
 
     def source_changed(self, time):
+        """Informs the input that a new output is available.
+
+        Parameters
+        ----------
+        time : datetime
+            Simulation time of the notification.
+        """
         self.old_data = self.new_data
         self.new_data = (time, self.pull_data(time))
 
         self.notify_targets(time)
 
     def get_data(self, time):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 
@@ -101,8 +152,8 @@ class LinearInterpolation(AAdapter):
 
 
 class LinearIntegration(AAdapter, NoBranchAdapter):
-    """
-    Time integration over the last time step of the requester.
+    """Time integration over the last time step of the requester.
+
     Calculates the temporal average.
     """
 
@@ -112,6 +163,13 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         self.prev_time = None
 
     def source_changed(self, time):
+        """Informs the input that a new output is available.
+
+        Parameters
+        ----------
+        time : datetime
+            Simulation time of the notification.
+        """
         data = self.pull_data(time)
         self.data.append((time, data))
 
@@ -121,6 +179,18 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         self.notify_targets(time)
 
     def get_data(self, time):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 
@@ -168,4 +238,20 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
 
 
 def _interpolate(old_value, new_value, dt):
+    """Interpolate between old and new value.
+
+    Parameters
+    ----------
+    old_value : array_like
+        Old value.
+    new_value : array_like
+        New value.
+    dt : float
+        Time step between values.
+
+    Returns
+    -------
+    array_like
+        Interpolated value.
+    """
     return old_value + dt * (new_value - old_value)

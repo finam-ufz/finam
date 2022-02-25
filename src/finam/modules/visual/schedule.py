@@ -1,3 +1,5 @@
+"""Schedule visualization."""
+
 from datetime import datetime
 
 from ...core.interfaces import ComponentStatus
@@ -5,8 +7,7 @@ from ...core.sdk import AComponent, ATimeComponent, CallbackInput, Input
 
 
 class ScheduleView(AComponent):
-    """
-    Live visualization of module update schedule.
+    """Live visualization of module update schedule.
 
     Takes inputs of arbitrary types and simply plots the time of notifications of each input.
 
@@ -18,13 +19,13 @@ class ScheduleView(AComponent):
         --> [......] |              |
                      +--------------+
 
-    :param inputs: List of input names that will become available for coupling
+    Parameters
+    ----------
+    inputs : list of str
+        Input names.
     """
 
     def __init__(self, inputs):
-        """
-        Create a schedule viewer
-        """
         super(ScheduleView, self).__init__()
         self._time = None
         self._caller = None
@@ -39,6 +40,11 @@ class ScheduleView(AComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
+        """Initialize the component.
+
+        After the method call, the component's inputs and outputs must be available,
+        and the component should have status INITIALIZED.
+        """
         super().initialize()
 
         import matplotlib.dates as mdates
@@ -58,16 +64,33 @@ class ScheduleView(AComponent):
         self._status = ComponentStatus.INITIALIZED
 
     def connect(self):
+        """Push initial values to outputs.
+
+        After the method call, the component should have status CONNECTED.
+        """
         super().connect()
 
         self._status = ComponentStatus.CONNECTED
 
     def validate(self):
+        """Validate the correctness of the component's settings and coupling.
+
+        After the method call, the component should have status VALIDATED.
+        """
         super().validate()
         self.update_plot()
         self._status = ComponentStatus.VALIDATED
 
     def data_changed(self, caller, time):
+        """Update for changed data.
+
+        Parameters
+        ----------
+        caller
+            Caller.
+        time : datetime
+            simulation time to get the data for.
+        """
         self._caller = caller
         self._time = time
 
@@ -80,6 +103,10 @@ class ScheduleView(AComponent):
             self.update_plot()
 
     def update(self):
+        """Update the component by one time step and push new values to outputs.
+
+        After the method call, the component should have status UPDATED or FINISHED.
+        """
         super().update()
 
         self.update_plot()
@@ -87,6 +114,7 @@ class ScheduleView(AComponent):
         self._status = ComponentStatus.UPDATED
 
     def update_plot(self):
+        """Update the plot."""
         if self._lines is None:
             self._lines = [
                 self._axes.plot([datetime.min], i, marker="+", label=h)[0]
@@ -108,6 +136,10 @@ class ScheduleView(AComponent):
         self._figure.canvas.flush_events()
 
     def finalize(self):
+        """Finalize and clean up the component.
+
+        After the method call, the component should have status FINALIZED.
+        """
         super().finalize()
 
         self._status = ComponentStatus.FINALIZED

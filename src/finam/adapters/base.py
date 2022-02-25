@@ -9,20 +9,31 @@ from ..data.grid import Grid
 
 
 class Callback(AAdapter):
-    """
-    Transform data using a callback.
+    """Transform data using a callback.
 
-    :param callback: A callback ``callback(data, time)``, returning the transformed date.
+    Parameters
+    ----------
+    callback : callable
+        A callback ``callback(data, time)``, returning the transformed data.
     """
 
     def __init__(self, callback):
-        """
-        Create a new Callback generator.
-        """
         super().__init__()
         self.callback = callback
 
     def get_data(self, time):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            Simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 
@@ -31,20 +42,31 @@ class Callback(AAdapter):
 
 
 class Scale(AAdapter):
-    """
-    Scales the input.
+    """Scales the input.
 
-    :param scale: Scale factor.
+    Parameters
+    ----------
+    scale : float
+        Scale factor.
     """
 
     def __init__(self, scale):
-        """
-        Create a new Scale generator.
-        """
         super().__init__()
         self.scale = scale
 
     def get_data(self, time):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 
@@ -53,20 +75,31 @@ class Scale(AAdapter):
 
 
 class GridCellCallback(AAdapter):
-    """
-    Transform grid data using a per-cell callback.
+    """Transform grid data using a per-cell callback.
 
-    :param callback: A callback ``callback(col, row, data, time)``, returning the transformed cell value.
+    Parameters
+    ----------
+    callback : callable
+        A callback ``callback(col, row, data, time)``, returning the transformed cell value.
     """
 
     def __init__(self, callback):
-        """
-        Create a new Callback generator.
-        """
         super().__init__()
         self.callback = callback
 
     def get_data(self, time):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 
@@ -83,8 +116,12 @@ class GridCellCallback(AAdapter):
 
 
 class ValueToGrid(AAdapter):
-    """
-    Convert a scalar value to a Matrix filled with that value.
+    """Convert a scalar value to a Matrix filled with that value.
+
+    Parameters
+    ----------
+    grid_spec
+        Grid specification.
     """
 
     def __init__(self, grid_spec):
@@ -92,6 +129,18 @@ class ValueToGrid(AAdapter):
         self.data = Grid(grid_spec)
 
     def get_data(self, time):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 
@@ -103,8 +152,12 @@ class ValueToGrid(AAdapter):
 
 
 class GridToValue(AAdapter):
-    """
-    Convert a matrix to a scalar value using an aggregation function, e.g. ``numpy.mean``.
+    """Convert a matrix to a scalar value using an aggregation function, e.g. ``numpy.mean``.
+
+    Parameters
+    ----------
+    func : callable
+        A function ``func(data)``, returning the transformed data.
     """
 
     def __init__(self, func):
@@ -112,6 +165,18 @@ class GridToValue(AAdapter):
         self.func = func
 
     def get_data(self, time):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 

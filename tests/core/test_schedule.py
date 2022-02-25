@@ -12,9 +12,6 @@ from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
 
 class MockupComponent(ATimeComponent):
     def __init__(self, callbacks, step):
-        """
-        Create a new CallbackGenerator.
-        """
         super(MockupComponent, self).__init__()
 
         if not isinstance(step, timedelta):

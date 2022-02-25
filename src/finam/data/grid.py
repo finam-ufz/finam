@@ -1,12 +1,12 @@
+"""Grid definitions."""
+
 import copy
 
 import numpy as np
 
 
 class GridSpec:
-    """
-    Spatial and element type specification of a grid.
-    """
+    """Spatial and element type specification of a grid."""
 
     def __init__(self, ncols, nrows, cell_size=1.0, xll=0.0, yll=0.0, dtype=np.float64):
         self.ncols = ncols
@@ -27,13 +27,21 @@ class GridSpec:
 
 
 class Grid(np.ndarray):
-    """
-    Grid data structure for exchange between models.
+    """Grid data structure for exchange between models.
     Can be used in numpy calculations in combination with scalars. E.g.:
 
     .. code-block:: python
 
         new_grid = grid_1 + grid_2 * 0.5
+
+    Parameters
+    ----------
+    spec : GridSpec
+        Grid specification.
+    no_data : float or int, optional
+        No data value.
+    data : array_like, optional
+        The data of the grid.
     """
 
     def __new__(cls, spec, no_data=-9999, data=None):
@@ -60,24 +68,103 @@ class Grid(np.ndarray):
 
     @classmethod
     def create_like(cls, other):
+        """Create grid from other grid.
+
+        Parameters
+        ----------
+        other : Grid
+            Grid to create the new one.
+
+        Returns
+        -------
+        Grid
+            New grid.
+        """
         return Grid(copy.copy(other.spec), no_data=other.no_data)
 
     def contains(self, col, row):
+        """Check if given cell is in the grid.
+
+        Parameters
+        ----------
+        col : int
+            Column.
+        row : int
+            Row.
+
+        Returns
+        -------
+        bool
+            True if cell is in grid.
+        """
         return 0 <= row < self.spec.nrows and 0 <= col < self.spec.ncols
 
     def get(self, col, row):
+        """Get value from cell.
+
+        Parameters
+        ----------
+        col : int
+            Column.
+        row : int
+            Row.
+
+        Returns
+        -------
+        float or int
+            Value.
+        """
         return self[col + row * self.spec.ncols]
 
     def set(self, col, row, value):
+        """Set value to cell.
+
+        Parameters
+        ----------
+        col : int
+            Column.
+        row : int
+            Row.
+        value : float or int
+            Value.
+        """
         self[col + row * self.spec.ncols] = value
 
     def to_cell(self, x, y):
+        """Convert coordinates to cell.
+
+        Parameters
+        ----------
+        x : float
+            x coordinate.
+        y : float
+            y coordinate.
+
+        Returns
+        -------
+        tuple of int
+            Cell.
+        """
         spec = self.spec
         col = int((x - spec.xll) / spec.cell_size)
         row = self.spec.nrows - 1 - int((y - spec.yll) / spec.cell_size)
         return col, row
 
     def to_xy(self, col, row):
+        """Convert cell to coordinates.
+
+        Parameters
+        ----------
+        col : int
+            Column.
+        row : int
+            Row.
+
+        Returns
+        -------
+        tuple of float
+            Coordinates.
+        """
         spec = self.spec
         r = self.spec.nrows - 1 - row
         x = spec.xll + spec.cell_size * (col + 0.5)

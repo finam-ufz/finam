@@ -13,16 +13,17 @@ from .interfaces import (
 
 
 class Composition:
-    """
-    A composition of linked components.
+    """A composition of linked components.
+
+    Parameters
+    ----------
+    modules : Component
+        Components in the composition.
+    mpi_rank : int, default 0
+        MPI rank of the composition.
     """
 
     def __init__(self, modules, mpi_rank=0):
-        """
-        Create a new coupling composition.
-
-        :param modules: modules in the composition
-        """
         for module in modules:
             if not isinstance(module, IComponent):
                 raise ValueError(
@@ -33,10 +34,12 @@ class Composition:
         self.mpi_rank = mpi_rank
 
     def run_mpi(self):
-        """
-        Run MPI processes is not on rank 0.
+        """Run MPI processes is not on rank 0.
 
-        :return: true if on rank 0, false otherwise
+        Returns
+        -------
+        bool
+            True if on rank 0, false otherwise.
         """
         if self.mpi_rank == 0:
             return True
@@ -48,8 +51,7 @@ class Composition:
         return False
 
     def initialize(self):
-        """
-        Initialize all modules.
+        """Initialize all modules.
 
         After the call, module inputs and outputs are available for linking.
         """
@@ -57,10 +59,12 @@ class Composition:
             mod.initialize()
 
     def run(self, t_max):
-        """
-        Run this composition using the loop-based update strategy.
+        """Run this composition using the loop-based update strategy.
 
-        :param t_max: simulation time up to which to simulate
+        Parameters
+        ----------
+        t_max : datetime
+            Simulation time up to which to simulate.
         """
         self.validate()
 
@@ -94,9 +98,7 @@ class Composition:
             mod.finalize()
 
     def validate(self):
-        """
-        Validates the coupling setup by checking for dangling inputs and disallowed branching connections.
-        """
+        """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
         for mod in self.modules:
             for (name, inp) in mod.inputs.items():
                 par_inp = inp.get_source()

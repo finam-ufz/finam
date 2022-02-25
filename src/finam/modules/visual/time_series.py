@@ -1,3 +1,5 @@
+"""Time series visualization."""
+
 from datetime import datetime, timedelta
 
 from ...core.interfaces import ComponentStatus
@@ -6,8 +8,7 @@ from ...data import assert_type
 
 
 class TimeSeriesView(ATimeComponent):
-    """
-    Live time series viewer.
+    """Live time series viewer.
 
     Expects all inputs to be scalar values.
 
@@ -19,17 +20,22 @@ class TimeSeriesView(ATimeComponent):
         --> [......] |                |
                      +----------------+
 
-    :param inputs: List of input names (plot series) that will become available for coupling
-    :param intervals: List of interval values to interleave data retrieval of certain inputs.
-                      Values are numbers of updates, i.e. whole-numbered factors for ``step``
-    :param step: Update/request time step in model time
-    :param update_interval: Redraw interval (independent of data retrieval)
+    Parameters
+    ----------
+    inputs : list of str
+        List of input names (plot series) that will become available for coupling.
+    start : datetime
+        Starting time.
+    step : timedelta
+        Time step.
+    intervals : list of int or None, optional
+        List of interval values to interleave data retrieval of certain inputs.
+        Values are numbers of updates, i.e. whole-numbered factors for ``step``.
+    update_interval : int, optional
+         Redraw interval (independent of data retrieval).
     """
 
     def __init__(self, inputs, start, step, intervals=None, update_interval=1):
-        """
-        Create a time series viewer.
-        """
         super(TimeSeriesView, self).__init__()
 
         if not isinstance(start, datetime):
@@ -54,6 +60,11 @@ class TimeSeriesView(ATimeComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
+        """Initialize the component.
+
+        After the method call, the component's inputs and outputs must be available,
+        and the component should have status INITIALIZED.
+        """
         super().initialize()
 
         import matplotlib.dates as mdates
@@ -69,16 +80,29 @@ class TimeSeriesView(ATimeComponent):
         self._status = ComponentStatus.INITIALIZED
 
     def connect(self):
+        """Push initial values to outputs.
+
+        After the method call, the component should have status CONNECTED.
+        """
         super().connect()
 
         self._status = ComponentStatus.CONNECTED
 
     def validate(self):
+        """Validate the correctness of the component's settings and coupling.
+
+        After the method call, the component should have status VALIDATED.
+        """
         super().validate()
 
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
+        """Update the component by one time step.
+        Push new values to outputs.
+
+        After the method call, the component should have status UPDATED or FINISHED.
+        """
         super().update()
 
         if self._lines is None:
@@ -112,6 +136,10 @@ class TimeSeriesView(ATimeComponent):
         self._status = ComponentStatus.UPDATED
 
     def finalize(self):
+        """Finalize and clean up the component.
+
+        After the method call, the component should have status FINALIZED.
+        """
         super().finalize()
 
         self._status = ComponentStatus.FINALIZED

@@ -8,8 +8,7 @@ from ..core.sdk import ATimeComponent, Output
 
 
 class CsvReader(ATimeComponent):
-    """
-    Reads CSV time series with one row per time step, and emits values based on a time column.
+    """Reads CSV time series with one row per time step, and emits values based on a time column.
 
     .. code-block:: text
 
@@ -19,15 +18,19 @@ class CsvReader(ATimeComponent):
         |           | [......] -->
         +-----------+
 
-    :param path: CSV file path
-    :param time_column: Time column name
-    :param outputs: Column names that will become available as outputs for coupling
+    Parameters
+    ----------
+    path : PathLike
+        Path to the input file.
+    time_column
+        Time column selector.
+    outputs : list of str
+        Output names.
+    date_format : optional
+        Format specifier for date.
     """
 
     def __init__(self, path, time_column, outputs, date_format=None):
-        """
-        Create a new CsvReader.
-        """
         super(CsvReader, self).__init__()
         self._path = path
         self._time = None
@@ -42,6 +45,11 @@ class CsvReader(ATimeComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
+        """Initialize the component.
+
+        After the method call, the component's inputs and outputs must be available,
+        and the component should have status INITIALIZED.
+        """
         super().initialize()
 
         import pandas
@@ -51,6 +59,10 @@ class CsvReader(ATimeComponent):
         self._status = ComponentStatus.INITIALIZED
 
     def connect(self):
+        """Push initial values to outputs.
+
+        After the method call, the component should have status CONNECTED.
+        """
         super().connect()
 
         self._time = self._push_row(self._data.iloc[self._row_index])
@@ -59,11 +71,20 @@ class CsvReader(ATimeComponent):
         self._status = ComponentStatus.CONNECTED
 
     def validate(self):
+        """Validate the correctness of the component's settings and coupling.
+
+        After the method call, the component should have status VALIDATED.
+        """
         super().validate()
 
         self._status = ComponentStatus.VALIDATED
 
     def update(self):
+        """Update the component by one time step.
+        Push new values to outputs.
+
+        After the method call, the component should have status UPDATED or FINISHED.
+        """
         super().update()
 
         self._time = self._push_row(self._data.iloc[self._row_index])
@@ -75,6 +96,10 @@ class CsvReader(ATimeComponent):
             self._status = ComponentStatus.UPDATED
 
     def finalize(self):
+        """Finalize and clean up the component.
+
+        After the method call, the component should have status FINALIZED.
+        """
         super().finalize()
 
         self._status = ComponentStatus.FINALIZED

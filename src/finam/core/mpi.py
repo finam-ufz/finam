@@ -1,9 +1,19 @@
-def is_null(comm):
-    """
-    Check if the current process is included in an MPI communicator.
+"""MPI utilities."""
 
-    :param comm: A communicator
-    :return: True if the current process is included in the communicator
+
+def is_null(comm):
+    """Check if the current process is included in an MPI communicator.
+
+    Parameters
+    ----------
+    comm
+        A communicator
+
+    Returns
+    -------
+    bool
+        True if the current process is included in the communicator
+
     """
     from mpi4py import MPI
 
@@ -11,13 +21,20 @@ def is_null(comm):
 
 
 def create_communicators(processes):
-    """
-    Sets up MPI communicators for multiple components by key (e.g. component name).
+    """Sets up MPI communicators for multiple components by key (e.g. component name).
 
     Each generated communicator comprises the number of requested processes per key, and the process on rank 0.
 
-    :param processes: Dictionary of number of processes per key
-    :return: Dictionary of communicators.
+    Parameters
+    ----------
+    processes : dict
+        Dictionary of number of processes per key
+
+    Returns
+    -------
+    dict
+        Dictionary of communicators.
+
     """
 
     from mpi4py import MPI

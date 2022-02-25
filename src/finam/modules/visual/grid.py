@@ -1,3 +1,5 @@
+"""Grid visualizations."""
+
 from datetime import datetime, timedelta
 
 from ...core.interfaces import ComponentStatus
@@ -7,8 +9,7 @@ from ...data.grid import Grid
 
 
 class GridView(AComponent):
-    """
-    Live grid viewer module, updating on pushed input changes.
+    """Live grid viewer module, updating on pushed input changes.
 
     .. code-block:: text
 
@@ -18,9 +19,6 @@ class GridView(AComponent):
     """
 
     def __init__(self):
-        """
-        Create a grid viewer
-        """
         super(GridView, self).__init__()
         self._time = None
         self._image = None
@@ -29,6 +27,11 @@ class GridView(AComponent):
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
+        """Initialize the component.
+
+        After the method call, the component's inputs and outputs must be available,
+        and the component should have status INITIALIZED.
+        """
         super().initialize()
 
         self._inputs["Grid"] = CallbackInput(self.data_changed)
@@ -36,16 +39,33 @@ class GridView(AComponent):
         self._status = ComponentStatus.INITIALIZED
 
     def connect(self):
+        """Push initial values to outputs.
+
+        After the method call, the component should have status CONNECTED.
+        """
         super().connect()
 
         self._status = ComponentStatus.CONNECTED
 
     def validate(self):
+        """Validate the correctness of the component's settings and coupling.
+
+        After the method call, the component should have status VALIDATED.
+        """
         super().validate()
 
         self._status = ComponentStatus.VALIDATED
 
     def data_changed(self, caller, time):
+        """Update for changed data.
+
+        Parameters
+        ----------
+        caller
+            Caller.
+        time : datetime
+            simulation time to get the data for.
+        """
         if not isinstance(time, datetime):
             raise ValueError("Time must be of type datetime")
 
@@ -59,6 +79,10 @@ class GridView(AComponent):
             self.update_plot()
 
     def update(self):
+        """Update the component by one time step and push new values to outputs.
+
+        After the method call, the component should have status UPDATED or FINISHED.
+        """
         super().update()
 
         self.update_plot()
@@ -66,6 +90,7 @@ class GridView(AComponent):
         self._status = ComponentStatus.UPDATED
 
     def update_plot(self):
+        """Update the plot."""
         import matplotlib.pyplot as plt
 
         grid = self._inputs["Grid"].pull_data(self._time)
@@ -89,14 +114,17 @@ class GridView(AComponent):
         self._figure.canvas.flush_events()
 
     def finalize(self):
+        """Finalize and clean up the component.
+
+        After the method call, the component should have status FINALIZED.
+        """
         super().finalize()
 
         self._status = ComponentStatus.FINALIZED
 
 
 class TimedGridView(ATimeComponent, GridView):
-    """
-    Live grid viewer module, updating in regular intervals.
+    """Live grid viewer module, updating in regular intervals.
 
     .. code-block:: text
 
@@ -106,11 +134,6 @@ class TimedGridView(ATimeComponent, GridView):
     """
 
     def __init__(self, start, step):
-        """
-        Creates a grid viewer
-
-        :param step: Update/request time step in model time
-        """
         super(TimedGridView, self).__init__()
 
         if not isinstance(start, datetime):
@@ -122,11 +145,20 @@ class TimedGridView(ATimeComponent, GridView):
         self._step = step
 
     def initialize(self):
+        """Initialize the component.
+
+        After the method call, the component's inputs and outputs must be available,
+        and the component should have status INITIALIZED.
+        """
         super().initialize()
 
         self._inputs["Grid"] = Input()
 
     def update(self):
+        """Update the component by one time step and push new values to outputs.
+
+        After the method call, the component should have status UPDATED or FINISHED.
+        """
         super().update()
 
         self._time += self._step
