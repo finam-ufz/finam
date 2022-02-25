@@ -33,7 +33,6 @@ class IComponent(ABC):
         After the method call, the component's inputs and outputs must be available,
         and the component should have status INITIALIZED.
         """
-        pass
 
     @abstractmethod
     def connect(self):
@@ -42,7 +41,6 @@ class IComponent(ABC):
 
         After the method call, the component should have status CONNECTED.
         """
-        pass
 
     @abstractmethod
     def validate(self):
@@ -51,7 +49,6 @@ class IComponent(ABC):
 
         After the method call, the component should have status VALIDATED.
         """
-        pass
 
     @abstractmethod
     def update(self):
@@ -61,7 +58,6 @@ class IComponent(ABC):
 
         After the method call, the component should have status UPDATED or FINISHED.
         """
-        pass
 
     @abstractmethod
     def finalize(self):
@@ -70,7 +66,6 @@ class IComponent(ABC):
 
         After the method call, the component should have status FINALIZED.
         """
-        pass
 
     @abstractmethod
     def status(self):
@@ -79,7 +74,6 @@ class IComponent(ABC):
 
         :return: current status (a ``ComponentStatus``)
         """
-        pass
 
     @abstractmethod
     def inputs(self):
@@ -88,7 +82,6 @@ class IComponent(ABC):
 
         :return: dictionary of inputs by name
         """
-        pass
 
     @abstractmethod
     def outputs(self):
@@ -97,7 +90,6 @@ class IComponent(ABC):
 
         :return: dictionary of outputs by name
         """
-        pass
 
     @property
     def name(self):
@@ -117,7 +109,6 @@ class ITimeComponent(IComponent, ABC):
 
         :return: current time stamp
         """
-        pass
 
 
 class IMpiComponent(ABC):
@@ -132,7 +123,6 @@ class IMpiComponent(ABC):
 
         Use ``core.mpi.is_null(comm)`` to test if the current process is in the component's communicator.
         """
-        pass
 
 
 class IInput(ABC):
@@ -147,7 +137,6 @@ class IInput(ABC):
 
         :param source: source output or adapter
         """
-        pass
 
     @abstractmethod
     def get_source(self):
@@ -156,7 +145,6 @@ class IInput(ABC):
 
         :return: The input's source
         """
-        pass
 
     @abstractmethod
     def source_changed(self, time):
@@ -165,7 +153,6 @@ class IInput(ABC):
 
         :param time: simulation time of the notification
         """
-        pass
 
     @abstractmethod
     def pull_data(self, time):
@@ -175,7 +162,6 @@ class IInput(ABC):
         :param time: simulation time to get the data for
         :return: data set for the given simulation time
         """
-        pass
 
 
 class IOutput(ABC):
@@ -190,7 +176,6 @@ class IOutput(ABC):
 
         :param target: the target to add
         """
-        pass
 
     @abstractmethod
     def get_targets(self):
@@ -199,7 +184,6 @@ class IOutput(ABC):
 
         :return: A list of targets
         """
-        pass
 
     @abstractmethod
     def push_data(self, data, time):
@@ -210,7 +194,6 @@ class IOutput(ABC):
         :param data: data set to push
         :param time: simulation time of the data set
         """
-        pass
 
     @abstractmethod
     def notify_targets(self, time):
@@ -219,7 +202,6 @@ class IOutput(ABC):
 
         :param time: simulation time of the simulation
         """
-        pass
 
     @abstractmethod
     def get_data(self, time):
@@ -229,7 +211,6 @@ class IOutput(ABC):
         :param time: simulation time to get the data for
         :return: data-set for the requested time
         """
-        pass
 
     @abstractmethod
     def chain(self, other):
@@ -239,7 +220,6 @@ class IOutput(ABC):
         :param other: the adapter or output to add as target to this output
         :return: the last element of the chain
         """
-        pass
 
     def __rshift__(self, other):
         """
@@ -256,12 +236,8 @@ class IAdapter(IInput, IOutput, ABC):
     Interface for adapters.
     """
 
-    pass
-
 
 class NoBranchAdapter:
     """
     Interface to mark adapters as allowing only a single end point.
     """
-
-    pass
