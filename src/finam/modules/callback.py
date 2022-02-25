@@ -7,20 +7,23 @@ from ..core.sdk import ATimeComponent, Input, Output
 
 
 class CallbackComponent(ATimeComponent):
-    """
-    Component to generate, transform or consume data in fixed time intervals using a callback.
+    """Component to generate, transform or consume data in fixed time intervals using a callback.
+
+    Parameters
+    ----------
+    inputs : list of str
+        Input names.
+    outputs : list of str
+        Output names.
+    callback
+        Callback f({inputs}, time) -> {outputs}
+    start : datetime
+        Start date and time
+    step : timedelta
+        Time step
     """
 
     def __init__(self, inputs, outputs, callback, start, step):
-        """
-        Create a new CallbackComponent.
-
-        :param inputs: a list of input names
-        :param outputs: a list of output names
-        :param callback: a callback f({inputs}, time) -> {outputs}
-        :param start: start datetime
-        :param step: step timedelta
-        """
         super().__init__()
 
         if not isinstance(start, datetime):
