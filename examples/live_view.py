@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     (generator.outputs["Grid"] >> time.LinearInterpolation() >> viewer.inputs["Grid"])
 
-    grid_mean = generator.outputs["Grid"] >> base.GridToValue(func=np.mean)
+    grid_mean = generator.outputs["Grid"] >> base.GridToValue(func=np.ma.mean)
 
     grid_mean >> time.LinearInterpolation() >> plot.inputs["Linear (1)"]
     grid_mean >> time.LinearIntegration() >> plot.inputs["Mean (50)"]

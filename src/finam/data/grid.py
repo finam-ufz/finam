@@ -3,7 +3,7 @@
 import copy
 
 import numpy as np
-import numpy.ma as ma
+from numpy import ma
 
 
 class GridSpec:
@@ -27,6 +27,34 @@ class GridSpec:
         )
 
 
+class GridArray(np.ndarray):
+    """Helper array to hold data and additional attributes"""
+
+    def __new__(cls, spec, no_data=-9999, data=None):
+        if data is not None and len(data) != spec.nrows * spec.ncols:
+            raise Exception(
+                f"Incompatible array length for Grid construction. Expected {spec.nrows * spec.ncols}, got {len(data)}"
+            )
+
+        obj = (
+            np.asarray(data)
+            if data is not None
+            else np.zeros(spec.nrows * spec.ncols, dtype=spec.dtype)
+        )
+        obj = obj.view(cls)
+        obj.spec = spec
+        obj.no_data = no_data
+
+        return obj
+
+    def __array_finalize__(self, obj):
+        if obj is None:
+            return
+
+        self.spec = copy.copy(getattr(obj, "spec", None))
+        self.no_data = getattr(obj, "no_data", None)
+
+
 class Grid(ma.MaskedArray):
     """Grid data structure for exchange between models.
     Can be used in numpy calculations in combination with scalars. E.g.:
@@ -45,20 +73,15 @@ class Grid(ma.MaskedArray):
         The data of the grid.
     """
 
+    # pylint: disable=W0222
     def __new__(cls, spec, no_data=-9999, data=None):
         if data is not None and len(data) != spec.nrows * spec.ncols:
             raise Exception(
                 f"Incompatible array length for Grid construction. Expected {spec.nrows * spec.ncols}, got {len(data)}"
             )
 
-        obj = (
-            ma.masked_values(data, no_data)
-            if data is not None
-            else ma.masked_values(np.zeros(spec.nrows * spec.ncols, dtype=spec.dtype), no_data)
-        )
-
-        obj.spec = spec
-        obj.no_data = no_data
+        data = GridArray(spec, no_data, data)
+        obj = ma.masked_values(data, no_data)
 
         return obj.view(cls)
 
@@ -67,10 +90,12 @@ class Grid(ma.MaskedArray):
             return
 
         ma.MaskedArray.__array_finalize__(self, obj)
-        print("__array_finalize__ in: ", type(obj))
-        self.spec = copy.copy(getattr(obj, "spec", None))
-        self.no_data = getattr(obj, "no_data", None)
-        print("__array_finalize__ ", self.spec, self.no_data)
+        if isinstance(obj, ma.MaskedArray):
+            obj.data.spec = copy.copy(getattr(obj, "spec", None))
+            obj.data.no_data = getattr(obj, "no_data", None)
+        else:
+            obj.spec = copy.copy(getattr(obj, "spec", None))
+            obj.no_data = getattr(obj, "no_data", None)
 
     @classmethod
     def create_like(cls, other):
@@ -87,6 +112,10 @@ class Grid(ma.MaskedArray):
             New grid.
         """
         return Grid(copy.copy(other.spec), no_data=other.no_data)
+
+    # pylint: disable=W0622
+    def tofile(self, fid, sep="", format="%s"):
+        raise NotImplementedError
 
     def contains(self, col, row):
         """Check if given cell is in the grid.

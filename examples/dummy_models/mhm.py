@@ -60,9 +60,9 @@ class Mhm(ATimeComponent):
 
         self._inputs["precipitation"] = Input()
         self._inputs["LAI"] = Input()
-        self._outputs["soil_water"] = Output()
-        self._outputs["GW_recharge"] = Output()
         self._outputs["ETP"] = Output()
+        self._outputs["GW_recharge"] = Output()
+        self._outputs["soil_water"] = Output()
 
         self._status = ComponentStatus.INITIALIZED
 
