@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 import numpy.ma as ma
 
-from finam.data.grid import Grid, GridSpec
+from finam.data.grid import Grid, GridArray, GridSpec
 
 
 class TestGrid(unittest.TestCase):
@@ -60,13 +60,55 @@ class TestGrid(unittest.TestCase):
         grid = Grid(spec, data=data)
 
         self.assertEqual(grid.get(0, 0), 0.0)
-        self.assertTrue(grid.get(1, 0) is ma.masked)
+        self.assertIs(grid.get(1, 0), ma.masked)
 
         self.assertEqual(grid.is_masked(0, 0), False)
         self.assertEqual(grid.is_masked(1, 0), True)
 
         grid.set_masked(2, 3)
         self.assertEqual(grid.is_masked(2, 3), True)
+
+    def test_mask_calc(self):
+        spec = GridSpec(3, 2)
+
+        data1 = [
+            1,
+            1,
+            1,
+            1,
+            -9999,
+            1,
+        ]
+        grid1 = Grid(spec, data=data1)
+
+        data2 = [
+            2,
+            2,
+            2,
+            2,
+            2,
+            -9999,
+        ]
+        grid2 = Grid(spec, data=data2)
+
+        np.testing.assert_almost_equal(
+            grid1.mask, [False, False, False, False, True, False]
+        )
+        np.testing.assert_almost_equal(grid1.data, data1)
+
+        np.testing.assert_almost_equal(
+            grid2.mask, [False, False, False, False, False, True]
+        )
+        np.testing.assert_almost_equal(grid2.data, data2)
+
+        grid3 = grid1 + grid2
+        filled = grid3.filled()
+        self.assertEqual(grid3.__class__, Grid)
+        self.assertEqual(filled.__class__, GridArray)
+        np.testing.assert_almost_equal(
+            grid3.mask, [False, False, False, False, True, True]
+        )
+        np.testing.assert_almost_equal(filled, [3, 3, 3, 3, -9999, -9999])
 
 
 if __name__ == "__main__":
