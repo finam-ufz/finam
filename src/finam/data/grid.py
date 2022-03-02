@@ -97,6 +97,8 @@ class Grid(ma.MaskedArray):
             obj.spec = copy.copy(getattr(obj, "spec", None))
             obj.no_data = getattr(obj, "no_data", None)
 
+        self.set_fill_value(getattr(obj, "no_data", None))
+
     @classmethod
     def create_like(cls, other):
         """Create grid from other grid.
