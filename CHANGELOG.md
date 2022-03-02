@@ -13,6 +13,7 @@
 * Vertical/Y grid indices are now flipped, to conform with (typical) NetCDF and ASCII grid format (!51)
 * Most `assert`s replaced by raising errors (!52)
 * `IComponent.inputs`, `IComponent.outputs`, `IComponent.status` and `ITimeComponent.time` are now properties instead of methods (!53)
+* `Grid` now uses `MaskedArray`, to improve handling of missing data
 
 ### Bug fixes
 
