@@ -6,12 +6,54 @@ import numpy.ma as ma
 from finam.data.grid import Grid, GridArray, GridSpec
 
 
+class TestGridSpec(unittest.TestCase):
+    def test_grid_spec(self):
+        s1 = GridSpec(10, 5, dtype=float)
+        s2 = GridSpec(10, 5, dtype=int)
+        s3 = GridSpec(10, 6)
+
+        self.assertEqual(s1, s2)
+        self.assertNotEqual(s1, s3)
+
+        s1.xll = 1.0
+        self.assertNotEqual(s1, s2)
+
+        s1.xll = 0.0
+        s1.cell_size = 10.0
+        self.assertNotEqual(s1, s2)
+
+
+class TestGridArray(unittest.TestCase):
+    def test_wrong_data(self):
+        spec = GridSpec(3, 2)
+        _grid = GridArray(spec, data=np.zeros(2 * 3))
+
+        with self.assertRaises(ValueError):
+            _grid = GridArray(spec, data=np.zeros(2 * 3 + 1))
+
+
 class TestGrid(unittest.TestCase):
     def test_subclassing(self):
         grid = Grid(GridSpec(10, 5))
         grid_1 = grid + 1
         self.assertEqual(grid_1.__class__, Grid)
         self.assertEqual(grid_1[0], 1)
+
+    def test_wrong_data(self):
+        spec = GridSpec(3, 2)
+        _grid = Grid(spec, data=np.zeros(2 * 3))
+
+        with self.assertRaises(ValueError):
+            _grid = Grid(spec, data=np.zeros(2 * 3 + 1))
+
+    def test_create_like(self):
+        spec = GridSpec(20, 10)
+        grid1 = Grid(spec)
+        grid2 = Grid.create_like(grid1)
+
+        self.assertEqual(grid2.__class__, Grid)
+        self.assertEqual(grid1.spec, grid2.spec)
+        self.assertEqual(grid1.no_data, grid2.no_data)
 
     def test_contains(self):
         spec = GridSpec(20, 10)

@@ -32,7 +32,7 @@ class GridArray(np.ndarray):
 
     def __new__(cls, spec, no_data=-9999, data=None):
         if data is not None and len(data) != spec.nrows * spec.ncols:
-            raise Exception(
+            raise ValueError(
                 f"Incompatible array length for Grid construction. Expected {spec.nrows * spec.ncols}, got {len(data)}"
             )
 
@@ -76,7 +76,7 @@ class Grid(ma.MaskedArray):
     # pylint: disable=W0222
     def __new__(cls, spec, no_data=-9999, data=None):
         if data is not None and len(data) != spec.nrows * spec.ncols:
-            raise Exception(
+            raise ValueError(
                 f"Incompatible array length for Grid construction. Expected {spec.nrows * spec.ncols}, got {len(data)}"
             )
 
