@@ -55,6 +55,21 @@ class TestGrid(unittest.TestCase):
         self.assertEqual(grid1.spec, grid2.spec)
         self.assertEqual(grid1.no_data, grid2.no_data)
 
+    def test_create_masked_like(self):
+        spec = GridSpec(20, 10)
+        grid1 = Grid(spec)
+        grid1.set_masked(0, 0)
+
+        grid2 = Grid.create_masked_like(grid1)
+
+        self.assertEqual(grid2.__class__, Grid)
+        self.assertEqual(grid1.spec, grid2.spec)
+        self.assertEqual(grid1.no_data, grid2.no_data)
+        np.testing.assert_equal(grid1.mask, grid2.mask)
+
+        grid1.set_masked(1, 0)
+        self.assertNotEqual(grid1.is_masked(1, 0), grid2.is_masked(1, 0))
+
     def test_contains(self):
         spec = GridSpec(20, 10)
         grid = Grid(spec)

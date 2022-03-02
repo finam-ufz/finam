@@ -101,7 +101,7 @@ class Grid(ma.MaskedArray):
 
     @classmethod
     def create_like(cls, other):
-        """Create grid from other grid.
+        """Create a grid with specs from another grid.
 
         Parameters
         ----------
@@ -114,6 +114,24 @@ class Grid(ma.MaskedArray):
             New grid.
         """
         return Grid(copy.copy(other.spec), no_data=other.no_data)
+
+    @classmethod
+    def create_masked_like(cls, other):
+        """Create a grid with specs and mask from another grid.
+
+        Parameters
+        ----------
+        other : Grid
+            Grid to create the new one.
+
+        Returns
+        -------
+        Grid
+            New grid.
+        """
+        grid = Grid(copy.copy(other.spec), no_data=other.no_data)
+        grid.mask = ma.make_mask(other.mask)
+        return grid
 
     # pylint: disable=W0622
     def tofile(self, fid, sep="", format="%s"):
