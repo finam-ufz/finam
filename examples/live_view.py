@@ -14,6 +14,7 @@ Coupling flow chart:
                                                   +-----------------+
 """
 
+import math
 import random
 from datetime import datetime, timedelta
 
@@ -32,6 +33,11 @@ if __name__ == "__main__":
 
         for i in range(len(grid.data)):
             grid.data[i] = random.uniform(0, 1) + i / float(50 * 50)
+
+        for c in range(grid.spec.ncols):
+            for r in range(grid.spec.nrows):
+                if math.sqrt((c - 25) ** 2 + (r - 25) ** 2) > 23:
+                    grid.set_masked(c, r)
 
         return grid
 
