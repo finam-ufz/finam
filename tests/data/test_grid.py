@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+import numpy.ma as ma
 
 from finam.data.grid import Grid, GridSpec
 
@@ -51,6 +52,21 @@ class TestGrid(unittest.TestCase):
 
         self.assertEqual(grid.get(0, 0), 0.0)
         self.assertEqual(grid.get(1, 2), 1.0)
+
+    def test_mask(self):
+        spec = GridSpec(10, 5)
+        data = np.zeros(10 * 5)
+        data[1] = -9999
+        grid = Grid(spec, data=data)
+
+        self.assertEqual(grid.get(0, 0), 0.0)
+        self.assertTrue(grid.get(1, 0) is ma.masked)
+
+        self.assertEqual(grid.is_masked(0, 0), False)
+        self.assertEqual(grid.is_masked(1, 0), True)
+
+        grid.set_masked(2, 3)
+        self.assertEqual(grid.is_masked(2, 3), True)
 
 
 if __name__ == "__main__":

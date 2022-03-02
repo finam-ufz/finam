@@ -3,6 +3,7 @@
 import copy
 
 import numpy as np
+import numpy.ma as ma
 
 
 class GridSpec:
@@ -26,7 +27,7 @@ class GridSpec:
         )
 
 
-class Grid(np.ndarray):
+class Grid(ma.MaskedArray):
     """Grid data structure for exchange between models.
     Can be used in numpy calculations in combination with scalars. E.g.:
 
@@ -51,20 +52,25 @@ class Grid(np.ndarray):
             )
 
         obj = (
-            np.asarray(data).view(cls)
+            ma.masked_values(data, no_data)
             if data is not None
-            else np.zeros(spec.nrows * spec.ncols, dtype=spec.dtype).view(cls)
+            else ma.masked_values(np.zeros(spec.nrows * spec.ncols, dtype=spec.dtype), no_data)
         )
 
         obj.spec = spec
         obj.no_data = no_data
-        return obj
+
+        return obj.view(cls)
 
     def __array_finalize__(self, obj):
         if obj is None:
             return
+
+        ma.MaskedArray.__array_finalize__(self, obj)
+        print("__array_finalize__ in: ", type(obj))
         self.spec = copy.copy(getattr(obj, "spec", None))
         self.no_data = getattr(obj, "no_data", None)
+        print("__array_finalize__ ", self.spec, self.no_data)
 
     @classmethod
     def create_like(cls, other):
@@ -116,6 +122,23 @@ class Grid(np.ndarray):
         """
         return self[col + row * self.spec.ncols]
 
+    def is_masked(self, col, row):
+        """Is the cell masked?
+
+        Parameters
+        ----------
+        col : int
+            Column.
+        row : int
+            Row.
+
+        Returns
+        -------
+        bool
+            Value.
+        """
+        return self.mask[col + row * self.spec.ncols]
+
     def set(self, col, row, value):
         """Set value to cell.
 
@@ -129,6 +152,18 @@ class Grid(np.ndarray):
             Value.
         """
         self[col + row * self.spec.ncols] = value
+
+    def set_masked(self, col, row):
+        """Masks a cell.
+
+        Parameters
+        ----------
+        col : int
+            Column.
+        row : int
+            Row.
+        """
+        self[col + row * self.spec.ncols] = ma.masked
 
     def to_cell(self, x, y):
         """Convert coordinates to cell.
