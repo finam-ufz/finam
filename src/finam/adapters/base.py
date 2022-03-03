@@ -152,7 +152,7 @@ class ValueToGrid(AAdapter):
 
 
 class GridToValue(AAdapter):
-    """Convert a matrix to a scalar value using an aggregation function, e.g. ``numpy.mean``.
+    """Convert a matrix to a scalar value using an aggregation function, e.g. ``numpy.ma.mean``.
 
     Parameters
     ----------
@@ -183,4 +183,4 @@ class GridToValue(AAdapter):
         grid = self.pull_data(time)
         assert_type(self, "input", grid, [Grid])
 
-        return self.func(grid.data)
+        return self.func(grid)

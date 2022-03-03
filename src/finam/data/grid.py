@@ -93,9 +93,6 @@ class Grid(ma.MaskedArray):
         if isinstance(obj, ma.MaskedArray):
             obj.data.spec = copy.copy(getattr(obj, "spec", None))
             obj.data.no_data = getattr(obj, "no_data", None)
-        else:
-            obj.spec = copy.copy(getattr(obj, "spec", None))
-            obj.no_data = getattr(obj, "no_data", None)
 
         self.set_fill_value(getattr(obj, "no_data", None))
 

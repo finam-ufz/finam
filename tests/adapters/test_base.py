@@ -124,7 +124,7 @@ class TestGridToValue(unittest.TestCase):
         self.source.initialize()
 
     def test_grid_to_value_mean(self):
-        self.adapter = GridToValue(func=np.mean)
+        self.adapter = GridToValue(func=np.ma.mean)
         self.source.outputs["Grid"] >> self.adapter
 
         self.source.connect()
@@ -133,7 +133,7 @@ class TestGridToValue(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1)), 1.0)
 
     def test_grid_to_value_sum(self):
-        self.adapter = GridToValue(func=np.sum)
+        self.adapter = GridToValue(func=np.ma.sum)
         self.source.outputs["Grid"] >> self.adapter
 
         self.source.connect()
