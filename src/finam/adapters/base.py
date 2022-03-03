@@ -3,6 +3,8 @@ Basic data transformation adapters.
 """
 from datetime import datetime
 
+import numpy as np
+
 from ..core.sdk import AAdapter
 from ..data import assert_type
 from ..data.grid import Grid
@@ -183,4 +185,9 @@ class GridToValue(AAdapter):
         grid = self.pull_data(time)
         assert_type(self, "input", grid, [Grid])
 
-        return self.func(grid)
+        result = self.func(grid)
+
+        if isinstance(result, np.ndarray):
+            result = result.item()
+
+        return result
