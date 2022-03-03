@@ -114,13 +114,16 @@ class TestGrid(unittest.TestCase):
         spec = GridSpec(10, 5)
         data = np.zeros(10 * 5)
         data[1] = -9999
+        data[2] = float("nan")
         grid = Grid(spec, data=data)
 
         self.assertEqual(grid.get(0, 0), 0.0)
         self.assertIs(grid.get(1, 0), ma.masked)
+        self.assertIs(grid.get(2, 0), ma.masked)
 
         self.assertEqual(grid.is_masked(0, 0), False)
         self.assertEqual(grid.is_masked(1, 0), True)
+        self.assertEqual(grid.is_masked(2, 0), True)
 
         grid.set_masked(2, 3)
         self.assertEqual(grid.is_masked(2, 3), True)

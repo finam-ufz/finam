@@ -81,7 +81,7 @@ class Grid(ma.MaskedArray):
             )
 
         data = GridArray(spec, no_data, data)
-        obj = ma.masked_values(data, no_data)
+        obj = ma.masked_values(ma.masked_invalid(data), no_data)
 
         return obj.view(cls)
 
