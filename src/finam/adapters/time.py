@@ -3,8 +3,6 @@ Adapters that deal with time, like temporal interpolation and integration.
 """
 from datetime import datetime
 
-import numpy as np
-
 from ..core.interfaces import NoBranchAdapter
 from ..core.sdk import AAdapter
 
@@ -217,16 +215,13 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
 
             v1 = _interpolate(v_old, v_new, dt1)
             v2 = _interpolate(v_old, v_new, dt2)
-            value = (dt2 - dt1) * scale * 0.5 * (v1 + v2)
+            value = (dt2 - dt1) * scale.total_seconds() * 0.5 * (v1 + v2)
 
             sum_value = value if sum_value is None else sum_value + value
 
         dt = time - self.prev_time
         if dt.total_seconds() > 0:
-            sum_value /= dt
-
-        if isinstance(sum_value, np.ndarray):
-            sum_value = sum_value.astype(dtype=np.float64, copy=False)
+            sum_value /= dt.total_seconds()
 
         if len(self.data) > 2:
             self.data = self.data[-2:]

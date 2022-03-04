@@ -45,6 +45,7 @@ if __name__ == "__main__":
     day = timedelta(days=1)
 
     show_schedule = True
+    write_files = True
     sleep_seconds = 0.0001
 
     def precip(t):
@@ -71,7 +72,7 @@ if __name__ == "__main__":
         path="mhm.csv",
         start=start_date,
         step=timedelta(days=7),
-        inputs=["precip_in", "LAI_in", "soil_water", "GW_recharge", "ETP"],
+        inputs=["precip_in", "ETP", "GW_recharge", "soil_water", "LAI_in"],
     )
     ogs_csv = writers.CsvWriter(
         path="ogs.csv",
@@ -100,7 +101,8 @@ if __name__ == "__main__":
         )
 
     composition = Composition(
-        [precipitation, mhm, ogs, formind, mhm_csv, ogs_csv, formind_csv]
+        [precipitation, mhm, ogs, formind]
+        + ([mhm_csv, ogs_csv, formind_csv] if write_files else [])
         + ([schedule_view, sleep_mod] if schedule_view else [])
     )
     composition.initialize()
@@ -131,72 +133,72 @@ if __name__ == "__main__":
     )
 
     # Observer coupling for CSV output
+    if write_files:
 
-    (  # RNG -> CSV (precipitation)
-        precipitation.outputs["precipitation"]
-        >> time.LinearIntegration()
-        >> base.Scale(mhm_csv._step.days)
-        >> mhm_csv.inputs["precip_in"]
-    )
+        (  # RNG -> CSV (precipitation)
+            precipitation.outputs["precipitation"]
+            >> time.LinearIntegration()
+            >> base.Scale(mhm_csv._step.days)
+            >> mhm_csv.inputs["precip_in"]
+        )
 
-    (  # mHM/Formind -> CSV (LAI input)
-        formind.outputs["LAI"]
-        >> base.GridToValue(func=np.mean)
-        >> time.NextValue()
-        >> mhm_csv.inputs["LAI_in"]
-    )
+        (  # mHM/Formind -> CSV (LAI input)
+            formind.outputs["LAI"]
+            >> base.GridToValue(func=np.ma.mean)
+            >> time.NextValue()
+            >> mhm_csv.inputs["LAI_in"]
+        )
 
-    (  # mHM -> CSV (soil_water)
-        mhm.outputs["soil_water"]
-        >> base.GridToValue(func=np.mean)
-        >> time.LinearInterpolation()
-        >> mhm_csv.inputs["soil_water"]
-    )
+        (  # mHM -> CSV (soil_water)
+            mhm.outputs["soil_water"]
+            >> base.GridToValue(func=np.ma.mean)
+            >> time.LinearInterpolation()
+            >> mhm_csv.inputs["soil_water"]
+        )
 
-    (  # mHM -> CSV (base_flow)
-        mhm.outputs["GW_recharge"]
-        >> time.LinearInterpolation()
-        >> mhm_csv.inputs["GW_recharge"]
-    )
+        (  # mHM -> CSV (base_flow)
+            mhm.outputs["GW_recharge"]
+            >> time.LinearInterpolation()
+            >> mhm_csv.inputs["GW_recharge"]
+        )
 
-    (  # mHM -> CSV (ETP)
-        mhm.outputs["ETP"] >> time.LinearInterpolation() >> mhm_csv.inputs["ETP"]
-    )
+        (  # mHM -> CSV (ETP)
+            mhm.outputs["ETP"] >> time.LinearInterpolation() >> mhm_csv.inputs["ETP"]
+        )
 
-    (  # OGS -> CSV (head)
-        ogs.outputs["head"] >> time.LinearInterpolation() >> ogs_csv.inputs["head"]
-    )
+        (  # OGS -> CSV (head)
+            ogs.outputs["head"] >> time.LinearInterpolation() >> ogs_csv.inputs["head"]
+        )
 
-    (  # OGS -> CSV (base_flow_in)
-        mhm.outputs["GW_recharge"]
-        >> time.LinearIntegration()
-        >> base.Scale(ogs_csv._step.days)
-        >> ogs_csv.inputs["GW_recharge_in"]
-    )
+        (  # OGS -> CSV (base_flow_in)
+            mhm.outputs["GW_recharge"]
+            >> time.LinearIntegration()
+            >> base.Scale(ogs_csv._step.days)
+            >> ogs_csv.inputs["GW_recharge_in"]
+        )
 
-    (  # formind -> CSV (LAI)
-        formind.outputs["LAI"]
-        >> base.GridToValue(func=np.mean)
-        >> time.LinearInterpolation()
-        >> formind_csv.inputs["LAI"]
-    )
+        (  # formind -> CSV (LAI)
+            formind.outputs["LAI"]
+            >> base.GridToValue(func=np.ma.mean)
+            >> time.LinearInterpolation()
+            >> formind_csv.inputs["LAI"]
+        )
 
-    (  # formind -> CSV (soil_water_in)
-        mhm.outputs["soil_water"]
-        >> base.GridToValue(func=np.mean)
-        >> time.LinearIntegration()
-        >> formind_csv.inputs["soil_water_in"]
-    )
+        (  # formind -> CSV (soil_water_in)
+            mhm.outputs["soil_water"]
+            >> base.GridToValue(func=np.ma.mean)
+            >> time.LinearIntegration()
+            >> formind_csv.inputs["soil_water_in"]
+        )
 
     # Observer coupling for schedule view
-
     if schedule_view:
-        (
+        _ = (
             mhm.outputs["soil_water"] >> schedule_view.inputs["mHM (7d)"]
         )  # mHM -> schedule
-        (ogs.outputs["head"] >> schedule_view.inputs["OGS (30d)"])  # OGS -> schedule
-        (
+        _ = ogs.outputs["head"] >> schedule_view.inputs["OGS (30d)"]  # OGS -> schedule
+        _ = (
             formind.outputs["LAI"] >> schedule_view.inputs["Formind (365d)"]
         )  # Formind -> schedule
 
-    composition.run(datetime(2002, 1, 1))
+    composition.run(datetime(2001, 1, 1))

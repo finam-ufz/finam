@@ -178,6 +178,10 @@ class TestLinearGridIntegration(unittest.TestCase):
 def create_grid(t):
     grid = Grid(GridSpec(10, 5))
     grid.fill(t)
+
+    for r in range(5):
+        grid.set_masked(4, r)
+
     return grid
 
 
