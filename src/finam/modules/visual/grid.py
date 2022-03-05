@@ -18,12 +18,16 @@ class GridView(AComponent):
                  +----------+
     """
 
-    def __init__(self):
+    def __init__(self, vmin=None, vmax=None):
         super().__init__()
         self._time = None
         self._image = None
         self._figure = None
         self._text = None
+
+        self.vmin = vmin
+        self.vmax = vmax
+
         self._status = ComponentStatus.CREATED
 
     def initialize(self):
@@ -101,7 +105,9 @@ class GridView(AComponent):
             self._figure.subplots_adjust(left=0.02, right=0.98, top=0.98, bottom=0.06)
             self._figure.show()
 
-            self._image = ax.imshow(img)
+            self._image = ax.imshow(
+                img, interpolation=None, vmin=self.vmin, vmax=self.vmax
+            )
             self._text = ax.text(5, 5, f"T: {self._time}", transform=None, fontsize=14)
         else:
             self._image.set_data(img)
@@ -130,8 +136,9 @@ class TimedGridView(ATimeComponent, GridView):
                  +---------------+
     """
 
-    def __init__(self, start, step):
-        super().__init__()
+    def __init__(self, start, step, vmin=None, vmax=None):
+        ATimeComponent.__init__(self)
+        GridView.__init__(self, vmin, vmax)
 
         if not isinstance(start, datetime):
             raise ValueError("Start must be of type datetime")
