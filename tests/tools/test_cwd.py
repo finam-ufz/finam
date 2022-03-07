@@ -24,4 +24,4 @@ class TestCWD(unittest.TestCase):
         # assert we were in the right cwd
         test2 = Test("..")
         test2.change_cwd()
-        self.assertEqual(Path(test2.cwd).absolute(), Path(test2.new_cwd).absolute())
+        self.assertEqual(Path(test2.cwd).resolve(), Path(test2.new_cwd).resolve())
