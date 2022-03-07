@@ -17,6 +17,7 @@ class Test:
 
 class TestCWD(unittest.TestCase):
     def test_cwd(self):
+        cwd = os.getcwd()
         # no cwd set
         test1 = Test()
         with self.assertRaises(ValueError):
@@ -25,3 +26,5 @@ class TestCWD(unittest.TestCase):
         test2 = Test("..")
         test2.change_cwd()
         self.assertEqual(Path(test2.cwd).resolve(), Path(test2.new_cwd).resolve())
+        self.assertEqual(Path(".").resolve(), Path(cwd).resolve())
+        self.assertNotEqual(Path(".").resolve(), Path(test2.cwd).resolve())
