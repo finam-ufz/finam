@@ -46,7 +46,7 @@ def execute_in_cwd(func):
         """Wrapper function."""
         cwd = getattr(self, "cwd", None)
         if cwd is None:
-            raise ValueError("No given working directory given.")
+            raise ValueError("No working directory given.")
         with set_directory(cwd):
             return func(self, *args, **kwargs)
 
