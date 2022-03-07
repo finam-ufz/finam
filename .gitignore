@@ -26,6 +26,8 @@ wheels/
 *.egg
 # local version for user install
 setup.py
+# info folder with testing scirpts
+info/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
