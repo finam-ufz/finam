@@ -117,6 +117,7 @@ class TestOutput(unittest.TestCase):
 
         out.push_data(100, t)
 
+        self.assertTrue(inp.has_source)
         self.assertTrue(out.has_targets)
         self.assertEqual(out.get_data(t), 100)
         self.assertEqual(inp.pull_data(t), 100)

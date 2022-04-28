@@ -147,6 +147,11 @@ class IInput(ABC):
             Data set for the given simulation time.
         """
 
+    @property
+    def has_source(self):
+        """Flag if this input instance has a source."""
+        return self.get_source() is not None
+
 
 class IOutput(ABC):
     """Interface for output slots."""
