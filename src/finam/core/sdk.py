@@ -81,6 +81,8 @@ class AComponent(IComponent, ABC):
         After the method call, the component should have status UPDATED or FINISHED.
         """
         self.logger.debug("update")
+        if isinstance(self, ITimeComponent):
+            self.logger.debug("current time: %s", self.time)
         try:
             if not self._status in (ComponentStatus.VALIDATED, ComponentStatus.UPDATED):
                 raise FinamStatusError(
