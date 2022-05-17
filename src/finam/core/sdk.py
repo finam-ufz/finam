@@ -238,11 +238,6 @@ class Input(IInput):
         return self.source.get_data(time)
 
     @property
-    def name(self):
-        """Input name."""
-        return self.name
-
-    @property
     def logger_name(self):
         """Logger name derived from base logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
@@ -410,11 +405,6 @@ class Output(IOutput):
         self.add_target(other)
         other.set_source(self)
         return other
-
-    @property
-    def name(self):
-        """Output name."""
-        return self.name
 
     @property
     def logger_name(self):
