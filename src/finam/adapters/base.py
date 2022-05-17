@@ -36,6 +36,7 @@ class Callback(AAdapter):
         array_like
             data-set for the requested time.
         """
+        self.logger.debug("get data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -73,6 +74,7 @@ class Scale(AAdapter):
         array_like
             data-set for the requested time.
         """
+        self.logger.debug("get data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -110,6 +112,7 @@ class GridCellCallback(AAdapter):
         array_like
             data-set for the requested time.
         """
+        self.logger.debug("get data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -159,6 +162,7 @@ class ValueToGrid(AAdapter):
         array_like
             data-set for the requested time.
         """
+        self.logger.debug("get data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -203,6 +207,7 @@ class GridToValue(AAdapter):
         array_like
             data-set for the requested time.
         """
+        self.logger.debug("get data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")

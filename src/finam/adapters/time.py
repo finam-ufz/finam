@@ -22,6 +22,7 @@ class NextValue(AAdapter):
         time : datetime
             Simulation time of the notification.
         """
+        self.logger.debug("source changed")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -47,6 +48,7 @@ class NextValue(AAdapter):
         array_like
             data-set for the requested time.
         """
+        self.logger.debug("get data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -73,6 +75,7 @@ class PreviousValue(AAdapter):
         time : datetime
             Simulation time of the notification.
         """
+        self.logger.debug("source changed")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -103,6 +106,7 @@ class PreviousValue(AAdapter):
         array_like
             data-set for the requested time.
         """
+        self.logger.debug("get data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -132,6 +136,7 @@ class LinearInterpolation(AAdapter):
         time : datetime
             Simulation time of the notification.
         """
+        self.logger.debug("source changed")
         self.old_data = self.new_data
         self.new_data = (time, self.pull_data(time))
 
@@ -150,6 +155,7 @@ class LinearInterpolation(AAdapter):
         array_like
             data-set for the requested time.
         """
+        self.logger.debug("get data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -187,6 +193,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         time : datetime
             Simulation time of the notification.
         """
+        self.logger.debug("source changed")
         data = self.pull_data(time)
         self.data.append((time, data))
 
@@ -208,6 +215,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         array_like
             data-set for the requested time.
         """
+        self.logger.debug("get data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")

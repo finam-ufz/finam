@@ -85,6 +85,7 @@ class Composition:
         bool
             True if on rank 0, false otherwise.
         """
+        self.logger.debug("run mpi composition")
         if self.mpi_rank == 0:
             return True
 
@@ -99,6 +100,7 @@ class Composition:
 
         After the call, module inputs and outputs are available for linking.
         """
+        self.logger.debug("init composition")
         for mod in self.modules:
             mod._base_logger_name = self.logger_name
             mod.initialize()
@@ -117,6 +119,7 @@ class Composition:
         t_max : datetime
             Simulation time up to which to simulate.
         """
+        self.logger.debug("run composition")
         self.validate()
 
         try:
@@ -154,6 +157,7 @@ class Composition:
 
     def validate(self):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
+        self.logger.debug("validate composition")
         for mod in self.modules:
             for (name, inp) in mod.inputs.items():
                 par_inp = inp.get_source()

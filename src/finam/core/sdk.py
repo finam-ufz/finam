@@ -34,6 +34,7 @@ class AComponent(IComponent, ABC):
         After the method call, the component's inputs and outputs must be available,
         and the component should have status INITIALIZED.
         """
+        self.logger.debug("init")
         try:
             if self._status != ComponentStatus.CREATED:
                 raise FinamStatusError(
@@ -48,6 +49,7 @@ class AComponent(IComponent, ABC):
 
         After the method call, the component should have status CONNECTED.
         """
+        self.logger.debug("connect")
         try:
             if self._status != ComponentStatus.INITIALIZED:
                 raise FinamStatusError(
@@ -62,6 +64,7 @@ class AComponent(IComponent, ABC):
 
         After the method call, the component should have status VALIDATED.
         """
+        self.logger.debug("validate")
         try:
             if self._status != ComponentStatus.CONNECTED:
                 raise FinamStatusError(
@@ -77,6 +80,7 @@ class AComponent(IComponent, ABC):
 
         After the method call, the component should have status UPDATED or FINISHED.
         """
+        self.logger.debug("update")
         try:
             if not self._status in (ComponentStatus.VALIDATED, ComponentStatus.UPDATED):
                 raise FinamStatusError(
@@ -91,6 +95,7 @@ class AComponent(IComponent, ABC):
 
         After the method call, the component should have status FINALIZED.
         """
+        self.logger.debug("finalize")
         try:
             if not self._status in (ComponentStatus.UPDATED, ComponentStatus.FINISHED):
                 raise FinamStatusError(
@@ -170,6 +175,7 @@ class Input(IInput):
         source :
             source output or adapter
         """
+        self.logger.debug("set source")
         try:
             if self.source is not None:
                 raise ValueError(
@@ -192,6 +198,7 @@ class Input(IInput):
         Output
             The input's source.
         """
+        self.logger.debug("get source")
         return self.source
 
     def source_changed(self, time):
@@ -202,6 +209,7 @@ class Input(IInput):
         time : datetime
             Simulation time of the notification.
         """
+        self.logger.debug("source changed")
 
     def pull_data(self, time):
         """Retrieve the data from the input's source.
@@ -216,6 +224,7 @@ class Input(IInput):
         array_like
             Data set for the given simulation time.
         """
+        self.logger.debug("pull data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -267,6 +276,7 @@ class CallbackInput(Input):
         time : datetime
             Simulation time of the notification.
         """
+        self.logger.debug("source changed")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -294,6 +304,7 @@ class Output(IOutput):
         target : Input
             The target to add.
         """
+        self.logger.debug("add target")
         try:
             if not isinstance(target, IInput):
                 raise ValueError("Only IInput can added as target for IOutput")
@@ -311,6 +322,7 @@ class Output(IOutput):
         list
             List of targets.
         """
+        self.logger.debug("get targets")
         return self.targets
 
     def push_data(self, data, time):
@@ -325,6 +337,7 @@ class Output(IOutput):
         time : datetime
             Simulation time of the data set.
         """
+        self.logger.debug("push data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -343,6 +356,7 @@ class Output(IOutput):
         time : datetime
             Simulation time of the simulation.
         """
+        self.logger.debug("notify targets")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -366,6 +380,7 @@ class Output(IOutput):
         array_like
             data-set for the requested time.
         """
+        self.logger.debug("get data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -388,6 +403,7 @@ class Output(IOutput):
         Output
             The last element of the chain.
         """
+        self.logger.debug("chain")
         self.add_target(other)
         other.set_source(self)
         return other
@@ -430,6 +446,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
         time : datetime
             Simulation time of the data set.
         """
+        self.logger.debug("push data")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -447,6 +464,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
         time : datetime
             Simulation time of the notification.
         """
+        self.logger.debug("source changed")
         try:
             if not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
