@@ -106,7 +106,7 @@ class Composition:
             mod.initialize()
             for var in mod.inputs:
                 mod.inputs[var].name = var
-                mod.inputs[input].base_logger_name = mod.logger_name
+                mod.inputs[var].base_logger_name = mod.logger_name
             for var in mod.outputs:
                 mod.outputs[var].name = var
                 mod.outputs[var].base_logger_name = mod.logger_name
