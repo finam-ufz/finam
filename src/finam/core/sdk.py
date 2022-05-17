@@ -407,6 +407,11 @@ class Output(IOutput):
         return other
 
     @property
+    def has_targets(self):
+        """Flag if this output instance has any targets."""
+        return bool(self.targets)
+
+    @property
     def logger_name(self):
         """Logger name derived from base logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
@@ -471,6 +476,10 @@ class AAdapter(IAdapter, Input, Output, ABC):
     def name(self):
         """Class name."""
         return self.__class__.__name__
+
+    @name.setter
+    def name(self, _):
+        pass
 
     @property
     def logger_name(self):
