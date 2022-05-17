@@ -1,7 +1,6 @@
 """
 Interface definitions for the coupling framework.
 """
-
 from abc import ABC, abstractmethod
 from enum import Enum
 
@@ -72,11 +71,6 @@ class IComponent(ABC):
     @abstractmethod
     def status(self):
         """The component's current status."""
-
-    @property
-    def name(self):
-        """Class name."""
-        return self.__class__.__name__
 
 
 class ITimeComponent(IComponent, ABC):
