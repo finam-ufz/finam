@@ -102,14 +102,14 @@ class Composition:
         """
         self.logger.debug("init composition")
         for mod in self.modules:
-            mod._base_logger_name = self.logger_name
+            mod.base_logger_name = self.logger_name
             mod.initialize()
-            for input in mod.inputs:
-                mod.inputs[input]._name = input
-                mod.inputs[input]._base_logger_name = mod.logger_name
-            for output in mod.outputs:
-                mod.outputs[output]._name = output
-                mod.outputs[output]._base_logger_name = mod.logger_name
+            for var in mod.inputs:
+                mod.inputs[var].name = var
+                mod.inputs[input].base_logger_name = mod.logger_name
+            for var in mod.outputs:
+                mod.outputs[var].name = var
+                mod.outputs[var].base_logger_name = mod.logger_name
 
     def run(self, t_max):
         """Run this composition using the loop-based update strategy.

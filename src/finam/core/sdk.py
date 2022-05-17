@@ -26,7 +26,7 @@ class AComponent(IComponent, ABC):
         self._status = None
         self._inputs = {}
         self._outputs = {}
-        self._base_logger_name = None
+        self.base_logger_name = None
 
     def initialize(self):
         """Initialize the component.
@@ -128,7 +128,7 @@ class AComponent(IComponent, ABC):
     @property
     def logger_name(self):
         """Logger name derived from base logger name and class name."""
-        base_logger = logging.getLogger(self._base_logger_name)
+        base_logger = logging.getLogger(self.base_logger_name)
         # logger hierarchy indicated by "." in name
         return ".".join(([base_logger.name, self.name]))
 
@@ -144,7 +144,7 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
     def __init__(self):
         super().__init__()
         self._time = None
-        self._base_logger_name = None
+        self.base_logger_name = None
 
     @property
     def time(self):
@@ -164,8 +164,8 @@ class Input(IInput):
 
     def __init__(self):
         self.source = None
-        self._base_logger_name = None
-        self._name = ""
+        self.base_logger_name = None
+        self.name = ""
 
     def set_source(self, source):
         """Set the input's source output or adapter
@@ -177,7 +177,7 @@ class Input(IInput):
         """
         # fix to set base-logger for adapters derived from Input source logger
         if isinstance(self, AAdapter):
-            self._base_logger_name = getattr(source, "logger_name", None)
+            self.base_logger_name = getattr(source, "logger_name", None)
         self.logger.debug("set source")
         try:
             if self.source is not None:
@@ -240,12 +240,12 @@ class Input(IInput):
     @property
     def name(self):
         """Input name."""
-        return self._name
+        return self.name
 
     @property
     def logger_name(self):
         """Logger name derived from base logger name and class name."""
-        base_logger = logging.getLogger(self._base_logger_name)
+        base_logger = logging.getLogger(self.base_logger_name)
         # logger hierarchy indicated by "." in name
         return ".".join(([base_logger.name, "INPUT", self.name]))
 
@@ -296,8 +296,8 @@ class Output(IOutput):
     def __init__(self):
         self.targets = []
         self.data = []
-        self._base_logger_name = None
-        self._name = ""
+        self.base_logger_name = None
+        self.name = ""
 
     def add_target(self, target):
         """Add a target input or adapter for this output.
@@ -414,12 +414,12 @@ class Output(IOutput):
     @property
     def name(self):
         """Output name."""
-        return self._name
+        return self.name
 
     @property
     def logger_name(self):
         """Logger name derived from base logger name and class name."""
-        base_logger = logging.getLogger(self._base_logger_name)
+        base_logger = logging.getLogger(self.base_logger_name)
         # logger hierarchy indicated by "." in name
         return ".".join(([base_logger.name, "OUTPUT", self.name]))
 
@@ -485,6 +485,5 @@ class AAdapter(IAdapter, Input, Output, ABC):
     @property
     def logger_name(self):
         """Logger name derived from source logger name and class name."""
-        # TODO: could at some point self.source be None if logger is called?
-        base_logger = logging.getLogger(self._base_logger_name)
+        base_logger = logging.getLogger(self.base_logger_name)
         return ".".join(([base_logger.name, "ADAPTER", self.name]))

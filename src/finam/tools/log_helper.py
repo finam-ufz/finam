@@ -1,4 +1,5 @@
 """Logging helpers."""
+# pylint: disable=E1101
 import logging
 import sys
 from contextlib import AbstractContextManager
@@ -32,7 +33,8 @@ class LogWriter:
             Message to log.
         """
         logger = logging.getLogger(self.logger_name)
-        logger.log(self.level, f"{msg}") if msg != "\n" else None
+        if msg != "\n":
+            logger.log(self.level, msg)
 
 
 class LogStdOutStdErr(AbstractContextManager):
@@ -97,8 +99,8 @@ class LogCStdOutStdErr:
     def __enter__(self):
         self.stdout, self.stderr = self.pipes.__enter__()
 
-    def __exit__(self, type, value, traceback):
-        self.pipes.__exit__(type, value, traceback)
+    def __exit__(self, *args, **kwargs):
+        self.pipes.__exit__(*args, **kwargs)
         logger = logging.getLogger(self.logger_name)
         for line in self.stdout.read().splitlines():
             logger.log(self.level_stdout, line)
