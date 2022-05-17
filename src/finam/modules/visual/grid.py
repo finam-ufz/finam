@@ -70,8 +70,12 @@ class GridView(AComponent):
         time : datetime
             simulation time to get the data for.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         self._time = time
         if self._status in (ComponentStatus.UPDATED, ComponentStatus.VALIDATED):
@@ -95,7 +99,11 @@ class GridView(AComponent):
         import matplotlib.pyplot as plt
 
         grid = self._inputs["Grid"].pull_data(self._time)
-        assert_type(self, "Grid", grid, [Grid])
+        try:
+            assert_type(self, "Grid", grid, [Grid])
+        except TypeError as err:
+            self.logger.exception(err)
+            raise
 
         img = grid.reshape(grid.spec.nrows, grid.spec.ncols)
 
@@ -139,11 +147,14 @@ class TimedGridView(ATimeComponent, GridView):
     def __init__(self, start, step, vmin=None, vmax=None):
         ATimeComponent.__init__(self)
         GridView.__init__(self, vmin, vmax)
-
-        if not isinstance(start, datetime):
-            raise ValueError("Start must be of type datetime")
-        if not isinstance(step, timedelta):
-            raise ValueError("Step must be of type timedelta")
+        try:
+            if not isinstance(start, datetime):
+                raise ValueError("Start must be of type datetime")
+            if not isinstance(step, timedelta):
+                raise ValueError("Step must be of type timedelta")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         self._time = start
         self._step = step

@@ -37,11 +37,14 @@ class TimeSeriesView(ATimeComponent):
 
     def __init__(self, inputs, start, step, intervals=None, update_interval=1):
         super().__init__()
-
-        if not isinstance(start, datetime):
-            raise ValueError("Start must be of type datetime")
-        if not isinstance(step, timedelta):
-            raise ValueError("Step must be of type timedelta")
+        try:
+            if not isinstance(start, datetime):
+                raise ValueError("Start must be of type datetime")
+            if not isinstance(step, timedelta):
+                raise ValueError("Step must be of type timedelta")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         self._step = step
         self._update_interval = update_interval
@@ -114,7 +117,11 @@ class TimeSeriesView(ATimeComponent):
         for i, inp in enumerate(self._input_names):
             if self._updates % self._intervals[i] == 0:
                 value = self._inputs[inp].pull_data(self.time)
-                assert_type(self, inp, value, [int, float])
+                try:
+                    assert_type(self, inp, value, [int, float])
+                except TypeError as err:
+                    self.logger.exception(err)
+                    raise
 
                 self._x[i].append(self.time)
                 self._data[i].append(value)

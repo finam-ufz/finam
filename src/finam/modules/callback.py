@@ -26,10 +26,14 @@ class CallbackComponent(ATimeComponent):
     def __init__(self, inputs, outputs, callback, start, step):
         super().__init__()
 
-        if not isinstance(start, datetime):
-            raise ValueError("Start must be of type datetime")
-        if not isinstance(step, timedelta):
-            raise ValueError("Step must be of type timedelta")
+        try:
+            if not isinstance(start, datetime):
+                raise ValueError("Start must be of type datetime")
+            if not isinstance(step, timedelta):
+                raise ValueError("Step must be of type timedelta")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         self._input_names = inputs
         self._output_names = outputs

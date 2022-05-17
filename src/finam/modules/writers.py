@@ -37,11 +37,14 @@ class CsvWriter(ATimeComponent):
 
     def __init__(self, path, start, step, inputs):
         super().__init__()
-
-        if not isinstance(start, datetime):
-            raise ValueError("Start must be of type datetime")
-        if not isinstance(step, timedelta):
-            raise ValueError("Step must be of type timedelta")
+        try:
+            if not isinstance(start, datetime):
+                raise ValueError("Start must be of type datetime")
+            if not isinstance(step, timedelta):
+                raise ValueError("Step must be of type timedelta")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         self._path = path
         self._step = step
@@ -93,7 +96,11 @@ class CsvWriter(ATimeComponent):
         values = [self._inputs[inp].pull_data(self.time) for inp in self._input_names]
 
         for (value, name) in zip(values, self._input_names):
-            assert_type(self, name, value, [int, float])
+            try:
+                assert_type(self, name, value, [int, float])
+            except TypeError as err:
+                self.logger.exception(err)
+                raise
 
         self._rows.append([self.time.isoformat()] + values)
 
