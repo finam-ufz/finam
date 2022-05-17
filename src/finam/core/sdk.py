@@ -175,6 +175,9 @@ class Input(IInput):
         source :
             source output or adapter
         """
+        # fix to set base-logger for adapters derived from Input source logger
+        if isinstance(self, AAdapter):
+            self._base_logger_name = getattr(source, "logger_name", None)
         self.logger.debug("set source")
         try:
             if self.source is not None:
@@ -483,4 +486,5 @@ class AAdapter(IAdapter, Input, Output, ABC):
     def logger_name(self):
         """Logger name derived from source logger name and class name."""
         # TODO: could at some point self.source be None if logger is called?
-        return ".".join(([self.source.logger_name, "ADAPTER", self.name]))
+        base_logger = logging.getLogger(self._base_logger_name)
+        return ".".join(([base_logger.name, "ADAPTER", self.name]))
