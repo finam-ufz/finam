@@ -40,7 +40,7 @@ class CallbackComponent(ATimeComponent):
         self._callback = callback
         self._step = step
         self._time = start
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         super().initialize()
@@ -51,7 +51,7 @@ class CallbackComponent(ATimeComponent):
         for name in self._output_names:
             self._outputs[name] = Output()
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
@@ -62,12 +62,12 @@ class CallbackComponent(ATimeComponent):
         for name, val in outp.items():
             self._outputs[name].push_data(val, self.time)
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def update(self):
         super().update()
@@ -80,9 +80,9 @@ class CallbackComponent(ATimeComponent):
         for name, val in outp.items():
             self._outputs[name].push_data(val, self.time)
 
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def finalize(self):
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED

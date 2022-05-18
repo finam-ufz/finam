@@ -60,7 +60,7 @@ class TimeSeriesView(ATimeComponent):
         self._input_names = inputs
         self._inputs = {inp: Input() for inp in inputs}
 
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         """Initialize the component.
@@ -80,7 +80,7 @@ class TimeSeriesView(ATimeComponent):
 
         self._figure.show()
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         """Push initial values to outputs.
@@ -89,7 +89,7 @@ class TimeSeriesView(ATimeComponent):
         """
         super().connect()
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -98,7 +98,7 @@ class TimeSeriesView(ATimeComponent):
         """
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def update(self):
         """Update the component by one time step.
@@ -140,7 +140,7 @@ class TimeSeriesView(ATimeComponent):
         self._time += self._step
         self._updates += 1
 
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def finalize(self):
         """Finalize and clean up the component.
@@ -149,4 +149,4 @@ class TimeSeriesView(ATimeComponent):
         """
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED

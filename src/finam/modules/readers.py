@@ -43,7 +43,7 @@ class CsvReader(ATimeComponent):
         self._output_names = outputs
         self._outputs = {o: Output() for o in outputs}
 
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         """Initialize the component.
@@ -57,7 +57,7 @@ class CsvReader(ATimeComponent):
 
         self._data = pandas.read_csv(self._path, sep=";")
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         """Push initial values to outputs.
@@ -69,7 +69,7 @@ class CsvReader(ATimeComponent):
         self._time = self._push_row(self._data.iloc[self._row_index])
         self._row_index += 1
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -78,7 +78,7 @@ class CsvReader(ATimeComponent):
         """
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def update(self):
         """Update the component by one time step.
@@ -92,9 +92,9 @@ class CsvReader(ATimeComponent):
         self._row_index += 1
 
         if self._row_index >= self._data.shape[0]:
-            self._status = ComponentStatus.FINISHED
+            self.status = ComponentStatus.FINISHED
         else:
-            self._status = ComponentStatus.UPDATED
+            self.status = ComponentStatus.UPDATED
 
     def finalize(self):
         """Finalize and clean up the component.
@@ -103,7 +103,7 @@ class CsvReader(ATimeComponent):
         """
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED
 
     def _push_row(self, row):
         if self._date_format is None:

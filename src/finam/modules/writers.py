@@ -55,7 +55,7 @@ class CsvWriter(ATimeComponent):
 
         self._rows = []
 
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         """Initialize the component.
@@ -65,7 +65,7 @@ class CsvWriter(ATimeComponent):
         """
         super().initialize()
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         """Push initial values to outputs.
@@ -74,7 +74,7 @@ class CsvWriter(ATimeComponent):
         """
         super().connect()
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -83,7 +83,7 @@ class CsvWriter(ATimeComponent):
         """
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def update(self):
         """Update the component by one time step.
@@ -106,7 +106,7 @@ class CsvWriter(ATimeComponent):
 
         self._time += self._step
 
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def finalize(self):
         """Finalize and clean up the component.
@@ -124,4 +124,4 @@ class CsvWriter(ATimeComponent):
             comments="",
         )
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED

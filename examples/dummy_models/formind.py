@@ -43,7 +43,7 @@ class Formind(ATimeComponent):
         self._grid_spec = grid_spec
         self.lai = None
 
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         super().initialize()
@@ -54,19 +54,19 @@ class Formind(ATimeComponent):
         self._inputs["soil_water"] = Input()
         self._outputs["LAI"] = Output()
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
 
         self._outputs["LAI"].push_data(self.lai, self.time)
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def update(self):
         super().update()
@@ -95,9 +95,9 @@ class Formind(ATimeComponent):
         self._outputs["LAI"].push_data(self.lai, self.time)
 
         # Update component status
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def finalize(self):
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED

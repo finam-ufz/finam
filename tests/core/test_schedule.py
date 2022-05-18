@@ -20,7 +20,7 @@ class MockupComponent(ATimeComponent):
         self._callbacks = callbacks
         self._step = step
         self._time = datetime(2000, 1, 1)
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         super().initialize()
@@ -28,7 +28,7 @@ class MockupComponent(ATimeComponent):
         for key, _ in self._callbacks.items():
             self._outputs[key] = Output()
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
@@ -36,12 +36,12 @@ class MockupComponent(ATimeComponent):
         for key, callback in self._callbacks.items():
             self._outputs[key].push_data(callback(self._time), self.time)
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def update(self):
         super().update()
@@ -51,23 +51,23 @@ class MockupComponent(ATimeComponent):
         for key, callback in self._callbacks.items():
             self._outputs[key].push_data(callback(self._time), self.time)
 
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def finalize(self):
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED
 
 
 class MockupConsumerComponent(ATimeComponent):
     def __init__(self):
         super().__init__()
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         super().initialize()
         self._inputs["Input"] = Input()
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
 
 class CallbackAdapter(AAdapter):

@@ -28,7 +28,7 @@ class GridView(AComponent):
         self.vmin = vmin
         self.vmax = vmax
 
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         """Initialize the component.
@@ -40,7 +40,7 @@ class GridView(AComponent):
 
         self._inputs["Grid"] = CallbackInput(self.data_changed)
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         """Push initial values to outputs.
@@ -49,7 +49,7 @@ class GridView(AComponent):
         """
         super().connect()
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -58,7 +58,7 @@ class GridView(AComponent):
         """
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def data_changed(self, caller, time):
         """Update for changed data.
@@ -78,7 +78,7 @@ class GridView(AComponent):
             raise
 
         self._time = time
-        if self._status in (ComponentStatus.UPDATED, ComponentStatus.VALIDATED):
+        if self.status in (ComponentStatus.UPDATED, ComponentStatus.VALIDATED):
             self.update()
         else:
             self.update_plot()
@@ -92,7 +92,7 @@ class GridView(AComponent):
 
         self.update_plot()
 
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def update_plot(self):
         """Update the plot."""
@@ -131,7 +131,7 @@ class GridView(AComponent):
         """
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED
 
 
 class TimedGridView(ATimeComponent, GridView):

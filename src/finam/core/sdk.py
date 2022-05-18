@@ -36,9 +36,9 @@ class AComponent(IComponent, ABC):
         """
         self.logger.debug("init")
         try:
-            if self._status != ComponentStatus.CREATED:
+            if self.status != ComponentStatus.CREATED:
                 raise FinamStatusError(
-                    f"Unexpected model state {self._status} in {self.name}"
+                    f"Unexpected model state {self.status} in {self.name}"
                 )
         except FinamStatusError as err:
             self.logger.exception(err)
@@ -51,9 +51,9 @@ class AComponent(IComponent, ABC):
         """
         self.logger.debug("connect")
         try:
-            if self._status != ComponentStatus.INITIALIZED:
+            if self.status != ComponentStatus.INITIALIZED:
                 raise FinamStatusError(
-                    f"Unexpected model state {self._status} in {self.name}"
+                    f"Unexpected model state {self.status} in {self.name}"
                 )
         except FinamStatusError as err:
             self.logger.exception(err)
@@ -66,9 +66,9 @@ class AComponent(IComponent, ABC):
         """
         self.logger.debug("validate")
         try:
-            if self._status != ComponentStatus.CONNECTED:
+            if self.status != ComponentStatus.CONNECTED:
                 raise FinamStatusError(
-                    f"Unexpected model state {self._status} in {self.name}"
+                    f"Unexpected model state {self.status} in {self.name}"
                 )
         except FinamStatusError as err:
             self.logger.exception(err)
@@ -84,9 +84,9 @@ class AComponent(IComponent, ABC):
         if isinstance(self, ITimeComponent):
             self.logger.debug("current time: %s", self.time)
         try:
-            if not self._status in (ComponentStatus.VALIDATED, ComponentStatus.UPDATED):
+            if not self.status in (ComponentStatus.VALIDATED, ComponentStatus.UPDATED):
                 raise FinamStatusError(
-                    f"Unexpected model state {self._status} in {self.name}"
+                    f"Unexpected model state {self.status} in {self.name}"
                 )
         except FinamStatusError as err:
             self.logger.exception(err)
@@ -99,9 +99,9 @@ class AComponent(IComponent, ABC):
         """
         self.logger.debug("finalize")
         try:
-            if not self._status in (ComponentStatus.UPDATED, ComponentStatus.FINISHED):
+            if not self.status in (ComponentStatus.UPDATED, ComponentStatus.FINISHED):
                 raise FinamStatusError(
-                    f"Unexpected model state {self._status} in {self.name}"
+                    f"Unexpected model state {self.status} in {self.name}"
                 )
         except FinamStatusError as err:
             self.logger.exception(err)
@@ -121,6 +121,22 @@ class AComponent(IComponent, ABC):
     def status(self):
         """The component's current status."""
         return self._status
+
+    @status.setter
+    def status(self, status):
+        """The component's current status."""
+        if isinstance(status, ComponentStatus):
+            self._status = status
+        elif isinstance(status, int) and status in [e.value for e in ComponentStatus]:
+            self._status = ComponentStatus(status)
+        elif isinstance(status, str) and status in [e.name for e in ComponentStatus]:
+            self._status = ComponentStatus[status]
+        else:
+            try:
+                raise FinamStatusError(f"Unknown model state {status} in {self.name}")
+            except FinamStatusError as err:
+                self.logger.exception(err)
+                raise
 
     @property
     def name(self):

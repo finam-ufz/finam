@@ -34,7 +34,7 @@ class Ogs(ATimeComponent):
         self._time = start
         self._step = step
         self.head = 0
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         super().initialize()
@@ -42,18 +42,18 @@ class Ogs(ATimeComponent):
         self._inputs["GW_recharge"] = Input()
         self._outputs["head"] = Output()
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
         self._outputs["head"].push_data(0, self.time)
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def update(self):
         super().update()
@@ -74,12 +74,12 @@ class Ogs(ATimeComponent):
         self._outputs["head"].push_data(self.head, self.time)
 
         # Update component status
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def finalize(self):
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED
 
     @property
     def step(self):
