@@ -84,7 +84,7 @@ class AComponent(IComponent, ABC):
         if isinstance(self, ITimeComponent):
             self.logger.debug("current time: %s", self.time)
         try:
-            if not self.status in (ComponentStatus.VALIDATED, ComponentStatus.UPDATED):
+            if self.status not in (ComponentStatus.VALIDATED, ComponentStatus.UPDATED):
                 raise FinamStatusError(
                     f"Unexpected model state {self.status} in {self.name}"
                 )
@@ -99,7 +99,7 @@ class AComponent(IComponent, ABC):
         """
         self.logger.debug("finalize")
         try:
-            if not self.status in (ComponentStatus.UPDATED, ComponentStatus.FINISHED):
+            if self.status not in (ComponentStatus.UPDATED, ComponentStatus.FINISHED):
                 raise FinamStatusError(
                     f"Unexpected model state {self.status} in {self.name}"
                 )
