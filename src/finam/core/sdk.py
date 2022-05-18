@@ -173,8 +173,17 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
         except ValueError as err:
             self.logger.exception(err)
             raise
-
         return self._time
+
+    @time.setter
+    def time(self, time):
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
+        self._time = time
 
 
 class Input(IInput):
