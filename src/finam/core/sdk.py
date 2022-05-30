@@ -265,6 +265,11 @@ class Input(IInput):
         return self.source.get_data(time)
 
     @property
+    def has_source(self):
+        """Flag if this input instance has a source."""
+        return self.source is not None
+
+    @property
     def logger_name(self):
         """Logger name derived from base logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
