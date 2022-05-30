@@ -47,5 +47,5 @@ multi_line_output = 3
     max-args = 7
     max-locals = 20
     max-attributes = 15
-    max-parents = 8
+    max-parents = 10
     min-public-methods = 0
