@@ -7,16 +7,19 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from ..tools.log_helper import loggable
 from .interfaces import (
+    FinamLogError,
     IAdapter,
     IComponent,
     IMpiComponent,
     ITimeComponent,
+    Loggable,
     NoBranchAdapter,
 )
 
 
-class Composition:
+class Composition(Loggable):
     """A composition of linked components.
 
     Parameters
@@ -46,8 +49,7 @@ class Composition:
     ):
         # setup logger
         self._logger_name = logger_name
-        log = logging.getLogger(name=self.logger_name)
-        log.setLevel(log_level)
+        self.logger.setLevel(log_level)
         # set log format
         formatter = logging.Formatter(
             "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -56,14 +58,14 @@ class Composition:
         if print_log:
             sh = logging.StreamHandler(sys.stdout)
             sh.setFormatter(formatter)
-            log.addHandler(sh)
+            self.logger.addHandler(sh)
         if log_file:
             # for log_file=True use a default name
             if isinstance(log_file, bool):
                 log_file = f"./FINAM_{time.strftime('%Y-%m-%d_%H-%M-%S')}.log"
             fh = logging.FileHandler(Path(log_file), mode="w")
             fh.setFormatter(formatter)
-            log.addHandler(fh)
+            self.logger.addHandler(fh)
         for module in modules:
             try:
                 if not isinstance(module, IComponent):
@@ -102,14 +104,35 @@ class Composition:
         """
         self.logger.debug("init composition")
         for mod in self.modules:
-            mod.base_logger_name = self.logger_name
+            if loggable(mod) and mod.uses_base_logger_name:
+                mod.base_logger_name = self.logger_name
             mod.initialize()
-            for var in mod.inputs:
-                mod.inputs[var].name = var
-                mod.inputs[var].base_logger_name = mod.logger_name
-            for var in mod.outputs:
-                mod.outputs[var].name = var
-                mod.outputs[var].base_logger_name = mod.logger_name
+            for name, item in mod.inputs.items():
+                # forward name in dict to class attribute
+                item.name = name
+                if loggable(item) and item.uses_base_logger_name and not loggable(mod):
+                    try:
+                        raise FinamLogError(
+                            f"Input '{name}' can't get base logger from '{mod.name}'."
+                        )
+                    except FinamLogError as err:
+                        self.logger.exception(err)
+                        raise
+                elif loggable(item) and item.uses_base_logger_name:
+                    item.base_logger_name = mod.logger_name
+            for name, item in mod.outputs.items():
+                # forward name in dict to class attribute
+                item.name = name
+                if loggable(item) and item.uses_base_logger_name and not loggable(mod):
+                    try:
+                        raise FinamLogError(
+                            f"Output '{name}' can't get base logger from '{mod.name}'."
+                        )
+                    except FinamLogError as err:
+                        self.logger.exception(err)
+                        raise
+                elif loggable(item) and item.uses_base_logger_name:
+                    item.base_logger_name = mod.logger_name
 
     def run(self, t_max):
         """Run this composition using the loop-based update strategy.
@@ -168,7 +191,7 @@ class Composition:
                                 f"Unconnected input '{name}' for module {mod.name}"
                             )
                     except ValueError as err:
-                        inp.logger.exception(err)
+                        self.logger.exception(err)
                         raise
 
                     if not isinstance(par_inp, IAdapter):
@@ -192,7 +215,7 @@ class Composition:
                                 f"module {mod.name} ({target.__class__.__name__})"
                             )
                     except ValueError as err:
-                        out.logger.exception(err)
+                        self.logger.exception(err)
                         raise
 
                     for target in curr_targets:
@@ -205,6 +228,6 @@ class Composition:
         return self._logger_name
 
     @property
-    def logger(self):
-        """Logger for the composition."""
-        return logging.getLogger(self.logger_name)
+    def uses_base_logger_name(self):
+        """Whether this class has a 'base_logger_name' attribute."""
+        return False

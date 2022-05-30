@@ -7,19 +7,17 @@ from datetime import datetime
 
 from .interfaces import (
     ComponentStatus,
+    FinamStatusError,
     IAdapter,
     IComponent,
     IInput,
     IOutput,
     ITimeComponent,
+    Loggable,
 )
 
 
-class FinamStatusError(Exception):
-    """Error for wrong status in Component."""
-
-
-class AComponent(IComponent, ABC):
+class AComponent(IComponent, Loggable, ABC):
     """Abstract component implementation."""
 
     def __init__(self):
@@ -151,9 +149,9 @@ class AComponent(IComponent, ABC):
         return ".".join(([base_logger.name, self.name]))
 
     @property
-    def logger(self):
-        """Logger for this component."""
-        return logging.getLogger(self.logger_name)
+    def uses_base_logger_name(self):
+        """Whether this class has a 'base_logger_name' attribute."""
+        return True
 
 
 class ATimeComponent(ITimeComponent, AComponent, ABC):
@@ -186,7 +184,7 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
         self._time = time
 
 
-class Input(IInput):
+class Input(IInput, Loggable):
     """Default input implementation."""
 
     def __init__(self):
@@ -277,9 +275,9 @@ class Input(IInput):
         return ".".join(([base_logger.name, "INPUT", self.name]))
 
     @property
-    def logger(self):
-        """Logger for this component."""
-        return logging.getLogger(self.logger_name)
+    def uses_base_logger_name(self):
+        """Whether this class has a 'base_logger_name' attribute."""
+        return True
 
 
 class CallbackInput(Input):
@@ -317,7 +315,7 @@ class CallbackInput(Input):
         self.callback(self, time)
 
 
-class Output(IOutput):
+class Output(IOutput, Loggable):
     """Default output implementation."""
 
     def __init__(self):
@@ -451,9 +449,9 @@ class Output(IOutput):
         return ".".join(([base_logger.name, "OUTPUT", self.name]))
 
     @property
-    def logger(self):
-        """Logger for this component."""
-        return logging.getLogger(self.logger_name)
+    def uses_base_logger_name(self):
+        """Whether this class has a 'base_logger_name' attribute."""
+        return True
 
 
 class AAdapter(IAdapter, Input, Output, ABC):

@@ -6,6 +6,25 @@ from contextlib import AbstractContextManager
 
 import wurlitzer
 
+from ..core.interfaces import Loggable
+
+
+def loggable(obj):
+    """
+    Check if given object is loggable.
+
+    Parameters
+    ----------
+    obj : object
+        Object to check for loggability
+
+    Returns
+    -------
+    bool
+        Loggability of the object.
+    """
+    return isinstance(obj, Loggable)
+
 
 class LogWriter:
     """

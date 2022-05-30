@@ -3,8 +3,7 @@ from datetime import datetime
 from os import path
 from tempfile import TemporaryDirectory
 
-from finam.core.interfaces import ComponentStatus
-from finam.core.sdk import FinamStatusError
+from finam.core.interfaces import ComponentStatus, FinamStatusError
 from finam.modules.readers import CsvReader
 
 

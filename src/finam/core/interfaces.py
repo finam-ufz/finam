@@ -1,8 +1,17 @@
 """
 Interface definitions for the coupling framework.
 """
+import logging
 from abc import ABC, abstractmethod
 from enum import Enum
+
+
+class FinamStatusError(Exception):
+    """Error for wrong status in Component."""
+
+
+class FinamLogError(Exception):
+    """Error for wrong logging configuration."""
 
 
 class ComponentStatus(Enum):
@@ -15,6 +24,25 @@ class ComponentStatus(Enum):
     UPDATED = 4
     FINISHED = 5
     FINALIZED = 6
+
+
+class Loggable(ABC):
+    """Loggable component."""
+
+    @property
+    @abstractmethod
+    def uses_base_logger_name(self):
+        """Whether this class has a 'base_logger_name' attribute."""
+
+    @property
+    @abstractmethod
+    def logger_name(self):
+        """Logger name."""
+
+    @property
+    def logger(self):
+        """Logger for this component."""
+        return logging.getLogger(self.logger_name)
 
 
 class IComponent(ABC):
