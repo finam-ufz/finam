@@ -3,6 +3,8 @@ import logging
 import os
 from contextlib import contextmanager
 
+from .log_helper import loggable
+
 
 @contextmanager
 def set_directory(path):
@@ -50,8 +52,8 @@ def execute_in_cwd(func):
             if cwd is None:
                 raise ValueError("No working directory given.")
         except ValueError as err:
-            logger = logging.getLogger(getattr(self, "logger_name", None))
-            logger.exception(err)
+            if loggable(self):
+                self.logger.exception(err)
             raise
         with set_directory(cwd):
             return func(self, *args, **kwargs)

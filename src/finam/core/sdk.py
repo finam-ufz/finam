@@ -5,8 +5,10 @@ import logging
 from abc import ABC
 from datetime import datetime
 
+from ..tools.log_helper import loggable
 from .interfaces import (
     ComponentStatus,
+    FinamLogError,
     FinamStatusError,
     IAdapter,
     IComponent,
@@ -160,7 +162,6 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
     def __init__(self):
         super().__init__()
         self._time = None
-        self.base_logger_name = None
 
     @property
     def time(self):
@@ -202,7 +203,16 @@ class Input(IInput, Loggable):
         """
         # fix to set base-logger for adapters derived from Input source logger
         if isinstance(self, AAdapter):
-            self.base_logger_name = getattr(source, "logger_name", None)
+            if self.uses_base_logger_name and not loggable(source):
+                try:
+                    raise FinamLogError(
+                        f"Adapter '{self.name}' can't get base logger from its source."
+                    )
+                except FinamLogError as err:
+                    self.logger.exception(err)
+                    raise
+            else:
+                self.base_logger_name = source.logger_name
         self.logger.debug("set source")
         try:
             if self.source is not None:
