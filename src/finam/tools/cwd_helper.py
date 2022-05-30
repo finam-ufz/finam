@@ -1,5 +1,4 @@
 """Working directory helpers."""
-import logging
 import os
 from contextlib import contextmanager
 
