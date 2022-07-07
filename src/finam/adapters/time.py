@@ -22,8 +22,13 @@ class NextValue(AAdapter):
         time : datetime
             Simulation time of the notification.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        self.logger.debug("source changed")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         data = self.pull_data(time)
         self.data = data
@@ -43,8 +48,13 @@ class NextValue(AAdapter):
         array_like
             data-set for the requested time.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        self.logger.debug("get data")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         return self.data
 
@@ -65,8 +75,13 @@ class PreviousValue(AAdapter):
         time : datetime
             Simulation time of the notification.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        self.logger.debug("source changed")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         data = self.pull_data(time)
         if self.new_data is None:
@@ -91,8 +106,13 @@ class PreviousValue(AAdapter):
         array_like
             data-set for the requested time.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        self.logger.debug("get data")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         if time < self.new_data[0]:
             return self.old_data[1]
@@ -116,6 +136,7 @@ class LinearInterpolation(AAdapter):
         time : datetime
             Simulation time of the notification.
         """
+        self.logger.debug("source changed")
         self.old_data = self.new_data
         self.new_data = (time, self.pull_data(time))
 
@@ -134,8 +155,13 @@ class LinearInterpolation(AAdapter):
         array_like
             data-set for the requested time.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        self.logger.debug("get data")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         if self.old_data is None:
             return self.new_data[1]
@@ -167,6 +193,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         time : datetime
             Simulation time of the notification.
         """
+        self.logger.debug("source changed")
         data = self.pull_data(time)
         self.data.append((time, data))
 
@@ -188,8 +215,13 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         array_like
             data-set for the requested time.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        self.logger.debug("get data")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         if len(self.data) == 1:
             return self.data[0][1]

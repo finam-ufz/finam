@@ -37,11 +37,14 @@ class CsvWriter(ATimeComponent):
 
     def __init__(self, path, start, step, inputs):
         super().__init__()
-
-        if not isinstance(start, datetime):
-            raise ValueError("Start must be of type datetime")
-        if not isinstance(step, timedelta):
-            raise ValueError("Step must be of type timedelta")
+        try:
+            if not isinstance(start, datetime):
+                raise ValueError("Start must be of type datetime")
+            if not isinstance(step, timedelta):
+                raise ValueError("Step must be of type timedelta")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         self._path = path
         self._step = step
@@ -52,7 +55,7 @@ class CsvWriter(ATimeComponent):
 
         self._rows = []
 
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         """Initialize the component.
@@ -62,7 +65,7 @@ class CsvWriter(ATimeComponent):
         """
         super().initialize()
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         """Push initial values to outputs.
@@ -71,7 +74,7 @@ class CsvWriter(ATimeComponent):
         """
         super().connect()
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -80,7 +83,7 @@ class CsvWriter(ATimeComponent):
         """
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def update(self):
         """Update the component by one time step.
@@ -93,13 +96,17 @@ class CsvWriter(ATimeComponent):
         values = [self._inputs[inp].pull_data(self.time) for inp in self._input_names]
 
         for (value, name) in zip(values, self._input_names):
-            assert_type(self, name, value, [int, float])
+            try:
+                assert_type(self, name, value, [int, float])
+            except TypeError as err:
+                self.logger.exception(err)
+                raise
 
         self._rows.append([self.time.isoformat()] + values)
 
         self._time += self._step
 
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def finalize(self):
         """Finalize and clean up the component.
@@ -117,4 +124,4 @@ class CsvWriter(ATimeComponent):
             comments="",
         )
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED

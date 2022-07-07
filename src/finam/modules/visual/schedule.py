@@ -37,7 +37,7 @@ class ScheduleView(AComponent):
         self._input_names = inputs
         self._inputs = {inp: CallbackInput(self.data_changed) for inp in inputs}
 
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         """Initialize the component.
@@ -61,7 +61,7 @@ class ScheduleView(AComponent):
         self._figure.tight_layout()
         self._figure.show()
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         """Push initial values to outputs.
@@ -70,7 +70,7 @@ class ScheduleView(AComponent):
         """
         super().connect()
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -79,7 +79,7 @@ class ScheduleView(AComponent):
         """
         super().validate()
         self.update_plot()
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def data_changed(self, caller, time):
         """Update for changed data.
@@ -94,7 +94,7 @@ class ScheduleView(AComponent):
         self._caller = caller
         self._time = time
 
-        if self._status in (ComponentStatus.UPDATED, ComponentStatus.VALIDATED):
+        if self.status in (ComponentStatus.UPDATED, ComponentStatus.VALIDATED):
             self.update()
         else:
             self.update_plot()
@@ -108,7 +108,7 @@ class ScheduleView(AComponent):
 
         self.update_plot()
 
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def update_plot(self):
         """Update the plot."""
@@ -139,4 +139,4 @@ class ScheduleView(AComponent):
         """
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED

@@ -2,6 +2,8 @@
 import os
 from contextlib import contextmanager
 
+from .log_helper import loggable
+
 
 @contextmanager
 def set_directory(path):
@@ -45,8 +47,13 @@ def execute_in_cwd(func):
     def cwd_wrapper(self, *args, **kwargs):
         """Wrapper function."""
         cwd = getattr(self, "cwd", None)
-        if cwd is None:
-            raise ValueError("No working directory given.")
+        try:
+            if cwd is None:
+                raise ValueError("No working directory given.")
+        except ValueError as err:
+            if loggable(self):
+                self.logger.exception(err)
+            raise
         with set_directory(cwd):
             return func(self, *args, **kwargs)
 

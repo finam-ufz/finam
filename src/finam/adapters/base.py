@@ -36,8 +36,13 @@ class Callback(AAdapter):
         array_like
             data-set for the requested time.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        self.logger.debug("get data")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         d = self.pull_data(time)
         return self.callback(d, time)
@@ -69,8 +74,13 @@ class Scale(AAdapter):
         array_like
             data-set for the requested time.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        self.logger.debug("get data")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         d = self.pull_data(time)
         return d * self.scale
@@ -102,11 +112,20 @@ class GridCellCallback(AAdapter):
         array_like
             data-set for the requested time.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        self.logger.debug("get data")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         inp = self.pull_data(time)
-        assert_type(self, "input", inp, [Grid])
+        try:
+            assert_type(self, "input", inp, [Grid])
+        except TypeError as err:
+            self.logger.exception(err)
+            raise
 
         out = Grid.create_like(inp)
 
@@ -143,11 +162,20 @@ class ValueToGrid(AAdapter):
         array_like
             data-set for the requested time.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        self.logger.debug("get data")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         value = self.pull_data(time)
-        assert_type(self, "input", value, [int, float])
+        try:
+            assert_type(self, "input", value, [int, float])
+        except TypeError as err:
+            self.logger.exception(err)
+            raise
 
         self.data.fill(value)
         return self.data
@@ -179,11 +207,20 @@ class GridToValue(AAdapter):
         array_like
             data-set for the requested time.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        self.logger.debug("get data")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         grid = self.pull_data(time)
-        assert_type(self, "input", grid, [Grid])
+        try:
+            assert_type(self, "input", grid, [Grid])
+        except TypeError as err:
+            self.logger.exception(err)
+            raise
 
         result = self.func(grid)
 

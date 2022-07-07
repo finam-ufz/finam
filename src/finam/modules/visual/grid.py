@@ -28,7 +28,7 @@ class GridView(AComponent):
         self.vmin = vmin
         self.vmax = vmax
 
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         """Initialize the component.
@@ -40,7 +40,7 @@ class GridView(AComponent):
 
         self._inputs["Grid"] = CallbackInput(self.data_changed)
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         """Push initial values to outputs.
@@ -49,7 +49,7 @@ class GridView(AComponent):
         """
         super().connect()
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -58,7 +58,7 @@ class GridView(AComponent):
         """
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def data_changed(self, caller, time):
         """Update for changed data.
@@ -70,11 +70,15 @@ class GridView(AComponent):
         time : datetime
             simulation time to get the data for.
         """
-        if not isinstance(time, datetime):
-            raise ValueError("Time must be of type datetime")
+        try:
+            if not isinstance(time, datetime):
+                raise ValueError("Time must be of type datetime")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         self._time = time
-        if self._status in (ComponentStatus.UPDATED, ComponentStatus.VALIDATED):
+        if self.status in (ComponentStatus.UPDATED, ComponentStatus.VALIDATED):
             self.update()
         else:
             self.update_plot()
@@ -88,14 +92,18 @@ class GridView(AComponent):
 
         self.update_plot()
 
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def update_plot(self):
         """Update the plot."""
         import matplotlib.pyplot as plt
 
         grid = self._inputs["Grid"].pull_data(self._time)
-        assert_type(self, "Grid", grid, [Grid])
+        try:
+            assert_type(self, "Grid", grid, [Grid])
+        except TypeError as err:
+            self.logger.exception(err)
+            raise
 
         img = grid.reshape(grid.spec.nrows, grid.spec.ncols)
 
@@ -123,7 +131,7 @@ class GridView(AComponent):
         """
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED
 
 
 class TimedGridView(ATimeComponent, GridView):
@@ -139,11 +147,14 @@ class TimedGridView(ATimeComponent, GridView):
     def __init__(self, start, step, vmin=None, vmax=None):
         ATimeComponent.__init__(self)
         GridView.__init__(self, vmin, vmax)
-
-        if not isinstance(start, datetime):
-            raise ValueError("Start must be of type datetime")
-        if not isinstance(step, timedelta):
-            raise ValueError("Step must be of type timedelta")
+        try:
+            if not isinstance(start, datetime):
+                raise ValueError("Start must be of type datetime")
+            if not isinstance(step, timedelta):
+                raise ValueError("Step must be of type timedelta")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         self._time = start
         self._step = step

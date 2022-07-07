@@ -37,11 +37,14 @@ class TimeSeriesView(ATimeComponent):
 
     def __init__(self, inputs, start, step, intervals=None, update_interval=1):
         super().__init__()
-
-        if not isinstance(start, datetime):
-            raise ValueError("Start must be of type datetime")
-        if not isinstance(step, timedelta):
-            raise ValueError("Step must be of type timedelta")
+        try:
+            if not isinstance(start, datetime):
+                raise ValueError("Start must be of type datetime")
+            if not isinstance(step, timedelta):
+                raise ValueError("Step must be of type timedelta")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         self._step = step
         self._update_interval = update_interval
@@ -57,7 +60,7 @@ class TimeSeriesView(ATimeComponent):
         self._input_names = inputs
         self._inputs = {inp: Input() for inp in inputs}
 
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         """Initialize the component.
@@ -77,7 +80,7 @@ class TimeSeriesView(ATimeComponent):
 
         self._figure.show()
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         """Push initial values to outputs.
@@ -86,7 +89,7 @@ class TimeSeriesView(ATimeComponent):
         """
         super().connect()
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -95,7 +98,7 @@ class TimeSeriesView(ATimeComponent):
         """
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def update(self):
         """Update the component by one time step.
@@ -114,7 +117,11 @@ class TimeSeriesView(ATimeComponent):
         for i, inp in enumerate(self._input_names):
             if self._updates % self._intervals[i] == 0:
                 value = self._inputs[inp].pull_data(self.time)
-                assert_type(self, inp, value, [int, float])
+                try:
+                    assert_type(self, inp, value, [int, float])
+                except TypeError as err:
+                    self.logger.exception(err)
+                    raise
 
                 self._x[i].append(self.time)
                 self._data[i].append(value)
@@ -133,7 +140,7 @@ class TimeSeriesView(ATimeComponent):
         self._time += self._step
         self._updates += 1
 
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def finalize(self):
         """Finalize and clean up the component.
@@ -142,4 +149,4 @@ class TimeSeriesView(ATimeComponent):
         """
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED

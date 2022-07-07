@@ -29,16 +29,19 @@ class CallbackGenerator(ATimeComponent):
 
     def __init__(self, callbacks, start, step):
         super().__init__()
-
-        if not isinstance(start, datetime):
-            raise ValueError("Start must be of type datetime")
-        if not isinstance(step, timedelta):
-            raise ValueError("Step must be of type timedelta")
+        try:
+            if not isinstance(start, datetime):
+                raise ValueError("Start must be of type datetime")
+            if not isinstance(step, timedelta):
+                raise ValueError("Step must be of type timedelta")
+        except ValueError as err:
+            self.logger.exception(err)
+            raise
 
         self._callbacks = callbacks
         self._step = step
         self._time = start
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         """Initialize the component.
@@ -51,7 +54,7 @@ class CallbackGenerator(ATimeComponent):
         for key, _ in self._callbacks.items():
             self._outputs[key] = Output()
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         """Push initial values to outputs.
@@ -63,7 +66,7 @@ class CallbackGenerator(ATimeComponent):
         for key, callback in self._callbacks.items():
             self._outputs[key].push_data(callback(self._time), self.time)
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -72,7 +75,7 @@ class CallbackGenerator(ATimeComponent):
         """
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def update(self):
         """Update the component by one time step.
@@ -87,7 +90,7 @@ class CallbackGenerator(ATimeComponent):
         for key, callback in self._callbacks.items():
             self._outputs[key].push_data(callback(self._time), self.time)
 
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def finalize(self):
         """Finalize and clean up the component.
@@ -96,4 +99,4 @@ class CallbackGenerator(ATimeComponent):
         """
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED

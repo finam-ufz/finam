@@ -51,7 +51,7 @@ class Mhm(ATimeComponent):
         self._grid_spec = grid_spec
         self.soil_water = None
 
-        self._status = ComponentStatus.CREATED
+        self.status = ComponentStatus.CREATED
 
     def initialize(self):
         super().initialize()
@@ -64,7 +64,7 @@ class Mhm(ATimeComponent):
         self._outputs["GW_recharge"] = Output()
         self._outputs["soil_water"] = Output()
 
-        self._status = ComponentStatus.INITIALIZED
+        self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
@@ -73,12 +73,12 @@ class Mhm(ATimeComponent):
         self._outputs["GW_recharge"].push_data(0.0, self.time)
         self._outputs["ETP"].push_data(0.0, self.time)
 
-        self._status = ComponentStatus.CONNECTED
+        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         super().validate()
 
-        self._status = ComponentStatus.VALIDATED
+        self.status = ComponentStatus.VALIDATED
 
     def update(self):
         super().update()
@@ -118,12 +118,12 @@ class Mhm(ATimeComponent):
         self._outputs["ETP"].push_data(mean_evaporation, self.time)
 
         # Update component status
-        self._status = ComponentStatus.UPDATED
+        self.status = ComponentStatus.UPDATED
 
     def finalize(self):
         super().finalize()
 
-        self._status = ComponentStatus.FINALIZED
+        self.status = ComponentStatus.FINALIZED
 
     @property
     def step(self):

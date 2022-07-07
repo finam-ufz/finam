@@ -31,6 +31,7 @@ class CallbackProbe(AAdapter):
         array_like
             data-set for the requested time.
         """
+        self.logger.debug("get data")
         data = self.pull_data(time)
         self.callback(data, time)
         return data
