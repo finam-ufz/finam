@@ -16,7 +16,9 @@ check:
     - python -m pytest --cov finam --cov-report term-missing --cov-report xml:cov.xml -v tests/
   artifacts:
     reports:
-      cobertura: cov.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: cov.xml
 
 documentation:
   stage: build
