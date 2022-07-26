@@ -11,6 +11,7 @@ from finam.adapters.time import (
     NextValue,
     PreviousValue,
 )
+from finam.core.interfaces import FinamTimeError
 from finam.data.grid import Grid, GridSpec
 from finam.modules.generators import CallbackGenerator
 
@@ -41,6 +42,9 @@ class TestNextValue(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 2.0)
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
 
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(datetime(2000, 1, 4, 0))
+
 
 class TestPreviousValue(unittest.TestCase):
     def setUp(self):
@@ -68,6 +72,9 @@ class TestPreviousValue(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 1.0)
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
 
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(datetime(2000, 1, 4, 0))
+
 
 class TestLinearInterpolation(unittest.TestCase):
     def setUp(self):
@@ -93,6 +100,9 @@ class TestLinearInterpolation(unittest.TestCase):
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 1.5)
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
+
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(datetime(2000, 1, 4, 0))
 
 
 class TestLinearGridInterpolation(unittest.TestCase):
@@ -120,6 +130,9 @@ class TestLinearGridInterpolation(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)).get(2, 3), 1.5)
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)).get(2, 3), 2.0)
 
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(datetime(2000, 1, 4, 0))
+
 
 class TestLinearIntegration(unittest.TestCase):
     def setUp(self):
@@ -145,6 +158,9 @@ class TestLinearIntegration(unittest.TestCase):
         self.source.update()
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 4, 0)), 2.0)
+
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(datetime(2000, 1, 5, 0))
 
 
 class TestLinearGridIntegration(unittest.TestCase):
@@ -173,6 +189,9 @@ class TestLinearGridIntegration(unittest.TestCase):
         self.source.update()
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 4, 0)).get(2, 3), 2.0)
+
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(datetime(2000, 1, 5, 0))
 
 
 def create_grid(t):

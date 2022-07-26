@@ -3,7 +3,7 @@ Adapters that deal with time, like temporal interpolation and integration.
 """
 from datetime import datetime
 
-from ..core.interfaces import NoBranchAdapter
+from ..core.interfaces import FinamTimeError, NoBranchAdapter
 from ..core.sdk import AAdapter
 
 
@@ -13,6 +13,7 @@ class NextValue(AAdapter):
     def __init__(self):
         super().__init__()
         self.data = None
+        self.time = None
 
     def source_changed(self, time):
         """Informs the input that a new output is available.
@@ -32,6 +33,7 @@ class NextValue(AAdapter):
 
         data = self.pull_data(time)
         self.data = data
+        self.time = time
 
         self.notify_targets(time)
 
@@ -55,6 +57,14 @@ class NextValue(AAdapter):
         except ValueError as err:
             self.logger.exception(err)
             raise
+
+        if time > self.time:
+            err = FinamTimeError(
+                "Requested data for time point in the future. "
+                f"Last data: {self.time}, requested: {time}"
+            )
+            self.logger.exception(err)
+            raise err
 
         return self.data
 
@@ -114,6 +124,14 @@ class PreviousValue(AAdapter):
             self.logger.exception(err)
             raise
 
+        if time > self.new_data[0]:
+            err = FinamTimeError(
+                "Requested data for time point in the future. "
+                f"Last data: {self.new_data[0]}, requested: {time}"
+            )
+            self.logger.exception(err)
+            raise err
+
         if time < self.new_data[0]:
             return self.old_data[1]
 
@@ -162,6 +180,14 @@ class LinearInterpolation(AAdapter):
         except ValueError as err:
             self.logger.exception(err)
             raise
+
+        if time > self.new_data[0]:
+            err = FinamTimeError(
+                "Requested data for time point in the future. "
+                f"Last data: {self.new_data[0]}, requested: {time}"
+            )
+            self.logger.exception(err)
+            raise err
 
         if self.old_data is None:
             return self.new_data[1]
@@ -222,6 +248,14 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         except ValueError as err:
             self.logger.exception(err)
             raise
+
+        if time > self.data[-1][0]:
+            err = FinamTimeError(
+                "Requested data for time point in the future. "
+                f"Last data: {self.data[-1][0]}, requested: {time}"
+            )
+            self.logger.exception(err)
+            raise err
 
         if len(self.data) == 1:
             return self.data[0][1]
