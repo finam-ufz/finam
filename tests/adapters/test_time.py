@@ -45,6 +45,9 @@ class TestNextValue(unittest.TestCase):
         with self.assertRaises(FinamTimeError) as context:
             self.adapter.get_data(datetime(2000, 1, 4, 0))
 
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(100)
+
 
 class TestPreviousValue(unittest.TestCase):
     def setUp(self):
@@ -73,7 +76,13 @@ class TestPreviousValue(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
 
         with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(datetime(2000, 1, 1, 0))
+
+        with self.assertRaises(FinamTimeError) as context:
             self.adapter.get_data(datetime(2000, 1, 4, 0))
+
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(100)
 
 
 class TestLinearInterpolation(unittest.TestCase):
@@ -102,7 +111,13 @@ class TestLinearInterpolation(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
 
         with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(datetime(2000, 1, 1, 0))
+
+        with self.assertRaises(FinamTimeError) as context:
             self.adapter.get_data(datetime(2000, 1, 4, 0))
+
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(100)
 
 
 class TestLinearGridInterpolation(unittest.TestCase):
@@ -131,7 +146,13 @@ class TestLinearGridInterpolation(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)).get(2, 3), 2.0)
 
         with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(datetime(2000, 1, 1, 0))
+
+        with self.assertRaises(FinamTimeError) as context:
             self.adapter.get_data(datetime(2000, 1, 4, 0))
+
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(100)
 
 
 class TestLinearIntegration(unittest.TestCase):
@@ -160,7 +181,13 @@ class TestLinearIntegration(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 4, 0)), 2.0)
 
         with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(datetime(2000, 1, 2, 0))
+
+        with self.assertRaises(FinamTimeError) as context:
             self.adapter.get_data(datetime(2000, 1, 5, 0))
+
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(100)
 
 
 class TestLinearGridIntegration(unittest.TestCase):
@@ -191,7 +218,13 @@ class TestLinearGridIntegration(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 4, 0)).get(2, 3), 2.0)
 
         with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(datetime(2000, 1, 2, 0))
+
+        with self.assertRaises(FinamTimeError) as context:
             self.adapter.get_data(datetime(2000, 1, 5, 0))
+
+        with self.assertRaises(FinamTimeError) as context:
+            self.adapter.get_data(100)
 
 
 def create_grid(t):
