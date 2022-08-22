@@ -23,11 +23,12 @@ class ComponentStatus(Enum):
 
     CREATED = 0
     INITIALIZED = 1
-    CONNECTED = 2
-    VALIDATED = 3
-    UPDATED = 4
-    FINISHED = 5
-    FINALIZED = 6
+    CONNECTING = 2
+    CONNECTED = 3
+    VALIDATED = 4
+    UPDATED = 5
+    FINISHED = 6
+    FINALIZED = 7
 
 
 class Loggable(ABC):
@@ -64,7 +65,9 @@ class IComponent(ABC):
     def connect(self):
         """Push initial values to outputs.
 
-        After the method call, the component should have status CONNECTED.
+        After the method call, the component should have status CONNECTED if
+        connecting was be completed, and CONNECTING if some required initial input(s)
+        could not be pulled.
         """
 
     @abstractmethod
@@ -232,8 +235,9 @@ class IOutput(ABC):
 
         Returns
         -------
-        array_like
+        any
             data-set for the requested time.
+            Should return `None` if no data is available.
         """
 
     @abstractmethod

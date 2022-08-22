@@ -290,7 +290,7 @@ class Output(IOutput, Loggable):
 
     def __init__(self):
         self.targets = []
-        self.data = []
+        self.data = None
         self.base_logger_name = None
         self.name = ""
 
@@ -375,8 +375,9 @@ class Output(IOutput, Loggable):
 
         Returns
         -------
-        array_like
+        any
             data-set for the requested time.
+            Should return `None` if no data is available.
         """
         self.logger.debug("get data")
         try:
