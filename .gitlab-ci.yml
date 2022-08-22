@@ -22,8 +22,6 @@ check:
 
 documentation:
   stage: build
-  before_script:
-    - pip3 install -Iv docutils==0.18
   script:
     - pip3 install --editable .[doc]
     - sphinx-apidoc --separate -o docs src/finam
