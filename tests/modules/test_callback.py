@@ -14,7 +14,6 @@ def transform(inputs, time):
 
 
 def consume(inputs, time):
-    print(inputs["In1"])
     return {}
 
 

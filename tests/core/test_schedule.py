@@ -5,7 +5,7 @@ Unit tests for the driver/scheduler.
 import unittest
 from datetime import datetime, timedelta
 
-from finam.core.interfaces import ComponentStatus, NoBranchAdapter
+from finam.core.interfaces import ComponentStatus, FinamStatusError, NoBranchAdapter
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
 
@@ -23,29 +23,21 @@ class MockupComponent(ATimeComponent):
         self.status = ComponentStatus.CREATED
 
     def initialize(self):
-        super().initialize()
-
         for key, _ in self._callbacks.items():
             self._outputs[key] = Output()
 
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
-        super().connect()
-
         for key, callback in self._callbacks.items():
             self._outputs[key].push_data(callback(self._time), self.time)
 
         self.status = ComponentStatus.CONNECTED
 
     def validate(self):
-        super().validate()
-
         self.status = ComponentStatus.VALIDATED
 
     def update(self):
-        super().update()
-
         self._time += self._step
 
         for key, callback in self._callbacks.items():
@@ -54,8 +46,73 @@ class MockupComponent(ATimeComponent):
         self.status = ComponentStatus.UPDATED
 
     def finalize(self):
-        super().finalize()
+        self.status = ComponentStatus.FINALIZED
 
+
+class MockupDependentComponent(ATimeComponent):
+    def __init__(self, step):
+        super().__init__()
+        self._step = step
+        self._time = datetime(2000, 1, 1)
+        self.status = ComponentStatus.CREATED
+
+    def initialize(self):
+        self._inputs["Input"] = Input()
+        self.status = ComponentStatus.INITIALIZED
+
+    def connect(self):
+        pulled = self._inputs["Input"].pull_data(self.time)
+        if pulled is None:
+            self.status = ComponentStatus.CONNECTING
+            return
+
+        self.status = ComponentStatus.CONNECTED
+
+    def validate(self):
+        self.status = ComponentStatus.VALIDATED
+
+    def update(self):
+        _pulled = self._inputs["Input"].pull_data(self.time)
+        self._time += self._step
+        self.status = ComponentStatus.UPDATED
+
+    def finalize(self):
+        self.status = ComponentStatus.FINALIZED
+
+
+class MockupCircularComponent(ATimeComponent):
+    def __init__(self, step):
+        super().__init__()
+        self._step = step
+        self._time = datetime(2000, 1, 1)
+        self.status = ComponentStatus.CREATED
+
+    def initialize(self):
+        self._inputs["Input"] = Input()
+        self._outputs["Output"] = Output()
+        self.status = ComponentStatus.INITIALIZED
+
+    def connect(self):
+        pulled = self._inputs["Input"].pull_data(self.time)
+        if pulled is None:
+            self.status = ComponentStatus.CONNECTING
+            return
+
+        self._outputs["Output"].push_data(pulled, self.time)
+
+        self.status = ComponentStatus.CONNECTED
+
+    def validate(self):
+        self.status = ComponentStatus.VALIDATED
+
+    def update(self):
+        pulled = self._inputs["Input"].pull_data(self.time)
+        self._time += self._step
+        self._outputs["Output"].push_data(pulled, self.time)
+
+        self.status = ComponentStatus.UPDATED
+
+    def finalize(self):
         self.status = ComponentStatus.FINALIZED
 
 
@@ -65,7 +122,6 @@ class MockupConsumerComponent(ATimeComponent):
         self.status = ComponentStatus.CREATED
 
     def initialize(self):
-        super().initialize()
         self._inputs["Input"] = Input()
         self.status = ComponentStatus.INITIALIZED
 
@@ -117,7 +173,7 @@ class TestComposition(unittest.TestCase):
         non_branching_adapter >> CallbackAdapter(callback=lambda data, time: data)
 
         with self.assertRaises(ValueError) as context:
-            composition.validate()
+            composition._validate()
 
         self.assertTrue("Disallowed branching" in str(context.exception))
 
@@ -127,9 +183,35 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         with self.assertRaises(ValueError) as context:
-            composition.validate()
+            composition._validate()
 
         self.assertTrue("Unconnected input" in str(context.exception))
+
+    def test_iterative_connect(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+        )
+        module2 = MockupDependentComponent(step=timedelta(1.0))
+
+        composition = Composition([module2, module1])
+        composition.initialize()
+
+        module1.outputs["Output"] >> module2.inputs["Input"]
+
+        composition.run(t_max=datetime(2000, 1, 31))
+
+    def test_iterative_connect_blocked(self):
+        module1 = MockupCircularComponent(step=timedelta(1.0))
+        module2 = MockupCircularComponent(step=timedelta(1.0))
+
+        composition = Composition([module1, module2])
+        composition.initialize()
+
+        module1.outputs["Output"] >> module2.inputs["Input"]
+        module2.outputs["Output"] >> module1.inputs["Input"]
+
+        with self.assertRaises(FinamStatusError) as context:
+            composition.run(t_max=datetime(2000, 1, 31))
 
 
 if __name__ == "__main__":
