@@ -125,3 +125,21 @@ class LogCStdOutStdErr:
             logger.log(self.level_stdout, line)
         for line in self.stderr.read().splitlines():
             logger.log(self.level_stderr, line)
+
+
+class LogError(AbstractContextManager):
+    """
+    Context manager to log Exceptions.
+
+    Parameters
+    ----------
+    logger : string, None or logging.Logger instance, optional
+        Logger name to use. Will be the root logger by default.
+    """
+
+    def __init__(self, logger=None):
+        self.logger = logger.name if isinstance(logger, logging.Logger) else logger
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if exc_value is not None:
+            logging.getLogger(self.logger).exception(exc_value)
