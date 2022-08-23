@@ -24,11 +24,12 @@ class ComponentStatus(Enum):
     CREATED = 0
     INITIALIZED = 1
     CONNECTING = 2
-    CONNECTED = 3
-    VALIDATED = 4
-    UPDATED = 5
-    FINISHED = 6
-    FINALIZED = 7
+    CONNECTING_IDLE = 3
+    CONNECTED = 4
+    VALIDATED = 5
+    UPDATED = 6
+    FINISHED = 7
+    FINALIZED = 8
 
 
 class Loggable(ABC):
@@ -66,8 +67,8 @@ class IComponent(ABC):
         """Push initial values to outputs.
 
         After the method call, the component should have status CONNECTED if
-        connecting was be completed, and CONNECTING if some required initial input(s)
-        could not be pulled.
+        connecting was be completed, CONNECTING if some but not all required initial input(s)
+        could be pulled, and `CONNECTING_IDLE` if nothing could be pulled.
         """
 
     @abstractmethod

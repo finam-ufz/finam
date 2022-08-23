@@ -237,21 +237,29 @@ class Composition(Loggable):
     def _connect(self):
         while True:
             any_unconnected = False
-            any_new = False
+            any_new_connection = False
             for mod in self.modules:
                 if mod.status != ComponentStatus.CONNECTED:
                     mod.connect()
                     _check_status(
-                        mod, [ComponentStatus.CONNECTING, ComponentStatus.CONNECTED]
+                        mod,
+                        [
+                            ComponentStatus.CONNECTING,
+                            ComponentStatus.CONNECTING_IDLE,
+                            ComponentStatus.CONNECTED,
+                        ],
                     )
                     if mod.status == ComponentStatus.CONNECTED:
-                        any_new = True
+                        any_new_connection = True
                     else:
+                        if mod.status == ComponentStatus.CONNECTING:
+                            any_new_connection = True
+
                         any_unconnected = True
 
             if not any_unconnected:
                 break
-            if not any_new:
+            if not any_new_connection:
                 unconn = filter(
                     lambda mod: mod.status != ComponentStatus.CONNECTED, self.modules
                 )

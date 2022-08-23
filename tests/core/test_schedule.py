@@ -64,7 +64,7 @@ class MockupDependentComponent(ATimeComponent):
     def connect(self):
         pulled = self._inputs["Input"].pull_data(self.time)
         if pulled is None:
-            self.status = ComponentStatus.CONNECTING
+            self.status = ComponentStatus.CONNECTING_IDLE
             return
 
         self.status = ComponentStatus.CONNECTED
@@ -96,7 +96,7 @@ class MockupCircularComponent(ATimeComponent):
     def connect(self):
         pulled = self._inputs["Input"].pull_data(self.time)
         if pulled is None:
-            self.status = ComponentStatus.CONNECTING
+            self.status = ComponentStatus.CONNECTING_IDLE
             return
 
         self._outputs["Output"].push_data(pulled, self.time)
@@ -198,6 +198,21 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         module1.outputs["Output"] >> module2.inputs["Input"]
+
+        composition.run(t_max=datetime(2000, 1, 31))
+
+    def test_iterative_connect_multi(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+        )
+        module2 = MockupCircularComponent(step=timedelta(1.0))
+        module3 = MockupDependentComponent(step=timedelta(1.0))
+
+        composition = Composition([module3, module2, module1])
+        composition.initialize()
+
+        module1.outputs["Output"] >> module2.inputs["Input"]
+        module2.outputs["Output"] >> module3.inputs["Input"]
 
         composition.run(t_max=datetime(2000, 1, 31))
 
