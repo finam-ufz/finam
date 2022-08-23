@@ -45,9 +45,6 @@ class Callback(AAdapter):
             raise
 
         d = self.pull_data(time)
-        if d is None:
-            return None
-
         return self.callback(d, time)
 
 
@@ -86,9 +83,6 @@ class Scale(AAdapter):
             raise
 
         d = self.pull_data(time)
-        if d is None:
-            return None
-
         return d * self.scale
 
 
@@ -127,8 +121,6 @@ class GridCellCallback(AAdapter):
             raise
 
         inp = self.pull_data(time)
-        if inp is None:
-            return None
 
         try:
             assert_type(self, "input", inp, [Grid])
@@ -180,8 +172,6 @@ class ValueToGrid(AAdapter):
             raise
 
         value = self.pull_data(time)
-        if value is None:
-            return None
 
         try:
             assert_type(self, "input", value, [int, float])
@@ -228,8 +218,6 @@ class GridToValue(AAdapter):
             raise
 
         grid = self.pull_data(time)
-        if grid is None:
-            return None
 
         try:
             assert_type(self, "input", grid, [Grid])

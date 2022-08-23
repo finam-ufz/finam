@@ -6,7 +6,12 @@ import unittest
 from datetime import datetime, timedelta
 
 from finam.adapters.base import Scale
-from finam.core.interfaces import ComponentStatus, FinamStatusError, NoBranchAdapter
+from finam.core.interfaces import (
+    ComponentStatus,
+    FinamNoDataError,
+    FinamStatusError,
+    NoBranchAdapter,
+)
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
 
@@ -62,8 +67,9 @@ class MockupDependentComponent(ATimeComponent):
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
-        pulled = self._inputs["Input"].pull_data(self.time)
-        if pulled is None:
+        try:
+            _pulled = self._inputs["Input"].pull_data(self.time)
+        except FinamNoDataError:
             self.status = ComponentStatus.CONNECTING_IDLE
             return
 
@@ -94,8 +100,9 @@ class MockupCircularComponent(ATimeComponent):
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
-        pulled = self._inputs["Input"].pull_data(self.time)
-        if pulled is None:
+        try:
+            pulled = self._inputs["Input"].pull_data(self.time)
+        except FinamNoDataError:
             self.status = ComponentStatus.CONNECTING_IDLE
             return
 

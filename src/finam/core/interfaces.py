@@ -18,6 +18,10 @@ class FinamLogError(Exception):
     """Error for wrong logging configuration."""
 
 
+class FinamNoDataError(Exception):
+    """Error for data not yet being available."""
+
+
 class ComponentStatus(Enum):
     """Status for components."""
 
@@ -239,6 +243,11 @@ class IOutput(ABC):
         any
             data-set for the requested time.
             Should return `None` if no data is available.
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no data is available
         """
 
     @abstractmethod

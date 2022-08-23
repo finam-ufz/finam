@@ -3,7 +3,7 @@ Adapters that deal with time, like temporal interpolation and integration.
 """
 from datetime import datetime
 
-from ..core.interfaces import FinamTimeError, NoBranchAdapter
+from ..core.interfaces import FinamNoDataError, FinamTimeError, NoBranchAdapter
 from ..core.sdk import AAdapter
 
 
@@ -49,6 +49,9 @@ class NextValue(AAdapter):
         self.logger.debug("get data")
 
         _check_time(self.logger, time, (None, self.time))
+
+        if self.data is None:
+            raise FinamNoDataError(f"No data available in {self.name}")
 
         return self.data
 
@@ -101,7 +104,7 @@ class PreviousValue(AAdapter):
         _check_time(self.logger, time, (self.old_data[0], self.new_data[0]))
 
         if self.new_data is None:
-            return None
+            raise FinamNoDataError(f"No data available in {self.name}")
 
         if time < self.new_data[0]:
             return self.old_data[1]
@@ -156,7 +159,7 @@ class LinearInterpolation(AAdapter):
         )
 
         if self.new_data is None:
-            return None
+            raise FinamNoDataError(f"No data available in {self.name}")
 
         if self.old_data is None:
             return self.new_data[1]
@@ -217,7 +220,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
 
         if len(self.data) == 0:
-            return None
+            raise FinamNoDataError(f"No data available in {self.name}")
 
         if len(self.data) == 1:
             return self.data[0][1]

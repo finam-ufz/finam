@@ -9,6 +9,7 @@ from ..tools.log_helper import loggable
 from .interfaces import (
     ComponentStatus,
     FinamLogError,
+    FinamNoDataError,
     FinamStatusError,
     IAdapter,
     IComponent,
@@ -386,6 +387,9 @@ class Output(IOutput, Loggable):
         except ValueError as err:
             self.logger.exception(err)
             raise
+
+        if self.data is None:
+            raise FinamNoDataError(f"No data available in {self.name}")
 
         return self.data
 
