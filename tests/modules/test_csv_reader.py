@@ -60,10 +60,9 @@ class TestCsvReader(unittest.TestCase):
 
             reader.update()
             self.assertEqual(reader.time, datetime(2000, 1, 17))
-            self.assertEqual(reader.status, ComponentStatus.FINISHED)
 
-            with self.assertRaises(FinamStatusError) as context:
-                reader.update()
+            reader.finalize()
+            self.assertEqual(reader.status, ComponentStatus.FINALIZED)
 
 
 if __name__ == "__main__":
