@@ -35,14 +35,6 @@ class AComponent(IComponent, Loggable, ABC):
         and the component should have status INITIALIZED.
         """
         self.logger.debug("init")
-        try:
-            if self.status != ComponentStatus.CREATED:
-                raise FinamStatusError(
-                    f"Unexpected model state {self.status} in {self.name}"
-                )
-        except FinamStatusError as err:
-            self.logger.exception(err)
-            raise
 
     def connect(self):
         """Push initial values to outputs.
@@ -50,14 +42,6 @@ class AComponent(IComponent, Loggable, ABC):
         After the method call, the component should have status CONNECTED.
         """
         self.logger.debug("connect")
-        try:
-            if self.status != ComponentStatus.INITIALIZED:
-                raise FinamStatusError(
-                    f"Unexpected model state {self.status} in {self.name}"
-                )
-        except FinamStatusError as err:
-            self.logger.exception(err)
-            raise
 
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -65,14 +49,6 @@ class AComponent(IComponent, Loggable, ABC):
         After the method call, the component should have status VALIDATED.
         """
         self.logger.debug("validate")
-        try:
-            if self.status != ComponentStatus.CONNECTED:
-                raise FinamStatusError(
-                    f"Unexpected model state {self.status} in {self.name}"
-                )
-        except FinamStatusError as err:
-            self.logger.exception(err)
-            raise
 
     def update(self):
         """Update the component by one time step.
@@ -83,14 +59,6 @@ class AComponent(IComponent, Loggable, ABC):
         self.logger.debug("update")
         if isinstance(self, ITimeComponent):
             self.logger.debug("current time: %s", self.time)
-        try:
-            if self.status not in (ComponentStatus.VALIDATED, ComponentStatus.UPDATED):
-                raise FinamStatusError(
-                    f"Unexpected model state {self.status} in {self.name}"
-                )
-        except FinamStatusError as err:
-            self.logger.exception(err)
-            raise
 
     def finalize(self):
         """Finalize and clean up the component.
@@ -98,14 +66,6 @@ class AComponent(IComponent, Loggable, ABC):
         After the method call, the component should have status FINALIZED.
         """
         self.logger.debug("finalize")
-        try:
-            if self.status not in (ComponentStatus.UPDATED, ComponentStatus.FINISHED):
-                raise FinamStatusError(
-                    f"Unexpected model state {self.status} in {self.name}"
-                )
-        except FinamStatusError as err:
-            self.logger.exception(err)
-            raise
 
     @property
     def inputs(self):

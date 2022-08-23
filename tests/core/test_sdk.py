@@ -6,6 +6,7 @@ import unittest
 from datetime import datetime
 
 from finam.core.interfaces import ComponentStatus, FinamStatusError
+from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, CallbackInput, Output
 
 
@@ -21,6 +22,7 @@ class MockupComponent(ATimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
+        self.status = ComponentStatus.CREATED
 
 
 class TestComponent(unittest.TestCase):
@@ -28,44 +30,12 @@ class TestComponent(unittest.TestCase):
         component = MockupComponent()
 
         self.assertEqual(component.time, datetime(2000, 1, 1))
+        self.assertEqual(component.status, ComponentStatus.CREATED)
 
-        component._status = ComponentStatus.CREATED
-        component.initialize()
+        composition = Composition([component])
 
-        component._status = ComponentStatus.FINALIZED
         with self.assertRaises(FinamStatusError):
-            component.initialize()
-
-        component._status = ComponentStatus.INITIALIZED
-        component.connect()
-
-        component._status = ComponentStatus.FINALIZED
-        with self.assertRaises(FinamStatusError):
-            component.connect()
-
-        component._status = ComponentStatus.CONNECTED
-        component.validate()
-
-        component._status = ComponentStatus.FINALIZED
-        with self.assertRaises(FinamStatusError):
-            component.validate()
-
-        component._status = ComponentStatus.VALIDATED
-        component.update()
-
-        component._status = ComponentStatus.UPDATED
-        component.update()
-
-        component._status = ComponentStatus.FINALIZED
-        with self.assertRaises(FinamStatusError):
-            component.update()
-
-        component._status = ComponentStatus.UPDATED
-        component.finalize()
-
-        component._status = ComponentStatus.FINALIZED
-        with self.assertRaises(FinamStatusError):
-            component.update()
+            composition.initialize()
 
 
 class TestChaining(unittest.TestCase):
