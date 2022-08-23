@@ -103,13 +103,13 @@ class Composition(Loggable):
         """
         self.logger.debug("init composition")
         for mod in self.modules:
-            _check_status(mod, [ComponentStatus.CREATED])
+            self._check_status(mod, [ComponentStatus.CREATED])
 
         for mod in self.modules:
             if loggable(mod) and mod.uses_base_logger_name:
                 mod.base_logger_name = self.logger_name
             mod.initialize()
-            _check_status(mod, [ComponentStatus.INITIALIZED])
+            self._check_status(mod, [ComponentStatus.INITIALIZED])
 
             for name, item in mod.inputs.items():
                 # forward name in dict to class attribute
@@ -149,11 +149,11 @@ class Composition(Loggable):
 
         for mod in self.modules:
             mod.connect()
-            _check_status(mod, [ComponentStatus.CONNECTED])
+            self._check_status(mod, [ComponentStatus.CONNECTED])
 
         for mod in self.modules:
             mod.validate()
-            _check_status(mod, [ComponentStatus.VALIDATED])
+            self._check_status(mod, [ComponentStatus.VALIDATED])
 
         time_modules = list(
             filter(lambda m: isinstance(m, ITimeComponent), self.modules)
@@ -162,7 +162,7 @@ class Composition(Loggable):
         while True:
             to_update = min(time_modules, key=lambda m: m.time)
             to_update.update()
-            _check_status(mod, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED])
+            self._check_status(mod, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED])
 
             any_running = False
             for mod in time_modules:
@@ -174,9 +174,9 @@ class Composition(Loggable):
                 break
 
         for mod in self.modules:
-            _check_status(mod, [ComponentStatus.UPDATED, ComponentStatus.FINISHED])
+            self._check_status(mod, [ComponentStatus.UPDATED, ComponentStatus.FINISHED])
             mod.finalize()
-            _check_status(mod, [ComponentStatus.FINALIZED])
+            self._check_status(mod, [ComponentStatus.FINALIZED])
 
     def validate(self):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
@@ -226,14 +226,10 @@ class Composition(Loggable):
         """Whether this class has a 'base_logger_name' attribute."""
         return False
 
-
-def _check_status(module, desired_list):
-    try:
+    def _check_status(self, module, desired_list):
         if module.status not in desired_list:
-            raise FinamStatusError(
-                f"Unexpected model state {str(module.status)} in {module.name}. "
-                f"Expecting one of [{' '.join(map(str ,desired_list))}]"
-            )
-    except FinamStatusError as err:
-        module.logger.exception(err)
-        raise
+            with LogError(module.logger if loggable(module) else self.logger):
+                raise FinamStatusError(
+                    f"Unexpected model state {str(module.status)} in {module.name}. "
+                    f"Expecting one of [{', '.join(map(str ,desired_list))}]"
+                )
