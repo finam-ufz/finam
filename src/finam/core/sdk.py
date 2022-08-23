@@ -38,9 +38,13 @@ class AComponent(IComponent, Loggable, ABC):
         self.logger.debug("init")
 
     def connect(self):
-        """Push initial values to outputs.
+        """Push initial values to outputs. Pull initial values from inputs.
 
-        After the method call, the component should have status CONNECTED.
+        The method can be called multiple times if there are failed pull attempts.
+
+        After each method call, the component should have status CONNECTED if
+        connecting was completed, CONNECTING if some but not all required initial input(s)
+        could be pulled, and `CONNECTING_IDLE` if nothing could be pulled.
         """
         self.logger.debug("connect")
 

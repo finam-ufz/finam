@@ -68,10 +68,12 @@ class IComponent(ABC):
 
     @abstractmethod
     def connect(self):
-        """Push initial values to outputs.
+        """Push initial values to outputs. Pull initial values from inputs.
 
-        After the method call, the component should have status CONNECTED if
-        connecting was be completed, CONNECTING if some but not all required initial input(s)
+        The method can be called multiple times if there are failed pull attempts.
+
+        After each method call, the component should have status CONNECTED if
+        connecting was completed, CONNECTING if some but not all required initial input(s)
         could be pulled, and `CONNECTING_IDLE` if nothing could be pulled.
         """
 
