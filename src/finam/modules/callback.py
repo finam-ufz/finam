@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from ..core.interfaces import ComponentStatus
 from ..core.sdk import ATimeComponent, Input, Output
+from ..tools.log_helper import LogError
 
 
 class CallbackComponent(ATimeComponent):
@@ -26,14 +27,11 @@ class CallbackComponent(ATimeComponent):
     def __init__(self, inputs, outputs, callback, start, step):
         super().__init__()
 
-        try:
+        with LogError(self.logger):
             if not isinstance(start, datetime):
                 raise ValueError("Start must be of type datetime")
             if not isinstance(step, timedelta):
                 raise ValueError("Step must be of type timedelta")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         self._input_names = inputs
         self._output_names = outputs

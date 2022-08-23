@@ -8,6 +8,7 @@ import numpy as np
 from ..core.sdk import AAdapter
 from ..data import assert_type
 from ..data.grid import Grid
+from ..tools.log_helper import LogError
 
 
 class Callback(AAdapter):
@@ -37,12 +38,9 @@ class Callback(AAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         d = self.pull_data(time)
         return self.callback(d, time)
@@ -75,12 +73,9 @@ class Scale(AAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         d = self.pull_data(time)
         return d * self.scale
@@ -113,19 +108,13 @@ class GridCellCallback(AAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         inp = self.pull_data(time)
-        try:
+        with LogError(self.logger):
             assert_type(self, "input", inp, [Grid])
-        except TypeError as err:
-            self.logger.exception(err)
-            raise
 
         out = Grid.create_like(inp)
 
@@ -163,19 +152,13 @@ class ValueToGrid(AAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         value = self.pull_data(time)
-        try:
+        with LogError(self.logger):
             assert_type(self, "input", value, [int, float])
-        except TypeError as err:
-            self.logger.exception(err)
-            raise
 
         self.data.fill(value)
         return self.data
@@ -208,19 +191,13 @@ class GridToValue(AAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         grid = self.pull_data(time)
-        try:
+        with LogError(self.logger):
             assert_type(self, "input", grid, [Grid])
-        except TypeError as err:
-            self.logger.exception(err)
-            raise
 
         result = self.func(grid)
 

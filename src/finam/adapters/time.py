@@ -5,6 +5,7 @@ from datetime import datetime
 
 from ..core.interfaces import NoBranchAdapter
 from ..core.sdk import AAdapter
+from ..tools.log_helper import LogError
 
 
 class NextValue(AAdapter):
@@ -23,12 +24,9 @@ class NextValue(AAdapter):
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         data = self.pull_data(time)
         self.data = data
@@ -49,12 +47,9 @@ class NextValue(AAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         return self.data
 
@@ -76,12 +71,9 @@ class PreviousValue(AAdapter):
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         data = self.pull_data(time)
         if self.new_data is None:
@@ -107,12 +99,9 @@ class PreviousValue(AAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         if time < self.new_data[0]:
             return self.old_data[1]
@@ -156,12 +145,9 @@ class LinearInterpolation(AAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         if self.old_data is None:
             return self.new_data[1]
@@ -216,12 +202,9 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         if len(self.data) == 1:
             return self.data[0][1]

@@ -7,7 +7,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from ..tools.log_helper import loggable
+from ..tools.log_helper import LogError, loggable
 from .interfaces import (
     FinamLogError,
     IAdapter,
@@ -67,14 +67,11 @@ class Composition(Loggable):
             fh.setFormatter(formatter)
             self.logger.addHandler(fh)
         for module in modules:
-            try:
-                if not isinstance(module, IComponent):
+            if not isinstance(module, IComponent):
+                with LogError(self.logger):
                     raise ValueError(
                         "Composition: modules need to be instances of 'IComponent'."
                     )
-            except ValueError as err:
-                self.logger.exception(err)
-                raise
 
         self.modules = modules
         self.mpi_rank = mpi_rank
@@ -111,26 +108,20 @@ class Composition(Loggable):
                 # forward name in dict to class attribute
                 item.name = name
                 if loggable(item) and item.uses_base_logger_name and not loggable(mod):
-                    try:
+                    with LogError(self.logger):
                         raise FinamLogError(
                             f"Input '{name}' can't get base logger from '{mod.name}'."
                         )
-                    except FinamLogError as err:
-                        self.logger.exception(err)
-                        raise
                 elif loggable(item) and item.uses_base_logger_name:
                     item.base_logger_name = mod.logger_name
             for name, item in mod.outputs.items():
                 # forward name in dict to class attribute
                 item.name = name
                 if loggable(item) and item.uses_base_logger_name and not loggable(mod):
-                    try:
+                    with LogError(self.logger):
                         raise FinamLogError(
                             f"Output '{name}' can't get base logger from '{mod.name}'."
                         )
-                    except FinamLogError as err:
-                        self.logger.exception(err)
-                        raise
                 elif loggable(item) and item.uses_base_logger_name:
                     item.base_logger_name = mod.logger_name
 
@@ -145,12 +136,9 @@ class Composition(Loggable):
         self.logger.debug("run composition")
         self.validate()
 
-        try:
-            if not isinstance(t_max, datetime):
+        if not isinstance(t_max, datetime):
+            with LogError(self.logger):
                 raise ValueError("t_max must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         for mod in self.modules:
             mod.connect()
@@ -185,14 +173,11 @@ class Composition(Loggable):
             for (name, inp) in mod.inputs.items():
                 par_inp = inp.get_source()
                 while True:
-                    try:
-                        if par_inp is None:
+                    if par_inp is None:
+                        with LogError(self.logger):
                             raise ValueError(
                                 f"Unconnected input '{name}' for module {mod.name}"
                             )
-                    except ValueError as err:
-                        self.logger.exception(err)
-                        raise
 
                     if not isinstance(par_inp, IAdapter):
                         break
@@ -208,15 +193,12 @@ class Composition(Loggable):
 
                     curr_targets = target.get_targets()
 
-                    try:
-                        if no_branch and len(curr_targets) > 1:
+                    if no_branch and len(curr_targets) > 1:
+                        with LogError(self.logger):
                             raise ValueError(
                                 f"Disallowed branching of output '{name}' for "
                                 f"module {mod.name} ({target.__class__.__name__})"
                             )
-                    except ValueError as err:
-                        self.logger.exception(err)
-                        raise
 
                     for target in curr_targets:
                         if isinstance(target, IAdapter):

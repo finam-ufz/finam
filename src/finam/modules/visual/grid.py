@@ -6,6 +6,7 @@ from ...core.interfaces import ComponentStatus
 from ...core.sdk import AComponent, ATimeComponent, CallbackInput, Input
 from ...data import assert_type
 from ...data.grid import Grid
+from ...tools.log_helper import LogError
 
 
 class GridView(AComponent):
@@ -70,12 +71,9 @@ class GridView(AComponent):
         time : datetime
             simulation time to get the data for.
         """
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         self._time = time
         if self.status in (ComponentStatus.UPDATED, ComponentStatus.VALIDATED):
@@ -99,11 +97,8 @@ class GridView(AComponent):
         import matplotlib.pyplot as plt
 
         grid = self._inputs["Grid"].pull_data(self._time)
-        try:
+        with LogError(self.logger):
             assert_type(self, "Grid", grid, [Grid])
-        except TypeError as err:
-            self.logger.exception(err)
-            raise
 
         img = grid.reshape(grid.spec.nrows, grid.spec.ncols)
 
@@ -147,14 +142,11 @@ class TimedGridView(ATimeComponent, GridView):
     def __init__(self, start, step, vmin=None, vmax=None):
         ATimeComponent.__init__(self)
         GridView.__init__(self, vmin, vmax)
-        try:
+        with LogError(self.logger):
             if not isinstance(start, datetime):
                 raise ValueError("Start must be of type datetime")
             if not isinstance(step, timedelta):
                 raise ValueError("Step must be of type timedelta")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         self._time = start
         self._step = step
