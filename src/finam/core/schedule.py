@@ -162,7 +162,9 @@ class Composition(Loggable):
         while True:
             to_update = min(time_modules, key=lambda m: m.time)
             to_update.update()
-            self._check_status(mod, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED])
+            self._check_status(
+                mod, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED]
+            )
 
             any_running = False
             for mod in time_modules:
