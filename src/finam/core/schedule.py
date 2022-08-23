@@ -64,17 +64,17 @@ class Composition(Loggable):
         if log_file:
             # for log_file=True use a default name
             if isinstance(log_file, bool):
-                log_file = f"./FINAM_{time.strftime('%Y-%m-%d_%H-%M-%S')}.log"
+                log_file = f"./{logger_name}_{time.strftime('%Y-%m-%d_%H-%M-%S')}.log"
             fh = logging.FileHandler(Path(log_file), mode="w")
             fh.setFormatter(formatter)
             self.logger.addHandler(fh)
+
         for module in modules:
             if not isinstance(module, IComponent):
                 with LogError(self.logger):
                     raise ValueError(
                         "Composition: modules need to be instances of 'IComponent'."
                     )
-
         self.modules = modules
         self.mpi_rank = mpi_rank
 
