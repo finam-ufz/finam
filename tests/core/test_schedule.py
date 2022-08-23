@@ -29,21 +29,25 @@ class MockupComponent(ATimeComponent):
         self.status = ComponentStatus.CREATED
 
     def initialize(self):
+        super().initialize()
         for key, _ in self._callbacks.items():
             self._outputs[key] = Output()
 
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
+        super().connect()
         for key, callback in self._callbacks.items():
             self._outputs[key].push_data(callback(self._time), self.time)
 
         self.status = ComponentStatus.CONNECTED
 
     def validate(self):
+        super().validate()
         self.status = ComponentStatus.VALIDATED
 
     def update(self):
+        super().update()
         self._time += self._step
 
         for key, callback in self._callbacks.items():
@@ -52,6 +56,7 @@ class MockupComponent(ATimeComponent):
         self.status = ComponentStatus.UPDATED
 
     def finalize(self):
+        super().finalize()
         self.status = ComponentStatus.FINALIZED
 
 
@@ -63,10 +68,12 @@ class MockupDependentComponent(ATimeComponent):
         self.status = ComponentStatus.CREATED
 
     def initialize(self):
+        super().initialize()
         self._inputs["Input"] = Input()
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
+        super().connect()
         try:
             _pulled = self._inputs["Input"].pull_data(self.time)
         except FinamNoDataError:
@@ -76,14 +83,17 @@ class MockupDependentComponent(ATimeComponent):
         self.status = ComponentStatus.CONNECTED
 
     def validate(self):
+        super().validate()
         self.status = ComponentStatus.VALIDATED
 
     def update(self):
+        super().update()
         _pulled = self._inputs["Input"].pull_data(self.time)
         self._time += self._step
         self.status = ComponentStatus.UPDATED
 
     def finalize(self):
+        super().finalize()
         self.status = ComponentStatus.FINALIZED
 
 
@@ -95,11 +105,13 @@ class MockupCircularComponent(ATimeComponent):
         self.status = ComponentStatus.CREATED
 
     def initialize(self):
+        super().initialize()
         self._inputs["Input"] = Input()
         self._outputs["Output"] = Output()
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
+        super().connect()
         try:
             pulled = self._inputs["Input"].pull_data(self.time)
         except FinamNoDataError:
@@ -111,9 +123,11 @@ class MockupCircularComponent(ATimeComponent):
         self.status = ComponentStatus.CONNECTED
 
     def validate(self):
+        super().validate()
         self.status = ComponentStatus.VALIDATED
 
     def update(self):
+        super().update()
         pulled = self._inputs["Input"].pull_data(self.time)
         self._time += self._step
         self._outputs["Output"].push_data(pulled, self.time)
@@ -121,6 +135,7 @@ class MockupCircularComponent(ATimeComponent):
         self.status = ComponentStatus.UPDATED
 
     def finalize(self):
+        super().finalize()
         self.status = ComponentStatus.FINALIZED
 
 
@@ -130,6 +145,7 @@ class MockupConsumerComponent(ATimeComponent):
         self.status = ComponentStatus.CREATED
 
     def initialize(self):
+        super().initialize()
         self._inputs["Input"] = Input()
         self.status = ComponentStatus.INITIALIZED
 
