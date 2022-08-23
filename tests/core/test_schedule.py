@@ -5,6 +5,7 @@ Unit tests for the driver/scheduler.
 import unittest
 from datetime import datetime, timedelta
 
+from finam.adapters.base import Scale
 from finam.core.interfaces import ComponentStatus, FinamStatusError, NoBranchAdapter
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
@@ -197,6 +198,32 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         module1.outputs["Output"] >> module2.inputs["Input"]
+
+        composition.run(t_max=datetime(2000, 1, 31))
+
+    def test_iterative_connect_adapter(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: 1.0}, step=timedelta(1.0)
+        )
+        module2 = MockupDependentComponent(step=timedelta(1.0))
+
+        composition = Composition([module2, module1])
+        composition.initialize()
+
+        module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
+
+        composition.run(t_max=datetime(2000, 1, 31))
+
+    def test_iterative_connect_multi_adapter(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: 1.0}, step=timedelta(1.0)
+        )
+        module2 = MockupDependentComponent(step=timedelta(1.0))
+
+        composition = Composition([module2, module1])
+        composition.initialize()
+
+        module1.outputs["Output"] >> Scale(1.0) >> Scale(1.0) >> module2.inputs["Input"]
 
         composition.run(t_max=datetime(2000, 1, 31))
 

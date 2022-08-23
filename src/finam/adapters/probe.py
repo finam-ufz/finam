@@ -33,5 +33,8 @@ class CallbackProbe(AAdapter):
         """
         self.logger.debug("get data")
         data = self.pull_data(time)
+        if data is None:
+            return None
+
         self.callback(data, time)
         return data

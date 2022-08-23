@@ -100,6 +100,9 @@ class PreviousValue(AAdapter):
 
         _check_time(self.logger, time, (self.old_data[0], self.new_data[0]))
 
+        if self.new_data is None:
+            return None
+
         if time < self.new_data[0]:
             return self.old_data[1]
 
@@ -151,6 +154,9 @@ class LinearInterpolation(AAdapter):
             time,
             (None if self.old_data is None else self.old_data[0], self.new_data[0]),
         )
+
+        if self.new_data is None:
+            return None
 
         if self.old_data is None:
             return self.new_data[1]
@@ -209,6 +215,9 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         """
         self.logger.debug("get data")
         _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
+
+        if len(self.data) == 0:
+            return None
 
         if len(self.data) == 1:
             return self.data[0][1]
