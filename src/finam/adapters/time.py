@@ -3,7 +3,7 @@ Adapters that deal with time, like temporal interpolation and integration.
 """
 from datetime import datetime
 
-from ..core.interfaces import NoBranchAdapter
+from ..core.interfaces import FinamTimeError, NoBranchAdapter
 from ..core.sdk import AAdapter
 
 
@@ -13,6 +13,7 @@ class NextValue(AAdapter):
     def __init__(self):
         super().__init__()
         self.data = None
+        self.time = None
 
     def source_changed(self, time):
         """Informs the input that a new output is available.
@@ -23,15 +24,12 @@ class NextValue(AAdapter):
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
-        try:
-            if not isinstance(time, datetime):
-                raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
+
+        _check_time(self.logger, time)
 
         data = self.pull_data(time)
         self.data = data
+        self.time = time
 
         self.notify_targets(time)
 
@@ -49,12 +47,8 @@ class NextValue(AAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
-                raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
+
+        _check_time(self.logger, time, (None, self.time))
 
         return self.data
 
@@ -76,12 +70,8 @@ class PreviousValue(AAdapter):
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
-        try:
-            if not isinstance(time, datetime):
-                raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
+
+        _check_time(self.logger, time)
 
         data = self.pull_data(time)
         if self.new_data is None:
@@ -107,12 +97,8 @@ class PreviousValue(AAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
-                raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
+
+        _check_time(self.logger, time, (self.old_data[0], self.new_data[0]))
 
         if time < self.new_data[0]:
             return self.old_data[1]
@@ -137,6 +123,9 @@ class LinearInterpolation(AAdapter):
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
+
+        _check_time(self.logger, time)
+
         self.old_data = self.new_data
         self.new_data = (time, self.pull_data(time))
 
@@ -156,12 +145,12 @@ class LinearInterpolation(AAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
-                raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
+
+        _check_time(
+            self.logger,
+            time,
+            (None if self.old_data is None else self.old_data[0], self.new_data[0]),
+        )
 
         if self.old_data is None:
             return self.new_data[1]
@@ -194,6 +183,9 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
+
+        _check_time(self.logger, time)
+
         data = self.pull_data(time)
         self.data.append((time, data))
 
@@ -216,12 +208,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
             data-set for the requested time.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
-                raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
+        _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
 
         if len(self.data) == 1:
             return self.data[0][1]
@@ -281,3 +268,36 @@ def _interpolate(old_value, new_value, dt):
         Interpolated value.
     """
     return old_value + dt * (new_value - old_value)
+
+
+def _check_time(logger, time, time_range=(None, None)):
+    """
+    Checks time for being of type `datetime`, and to be in range of time_range
+    (upper and lower limits inclusive).
+
+    Raises `FinamTimeError` if any of the checks fails.
+
+    :param logger: Logger to print to
+    :param time: Time to be tested
+    :param time_range: Tuple of (min, max) time, elements can be `None`
+    """
+    if not isinstance(time, datetime):
+        err = FinamTimeError("Time must be of type datetime")
+        logger.exception(err)
+        raise err
+
+    if time_range[1] is not None and time > time_range[1]:
+        err = FinamTimeError(
+            "Requested data for time point in the future. "
+            f"Latest data: {time_range[1]}, request: {time}"
+        )
+        logger.exception(err)
+        raise err
+
+    if time_range[0] is not None and time < time_range[0]:
+        err = FinamTimeError(
+            "Requested data for time point in the path. "
+            f"Earliest data: {time_range[0]}, request: {time}"
+        )
+        logger.exception(err)
+        raise err

@@ -10,6 +10,10 @@ class FinamStatusError(Exception):
     """Error for wrong status in Component."""
 
 
+class FinamTimeError(Exception):
+    """Error for request time not matching available data timestamps."""
+
+
 class FinamLogError(Exception):
     """Error for wrong logging configuration."""
 
