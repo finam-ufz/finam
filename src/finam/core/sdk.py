@@ -9,6 +9,7 @@ from ..tools.log_helper import loggable
 from .interfaces import (
     ComponentStatus,
     FinamLogError,
+    FinamNoDataError,
     FinamStatusError,
     IAdapter,
     IComponent,
@@ -37,9 +38,13 @@ class AComponent(IComponent, Loggable, ABC):
         self.logger.debug("init")
 
     def connect(self):
-        """Push initial values to outputs.
+        """Push initial values to outputs. Pull initial values from inputs.
 
-        After the method call, the component should have status CONNECTED.
+        The method can be called multiple times if there are failed pull attempts.
+
+        After each method call, the component should have status CONNECTED if
+        connecting was completed, CONNECTING if some but not all required initial input(s)
+        could be pulled, and `CONNECTING_IDLE` if nothing could be pulled.
         """
         self.logger.debug("connect")
 
@@ -290,7 +295,7 @@ class Output(IOutput, Loggable):
 
     def __init__(self):
         self.targets = []
-        self.data = []
+        self.data = None
         self.base_logger_name = None
         self.name = ""
 
@@ -375,8 +380,9 @@ class Output(IOutput, Loggable):
 
         Returns
         -------
-        array_like
+        any
             data-set for the requested time.
+            Should return `None` if no data is available.
         """
         self.logger.debug("get data")
         try:
@@ -385,6 +391,9 @@ class Output(IOutput, Loggable):
         except ValueError as err:
             self.logger.exception(err)
             raise
+
+        if self.data is None:
+            raise FinamNoDataError(f"No data available in {self.name}")
 
         return self.data
 
