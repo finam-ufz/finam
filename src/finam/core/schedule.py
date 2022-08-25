@@ -265,6 +265,6 @@ class Composition(Loggable):
         if module.status not in desired_list:
             with LogError(module.logger if loggable(module) else self.logger):
                 raise FinamStatusError(
-                    f"Unexpected model state {str(module.status)} in {module.name}. "
-                    f"Expecting one of [{', '.join(map(str ,desired_list))}]"
+                    f"Unexpected model state {module.status} in {module.name}. "
+                    f"Expecting one of [{', '.join(map(str, desired_list))}]"
                 )
