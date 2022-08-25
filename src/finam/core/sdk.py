@@ -5,7 +5,7 @@ import logging
 from abc import ABC
 from datetime import datetime
 
-from ..tools.log_helper import loggable
+from ..tools.log_helper import LogError, loggable
 from .interfaces import (
     ComponentStatus,
     FinamLogError,
@@ -97,11 +97,8 @@ class AComponent(IComponent, Loggable, ABC):
         elif isinstance(status, str) and status in [e.name for e in ComponentStatus]:
             self._status = ComponentStatus[status]
         else:
-            try:
+            with LogError(self.logger):
                 raise FinamStatusError(f"Unknown model state {status} in {self.name}")
-            except FinamStatusError as err:
-                self.logger.exception(err)
-                raise
 
     @property
     def name(self):
@@ -131,22 +128,16 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
     @property
     def time(self):
         """The component's current simulation time."""
-        try:
-            if not isinstance(self._time, datetime):
+        if not isinstance(self._time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
         return self._time
 
     @time.setter
     def time(self, time):
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
         self._time = time
 
 
@@ -169,17 +160,14 @@ class Input(IInput, Loggable):
         # fix to set base-logger for adapters derived from Input source logger
         if isinstance(self, AAdapter):
             if self.uses_base_logger_name and not loggable(source):
-                try:
+                with LogError(self.logger):
                     raise FinamLogError(
                         f"Adapter '{self.name}' can't get base logger from its source."
                     )
-                except FinamLogError as err:
-                    self.logger.exception(err)
-                    raise
             else:
                 self.base_logger_name = source.logger_name
         self.logger.debug("set source")
-        try:
+        with LogError(self.logger):
             if self.source is not None:
                 raise ValueError(
                     "Source of input is already set! "
@@ -187,9 +175,6 @@ class Input(IInput, Loggable):
                 )
             if not isinstance(source, IOutput):
                 raise ValueError("Only IOutput can be set as source for Input")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         self.source = source
 
@@ -228,12 +213,9 @@ class Input(IInput, Loggable):
             Data set for the given simulation time.
         """
         self.logger.debug("pull data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         return self.source.get_data(time)
 
@@ -280,12 +262,9 @@ class CallbackInput(Input):
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         self.callback(self, time)
 
@@ -308,12 +287,9 @@ class Output(IOutput, Loggable):
             The target to add.
         """
         self.logger.debug("add target")
-        try:
-            if not isinstance(target, IInput):
+        if not isinstance(target, IInput):
+            with LogError(self.logger):
                 raise ValueError("Only IInput can added as target for IOutput")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         self.targets.append(target)
 
@@ -341,12 +317,9 @@ class Output(IOutput, Loggable):
             Simulation time of the data set.
         """
         self.logger.debug("push data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         self.data = data
         self.notify_targets(time)
@@ -360,12 +333,9 @@ class Output(IOutput, Loggable):
             Simulation time of the simulation.
         """
         self.logger.debug("notify targets")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         for target in self.targets:
             target.source_changed(time)
@@ -385,12 +355,9 @@ class Output(IOutput, Loggable):
             Should return `None` if no data is available.
         """
         self.logger.debug("get data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
@@ -454,12 +421,9 @@ class AAdapter(IAdapter, Input, Output, ABC):
             Simulation time of the data set.
         """
         self.logger.debug("push data")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         self.notify_targets(time)
 
@@ -472,12 +436,9 @@ class AAdapter(IAdapter, Input, Output, ABC):
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
-        try:
-            if not isinstance(time, datetime):
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         self.notify_targets(time)
 

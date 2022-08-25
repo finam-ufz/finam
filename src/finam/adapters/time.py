@@ -5,6 +5,7 @@ from datetime import datetime
 
 from ..core.interfaces import FinamNoDataError, FinamTimeError, NoBranchAdapter
 from ..core.sdk import AAdapter
+from ..tools.log_helper import LogError
 
 
 class NextValue(AAdapter):
@@ -284,32 +285,37 @@ def _interpolate(old_value, new_value, dt):
 
 def _check_time(logger, time, time_range=(None, None)):
     """
+    Checks time.
+
     Checks time for being of type `datetime`, and to be in range of time_range
     (upper and lower limits inclusive).
 
-    Raises `FinamTimeError` if any of the checks fails.
+    Parameters
+    ----------
+    logger : logging.Logger
+        Logger to print to
+    time : any
+        Time to be tested
+    time_range : tuple, optional
+        Tuple of (min, max) time, elements can be `None`, by default (None, None)
 
-    :param logger: Logger to print to
-    :param time: Time to be tested
-    :param time_range: Tuple of (min, max) time, elements can be `None`
+    Raises
+    ------
+    FinamTimeError
+        if any of the checks fails
     """
-    if not isinstance(time, datetime):
-        err = FinamTimeError("Time must be of type datetime")
-        logger.exception(err)
-        raise err
+    with LogError(logger):
+        if not isinstance(time, datetime):
+            raise FinamTimeError("Time must be of type datetime")
 
-    if time_range[1] is not None and time > time_range[1]:
-        err = FinamTimeError(
-            "Requested data for time point in the future. "
-            f"Latest data: {time_range[1]}, request: {time}"
-        )
-        logger.exception(err)
-        raise err
+        if time_range[1] is not None and time > time_range[1]:
+            raise FinamTimeError(
+                "Requested data for time point in the future. "
+                f"Latest data: {time_range[1]}, request: {time}"
+            )
 
-    if time_range[0] is not None and time < time_range[0]:
-        err = FinamTimeError(
-            "Requested data for time point in the path. "
-            f"Earliest data: {time_range[0]}, request: {time}"
-        )
-        logger.exception(err)
-        raise err
+        if time_range[0] is not None and time < time_range[0]:
+            raise FinamTimeError(
+                "Requested data for time point in the path. "
+                f"Earliest data: {time_range[0]}, request: {time}"
+            )

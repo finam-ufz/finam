@@ -10,5 +10,5 @@ def assert_type(cls, slot, obj, types):
             return
     raise TypeError(
         f"Unsupported data type for {slot} in {cls.__class__.__name__}: {obj.__class__.__name__}. "
-        f"Expected one of [{', '.join(map(lambda tp: tp.__name__, types))}]"
+        f"Expected one of [{', '.join([tp.__name__ for tp in types])}]"
     )

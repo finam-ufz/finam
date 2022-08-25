@@ -7,7 +7,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from ..tools.log_helper import loggable
+from ..tools.log_helper import LogError, loggable
 from .interfaces import (
     ComponentStatus,
     FinamLogError,
@@ -64,20 +64,17 @@ class Composition(Loggable):
         if log_file:
             # for log_file=True use a default name
             if isinstance(log_file, bool):
-                log_file = f"./FINAM_{time.strftime('%Y-%m-%d_%H-%M-%S')}.log"
+                log_file = f"./{logger_name}_{time.strftime('%Y-%m-%d_%H-%M-%S')}.log"
             fh = logging.FileHandler(Path(log_file), mode="w")
             fh.setFormatter(formatter)
             self.logger.addHandler(fh)
+
         for module in modules:
-            try:
-                if not isinstance(module, IComponent):
+            if not isinstance(module, IComponent):
+                with LogError(self.logger):
                     raise ValueError(
                         "Composition: modules need to be instances of 'IComponent'."
                     )
-            except ValueError as err:
-                self.logger.exception(err)
-                raise
-
         self.modules = modules
         self.mpi_rank = mpi_rank
 
@@ -106,38 +103,32 @@ class Composition(Loggable):
         """
         self.logger.debug("init composition")
         for mod in self.modules:
-            _check_status(mod, [ComponentStatus.CREATED])
+            self._check_status(mod, [ComponentStatus.CREATED])
 
         for mod in self.modules:
             if loggable(mod) and mod.uses_base_logger_name:
                 mod.base_logger_name = self.logger_name
             mod.initialize()
-            _check_status(mod, [ComponentStatus.INITIALIZED])
+            self._check_status(mod, [ComponentStatus.INITIALIZED])
 
             for name, item in mod.inputs.items():
                 # forward name in dict to class attribute
                 item.name = name
                 if loggable(item) and item.uses_base_logger_name and not loggable(mod):
-                    try:
+                    with LogError(self.logger):
                         raise FinamLogError(
                             f"Input '{name}' can't get base logger from '{mod.name}'."
                         )
-                    except FinamLogError as err:
-                        self.logger.exception(err)
-                        raise
                 elif loggable(item) and item.uses_base_logger_name:
                     item.base_logger_name = mod.logger_name
             for name, item in mod.outputs.items():
                 # forward name in dict to class attribute
                 item.name = name
                 if loggable(item) and item.uses_base_logger_name and not loggable(mod):
-                    try:
+                    with LogError(self.logger):
                         raise FinamLogError(
                             f"Output '{name}' can't get base logger from '{mod.name}'."
                         )
-                    except FinamLogError as err:
-                        self.logger.exception(err)
-                        raise
                 elif loggable(item) and item.uses_base_logger_name:
                     item.base_logger_name = mod.logger_name
 
@@ -152,27 +143,22 @@ class Composition(Loggable):
         self.logger.debug("run composition")
         self._validate()
 
-        try:
-            if not isinstance(t_max, datetime):
+        if not isinstance(t_max, datetime):
+            with LogError(self.logger):
                 raise ValueError("t_max must be of type datetime")
-        except ValueError as err:
-            self.logger.exception(err)
-            raise
 
         self._connect()
 
         for mod in self.modules:
             mod.validate()
-            _check_status(mod, [ComponentStatus.VALIDATED])
+            self._check_status(mod, [ComponentStatus.VALIDATED])
 
-        time_modules = list(
-            filter(lambda m: isinstance(m, ITimeComponent), self.modules)
-        )
+        time_modules = [m for m in self.modules if isinstance(m, ITimeComponent)]
 
         while True:
             to_update = min(time_modules, key=lambda m: m.time)
             to_update.update()
-            _check_status(
+            self._check_status(
                 to_update, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED]
             )
 
@@ -186,9 +172,9 @@ class Composition(Loggable):
                 break
 
         for mod in self.modules:
-            _check_status(mod, [ComponentStatus.UPDATED, ComponentStatus.FINISHED])
+            self._check_status(mod, [ComponentStatus.UPDATED, ComponentStatus.FINISHED])
             mod.finalize()
-            _check_status(mod, [ComponentStatus.FINALIZED])
+            self._check_status(mod, [ComponentStatus.FINALIZED])
 
     def _validate(self):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
@@ -197,14 +183,11 @@ class Composition(Loggable):
             for (name, inp) in mod.inputs.items():
                 par_inp = inp.get_source()
                 while True:
-                    try:
-                        if par_inp is None:
+                    if par_inp is None:
+                        with LogError(self.logger):
                             raise ValueError(
                                 f"Unconnected input '{name}' for module {mod.name}"
                             )
-                    except ValueError as err:
-                        self.logger.exception(err)
-                        raise
 
                     if not isinstance(par_inp, IAdapter):
                         break
@@ -220,15 +203,12 @@ class Composition(Loggable):
 
                     curr_targets = target.get_targets()
 
-                    try:
-                        if no_branch and len(curr_targets) > 1:
+                    if no_branch and len(curr_targets) > 1:
+                        with LogError(self.logger):
                             raise ValueError(
                                 f"Disallowed branching of output '{name}' for "
                                 f"module {mod.name} ({target.__class__.__name__})"
                             )
-                    except ValueError as err:
-                        self.logger.exception(err)
-                        raise
 
                     for target in curr_targets:
                         if isinstance(target, IAdapter):
@@ -241,7 +221,7 @@ class Composition(Loggable):
             for mod in self.modules:
                 if mod.status != ComponentStatus.CONNECTED:
                     mod.connect()
-                    _check_status(
+                    self._check_status(
                         mod,
                         [
                             ComponentStatus.CONNECTING,
@@ -260,13 +240,16 @@ class Composition(Loggable):
             if not any_unconnected:
                 break
             if not any_new_connection:
-                unconn = filter(
-                    lambda mod: mod.status != ComponentStatus.CONNECTED, self.modules
-                )
-                raise FinamStatusError(
-                    f"Circular dependency during initial connect. "
-                    f"Unconnected components: [{' '.join(map(lambda m: m.name, unconn))}]"
-                )
+                unconn = [
+                    m.name
+                    for m in self.modules
+                    if m.status != ComponentStatus.CONNECTED
+                ]
+                with LogError(self.logger):
+                    raise FinamStatusError(
+                        f"Circular dependency during initial connect. "
+                        f"Unconnected components: [{', '.join(unconn)}]"
+                    )
 
     @property
     def logger_name(self):
@@ -278,14 +261,10 @@ class Composition(Loggable):
         """Whether this class has a 'base_logger_name' attribute."""
         return False
 
-
-def _check_status(module, desired_list):
-    try:
+    def _check_status(self, module, desired_list):
         if module.status not in desired_list:
-            raise FinamStatusError(
-                f"Unexpected model state {str(module.status)} in {module.name}. "
-                f"Expecting one of [{' '.join(map(str ,desired_list))}]"
-            )
-    except FinamStatusError as err:
-        module.logger.exception(err)
-        raise
+            with LogError(module.logger if loggable(module) else self.logger):
+                raise FinamStatusError(
+                    f"Unexpected model state {module.status} in {module.name}. "
+                    f"Expecting one of [{', '.join(map(str, desired_list))}]"
+                )
