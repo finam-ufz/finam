@@ -153,9 +153,7 @@ class Composition(Loggable):
             mod.validate()
             self._check_status(mod, [ComponentStatus.VALIDATED])
 
-        time_modules = list(
-            filter(lambda m: isinstance(m, ITimeComponent), self.modules)
-        )
+        time_modules = [m for m in self.modules if isinstance(m, ITimeComponent)]
 
         while True:
             to_update = min(time_modules, key=lambda m: m.time)
@@ -242,13 +240,15 @@ class Composition(Loggable):
             if not any_unconnected:
                 break
             if not any_new_connection:
-                unconn = filter(
-                    lambda mod: mod.status != ComponentStatus.CONNECTED, self.modules
-                )
+                unconn = [
+                    m.name
+                    for m in self.modules
+                    if m.status != ComponentStatus.CONNECTED
+                ]
                 with LogError(self.logger):
                     raise FinamStatusError(
                         f"Circular dependency during initial connect. "
-                        f"Unconnected components: [{' '.join(map(lambda m: m.name, unconn))}]"
+                        f"Unconnected components: [{', '.join(unconn)}]"
                     )
 
     @property
