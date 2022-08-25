@@ -18,16 +18,22 @@ class FinamLogError(Exception):
     """Error for wrong logging configuration."""
 
 
+class FinamNoDataError(Exception):
+    """Error for data not yet being available."""
+
+
 class ComponentStatus(Enum):
     """Status for components."""
 
     CREATED = 0
     INITIALIZED = 1
-    CONNECTED = 2
-    VALIDATED = 3
-    UPDATED = 4
-    FINISHED = 5
-    FINALIZED = 6
+    CONNECTING = 2
+    CONNECTING_IDLE = 3
+    CONNECTED = 4
+    VALIDATED = 5
+    UPDATED = 6
+    FINISHED = 7
+    FINALIZED = 8
 
 
 class Loggable(ABC):
@@ -62,9 +68,13 @@ class IComponent(ABC):
 
     @abstractmethod
     def connect(self):
-        """Push initial values to outputs.
+        """Push initial values to outputs. Pull initial values from inputs.
 
-        After the method call, the component should have status CONNECTED.
+        The method can be called multiple times if there are failed pull attempts.
+
+        After each method call, the component should have status CONNECTED if
+        connecting was completed, CONNECTING if some but not all required initial input(s)
+        could be pulled, and `CONNECTING_IDLE` if nothing could be pulled.
         """
 
     @abstractmethod
@@ -232,8 +242,14 @@ class IOutput(ABC):
 
         Returns
         -------
-        array_like
+        any
             data-set for the requested time.
+            Should return `None` if no data is available.
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no data is available
         """
 
     @abstractmethod

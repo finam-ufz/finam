@@ -141,15 +141,13 @@ class Composition(Loggable):
             Simulation time up to which to simulate.
         """
         self.logger.debug("run composition")
-        self.validate()
+        self._validate()
 
         if not isinstance(t_max, datetime):
             with LogError(self.logger):
                 raise ValueError("t_max must be of type datetime")
 
-        for mod in self.modules:
-            mod.connect()
-            self._check_status(mod, [ComponentStatus.CONNECTED])
+        self._connect()
 
         for mod in self.modules:
             mod.validate()
@@ -163,7 +161,7 @@ class Composition(Loggable):
             to_update = min(time_modules, key=lambda m: m.time)
             to_update.update()
             self._check_status(
-                mod, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED]
+                to_update, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED]
             )
 
             any_running = False
@@ -180,7 +178,7 @@ class Composition(Loggable):
             mod.finalize()
             self._check_status(mod, [ComponentStatus.FINALIZED])
 
-    def validate(self):
+    def _validate(self):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
         self.logger.debug("validate composition")
         for mod in self.modules:
@@ -217,6 +215,41 @@ class Composition(Loggable):
                     for target in curr_targets:
                         if isinstance(target, IAdapter):
                             targets.append((target, no_branch))
+
+    def _connect(self):
+        while True:
+            any_unconnected = False
+            any_new_connection = False
+            for mod in self.modules:
+                if mod.status != ComponentStatus.CONNECTED:
+                    mod.connect()
+                    self._check_status(
+                        mod,
+                        [
+                            ComponentStatus.CONNECTING,
+                            ComponentStatus.CONNECTING_IDLE,
+                            ComponentStatus.CONNECTED,
+                        ],
+                    )
+                    if mod.status == ComponentStatus.CONNECTED:
+                        any_new_connection = True
+                    else:
+                        if mod.status == ComponentStatus.CONNECTING:
+                            any_new_connection = True
+
+                        any_unconnected = True
+
+            if not any_unconnected:
+                break
+            if not any_new_connection:
+                unconn = filter(
+                    lambda mod: mod.status != ComponentStatus.CONNECTED, self.modules
+                )
+                with LogError(self.logger):
+                    raise FinamStatusError(
+                        f"Circular dependency during initial connect. "
+                        f"Unconnected components: [{' '.join(map(lambda m: m.name, unconn))}]"
+                    )
 
     @property
     def logger_name(self):
