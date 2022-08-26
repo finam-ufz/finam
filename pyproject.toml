@@ -23,6 +23,23 @@ target-version = [
 profile = "black"
 multi_line_output = 3
 
+[tool.coverage]
+    [tool.coverage.run]
+    source = ["finam"]
+    omit = [
+        "*docs*",
+        "*examples*",
+        "*tests*",
+        "*/src/finam/tools/wurlitzer.py",
+    ]
+
+    [tool.coverage.report]
+    exclude_lines = [
+        "pragma: no cover",
+        "def __repr__",
+        "def __str__",
+    ]
+
 [tool.pylint]
     [tool.pylint.master]
     extension-pkg-whitelist = [
