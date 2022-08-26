@@ -1,7 +1,9 @@
 import logging
+import sys
 import unittest
 
-from finam.tools.log_helper import LogError
+from finam.tools.log_helper import LogCStdOutStdErr, LogError, LogStdOutStdErr
+from finam.tools.wurlitzer import libc
 
 
 def raise_and_log(do_log):
@@ -26,3 +28,22 @@ class TestLog(unittest.TestCase):
             logging.getLogger(None).warning("Dummy warning.")
         # check that we only got the one dummy log
         self.assertEqual(len(captured.records), 1)
+
+    def test_redirect(self):
+        with self.assertLogs() as captured:
+            with LogStdOutStdErr():
+                print("Hi from Python")
+                print("Boo from Python", file=sys.stderr)
+        self.assertEqual(len(captured.records), 2)
+        self.assertEqual(captured.records[0].levelno, logging.INFO)
+        self.assertEqual(captured.records[0].message, "Hi from Python")
+        self.assertEqual(captured.records[1].levelno, logging.WARNING)
+        self.assertEqual(captured.records[1].message, "Boo from Python")
+
+    def test_c_redirect(self):
+        with self.assertLogs() as captured:
+            with LogCStdOutStdErr():
+                libc.puts(b"Hi from C")
+        self.assertEqual(len(captured.records), 1)
+        self.assertEqual(captured.records[0].levelno, logging.INFO)
+        self.assertEqual(captured.records[0].message, "Hi from C")
