@@ -30,7 +30,10 @@ multi_line_output = 3
         "scipy",
         "mpi4py",
     ]
-    ignore = "_version.py"
+    ignore = [
+        "_version.py",
+        "wurlitzer.py",
+    ]
 
     [tool.pylint.message_control]
     max-line-length = 120

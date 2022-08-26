@@ -4,9 +4,8 @@ import logging
 import sys
 from contextlib import AbstractContextManager
 
-import wurlitzer
-
 from ..core.interfaces import Loggable
+from . import wurlitzer
 
 
 def loggable(obj):
@@ -89,7 +88,7 @@ class LogStdOutStdErr(AbstractContextManager):
         setattr(sys, "stderr", self._old_stderr)
 
 
-class LogCStdOutStdErr:
+class LogCStdOutStdErr(AbstractContextManager):
     """
     Context manager to redirect low-level C stdout and stderr to a logger.
 
