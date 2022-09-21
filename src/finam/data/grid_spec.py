@@ -1,5 +1,8 @@
 """Grid specifications to handle spatial data with FINAM."""
+from pathlib import Path
+
 import numpy as np
+from pyevtk.hl import imageToVTK
 
 from .grid_tools import (
     Grid,
@@ -7,6 +10,8 @@ from .grid_tools import (
     StructuredGrid,
     check_axes_monotonicity,
     gen_axes,
+    prepare_vtk_data,
+    prepare_vtk_kwargs,
 )
 
 
@@ -134,6 +139,51 @@ class EsriGrid(StructuredGrid):
         """Location of the associated data."""
         return Location.CELLS
 
+    def export_vtk(
+        self,
+        path,
+        data=None,
+        cell_data=None,
+        point_data=None,
+        field_data=None,
+        mesh_type="uniform",
+    ):
+        """
+        Export grid and data to a VTK file.
+
+        Parameters
+        ----------
+        path : pathlike
+            File path.
+            Suffix will be replaced according to mesh type (.vti, .vtr, .vtu)
+        data : dict or None, optional
+            Data in the corresponding shape given by name, by default None
+        cell_data : dict or None, optional
+            Additional cell data, by default None
+        point_data : dict or None, optional
+            Additional point data, by default None
+        field_data : dict or None, optional
+            Additional field data, by default None
+        mesh_type : str, optional
+            Mesh type ("uniform"/"structured"/"unstructured"),
+            by default "structured"
+
+        Raises
+        ------
+        ValueError
+            If mesh type is not supported.
+        """
+        if mesh_type != "uniform":
+            super().export_vtk(path, data, cell_data, point_data, field_data, mesh_type)
+        else:
+            data = prepare_vtk_data(data, self.axes_reversed, self.axes_increase)
+            kw = prepare_vtk_kwargs(
+                self.data_location, data, cell_data, point_data, field_data
+            )
+            origin = (self.xllcorner, self.yllcorner, 0.0)
+            spacing = (self.cellsize, self.cellsize, 1.0)
+            imageToVTK(path, origin, spacing, **kw)
+
 
 class UniformGrid(StructuredGrid):
     """Regular grid with uniform spacing in up to three coordinate directions.
@@ -245,6 +295,52 @@ class UniformGrid(StructuredGrid):
     def data_location(self):
         """Location of the associated data (either CELLS or POINTS)."""
         return self._data_location
+
+    def export_vtk(
+        self,
+        path,
+        data=None,
+        cell_data=None,
+        point_data=None,
+        field_data=None,
+        mesh_type="uniform",
+    ):
+        """
+        Export grid and data to a VTK file.
+
+        Parameters
+        ----------
+        path : pathlike
+            File path.
+            Suffix will be replaced according to mesh type (.vti, .vtr, .vtu)
+        data : dict or None, optional
+            Data in the corresponding shape given by name, by default None
+        cell_data : dict or None, optional
+            Additional cell data, by default None
+        point_data : dict or None, optional
+            Additional point data, by default None
+        field_data : dict or None, optional
+            Additional field data, by default None
+        mesh_type : str, optional
+            Mesh type ("uniform"/"structured"/"unstructured"),
+            by default "structured"
+
+        Raises
+        ------
+        ValueError
+            If mesh type is not supported.
+        """
+        if mesh_type != "uniform":
+            super().export_vtk(path, data, cell_data, point_data, field_data, mesh_type)
+        else:
+            data = prepare_vtk_data(data, self.axes_reversed, self.axes_increase)
+            kw = prepare_vtk_kwargs(
+                self.data_location, data, cell_data, point_data, field_data
+            )
+            path = str(Path(path).with_suffix(""))
+            origin = self.origin + (0.0,) * (3 - self.dim)
+            spacing = self.spacing + (1.0,) * (3 - self.dim)
+            imageToVTK(path, origin, spacing, **kw)
 
 
 class RectilinearGrid(StructuredGrid):

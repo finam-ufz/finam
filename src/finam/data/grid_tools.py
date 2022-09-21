@@ -1,8 +1,10 @@
 """Grid tools for FINAM."""
 from abc import ABC, abstractmethod
 from enum import Enum
+from pathlib import Path
 
 import numpy as np
+from pyevtk.hl import gridToVTK, unstructuredGridToVTK
 
 
 def point_order(order, axes_reversed=False):
@@ -187,7 +189,7 @@ def gen_cells(dims, order="F"):
     else:
         # cells are hex in 3D
         c = np.empty((c_cnt, 8), dtype=int)
-        # TODO: should upper and lower layer be swapped?
+        # ? should upper and lower layer be swapped?
         # upper layer
         c[:, 3] = c_rng
         c[:, 3] += (c_dim[0] + c_dim[1] + 1) * (c_rng // (c_dim[0] * c_dim[1]))
@@ -244,6 +246,112 @@ def check_axes_monotonicity(axes):
     return axes_increase
 
 
+def prepare_vtk_kwargs(data_location, data, cell_data, point_data, field_data):
+    """
+    Prepare keyword arguments for evtk routines.
+
+    Parameters
+    ----------
+    data_location : Location
+        Data location in the grid, by default Location.CELLS
+    data : dict or None
+        Data in the corresponding shape given by name
+    cell_data : dict or None
+        Additional cell data
+    point_data : dict or None
+        Additional point data
+    field_data : dict or None
+        Additional field data
+
+    Returns
+    -------
+    dict
+        Keyword arguments.
+    """
+    cdat = data_location == Location.CELLS
+    kw = {"cellData": None, "pointData": None, "fieldData": None}
+    kw["cellData" if cdat else "pointData"] = data
+    if kw["cellData"]:
+        kw["cellData"].update(cell_data if cell_data is not None else {})
+    else:
+        kw["cellData"] = cell_data
+    if kw["pointData"]:
+        kw["pointData"].update(point_data if point_data is not None else {})
+    else:
+        kw["pointData"] = point_data
+    kw["fieldData"] = field_data
+    return kw
+
+
+def prepare_vtk_data(
+    data, axes_reversed=False, axes_increase=None, flat=False, order="F"
+):
+    """
+    Prepare data dictionary for VTK export.
+
+    Parameters
+    ----------
+    data : dict or None
+        Dictionary containing data arrays by name.
+    axes_reversed : bool, optional
+        Indicate reversed axes order for the associated data, by default False
+    axes_increase : arraylike or None, optional
+        False to indicate a bottom up axis (xyz order), by default None
+    flat : bool, optional
+        True to flatten data, by default False
+    order : str, optional
+        Point and cell ordering.
+        Either Fortran-like ("F") or C-like ("C"), by default "F"
+
+    Returns
+    -------
+    dict or None
+        Prepared data.
+    """
+    if data is not None:
+        data = dict(data)
+        for name, value in data.items():
+            data[name] = _prepare(value, axes_reversed, axes_increase, flat, order)
+    return data
+
+
+def _prepare(data, axes_reversed, axes_increase, flat, order):
+    if axes_increase is not None and data.ndim != len(axes_increase):
+        raise ValueError("prepare_vtk_data: data has wrong dimension.")
+    if axes_increase is None:
+        axes_increase = np.full(data.ndim, True, dtype=bool)
+    if axes_reversed and data.ndim > 1:
+        data = data.T
+    for i, inc in enumerate(axes_increase):
+        # only flip if not converting to unstructured
+        if not (inc or flat):
+            data = np.flip(data, axis=i)
+    # get 3D or flat shape
+    shape = -1 if flat else (data.shape + (1,) * (3 - data.ndim))
+    return np.ascontiguousarray(data.reshape(shape, order=order))
+
+
+def flatten_cells(cells):
+    """
+    Flatten cells array.
+
+    Parameters
+    ----------
+    cells : np.ndarray
+        Cells given as 2D array containing cell defining node IDs.
+        -1 will be interpreted as used entries.
+
+    Returns
+    -------
+    np.ndarray
+        All cell definitions concatenated.
+    """
+    if cells.ndim == 1:
+        return cells
+    # unused entries in "cells" marked with "-1"
+    return np.ma.masked_values(cells, -1).compressed()
+
+
 class Location(Enum):
     """Data location in the grid."""
 
@@ -275,6 +383,14 @@ NODE_COUNT = np.array([1, 2, 3, 4, 4, 8], dtype=int)
 
 
 CELL_DIM = np.array([0, 1, 2, 2, 3, 3], dtype=int)
+"""np.ndarray: Cell dimension per CellType."""
+
+
+VTK_TYPE_MAP = np.array([1, 3, 5, 9, 10, 12], dtype=int)
+"""np.ndarray: Cell dimension per CellType."""
+
+
+ESMF_TYPE_MAP = np.array([-1, -1, 3, 4, 10, 12], dtype=int)
 """np.ndarray: Cell dimension per CellType."""
 
 
@@ -354,6 +470,57 @@ class Grid(ABC):
     def name(self):
         """Grid name."""
         return self.__class__.__name__
+
+    def export_vtk(
+        self,
+        path,
+        data=None,
+        cell_data=None,
+        point_data=None,
+        field_data=None,
+        mesh_type="unstructured",
+    ):
+        """
+        Export grid and data to a VTK file.
+
+        Parameters
+        ----------
+        path : pathlike
+            File path. Suffix will be replaced according to mesh type (.vtu)
+        data : dict or None, optional
+            Data in the corresponding shape given by name, by default None
+        cell_data : dict or None, optional
+            Additional cell data, by default None
+        point_data : dict or None, optional
+            Additional point data, by default None
+        field_data : dict or None, optional
+            Additional field data, by default None
+        mesh_type : str, optional
+            Mesh type, by default "unstructured"
+
+        Raises
+        ------
+        ValueError
+            If mesh type is not supported.
+        """
+        data = prepare_vtk_data(data, flat=True)
+        kw = prepare_vtk_kwargs(
+            self.data_location, data, cell_data, point_data, field_data
+        )
+
+        if mesh_type == "unstructured":
+            path = str(Path(path).with_suffix(""))
+            # don't create increasing axes
+            points = self.points
+            x = np.ascontiguousarray(points[:, 0])
+            y = np.ascontiguousarray(points[:, 1] if self.dim > 1 else np.zeros_like(x))
+            z = np.ascontiguousarray(points[:, 2] if self.dim > 2 else np.zeros_like(x))
+            con = flatten_cells(self.cells)
+            off = np.cumsum(NODE_COUNT[self.cell_types])
+            typ = VTK_TYPE_MAP[self.cell_types]
+            unstructuredGridToVTK(path, x, y, z, con, off, typ, **kw)
+        else:
+            raise ValueError(f"export_vtk: unknown mesh type '{mesh_type}'")
 
 
 class StructuredGrid(Grid):
@@ -468,3 +635,54 @@ class StructuredGrid(Grid):
         return tuple(
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
         )
+
+    def export_vtk(
+        self,
+        path,
+        data=None,
+        cell_data=None,
+        point_data=None,
+        field_data=None,
+        mesh_type="structured",
+    ):
+        """
+        Export grid and data to a VTK file.
+
+        Parameters
+        ----------
+        path : pathlike
+            File path. Suffix will be replaced according to mesh type (.vtr, .vtu)
+        data : dict or None, optional
+            Data in the corresponding shape given by name, by default None
+        cell_data : dict or None, optional
+            Additional cell data, by default None
+        point_data : dict or None, optional
+            Additional point data, by default None
+        field_data : dict or None, optional
+            Additional field data, by default None
+        mesh_type : str, optional
+            Mesh type ("structured"/"unstructured"), by default "structured"
+
+        Raises
+        ------
+        ValueError
+            If mesh type is not supported.
+        """
+        data = prepare_vtk_data(
+            data=data,
+            axes_reversed=self.axes_reversed,
+            axes_increase=self.axes_increase,
+            flat=mesh_type == "unstructured",
+            order=point_order(self.order, self.axes_reversed),
+        )
+        if mesh_type != "structured":
+            super().export_vtk(path, data, cell_data, point_data, field_data, mesh_type)
+        else:
+            kw = prepare_vtk_kwargs(
+                self.data_location, data, cell_data, point_data, field_data
+            )
+            path = str(Path(path).with_suffix(""))
+            x = np.ascontiguousarray(self.axes[0])
+            y = np.ascontiguousarray(self.axes[1] if self.dim > 1 else np.array([1.0]))
+            z = np.ascontiguousarray(self.axes[2] if self.dim > 2 else np.array([1.0]))
+            gridToVTK(path, x, y, z, **kw)
