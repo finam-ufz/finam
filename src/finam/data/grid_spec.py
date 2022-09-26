@@ -15,334 +15,6 @@ from .grid_tools import (
 )
 
 
-class EsriGrid(StructuredGrid):
-    """
-    Esri grid raster specification.
-
-    Parameters
-    ----------
-    ncols : int
-        Number of columns.
-    nrows : int
-        Number of rows.
-    cellsize : float, optional
-        Cell size, by default 1.0
-    xllcorner : float, optional
-        x value of lower left corner, by default 0.0
-    yllcorner : float, optional
-        y value of lower left corner, by default 0.0
-    axes_attributes : list of dict or None, optional
-        Axes attributes following the CF convention (xyz order), by default None
-    crs : str or None, optional
-        The coordinate reference system, by default None
-    """
-
-    def __init__(
-        self,
-        ncols,
-        nrows,
-        cellsize=1.0,
-        xllcorner=0.0,
-        yllcorner=0.0,
-        axes_attributes=None,
-        crs=None,
-    ):
-        self.ncols = int(ncols)
-        self.nrows = int(nrows)
-        self.cellsize = float(cellsize)
-        self.xllcorner = float(xllcorner)
-        self.yllcorner = float(yllcorner)
-        self._axes_attributes = axes_attributes or (self.dim * [{}])
-        if len(self.axes_attributes) != self.dim:
-            raise ValueError("EsriGrid: wrong length of 'axes_attributes'")
-        self._crs = crs
-
-    @classmethod
-    def from_file(cls, file, axes_attributes=None, crs=None):
-        """
-        Generate EsriGrid from given file.
-
-        Parameters
-        ----------
-        file : pathlike
-            Path to the esri grid file
-        axes_attributes : list of dict or None, optional
-            Axes attributes following the CF convention (xyz order), by default None
-        crs : str or None, optional
-            The coordinate reference system, by default None
-
-        Returns
-        -------
-        EsriGrid
-            The grid specified in the file.
-        """
-        header = np.loadtxt(file, dtype=str, max_rows=5)
-        kwargs = {name: (float(v) if "." in v else int(v)) for (name, v) in header}
-        if "xllcenter" in kwargs:
-            kwargs["xllcorner"] = kwargs["xllcenter"] - 0.5 * kwargs["cellsize"]
-            del kwargs["xllcenter"]
-        if "yllcenter" in kwargs:
-            kwargs["yllcorner"] = kwargs["yllcenter"] - 0.5 * kwargs["cellsize"]
-            del kwargs["yllcenter"]
-        kwargs["crs"] = crs
-        kwargs["axes_attributes"] = axes_attributes
-        return cls(**kwargs)
-
-    @property
-    def dims(self):
-        """tuple: Axes lengths (xyz order)."""
-        return (self.ncols + 1, self.nrows + 1)
-
-    @property
-    def axes(self):
-        """list of np.ndarray: Axes of the structured grid in standard xyz order."""
-        return gen_axes(
-            dims=self.dims,
-            spacing=(self.cellsize, self.cellsize),
-            origin=(self.xllcorner, self.yllcorner),
-        )
-
-    @property
-    def axes_reversed(self):
-        """bool: Indicate reversed axes order for the associated data."""
-        # esri grid data given for y/x axes
-        return True
-
-    @property
-    def axes_increase(self):
-        """list of bool: False to indicate a bottom axis for y."""
-        # gdal and rioxarray convert esri grids to netcdf this way
-        return np.array([True, False], dtype=bool)
-
-    @property
-    def axes_attributes(self):
-        """list of dict: Axes attributes following the CF convention (xyz order)."""
-        return self._axes_attributes
-
-    @property
-    def order(self):
-        """str: Point, cell and data order (C-like)."""
-        return "C"
-
-    @property
-    def dim(self):
-        """int: Dimension of the grid."""
-        return 2
-
-    @property
-    def crs(self):
-        """The coordinate reference system."""
-        return self._crs
-
-    @property
-    def data_location(self):
-        """Location of the associated data."""
-        return Location.CELLS
-
-    def export_vtk(
-        self,
-        path,
-        data=None,
-        cell_data=None,
-        point_data=None,
-        field_data=None,
-        mesh_type="uniform",
-    ):
-        """
-        Export grid and data to a VTK file.
-
-        Parameters
-        ----------
-        path : pathlike
-            File path.
-            Suffix will be replaced according to mesh type (.vti, .vtr, .vtu)
-        data : dict or None, optional
-            Data in the corresponding shape given by name, by default None
-        cell_data : dict or None, optional
-            Additional cell data, by default None
-        point_data : dict or None, optional
-            Additional point data, by default None
-        field_data : dict or None, optional
-            Additional field data, by default None
-        mesh_type : str, optional
-            Mesh type ("uniform"/"structured"/"unstructured"),
-            by default "structured"
-
-        Raises
-        ------
-        ValueError
-            If mesh type is not supported.
-        """
-        if mesh_type != "uniform":
-            super().export_vtk(path, data, cell_data, point_data, field_data, mesh_type)
-        else:
-            data = prepare_vtk_data(data, self.axes_reversed, self.axes_increase)
-            kw = prepare_vtk_kwargs(
-                self.data_location, data, cell_data, point_data, field_data
-            )
-            origin = (self.xllcorner, self.yllcorner, 0.0)
-            spacing = (self.cellsize, self.cellsize, 1.0)
-            imageToVTK(path, origin, spacing, **kw)
-
-
-class UniformGrid(StructuredGrid):
-    """Regular grid with uniform spacing in up to three coordinate directions.
-
-    Parameters
-    ----------
-    dims : iterable
-        Dimensions of the uniform grid for each direction.
-        Spatial dimension will be determined by ``len(dims)``.
-    spacing : iterable, optional
-        Spacing of the uniform in each dimension.  Defaults to
-        ``(1.0, 1.0, 1.0)``. Must be positive.
-    origin : iterable, optional
-        Origin of the uniform grid.  Defaults to ``(0.0, 0.0, 0.0)``.
-    data_location : Location, optional
-        Data location in the grid, by default Location.CELLS
-    order : str, optional
-        Point and cell ordering.
-        Either Fortran-like ("F") or C-like ("C"), by default "F"
-    axes_reversed : bool, optional
-        Indicate reversed axes order for the associated data, by default False
-    axes_increase : arraylike or None, optional
-        False to indicate a bottom up axis (xyz order), by default None
-    axes_attributes : list of dict or None, optional
-        Axes attributes following the CF convention (xyz order), by default None
-    crs : str or None, optional
-        The coordinate reference system, by default None
-    """
-
-    def __init__(
-        self,
-        dims,
-        spacing=(1.0, 1.0, 1.0),
-        origin=(0.0, 0.0, 0.0),
-        data_location=Location.CELLS,
-        order="F",
-        axes_reversed=False,
-        axes_increase=None,
-        axes_attributes=None,
-        crs=None,
-    ):
-        # at most 3 axes
-        self._dims = tuple(dims)[:3]
-        self._dim = len(self.dims)
-        self.spacing = tuple(spacing)[: self.dim]
-        if len(self.spacing) < self.dim:
-            raise ValueError("UniformGrid: wrong length of 'spacing'")
-        self.origin = tuple(origin)[: self.dim]
-        if len(self.origin) < self.dim:
-            raise ValueError("UniformGrid: wrong length of 'origin'")
-
-        self._order = order
-        self._axes_reversed = bool(axes_reversed)
-        if axes_increase is not None:
-            self._axes_increase = np.asarray(axes_increase, dtype=bool)
-        else:
-            self._axes_increase = np.full(self.dim, True, dtype=bool)
-        if len(self.axes_increase) != self.dim:
-            raise ValueError("UniformGrid: wrong length of 'axes_increase'")
-
-        self._axes_attributes = axes_attributes or (self.dim * [{}])
-        if len(self.axes_attributes) != self.dim:
-            raise ValueError("UniformGrid: wrong length of 'axes_attributes'")
-        self._crs = crs
-        self._data_location = data_location
-
-    @property
-    def dims(self):
-        """tuple: Axes lengths (xyz order)."""
-        return self._dims
-
-    @property
-    def axes(self):
-        """list of np.ndarray: Grid points."""
-        return gen_axes(self.dims, self.spacing, self.origin)
-
-    @property
-    def axes_reversed(self):
-        """bool: Indicate reversed axes order for the associated data."""
-        return self._axes_reversed
-
-    @property
-    def axes_increase(self):
-        """list of bool: False to indicate a bottom up axis (xyz order)."""
-        return self._axes_increase
-
-    @property
-    def axes_attributes(self):
-        """list of dict: Axes attributes following the CF convention (xyz order)."""
-        return self._axes_attributes
-
-    @property
-    def order(self):
-        """str: Point, cell and data order (C- or Fortran-like)."""
-        # vtk files use Fortran-like data ordering for structured grids
-        return self._order
-
-    @property
-    def dim(self):
-        """int: Dimension of the grid."""
-        return self._dim
-
-    @property
-    def crs(self):
-        """The coordinate reference system."""
-        return self._crs
-
-    @property
-    def data_location(self):
-        """Location of the associated data (either CELLS or POINTS)."""
-        return self._data_location
-
-    def export_vtk(
-        self,
-        path,
-        data=None,
-        cell_data=None,
-        point_data=None,
-        field_data=None,
-        mesh_type="uniform",
-    ):
-        """
-        Export grid and data to a VTK file.
-
-        Parameters
-        ----------
-        path : pathlike
-            File path.
-            Suffix will be replaced according to mesh type (.vti, .vtr, .vtu)
-        data : dict or None, optional
-            Data in the corresponding shape given by name, by default None
-        cell_data : dict or None, optional
-            Additional cell data, by default None
-        point_data : dict or None, optional
-            Additional point data, by default None
-        field_data : dict or None, optional
-            Additional field data, by default None
-        mesh_type : str, optional
-            Mesh type ("uniform"/"structured"/"unstructured"),
-            by default "structured"
-
-        Raises
-        ------
-        ValueError
-            If mesh type is not supported.
-        """
-        if mesh_type != "uniform":
-            super().export_vtk(path, data, cell_data, point_data, field_data, mesh_type)
-        else:
-            data = prepare_vtk_data(data, self.axes_reversed, self.axes_increase)
-            kw = prepare_vtk_kwargs(
-                self.data_location, data, cell_data, point_data, field_data
-            )
-            path = str(Path(path).with_suffix(""))
-            origin = self.origin + (0.0,) * (3 - self.dim)
-            spacing = self.spacing + (1.0,) * (3 - self.dim)
-            imageToVTK(path, origin, spacing, **kw)
-
-
 class RectilinearGrid(StructuredGrid):
     """Regular grid with variable spacing in up to three coordinate directions.
 
@@ -429,6 +101,190 @@ class RectilinearGrid(StructuredGrid):
     def data_location(self):
         """Location of the associated data (either CELLS or POINTS)."""
         return self._data_location
+
+
+class UniformGrid(RectilinearGrid):
+    """Regular grid with uniform spacing in up to three coordinate directions.
+
+    Parameters
+    ----------
+    dims : iterable
+        Dimensions of the uniform grid for each direction.
+        Spatial dimension will be determined by ``len(dims)``.
+    spacing : iterable, optional
+        Spacing of the uniform in each dimension.  Defaults to
+        ``(1.0, 1.0, 1.0)``. Must be positive.
+    origin : iterable, optional
+        Origin of the uniform grid.  Defaults to ``(0.0, 0.0, 0.0)``.
+    data_location : Location, optional
+        Data location in the grid, by default Location.CELLS
+    order : str, optional
+        Point and cell ordering.
+        Either Fortran-like ("F") or C-like ("C"), by default "F"
+    axes_reversed : bool, optional
+        Indicate reversed axes order for the associated data, by default False
+    axes_increase : arraylike or None, optional
+        False to indicate a bottom up axis (xyz order), by default None
+    axes_attributes : list of dict or None, optional
+        Axes attributes following the CF convention (xyz order), by default None
+    crs : str or None, optional
+        The coordinate reference system, by default None
+    """
+
+    def __init__(
+        self,
+        dims,
+        spacing=(1.0, 1.0, 1.0),
+        origin=(0.0, 0.0, 0.0),
+        data_location=Location.CELLS,
+        order="F",
+        axes_reversed=False,
+        axes_increase=None,
+        axes_attributes=None,
+        crs=None,
+    ):
+        # at most 3 axes
+        dims = tuple(dims)[:3]
+        self.spacing = tuple(spacing)[: len(dims)]
+        if len(self.spacing) < len(dims):
+            raise ValueError("UniformGrid: wrong length of 'spacing'")
+        self.origin = tuple(origin)[: len(dims)]
+        if len(self.origin) < len(dims):
+            raise ValueError("UniformGrid: wrong length of 'origin'")
+        super().__init__(
+            axes=gen_axes(dims, self.spacing, self.origin, axes_increase),
+            data_location=data_location,
+            order=order,
+            axes_reversed=axes_reversed,
+            axes_attributes=axes_attributes,
+            crs=crs,
+        )
+
+    def export_vtk(
+        self,
+        path,
+        data=None,
+        cell_data=None,
+        point_data=None,
+        field_data=None,
+        mesh_type="uniform",
+    ):
+        """
+        Export grid and data to a VTK file.
+
+        Parameters
+        ----------
+        path : pathlike
+            File path.
+            Suffix will be replaced according to mesh type (.vti, .vtr, .vtu)
+        data : dict or None, optional
+            Data in the corresponding shape given by name, by default None
+        cell_data : dict or None, optional
+            Additional cell data, by default None
+        point_data : dict or None, optional
+            Additional point data, by default None
+        field_data : dict or None, optional
+            Additional field data, by default None
+        mesh_type : str, optional
+            Mesh type ("uniform"/"structured"/"unstructured"),
+            by default "structured"
+
+        Raises
+        ------
+        ValueError
+            If mesh type is not supported.
+        """
+        if mesh_type != "uniform":
+            super().export_vtk(path, data, cell_data, point_data, field_data, mesh_type)
+        else:
+            data = prepare_vtk_data(data, self.axes_reversed, self.axes_increase)
+            kw = prepare_vtk_kwargs(
+                self.data_location, data, cell_data, point_data, field_data
+            )
+            path = str(Path(path).with_suffix(""))
+            origin = self.origin + (0.0,) * (3 - self.dim)
+            spacing = self.spacing + (1.0,) * (3 - self.dim)
+            imageToVTK(path, origin, spacing, **kw)
+
+
+class EsriGrid(UniformGrid):
+    """
+    Esri grid raster specification.
+
+    Parameters
+    ----------
+    ncols : int
+        Number of columns.
+    nrows : int
+        Number of rows.
+    cellsize : float, optional
+        Cell size, by default 1.0
+    xllcorner : float, optional
+        x value of lower left corner, by default 0.0
+    yllcorner : float, optional
+        y value of lower left corner, by default 0.0
+    axes_attributes : list of dict or None, optional
+        Axes attributes following the CF convention (xyz order), by default None
+    crs : str or None, optional
+        The coordinate reference system, by default None
+    """
+
+    def __init__(
+        self,
+        ncols,
+        nrows,
+        cellsize=1.0,
+        xllcorner=0.0,
+        yllcorner=0.0,
+        axes_attributes=None,
+        crs=None,
+    ):
+        self.ncols = int(ncols)
+        self.nrows = int(nrows)
+        self.cellsize = float(cellsize)
+        self.xllcorner = float(xllcorner)
+        self.yllcorner = float(yllcorner)
+        super().__init__(
+            dims=(self.ncols + 1, self.nrows + 1),
+            spacing=(self.cellsize, self.cellsize),
+            origin=(self.xllcorner, self.yllcorner),
+            order="C",
+            axes_reversed=True,
+            axes_increase=(True, False),
+            axes_attributes=axes_attributes,
+            crs=crs,
+        )
+
+    @classmethod
+    def from_file(cls, file, axes_attributes=None, crs=None):
+        """
+        Generate EsriGrid from given file.
+
+        Parameters
+        ----------
+        file : pathlike
+            Path to the esri grid file
+        axes_attributes : list of dict or None, optional
+            Axes attributes following the CF convention (xyz order), by default None
+        crs : str or None, optional
+            The coordinate reference system, by default None
+
+        Returns
+        -------
+        EsriGrid
+            The grid specified in the file.
+        """
+        header = np.loadtxt(file, dtype=str, max_rows=5)
+        kwargs = {name: (float(v) if "." in v else int(v)) for (name, v) in header}
+        if "xllcenter" in kwargs:
+            kwargs["xllcorner"] = kwargs["xllcenter"] - 0.5 * kwargs["cellsize"]
+            del kwargs["xllcenter"]
+        if "yllcenter" in kwargs:
+            kwargs["yllcorner"] = kwargs["yllcenter"] - 0.5 * kwargs["cellsize"]
+            del kwargs["yllcenter"]
+        kwargs["crs"] = crs
+        kwargs["axes_attributes"] = axes_attributes
+        return cls(**kwargs)
 
 
 class UnstructuredGrid(Grid):

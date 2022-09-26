@@ -78,7 +78,7 @@ def gen_node_centers(grid):
     return result
 
 
-def gen_axes(dims, spacing, origin):
+def gen_axes(dims, spacing, origin, axes_increase=None):
     """
     Generate uniform axes.
 
@@ -90,15 +90,23 @@ def gen_axes(dims, spacing, origin):
         Spacing of the uniform in each dimension. Must be positive.
     origin : iterable
         Origin of the uniform grid.
+    axes_increase : arraylike or None, optional
+        False to indicate a bottom up axis (in xyz order), by default None
 
     Returns
     -------
     list of np.ndarray
         Axes of the uniform grid.
     """
+    if axes_increase is None:
+        axes_increase = np.full(len(dims), True, dtype=bool)
+    if len(axes_increase) != len(dims):
+        raise ValueError("gen_axes: wrong length of 'axes_increase'")
     axes = []
     for i, d in enumerate(dims):
         axes.append(np.arange(d) * spacing[i] + origin[i])
+        if not axes_increase[i]:
+            axes[i] = axes[i][::-1]
     return axes
 
 
@@ -467,6 +475,16 @@ class Grid(ABC):
         return (len(self.data_points),)
 
     @property
+    def data_size(self):
+        """int: Size of the associated data."""
+        return np.prod(self.data_shape)
+
+    @property
+    def order(self):
+        """str: Point, cell and data order (C-like for flat data)."""
+        return "C"
+
+    @property
     def name(self):
         """Grid name."""
         return self.__class__.__name__
@@ -507,7 +525,6 @@ class Grid(ABC):
         kw = prepare_vtk_kwargs(
             self.data_location, data, cell_data, point_data, field_data
         )
-
         if mesh_type == "unstructured":
             path = str(Path(path).with_suffix(""))
             # don't create increasing axes
