@@ -49,7 +49,7 @@ class Regrid(AAdapter):
             with LogError(self.logger):
                 raise FinamMetaDataError("Missing source grid specification")
 
-        if self.in_spec is not None and self.in_spec != info["grid_spec"]:
+        if self.out_spec is not None and self.out_spec != request_params["grid_spec"]:
             with LogError(self.logger):
                 raise FinamMetaDataError(
                     "Target grid specification is already set, new specs differ"
