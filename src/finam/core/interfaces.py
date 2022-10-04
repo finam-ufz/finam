@@ -183,6 +183,21 @@ class IInput(ABC):
             Data set for the given simulation time.
         """
 
+    @abstractmethod
+    def pull_info(self, request_params):
+        """Retrieve the data from the input's source.
+
+        Parameters
+        ----------
+        request_params : dict
+            Dictionary of request parameters
+
+        Returns
+        -------
+        dict
+            Dictionary of request parameters
+        """
+
 
 class IOutput(ABC):
     """Interface for output slots."""
@@ -222,6 +237,16 @@ class IOutput(ABC):
         """
 
     @abstractmethod
+    def push_info(self, request_params):
+        """Push data info into the output.
+
+        Parameters
+        ----------
+        request_params : dict
+            Data request parameters to push
+        """
+
+    @abstractmethod
     def notify_targets(self, time):
         """Notify all targets by calling their ``source_changed(time)`` method.
 
@@ -250,6 +275,26 @@ class IOutput(ABC):
         ------
         FinamNoDataError
             Raises the error if no data is available
+        """
+
+    @abstractmethod
+    def get_info(self, request_params):
+        """Get the output's data info.
+
+        Parameters
+        ----------
+        request_params : dict
+            Data request parameters
+
+        Returns
+        -------
+        dict
+            Data info.
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no info is available
         """
 
     @abstractmethod

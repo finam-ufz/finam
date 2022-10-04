@@ -219,6 +219,22 @@ class Input(IInput, Loggable):
 
         return self.source.get_data(time)
 
+    def pull_info(self, request_params):
+        """Retrieve the data from the input's source.
+
+        Parameters
+        ----------
+        request_params : dict
+            Dictionary of request parameters
+
+        Returns
+        -------
+        dict
+            Dictionary of request parameters
+        """
+        self.logger.debug("pull info")
+        return self.source.get_info(request_params)
+
     @property
     def has_source(self):
         """Flag if this input instance has a source."""
@@ -275,6 +291,7 @@ class Output(IOutput, Loggable):
     def __init__(self):
         self.targets = []
         self.data = None
+        self.info = None
         self.base_logger_name = None
         self.name = ""
 
@@ -324,6 +341,17 @@ class Output(IOutput, Loggable):
         self.data = data
         self.notify_targets(time)
 
+    def push_info(self, request_params):
+        """Push data info into the output.
+
+        Parameters
+        ----------
+        request_params : dict
+            Data request parameters to push
+        """
+        self.logger.debug("push info")
+        self.info = request_params
+
     def notify_targets(self, time):
         """Notify all targets by calling their ``source_changed(time)`` method.
 
@@ -359,10 +387,37 @@ class Output(IOutput, Loggable):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
 
+        if self.info is None:
+            raise FinamNoDataError(f"No data info available in {self.name}")
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
         return self.data
+
+    def get_info(self, request_params):
+        """Get the output's data info.
+
+        Parameters
+        ----------
+        request_params : dict
+            Data request parameters
+
+        Returns
+        -------
+        dict
+            Data info.
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no info is available
+        """
+        self.logger.debug("get info")
+
+        if self.info is None:
+            raise FinamNoDataError(f"No data info available in {self.name}")
+
+        return self.info
 
     def chain(self, other):
         """Chain outputs and adapters.
@@ -441,6 +496,28 @@ class AAdapter(IAdapter, Input, Output, ABC):
                 raise ValueError("Time must be of type datetime")
 
         self.notify_targets(time)
+
+    def get_info(self, request_params):
+        """Get the output's data info.
+
+        Parameters
+        ----------
+        request_params : dict
+            Data request parameters
+
+        Returns
+        -------
+        dict
+            Data info.
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no info is available
+        """
+        self.logger.debug("get info")
+
+        return self.pull_info(request_params)
 
     @property
     def name(self):
