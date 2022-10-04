@@ -19,7 +19,7 @@ from finam.modules.generators import CallbackGenerator
 class TestNextValue(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": lambda t: t.day - 1},
+            callbacks={"Step": (lambda t: t.day - 1, {})},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -52,7 +52,7 @@ class TestNextValue(unittest.TestCase):
 class TestPreviousValue(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": lambda t: t.day - 1},
+            callbacks={"Step": (lambda t: t.day - 1, {})},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -88,7 +88,7 @@ class TestPreviousValue(unittest.TestCase):
 class TestLinearInterpolation(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": lambda t: t.day - 1},
+            callbacks={"Step": (lambda t: t.day - 1, {})},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -123,7 +123,7 @@ class TestLinearInterpolation(unittest.TestCase):
 class TestLinearGridInterpolation(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: create_grid(t.day - 1)},
+            callbacks={"Grid": (lambda t: create_grid(t.day - 1), {})},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -158,7 +158,7 @@ class TestLinearGridInterpolation(unittest.TestCase):
 class TestLinearIntegration(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": lambda t: t.day - 1},
+            callbacks={"Step": (lambda t: t.day - 1, {})},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -193,7 +193,7 @@ class TestLinearIntegration(unittest.TestCase):
 class TestLinearGridIntegration(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: create_grid(t.day - 1)},
+            callbacks={"Grid": (lambda t: create_grid(t.day - 1), {})},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )

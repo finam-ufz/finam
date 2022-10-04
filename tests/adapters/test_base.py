@@ -21,7 +21,7 @@ from finam.modules.generators import CallbackGenerator
 class TestCallback(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": lambda t: t.day - 1},
+            callbacks={"Step": (lambda t: t.day - 1, {})},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -47,7 +47,7 @@ class TestCallback(unittest.TestCase):
 class TestScale(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": lambda t: t.day - 1},
+            callbacks={"Step": (lambda t: t.day - 1, {})},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -78,7 +78,7 @@ class TestGridCallback(unittest.TestCase):
             grid.set_masked(4, r)
 
         self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: grid},
+            callbacks={"Grid": (lambda t: grid, {})},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -116,7 +116,7 @@ class TestGridToValue(unittest.TestCase):
         grid.fill(1.0)
 
         self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: grid},
+            callbacks={"Grid": (lambda t: grid, {})},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -150,7 +150,7 @@ class TestValueToGrid(unittest.TestCase):
         matrix.fill(1.0)
 
         self.source = CallbackGenerator(
-            callbacks={"Value": lambda t: 1.0},
+            callbacks={"Value": (lambda t: 1.0, {})},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )

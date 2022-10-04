@@ -20,14 +20,14 @@ def consume(inputs, time):
 class TestCallback(unittest.TestCase):
     def test_callback(self):
         source = CallbackGenerator(
-            callbacks={"Out1": lambda t: np.random.random(1)[0]},
+            callbacks={"Out1": (lambda t: np.random.random(1)[0], {})},
             start=datetime(2000, 1, 1),
             step=timedelta(days=7),
         )
 
         trans = CallbackComponent(
             inputs=["In1"],
-            outputs=["Out1"],
+            outputs={"Out1": {}},
             callback=transform,
             start=datetime(2000, 1, 1),
             step=timedelta(days=7),
@@ -35,7 +35,7 @@ class TestCallback(unittest.TestCase):
 
         consumer = CallbackComponent(
             inputs=["In1"],
-            outputs=[],
+            outputs={},
             callback=consume,
             start=datetime(2000, 1, 1),
             step=timedelta(days=7),

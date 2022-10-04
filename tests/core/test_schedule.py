@@ -38,6 +38,7 @@ class MockupComponent(ATimeComponent):
     def connect(self):
         super().connect()
         for key, callback in self._callbacks.items():
+            self._outputs[key].push_info({"test": 0})
             self._outputs[key].push_data(callback(self._time), self.time)
 
         self.status = ComponentStatus.CONNECTED
@@ -75,7 +76,8 @@ class MockupDependentComponent(ATimeComponent):
     def connect(self):
         super().connect()
         try:
-            _pulled = self._inputs["Input"].pull_data(self.time)
+            _info = self.inputs["Input"].pull_info({"test": 0})
+            _pulled = self.inputs["Input"].pull_data(self.time)
         except FinamNoDataError:
             self.status = ComponentStatus.CONNECTING_IDLE
             return
@@ -113,11 +115,13 @@ class MockupCircularComponent(ATimeComponent):
     def connect(self):
         super().connect()
         try:
+            _info = self.inputs["Input"].pull_info({"test": 0})
             pulled = self._inputs["Input"].pull_data(self.time)
         except FinamNoDataError:
             self.status = ComponentStatus.CONNECTING_IDLE
             return
 
+        self._outputs["Output"].push_info({"test": 0})
         self._outputs["Output"].push_data(pulled, self.time)
 
         self.status = ComponentStatus.CONNECTED

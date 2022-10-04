@@ -26,6 +26,7 @@ class TestProbe(unittest.TestCase):
 
         out >> adapter >> inp
 
+        out.push_info({})
         out.push_data(100, datetime(2000, 1, 1))
         inp.pull_data(datetime(2000, 1, 1))
 

@@ -69,6 +69,7 @@ class TestOutput(unittest.TestCase):
     def test_push_notify(self):
         counter = 0
         t = datetime(2000, 1, 1)
+        info = {"test": 0}
 
         def callback(clr, time):
             nonlocal counter
@@ -79,11 +80,14 @@ class TestOutput(unittest.TestCase):
 
         out >> inp
 
+        out.push_info(info)
         out.push_data(100, t)
 
         self.assertTrue(inp.has_source)
         self.assertTrue(out.has_targets)
+        self.assertEqual(out.get_info(info), info)
         self.assertEqual(out.get_data(t), 100)
+        self.assertEqual(inp.pull_info(info), info)
         self.assertEqual(inp.pull_data(t), 100)
         self.assertEqual(counter, 1)
 

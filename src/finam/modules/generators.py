@@ -20,8 +20,8 @@ class CallbackGenerator(ATimeComponent):
 
     Parameters
     ----------
-    callbacks : list of callable
-        List of callbacks ``callback(data, time)``, returning the transformed data.
+    callbacks : dict of callable
+        Dict of tuples (callback, info). ``callback(data, time)`` per output name, returning the generated data.
     start : datetime
         Starting time.
     step : timedelta
@@ -61,7 +61,8 @@ class CallbackGenerator(ATimeComponent):
         """
         super().connect()
 
-        for key, callback in self._callbacks.items():
+        for key, (callback, info) in self._callbacks.items():
+            self._outputs[key].push_info(info)
             self._outputs[key].push_data(callback(self._time), self.time)
 
         self.status = ComponentStatus.CONNECTED
@@ -85,7 +86,7 @@ class CallbackGenerator(ATimeComponent):
 
         self._time += self._step
 
-        for key, callback in self._callbacks.items():
+        for key, (callback, _) in self._callbacks.items():
             self._outputs[key].push_data(callback(self._time), self.time)
 
         self.status = ComponentStatus.UPDATED

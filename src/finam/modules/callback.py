@@ -14,8 +14,8 @@ class CallbackComponent(ATimeComponent):
     ----------
     inputs : list of str
         Input names.
-    outputs : list of str
-        Output names.
+    outputs : dict of (name, info)
+        Output names and data info.
     callback
         Callback f({inputs}, time) -> {outputs}
     start : datetime
@@ -34,7 +34,7 @@ class CallbackComponent(ATimeComponent):
                 raise ValueError("Step must be of type timedelta")
 
         self._input_names = inputs
-        self._output_names = outputs
+        self._output_infos = outputs
         self._callback = callback
         self._step = step
         self._time = start
@@ -46,7 +46,7 @@ class CallbackComponent(ATimeComponent):
         for name in self._input_names:
             self._inputs[name] = Input()
 
-        for name in self._output_names:
+        for name, _ in self._output_infos.items():
             self._outputs[name] = Output()
 
         self.status = ComponentStatus.INITIALIZED
@@ -58,6 +58,7 @@ class CallbackComponent(ATimeComponent):
         outp = self._callback(inp, self.time)
 
         for name, val in outp.items():
+            self._outputs[name].push_info(self._output_infos[name])
             self._outputs[name].push_data(val, self.time)
 
         self.status = ComponentStatus.CONNECTED
