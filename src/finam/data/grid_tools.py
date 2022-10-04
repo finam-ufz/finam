@@ -519,6 +519,19 @@ class Grid(GridBase):
         """str: Point, cell and data order (C-like for flat data)."""
         return "C"
 
+    def __eq__(self, other):
+        if not isinstance(other, Grid):
+            return False
+
+        # Might comparison of data_points be sufficient here?
+        return (
+            self.dim == other.dim
+            and self.crs == other.crs
+            and self.order == other.order
+            and self.data_location == other.data_location
+            and np.array_equal(self.data_points, other.data_points)
+        )
+
     def export_vtk(
         self,
         path,
