@@ -22,6 +22,10 @@ class FinamNoDataError(Exception):
     """Error for data not yet being available."""
 
 
+class FinamMetaDataError(Exception):
+    """Error for missing but required metadata."""
+
+
 class ComponentStatus(Enum):
     """Status for components."""
 
