@@ -220,7 +220,7 @@ def gen_cells(dims, order="F"):
 
 def check_axes_monotonicity(axes):
     """
-    Check axes to be strictly monotonic.
+    Check axes to be strictly monotonic, and makes them strictly monotonic increasing.
 
     Parameters
     ----------
