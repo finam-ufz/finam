@@ -5,6 +5,7 @@ from numpy.testing import assert_array_equal
 
 from finam.data.grid_spec import UniformGrid, UnstructuredGrid
 from finam.data.grid_tools import (
+    CellType,
     check_axes_monotonicity,
     gen_axes,
     gen_cells,
@@ -33,14 +34,16 @@ class TestGridTools(unittest.TestCase):
         assert_array_equal(gen_node_centers(uniform), [[2.0, 2.0], [2.0, 4.0]])
 
         unstruct = UnstructuredGrid(
-            points=[[0.0, 0.0], [0.0, 3.0], [3.0, 0.0]], cells=[0, 1, 2], cell_types=[3]
+            points=[[0.0, 0.0], [0.0, 3.0], [3.0, 0.0]],
+            cells=[0, 1, 2],
+            cell_types=[CellType.TRI.value],
         )
         assert_array_equal(gen_node_centers(unstruct), [[1.0, 1.0]])
 
         unstruct = UnstructuredGrid(
             points=[[0.0, 0.0], [0.0, 2.0], [2.0, 2.0], [2.0, 0.0]],
             cells=[0, 1, 2, 3],
-            cell_types=[4],
+            cell_types=[CellType.QUAD.value],
         )
         assert_array_equal(gen_node_centers(unstruct), [[1.0, 1.0]])
 
