@@ -1,5 +1,5 @@
 """
-Basic linear and NN regridding adapter.
+Basic linear and nearest neighbour regridding adapters.
 """
 from abc import ABC, abstractmethod
 
@@ -87,7 +87,14 @@ class Nearest(ARegridding):
 
 
 class Linear(ARegridding):
-    """Regrid data between two grid specifications with linear interpolation"""
+    """
+    Regrid data between two grid specifications with linear interpolation.
+
+    Uses ``scipy.interpolate.RegularGridInterpolator`` for structured grids.
+    For unstructured grids, ``scipy.interpolate.LinearNDInterpolator`` is used,
+    which performs triangulation internally.
+    So the actual topology of the grid is not taken into account.
+    """
 
     def __init__(self, fill_with_nearest=False, tree_options=None):
         super().__init__()

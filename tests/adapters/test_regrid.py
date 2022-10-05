@@ -61,9 +61,9 @@ class TestRegrid(unittest.TestCase):
         reg = pint.UnitRegistry(force_ndarray_like=True)
 
         in_spec = UniformGrid(
-            dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
+            dims=(5, 10), spacing=(3.0, 3.0, 3.0), data_location=Location.POINTS
         )
-        out_spec = UniformGrid(dims=(9, 19), data_location=Location.POINTS)
+        out_spec = UniformGrid(dims=(14, 29), data_location=Location.POINTS)
 
         in_data = xr.DataArray(
             np.zeros(shape=in_spec.data_shape, order=in_spec.order)
@@ -90,6 +90,9 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink.data[0, 1], 1.0 * reg.meter)
         self.assertEqual(sink.data[1, 0], 1.0 * reg.meter)
         self.assertEqual(sink.data[1, 1], 1.0 * reg.meter)
+        self.assertEqual(sink.data[0, 2], 0.0 * reg.meter)
+        self.assertEqual(sink.data[2, 0], 0.0 * reg.meter)
+        self.assertEqual(sink.data[2, 2], 0.0 * reg.meter)
 
     def test_regrid_linear(self):
         reg = pint.UnitRegistry(force_ndarray_like=True)
