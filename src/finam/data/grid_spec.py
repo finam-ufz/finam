@@ -5,6 +5,7 @@ import numpy as np
 from pyevtk.hl import imageToVTK
 
 from .grid_tools import (
+    CellType,
     Grid,
     GridBase,
     Location,
@@ -407,8 +408,9 @@ class UnstructuredPoints(UnstructuredGrid):
         super().__init__(
             points=points,
             cells=np.asarray([range(pnt_cnt)], dtype=int).T,
-            cell_types=np.full(pnt_cnt, 0, dtype=int),
+            cell_types=np.full(pnt_cnt, CellType.VERTEX.value, dtype=int),
             data_location=Location.POINTS,
+            crs=crs,
         )
 
     @property
