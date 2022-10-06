@@ -298,7 +298,7 @@ class UnstructuredGrid(Grid):
     cells : arraylike
         Cells given by set list of point IDs defining the grid.
     cell_types : arraylike
-        Cell types given as integer.
+        Cell types given as integer, e.g. CellType.TRI.value.
     data_location : Location, optional
         Data location in the grid, by default Location.CELLS
     crs : str or None, optional
