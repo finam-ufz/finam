@@ -332,6 +332,13 @@ class Output(IOutput, Loggable):
 
         return self._info
 
+    def has_info(self):
+        """Returns if the output has a data info.
+
+        The info is not required to be validly exchanged.
+        """
+        return self._info is not None
+
     def add_target(self, target):
         """Add a target input or adapter for this output.
 

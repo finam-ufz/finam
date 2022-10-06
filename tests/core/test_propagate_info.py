@@ -10,6 +10,7 @@ from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
 from finam.data import Info
 from finam.modules.generators import CallbackGenerator
+from finam.tools.connect_helper import ConnectHelper
 
 
 class MockupConsumer(ATimeComponent):
@@ -21,21 +22,19 @@ class MockupConsumer(ATimeComponent):
         self.info = info
         self.data = None
 
+        self.connector = None
+
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
+        self.inputs["Input"] = Input()
+        self.connector = ConnectHelper(self.inputs, self.outputs)
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-
-        try:
-            self.inputs["Input"].exchange_info(self.info)
-        except FinamNoDataError:
-            self.status = ComponentStatus.CONNECTING_IDLE
-            return
-
-        self.status = ComponentStatus.CONNECTED
+        self.status = self.connector.connect(
+            self.time, exchange_infos={"Input": self.info}
+        )
 
     def validate(self):
         super().validate()
@@ -62,20 +61,22 @@ class MockupProducer(ATimeComponent):
         self.step = timedelta(days=1)
         self.info = info
 
+        self.out_info = None
+
+        self.connector = None
+
     def initialize(self):
         super().initialize()
         self.outputs["Output"] = Output(self.info)
+        self.connector = ConnectHelper(
+            self.inputs, self.outputs, required_out_infos=["Output"]
+        )
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        try:
-            _info = self.outputs["Output"].info
-        except FinamNoDataError:
-            self.status = ComponentStatus.CONNECTING_IDLE
-            return
-
-        self.status = ComponentStatus.CONNECTED
+        self.status = self.connector.connect(self.time, push_data={"Output": 1})
+        self.out_info = self.connector.out_infos["Output"]
 
     def validate(self):
         super().validate()
@@ -206,5 +207,9 @@ class TestPropagate(unittest.TestCase):
 
         self.assertEqual(
             source.outputs["Output"].info,
+            Info(grid="sink_spec", meta={"unit": "sink_unit"}),
+        )
+        self.assertEqual(
+            source.out_info,
             Info(grid="sink_spec", meta={"unit": "sink_unit"}),
         )

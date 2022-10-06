@@ -223,6 +223,13 @@ class IOutput(ABC):
         """
 
     @abstractmethod
+    def has_info(self):
+        """Returns if the output has a data info.
+
+        The info is not required to be validly exchanged.
+        """
+
+    @abstractmethod
     def add_target(self, target):
         """Add a target input or adapter for this output.
 

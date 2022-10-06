@@ -15,6 +15,7 @@ from finam.core.interfaces import (
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
 from finam.data import Info, NoGrid
+from finam.tools.connect_helper import ConnectHelper
 
 
 class MockupComponent(ATimeComponent):
@@ -68,39 +69,22 @@ class MockupDependentComponent(ATimeComponent):
         self._time = datetime(2000, 1, 1)
         self.status = ComponentStatus.CREATED
 
-        self._exchanged = False
-        self._pulled = False
+        self.connector = None
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
+        self.inputs["Input"] = Input()
+        self.connector = ConnectHelper(
+            self.inputs, self.outputs, required_in_data=["Input"]
+        )
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        any_done = False
-        if not self._exchanged:
-            try:
-                self.inputs["Input"].exchange_info(Info(grid=NoGrid))
-                any_done = True
-                self._exchanged = True
-            except FinamNoDataError:
-                pass
 
-        if not self._pulled:
-            try:
-                _pulled = self.inputs["Input"].pull_data(self.time)
-                any_done = True
-                self._pulled = True
-            except FinamNoDataError:
-                pass
-
-        if self._exchanged and self._pulled:
-            self.status = ComponentStatus.CONNECTED
-        elif any_done:
-            self.status = ComponentStatus.CONNECTING
-        else:
-            self.status = ComponentStatus.CONNECTING_IDLE
+        self.status = self.connector.connect(
+            self.time, exchange_infos={"Input": Info(grid=NoGrid)}
+        )
 
     def validate(self):
         super().validate()
@@ -124,43 +108,29 @@ class MockupCircularComponent(ATimeComponent):
         self._time = datetime(2000, 1, 1)
         self.status = ComponentStatus.CREATED
 
-        self._exchanged = False
-        self._pulled = False
+        self.pulled_data = None
+        self.connector = None
 
     def initialize(self):
         super().initialize()
         self._inputs["Input"] = Input()
         self._outputs["Output"] = Output(Info(grid=NoGrid))
+        self.connector = ConnectHelper(
+            self.inputs, self.outputs, required_in_data=["Input"]
+        )
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        any_done = False
-        if not self._exchanged:
-            try:
-                self.inputs["Input"].exchange_info(Info(grid=NoGrid))
-                any_done = True
-                self._exchanged = True
-            except FinamNoDataError:
-                pass
 
-        if not self._pulled:
-            try:
-                pulled = self.inputs["Input"].pull_data(self.time)
-                any_done = True
-                self._pulled = True
-            except FinamNoDataError:
-                pass
+        push_data = {}
+        pulled_data = self.connector.data["Input"]
+        if pulled_data is not None:
+            push_data["Output"] = pulled_data
 
-        if self._exchanged and self._pulled:
-            self._outputs["Output"].push_info(Info(grid=NoGrid))
-            self._outputs["Output"].push_data(pulled, self.time)
-
-            self.status = ComponentStatus.CONNECTED
-        elif any_done:
-            self.status = ComponentStatus.CONNECTING
-        else:
-            self.status = ComponentStatus.CONNECTING_IDLE
+        self.status = self.connector.connect(
+            self.time, exchange_infos={"Input": Info(grid=NoGrid)}, push_data=push_data
+        )
 
     def validate(self):
         super().validate()
