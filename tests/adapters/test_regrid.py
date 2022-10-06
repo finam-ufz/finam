@@ -30,11 +30,12 @@ class MockupConsumer(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input(Info(grid=self.grid_spec))
+        self._inputs["Input"] = Input()
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
+        self.data = self.inputs["Input"].exchange_info(Info(grid=self.grid_spec))
         self.data = self.inputs["Input"].pull_data(self.time)
         self.status = ComponentStatus.CONNECTED
 

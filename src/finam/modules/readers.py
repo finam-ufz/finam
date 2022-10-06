@@ -6,7 +6,7 @@ from datetime import datetime
 
 from ..core.interfaces import ComponentStatus
 from ..core.sdk import ATimeComponent, Output
-from ..data import Info
+from ..data import Info, NoGrid
 
 
 class CsvReader(ATimeComponent):
@@ -42,7 +42,7 @@ class CsvReader(ATimeComponent):
         self._row_index = 0
 
         self._output_names = outputs
-        self._outputs = {o: Output() for o in outputs}
+        self._outputs = {o: Output(Info(grid=NoGrid)) for o in outputs}
 
         self.status = ComponentStatus.CREATED
 
@@ -66,9 +66,6 @@ class CsvReader(ATimeComponent):
         After the method call, the component should have status CONNECTED.
         """
         super().connect()
-
-        for o in self._output_names:
-            self._outputs[o].push_info(Info())
 
         self._time = self._push_row(self._data.iloc[self._row_index])
         self._row_index += 1

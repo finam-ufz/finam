@@ -146,12 +146,16 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
 class Input(IInput, Loggable):
     """Default input implementation."""
 
-    def __init__(self, info=None):
+    def __init__(self):
         self.source = None
         self.base_logger_name = None
         self.name = ""
-        self.info = info
-        self.info_exchanged = False
+        self._info = None
+
+    @property
+    def info(self):
+        """Info: The input's data info."""
+        return self._info
 
     def set_source(self, source):
         """Set the input's source output or adapter
@@ -221,9 +225,6 @@ class Input(IInput, Loggable):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        if not self.info_exchanged:
-            self.exchange_info(self.info)
-
         return self.source.get_data(time)
 
     def exchange_info(self, info):
@@ -253,8 +254,7 @@ class Input(IInput, Loggable):
                 with LogError(self.logger):
                     raise FinamMetaDataError("Can't accept incoming data info")
 
-        self.info = in_info
-        self.info_exchanged = True
+        self._info = in_info
         return in_info
 
     @property
@@ -286,8 +286,8 @@ class CallbackInput(Input):
         A callback ``callback(data, time)``, returning the transformed data.
     """
 
-    def __init__(self, callback, info=None):
-        super().__init__(info)
+    def __init__(self, callback):
+        super().__init__()
         self.source = None
         self.callback = callback
 
@@ -313,12 +313,24 @@ class Output(IOutput, Loggable):
     def __init__(self, info=None):
         self.targets = []
         self.data = None
-        self.info = None
+        self._info = None
         self.base_logger_name = None
         self.name = ""
 
         if info is not None:
             self.push_info(info)
+
+        self._info_exchanged = False
+
+    @property
+    def info(self):
+        """Info: The input's data info."""
+        if self._info is None:
+            raise FinamNoDataError("No data info available")
+        if not self._info_exchanged:
+            raise FinamNoDataError("Data info was not exchanged yet")
+
+        return self._info
 
     def add_target(self, target):
         """Add a target input or adapter for this output.
@@ -378,7 +390,7 @@ class Output(IOutput, Loggable):
         if not isinstance(info, Info):
             with LogError(self.logger):
                 raise FinamMetaDataError("Metadata must be of type Info")
-        self.info = info
+        self._info = info
 
     def notify_targets(self, time):
         """Notify all targets by calling their ``source_changed(time)`` method.
@@ -415,15 +427,17 @@ class Output(IOutput, Loggable):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        if self.info is None:
+        if self._info is None:
             raise FinamNoDataError(f"No data info available in {self.name}")
+        if not self._info_exchanged:
+            raise FinamNoDataError(f"Data info was not yet exchanged in {self.name}")
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
         return self.data
 
     def get_info(self, info):
-        """Get the output's data info.
+        """Exchange and get the output's data info.
 
         Parameters
         ----------
@@ -442,26 +456,27 @@ class Output(IOutput, Loggable):
         """
         self.logger.debug("get info")
 
-        if self.info is None:
+        if self._info is None:
             raise FinamNoDataError("No data info available")
 
-        if self.info.grid is None:
+        if self._info.grid is None:
             if info.grid is None:
                 raise FinamNoDataError(
                     "Can't set property `grid` from target info, as it is not provided"
                 )
 
-            self.info.grid = info.grid
+            self._info.grid = info.grid
 
-        for k, v in self.info.meta.items():
+        for k, v in self._info.meta.items():
             if v is None:
                 if k not in info.meta or info.meta[k] is None:
                     raise FinamNoDataError(
                         f"Can't set property `meta.{k}` from target info, as it is not provided"
                     )
 
-                self.info.meta[k] = info.meta[k]
+                self._info.meta[k] = info.meta[k]
 
+        self._info_exchanged = True
         return self.info
 
     def chain(self, other):
@@ -543,7 +558,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
         self.notify_targets(time)
 
     def get_info(self, info):
-        """Get the output's data info.
+        """Exchange and get the output's data info.
 
         Parameters
         ----------

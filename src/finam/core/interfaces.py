@@ -142,6 +142,11 @@ class IMpiComponent(ABC):
 class IInput(ABC):
     """Interface for input slots."""
 
+    @property
+    @abstractmethod
+    def info(self):
+        """Info: The input's data info."""
+
     @abstractmethod
     def set_source(self, source):
         """Set the input's source output or adapter
@@ -205,6 +210,17 @@ class IInput(ABC):
 
 class IOutput(ABC):
     """Interface for output slots."""
+
+    @property
+    @abstractmethod
+    def info(self):
+        """Info: The output's data info.
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if infos were not yet exchanged
+        """
 
     @abstractmethod
     def add_target(self, target):
@@ -283,7 +299,7 @@ class IOutput(ABC):
 
     @abstractmethod
     def get_info(self, info):
-        """Get the output's data info.
+        """Exchange and get the output's data info.
 
         Parameters
         ----------

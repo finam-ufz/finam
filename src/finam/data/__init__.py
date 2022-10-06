@@ -15,6 +15,7 @@ from .grid_spec import (
 __all__ = [
     "assert_type",
     "EsriGrid",
+    "Info",
     "NoGrid",
     "RectilinearGrid",
     "UniformGrid",

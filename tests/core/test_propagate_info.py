@@ -5,9 +5,9 @@ import copy
 import unittest
 from datetime import datetime, timedelta
 
-from finam.core.interfaces import ComponentStatus
+from finam.core.interfaces import ComponentStatus, FinamNoDataError
 from finam.core.schedule import Composition
-from finam.core.sdk import AAdapter, ATimeComponent, Input
+from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
 from finam.data import Info
 from finam.modules.generators import CallbackGenerator
 
@@ -23,11 +23,18 @@ class MockupConsumer(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input(self.info)
+        self._inputs["Input"] = Input()
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
+
+        try:
+            self.inputs["Input"].exchange_info(self.info)
+        except FinamNoDataError:
+            self.status = ComponentStatus.CONNECTING_IDLE
+            return
+
         self.status = ComponentStatus.CONNECTED
 
     def validate(self):
@@ -39,6 +46,46 @@ class MockupConsumer(ATimeComponent):
 
         self.data = self.inputs["Input"].pull_data(self.time)
         self.time += self.step
+
+        self.status = ComponentStatus.UPDATED
+
+    def finalize(self):
+        super().finalize()
+        self.status = ComponentStatus.FINALIZED
+
+
+class MockupProducer(ATimeComponent):
+    def __init__(self, time, info):
+        super().__init__()
+        self.status = ComponentStatus.CREATED
+        self.time = time
+        self.step = timedelta(days=1)
+        self.info = info
+
+    def initialize(self):
+        super().initialize()
+        self.outputs["Output"] = Output(self.info)
+        self.status = ComponentStatus.INITIALIZED
+
+    def connect(self):
+        super().connect()
+        try:
+            _info = self.outputs["Output"].info
+        except FinamNoDataError:
+            self.status = ComponentStatus.CONNECTING_IDLE
+            return
+
+        self.status = ComponentStatus.CONNECTED
+
+    def validate(self):
+        super().validate()
+        self.status = ComponentStatus.VALIDATED
+
+    def update(self):
+        super().update()
+
+        self.time += self.step
+        self.outputs["Output"].push_data(1, self.time)
 
         self.status = ComponentStatus.UPDATED
 
@@ -142,15 +189,8 @@ class TestPropagate(unittest.TestCase):
         )
 
     def test_propagate_info_from_target(self):
-        source = CallbackGenerator(
-            callbacks={
-                "Output": (
-                    lambda t: 1,
-                    Info(grid=None, meta={"unit": None}),
-                )
-            },
-            start=datetime(2000, 1, 1),
-            step=timedelta(days=1),
+        source = MockupProducer(
+            time=datetime(2000, 1, 1), info=Info(grid=None, meta={"unit": None})
         )
 
         sink = MockupConsumer(

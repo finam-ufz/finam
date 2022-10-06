@@ -44,7 +44,7 @@ class CallbackComponent(ATimeComponent):
         super().initialize()
 
         for name, info in self._input_infos.items():
-            self._inputs[name] = Input(info)
+            self._inputs[name] = Input()
 
         for name, info in self._output_infos.items():
             self._outputs[name] = Output(info)
@@ -53,6 +53,9 @@ class CallbackComponent(ATimeComponent):
 
     def connect(self):
         super().connect()
+
+        for name, info in self._input_infos.items():
+            self.inputs[name].exchange_info(info)
 
         inp = {n: None for n in self._input_infos.keys()}
         outp = self._callback(inp, self.time)

@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from ...core.interfaces import ComponentStatus
 from ...core.sdk import AComponent, ATimeComponent, CallbackInput, Input
-from ...data import assert_type
+from ...data import Info, assert_type
 from ...data.grid import Grid
 from ...tools.log_helper import LogError
 
@@ -39,7 +39,7 @@ class GridView(AComponent):
         """
         super().initialize()
 
-        self._inputs["Grid"] = CallbackInput(self.data_changed)
+        self.inputs["Grid"] = CallbackInput(self.data_changed)
 
         self.status = ComponentStatus.INITIALIZED
 
@@ -49,7 +49,7 @@ class GridView(AComponent):
         After the method call, the component should have status CONNECTED.
         """
         super().connect()
-
+        self.inputs["Grid"].exchange_info(Info(grid=None))
         self.status = ComponentStatus.CONNECTED
 
     def validate(self):
@@ -161,11 +161,19 @@ class TimedGridView(ATimeComponent, GridView):
 
         self._inputs["Grid"] = Input()
 
+    def connect(self):
+        """Push initial values to outputs.
+
+        After the method call, the component should have status CONNECTED.
+        """
+        super().connect()
+        self.inputs["Grid"].exchange_info(Info(grid=None))
+        self.status = ComponentStatus.CONNECTED
+
     def update(self):
         """Update the component by one time step and push new values to outputs.
 
         After the method call, the component should have status UPDATED or FINISHED.
         """
         super().update()
-
         self._time += self._step

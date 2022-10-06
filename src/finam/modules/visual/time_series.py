@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from ...core.interfaces import ComponentStatus
 from ...core.sdk import ATimeComponent, Input
-from ...data import assert_type
+from ...data import Info, NoGrid, assert_type
 from ...tools.log_helper import LogError
 
 
@@ -86,6 +86,9 @@ class TimeSeriesView(ATimeComponent):
         After the method call, the component should have status CONNECTED.
         """
         super().connect()
+
+        for _, inp in self.inputs.items():
+            inp.exchange_info(Info(grid=NoGrid))
 
         self.status = ComponentStatus.CONNECTED
 

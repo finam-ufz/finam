@@ -4,6 +4,7 @@ from datetime import datetime
 
 from ...core.interfaces import ComponentStatus
 from ...core.sdk import AComponent, CallbackInput
+from ...data import Info, NoGrid
 
 
 class ScheduleView(AComponent):
@@ -69,6 +70,9 @@ class ScheduleView(AComponent):
         After the method call, the component should have status CONNECTED.
         """
         super().connect()
+
+        for _, inp in self.inputs.items():
+            inp.exchange_info(Info(grid=NoGrid))
 
         self.status = ComponentStatus.CONNECTED
 

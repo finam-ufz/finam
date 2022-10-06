@@ -68,20 +68,39 @@ class MockupDependentComponent(ATimeComponent):
         self._time = datetime(2000, 1, 1)
         self.status = ComponentStatus.CREATED
 
+        self._exchanged = False
+        self._pulled = False
+
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input(Info(grid=NoGrid))
+        self._inputs["Input"] = Input()
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        try:
-            _pulled = self.inputs["Input"].pull_data(self.time)
-        except FinamNoDataError:
-            self.status = ComponentStatus.CONNECTING_IDLE
-            return
+        any_done = False
+        if not self._exchanged:
+            try:
+                self.inputs["Input"].exchange_info(Info(grid=NoGrid))
+                any_done = True
+                self._exchanged = True
+            except FinamNoDataError:
+                pass
 
-        self.status = ComponentStatus.CONNECTED
+        if not self._pulled:
+            try:
+                _pulled = self.inputs["Input"].pull_data(self.time)
+                any_done = True
+                self._pulled = True
+            except FinamNoDataError:
+                pass
+
+        if self._exchanged and self._pulled:
+            self.status = ComponentStatus.CONNECTED
+        elif any_done:
+            self.status = ComponentStatus.CONNECTING
+        else:
+            self.status = ComponentStatus.CONNECTING_IDLE
 
     def validate(self):
         super().validate()
@@ -105,24 +124,43 @@ class MockupCircularComponent(ATimeComponent):
         self._time = datetime(2000, 1, 1)
         self.status = ComponentStatus.CREATED
 
+        self._exchanged = False
+        self._pulled = False
+
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input(Info(grid=NoGrid))
+        self._inputs["Input"] = Input()
         self._outputs["Output"] = Output(Info(grid=NoGrid))
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        try:
-            pulled = self._inputs["Input"].pull_data(self.time)
-        except FinamNoDataError:
+        any_done = False
+        if not self._exchanged:
+            try:
+                self.inputs["Input"].exchange_info(Info(grid=NoGrid))
+                any_done = True
+                self._exchanged = True
+            except FinamNoDataError:
+                pass
+
+        if not self._pulled:
+            try:
+                pulled = self.inputs["Input"].pull_data(self.time)
+                any_done = True
+                self._pulled = True
+            except FinamNoDataError:
+                pass
+
+        if self._exchanged and self._pulled:
+            self._outputs["Output"].push_info(Info(grid=NoGrid))
+            self._outputs["Output"].push_data(pulled, self.time)
+
+            self.status = ComponentStatus.CONNECTED
+        elif any_done:
+            self.status = ComponentStatus.CONNECTING
+        else:
             self.status = ComponentStatus.CONNECTING_IDLE
-            return
-
-        self._outputs["Output"].push_info(Info())
-        self._outputs["Output"].push_data(pulled, self.time)
-
-        self.status = ComponentStatus.CONNECTED
 
     def validate(self):
         super().validate()
@@ -130,9 +168,9 @@ class MockupCircularComponent(ATimeComponent):
 
     def update(self):
         super().update()
-        pulled = self._inputs["Input"].pull_data(self.time)
+        pulled = self.inputs["Input"].pull_data(self.time)
         self._time += self._step
-        self._outputs["Output"].push_data(pulled, self.time)
+        self.outputs["Output"].push_data(pulled, self.time)
 
         self.status = ComponentStatus.UPDATED
 
@@ -148,8 +186,12 @@ class MockupConsumerComponent(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input(Info(grid=NoGrid))
+        self._inputs["Input"] = Input()
         self.status = ComponentStatus.INITIALIZED
+
+    def connect(self):
+        super().connect()
+        self.inputs["Input"].exchange_info(Info(grid=NoGrid))
 
 
 class CallbackAdapter(AAdapter):
