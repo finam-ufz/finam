@@ -13,6 +13,7 @@ from finam.adapters.regrid import Linear, Nearest
 from finam.core.interfaces import ComponentStatus, FinamMetaDataError
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input
+from finam.data import Info
 from finam.data.grid_spec import RectilinearGrid, UniformGrid
 from finam.data.grid_tools import Location
 from finam.modules.generators import CallbackGenerator
@@ -35,7 +36,7 @@ class MockupConsumer(ATimeComponent):
 
     def connect(self):
         super().connect()
-        self.info = self.inputs["Input"].exchange_info({"grid_spec": self.grid_spec})
+        self.info = self.inputs["Input"].exchange_info(Info(grid=self.grid_spec))
         self.data = self.inputs["Input"].pull_data(self.time)
         self.status = ComponentStatus.CONNECTED
 
@@ -71,7 +72,7 @@ class TestRegrid(unittest.TestCase):
         in_data.data[0, 0] = 1.0 * in_data.pint.units
 
         source = CallbackGenerator(
-            callbacks={"Output": (lambda t: in_data, {"grid_spec": in_spec})},
+            callbacks={"Output": (lambda t: in_data, Info(grid=in_spec))},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -85,7 +86,7 @@ class TestRegrid(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink.info, {"grid_spec": out_spec})
+        self.assertEqual(sink.info.grid, out_spec)
         self.assertEqual(sink.data[0, 0], 1.0 * reg.meter)
         self.assertEqual(sink.data[0, 1], 1.0 * reg.meter)
         self.assertEqual(sink.data[1, 0], 1.0 * reg.meter)
@@ -108,7 +109,7 @@ class TestRegrid(unittest.TestCase):
         in_data.data[0, 0] = 1.0 * in_data.pint.units
 
         source = CallbackGenerator(
-            callbacks={"Output": (lambda t: in_data, {"grid_spec": in_spec})},
+            callbacks={"Output": (lambda t: in_data, Info(grid=in_spec))},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -122,7 +123,7 @@ class TestRegrid(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink.info, {"grid_spec": out_spec})
+        self.assertEqual(sink.info.grid, out_spec)
         self.assertEqual(sink.data[0, 0], 1.0 * reg.meter)
         self.assertEqual(sink.data[0, 1], 0.5 * reg.meter)
         self.assertEqual(sink.data[1, 0], 0.5 * reg.meter)
@@ -143,7 +144,7 @@ class TestRegrid(unittest.TestCase):
         in_data.data[0, 0] = 1.0 * in_data.pint.units
 
         source = CallbackGenerator(
-            callbacks={"Output": (lambda t: in_data, {"grid_spec": in_spec})},
+            callbacks={"Output": (lambda t: in_data, Info(grid=in_spec))},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -157,7 +158,7 @@ class TestRegrid(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink.info, {"grid_spec": out_spec})
+        self.assertEqual(sink.info.grid, out_spec)
         self.assertEqual(sink.data[0, 0], 1.0 * reg.meter)
         self.assertEqual(sink.data[0, 1], 0.5 * reg.meter)
         self.assertEqual(sink.data[1, 0], 0.5 * reg.meter)
@@ -178,7 +179,7 @@ class TestRegrid(unittest.TestCase):
         in_data.data[0, 0] = 1.0 * in_data.pint.units
 
         source = CallbackGenerator(
-            callbacks={"Output": (lambda t: in_data, {"grid_spec": in_spec})},
+            callbacks={"Output": (lambda t: in_data, Info(grid=in_spec))},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -197,13 +198,13 @@ class TestRegrid(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink_1.info, {"grid_spec": out_spec_1})
+        self.assertEqual(sink_1.info.grid, out_spec_1)
         self.assertEqual(sink_1.data[0, 0], 1.0 * reg.meter)
         self.assertEqual(sink_1.data[0, 1], 0.5 * reg.meter)
         self.assertEqual(sink_1.data[1, 0], 0.5 * reg.meter)
         self.assertEqual(sink_1.data[1, 1], 0.25 * reg.meter)
 
-        self.assertEqual(sink_2.info, {"grid_spec": out_spec_2})
+        self.assertEqual(sink_2.info.grid, out_spec_2)
         self.assertEqual(sink_2.data[0, 0], 1.0 * reg.meter)
         self.assertEqual(sink_2.data[0, 1], 0.5 * reg.meter)
         self.assertEqual(sink_2.data[1, 0], 0.5 * reg.meter)
@@ -224,7 +225,7 @@ class TestRegrid(unittest.TestCase):
         in_data.data[0, 0] = 1.0 * in_data.pint.units
 
         source = CallbackGenerator(
-            callbacks={"Output": (lambda t: in_data, {"grid_spec": in_spec})},
+            callbacks={"Output": (lambda t: in_data, Info(grid=in_spec))},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )

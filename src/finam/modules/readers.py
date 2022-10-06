@@ -6,6 +6,7 @@ from datetime import datetime
 
 from ..core.interfaces import ComponentStatus
 from ..core.sdk import ATimeComponent, Output
+from ..data import Info
 
 
 class CsvReader(ATimeComponent):
@@ -67,7 +68,7 @@ class CsvReader(ATimeComponent):
         super().connect()
 
         for o in self._output_names:
-            self._outputs[o].push_info({})
+            self._outputs[o].push_info(Info())
 
         self._time = self._push_row(self._data.iloc[self._row_index])
         self._row_index += 1

@@ -1,6 +1,7 @@
 """
 Basic linear and nearest neighbour regridding adapters.
 """
+import copy
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -31,17 +32,14 @@ class ARegridding(AAdapter, ABC):
 
         in_info = self.exchange_info(info)
 
-        if "grid_spec" not in info:
+        if info.grid is None:
             with LogError(self.logger):
                 raise FinamMetaDataError("Missing target grid specification")
-        if "grid_spec" not in in_info:
+        if in_info.grid is None:
             with LogError(self.logger):
                 raise FinamMetaDataError("Missing source grid specification")
 
-        if (
-            self.output_grid is not None
-            and self.output_grid != info["grid_spec"]
-        ):
+        if self.output_grid is not None and self.output_grid != info.grid:
             with LogError(self.logger):
                 raise FinamMetaDataError(
                     "Target grid specification is already set, new specs differ"
@@ -49,11 +47,11 @@ class ARegridding(AAdapter, ABC):
 
         needs_update = self.output_grid is None
 
-        self.input_grid = in_info["grid_spec"]
-        self.output_grid = info["grid_spec"]
+        self.input_grid = in_info.grid
+        self.output_grid = info.grid
 
-        out_info = dict(in_info)
-        out_info["grid_spec"] = self.output_grid
+        out_info = copy.copy(in_info)
+        out_info.grid = self.output_grid
 
         if needs_update:
             self._update_grid_specs()

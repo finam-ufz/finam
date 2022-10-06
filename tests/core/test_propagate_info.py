@@ -1,13 +1,14 @@
 """
 Unit tests for data info propagation.
 """
-
+import copy
 import unittest
 from datetime import datetime, timedelta
 
-from finam.core.interfaces import ComponentStatus, FinamStatusError
+from finam.core.interfaces import ComponentStatus
 from finam.core.schedule import Composition
-from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
+from finam.core.sdk import AAdapter, ATimeComponent, Input
+from finam.data import Info
 from finam.modules.generators import CallbackGenerator
 
 
@@ -28,7 +29,7 @@ class MockupConsumer(ATimeComponent):
     def connect(self):
         super().connect()
         self.info = self.inputs["Input"].exchange_info(
-            {"spec": "sink_spec", "unit": "sink_unit"}
+            Info(grid="sink_spec", meta={"unit": "sink_unit"})
         )
         self.data = self.inputs["Input"].pull_data(self.time)
         self.status = ComponentStatus.CONNECTED
@@ -61,10 +62,8 @@ class SpecAdapter(AAdapter):
         self.logger.debug("get info")
 
         in_info = self.exchange_info(info)
-        out_info = dict(in_info)
-        if "spec" in info:
-            out_info["spec"] = info["spec"]
-            print(f"convert from spec '{in_info['spec']}' to '{info['spec']}'")
+        out_info = copy.copy(in_info)
+        out_info.grid = info.grid
         return out_info
 
 
@@ -79,10 +78,9 @@ class UnitAdapter(AAdapter):
         self.logger.debug("get info")
 
         in_info = self.exchange_info(info)
-        out_info = dict(in_info)
-        if "unit" in info:
-            out_info["unit"] = info["unit"]
-            print(f"convert from unit '{in_info['unit']}' to '{info['unit']}'")
+        out_info = copy.copy(in_info)
+        if "unit" in info.meta:
+            out_info.meta["unit"] = info.meta["unit"]
         return out_info
 
 
@@ -90,7 +88,10 @@ class TestPropagate(unittest.TestCase):
     def test_propagate_info(self):
         source = CallbackGenerator(
             callbacks={
-                "Output": (lambda t: 1, {"spec": "source_spec", "unit": "source_unit"})
+                "Output": (
+                    lambda t: 1,
+                    Info(grid="source_spec", meta={"unit": "source_unit"}),
+                )
             },
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -110,4 +111,4 @@ class TestPropagate(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink.info, {"spec": "sink_spec", "unit": "sink_unit"})
+        self.assertEqual(sink.info, Info(grid="sink_spec", meta={"unit": "sink_unit"}))

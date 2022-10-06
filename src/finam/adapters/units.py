@@ -1,6 +1,8 @@
 """
 Unit conversion adapter.
 """
+import copy
+
 from ..core.interfaces import FinamMetaDataError
 from ..core.sdk import AAdapter
 from ..tools.log_helper import LogError
@@ -22,19 +24,19 @@ class ConvertUnits(AAdapter):
 
         in_info = self.exchange_info(info)
 
-        if "units" not in info:
+        if "units" not in info.meta:
             with LogError(self.logger):
                 raise FinamMetaDataError("Missing target units")
 
-        if self.out_units is not None and self.out_units != info["units"]:
+        if self.out_units is not None and self.out_units != info.meta["units"]:
             with LogError(self.logger):
                 raise FinamMetaDataError(
                     "Target units is already set, new units differ"
                 )
 
-        self.out_units = info["units"]
+        self.out_units = info.meta["units"]
 
-        out_info = dict(in_info)
-        out_info["units"] = self.out_units
+        out_info = copy.copy(in_info)
+        out_info.meta["units"] = self.out_units
 
         return out_info

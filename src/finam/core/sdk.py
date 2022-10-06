@@ -5,10 +5,12 @@ import logging
 from abc import ABC
 from datetime import datetime
 
+from ..data import Info
 from ..tools.log_helper import LogError, loggable
 from .interfaces import (
     ComponentStatus,
     FinamLogError,
+    FinamMetaDataError,
     FinamNoDataError,
     FinamStatusError,
     IAdapter,
@@ -233,6 +235,9 @@ class Input(IInput, Loggable):
             delivered parameters
         """
         self.logger.debug("pull info")
+        if not isinstance(info, Info):
+            with LogError(self.logger):
+                raise FinamMetaDataError("Metadata must be of type Info")
         return self.source.get_info(info)
 
     @property
@@ -350,6 +355,9 @@ class Output(IOutput, Loggable):
             Delivered data info
         """
         self.logger.debug("push info")
+        if not isinstance(info, Info):
+            with LogError(self.logger):
+                raise FinamMetaDataError("Metadata must be of type Info")
         self.info = info
 
     def notify_targets(self, time):

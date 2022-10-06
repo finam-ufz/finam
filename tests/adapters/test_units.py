@@ -12,7 +12,8 @@ import xarray as xr
 from finam.adapters.units import ConvertUnits
 from finam.core.interfaces import ComponentStatus
 from finam.core.schedule import Composition
-from finam.core.sdk import AAdapter, ATimeComponent, Input
+from finam.core.sdk import ATimeComponent, Input
+from finam.data import Info
 from finam.data.grid_spec import UniformGrid
 from finam.data.grid_tools import Location
 from finam.modules.generators import CallbackGenerator
@@ -35,7 +36,7 @@ class MockupConsumer(ATimeComponent):
 
     def connect(self):
         super().connect()
-        self.info = self.inputs["Input"].exchange_info({"units": self.units})
+        self.info = self.inputs["Input"].exchange_info(Info(meta={"units": self.units}))
         self.data = self.inputs["Input"].pull_data(self.time)
         self.status = ComponentStatus.CONNECTED
 
@@ -70,7 +71,7 @@ class TestUnits(unittest.TestCase):
         in_data.data[0, 0] = 1.0 * in_data.pint.units
 
         source = CallbackGenerator(
-            callbacks={"Output": (lambda t: in_data, {})},
+            callbacks={"Output": (lambda t: in_data, Info())},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -84,6 +85,6 @@ class TestUnits(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink.info, {"units": reg.kilometer})
+        self.assertEqual(sink.info.meta, {"units": reg.kilometer})
         self.assertEqual(sink.data.pint.units, reg.kilometer)
         self.assertEqual(sink.data.pint.magnitude[0, 0], 0.001)

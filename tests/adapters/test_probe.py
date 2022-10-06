@@ -7,6 +7,7 @@ from datetime import datetime
 
 from finam.adapters.probe import CallbackProbe
 from finam.core.sdk import Input, Output
+from finam.data import Info
 
 
 class TestProbe(unittest.TestCase):
@@ -26,7 +27,7 @@ class TestProbe(unittest.TestCase):
 
         out >> adapter >> inp
 
-        out.push_info({})
+        out.push_info(Info())
         out.push_data(100, datetime(2000, 1, 1))
         inp.pull_data(datetime(2000, 1, 1))
 

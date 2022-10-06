@@ -14,6 +14,7 @@ from finam.core.interfaces import (
 )
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
+from finam.data import Info
 
 
 class MockupComponent(ATimeComponent):
@@ -38,7 +39,7 @@ class MockupComponent(ATimeComponent):
     def connect(self):
         super().connect()
         for key, callback in self._callbacks.items():
-            self._outputs[key].push_info({"test": 0})
+            self._outputs[key].push_info(Info())
             self._outputs[key].push_data(callback(self._time), self.time)
 
         self.status = ComponentStatus.CONNECTED
@@ -76,7 +77,7 @@ class MockupDependentComponent(ATimeComponent):
     def connect(self):
         super().connect()
         try:
-            _info = self.inputs["Input"].exchange_info({"test": 0})
+            _info = self.inputs["Input"].exchange_info(Info())
             _pulled = self.inputs["Input"].pull_data(self.time)
         except FinamNoDataError:
             self.status = ComponentStatus.CONNECTING_IDLE
@@ -115,13 +116,13 @@ class MockupCircularComponent(ATimeComponent):
     def connect(self):
         super().connect()
         try:
-            _info = self.inputs["Input"].exchange_info({"test": 0})
+            _info = self.inputs["Input"].exchange_info(Info())
             pulled = self._inputs["Input"].pull_data(self.time)
         except FinamNoDataError:
             self.status = ComponentStatus.CONNECTING_IDLE
             return
 
-        self._outputs["Output"].push_info({"test": 0})
+        self._outputs["Output"].push_info(Info())
         self._outputs["Output"].push_data(pulled, self.time)
 
         self.status = ComponentStatus.CONNECTED
