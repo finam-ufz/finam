@@ -402,7 +402,16 @@ ESMF_TYPE_MAP = np.array([-1, -1, 3, 4, 10, 12], dtype=int)
 """np.ndarray: Cell dimension per CellType."""
 
 
-class Grid(ABC):
+class GridBase(ABC):
+    """Abstract grid base."""
+
+    @property
+    def name(self):
+        """Grid name."""
+        return self.__class__.__name__
+
+
+class Grid(GridBase):
     """Abstract grid specification."""
 
     @property
@@ -483,11 +492,6 @@ class Grid(ABC):
     def order(self):
         """str: Point, cell and data order (C-like for flat data)."""
         return "C"
-
-    @property
-    def name(self):
-        """Grid name."""
-        return self.__class__.__name__
 
     def export_vtk(
         self,

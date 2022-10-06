@@ -6,6 +6,7 @@ from pyevtk.hl import imageToVTK
 
 from .grid_tools import (
     Grid,
+    GridBase,
     Location,
     StructuredGrid,
     check_axes_monotonicity,
@@ -13,6 +14,10 @@ from .grid_tools import (
     prepare_vtk_data,
     prepare_vtk_kwargs,
 )
+
+
+class NoGrid(GridBase):
+    """Indicator for data without a spatial grid."""
 
 
 class RectilinearGrid(StructuredGrid):
