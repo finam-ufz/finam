@@ -577,6 +577,12 @@ class StructuredGrid(Grid):
 
     @property
     @abstractmethod
+    def axes_names(self):
+        """list of str: Axes names (xyz order)."""
+        # should be used for xarray later on
+
+    @property
+    @abstractmethod
     def order(self):
         """str: Point, cell and data order (C- or Fortran-like)."""
         # vtk files use Fortran-like data ordering for structured grids

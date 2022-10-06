@@ -36,6 +36,8 @@ class RectilinearGrid(StructuredGrid):
         Indicate reversed axes order for the associated data, by default False
     axes_attributes : list of dict or None, optional
         Axes attributes following the CF convention (in xyz order), by default None
+    axes_names : list of str or None, optional
+        Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
     """
@@ -47,6 +49,7 @@ class RectilinearGrid(StructuredGrid):
         order="F",
         axes_reversed=False,
         axes_attributes=None,
+        axes_names=None,
         crs=None,
     ):
         # at most 3 axes
@@ -59,6 +62,9 @@ class RectilinearGrid(StructuredGrid):
         self._axes_attributes = axes_attributes or (self.dim * [{}])
         if len(self.axes_attributes) != self.dim:
             raise ValueError("RectilinearGrid: wrong length of 'axes_attributes'")
+        self._axes_names = axes_names or ["x", "y", "z"][: self.dim]
+        if len(self.axes_names) != self.dim:
+            raise ValueError("RectilinearGrid: wrong length of 'axes_names'")
         self._crs = crs
 
     @property
@@ -85,6 +91,11 @@ class RectilinearGrid(StructuredGrid):
     def axes_attributes(self):
         """list of dict: Axes attributes following the CF convention (xyz order)."""
         return self._axes_attributes
+
+    @property
+    def axes_names(self):
+        """list of str: Axes names (xyz order)."""
+        return self._axes_names
 
     @property
     def order(self):
@@ -132,6 +143,8 @@ class UniformGrid(RectilinearGrid):
         False to indicate a bottom up axis (xyz order), by default None
     axes_attributes : list of dict or None, optional
         Axes attributes following the CF convention (xyz order), by default None
+    axes_names : list of str or None, optional
+        Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
     """
@@ -146,6 +159,7 @@ class UniformGrid(RectilinearGrid):
         axes_reversed=False,
         axes_increase=None,
         axes_attributes=None,
+        axes_names=None,
         crs=None,
     ):
         # at most 3 axes
@@ -162,6 +176,7 @@ class UniformGrid(RectilinearGrid):
             order=order,
             axes_reversed=axes_reversed,
             axes_attributes=axes_attributes,
+            axes_names=axes_names,
             crs=crs,
         )
 
@@ -230,6 +245,8 @@ class EsriGrid(UniformGrid):
         y value of lower left corner, by default 0.0
     axes_attributes : list of dict or None, optional
         Axes attributes following the CF convention (xyz order), by default None
+    axes_names : list of str or None, optional
+        Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
     """
@@ -242,6 +259,7 @@ class EsriGrid(UniformGrid):
         xllcorner=0.0,
         yllcorner=0.0,
         axes_attributes=None,
+        axes_names=None,
         crs=None,
     ):
         self.ncols = int(ncols)
@@ -257,6 +275,7 @@ class EsriGrid(UniformGrid):
             axes_reversed=True,
             axes_increase=(True, False),
             axes_attributes=axes_attributes,
+            axes_names=axes_names,
             crs=crs,
         )
 

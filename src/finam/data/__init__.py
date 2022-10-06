@@ -10,7 +10,6 @@ from .grid_spec import (
     UnstructuredPoints,
 )
 
-
 __all__ = [
     "assert_type",
     "EsriGrid",
