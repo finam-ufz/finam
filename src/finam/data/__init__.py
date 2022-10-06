@@ -2,6 +2,7 @@
 Specialized data types for exchanges between models/modules.
 """
 import copy
+
 from .grid_spec import (
     EsriGrid,
     NoGrid,

@@ -30,7 +30,7 @@ class MockupConsumer(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input(meta={"units": self.units})
+        self._inputs["Input"] = Input(Info(meta={"units": self.units}))
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
@@ -69,7 +69,7 @@ class TestUnits(unittest.TestCase):
         in_data.data[0, 0] = 1.0 * in_data.pint.units
 
         source = CallbackGenerator(
-            callbacks={"Output": (lambda t: in_data, Info())},
+            callbacks={"Output": (lambda t: in_data, Info(grid=in_spec))},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )

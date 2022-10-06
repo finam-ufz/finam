@@ -14,7 +14,7 @@ from finam.core.interfaces import (
 )
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
-from finam.data import Info
+from finam.data import Info, NoGrid
 
 
 class MockupComponent(ATimeComponent):
@@ -32,14 +32,13 @@ class MockupComponent(ATimeComponent):
     def initialize(self):
         super().initialize()
         for key, _ in self._callbacks.items():
-            self._outputs[key] = Output()
+            self._outputs[key] = Output(Info(grid=NoGrid))
 
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
         for key, callback in self._callbacks.items():
-            self._outputs[key].push_info(Info())
             self._outputs[key].push_data(callback(self._time), self.time)
 
         self.status = ComponentStatus.CONNECTED
@@ -71,13 +70,12 @@ class MockupDependentComponent(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
+        self._inputs["Input"] = Input(Info(grid=NoGrid))
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
         try:
-            _info = self.inputs["Input"].exchange_info(Info())
             _pulled = self.inputs["Input"].pull_data(self.time)
         except FinamNoDataError:
             self.status = ComponentStatus.CONNECTING_IDLE
@@ -109,14 +107,13 @@ class MockupCircularComponent(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
-        self._outputs["Output"] = Output()
+        self._inputs["Input"] = Input(Info(grid=NoGrid))
+        self._outputs["Output"] = Output(Info(grid=NoGrid))
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
         try:
-            _info = self.inputs["Input"].exchange_info(Info())
             pulled = self._inputs["Input"].pull_data(self.time)
         except FinamNoDataError:
             self.status = ComponentStatus.CONNECTING_IDLE
@@ -151,7 +148,7 @@ class MockupConsumerComponent(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
+        self._inputs["Input"] = Input(Info(grid=NoGrid))
         self.status = ComponentStatus.INITIALIZED
 
 

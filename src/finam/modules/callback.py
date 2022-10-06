@@ -44,7 +44,7 @@ class CallbackComponent(ATimeComponent):
         super().initialize()
 
         for name, info in self._input_infos.items():
-            self._inputs[name] = Input(info.grid, info.meta)
+            self._inputs[name] = Input(info)
 
         for name, info in self._output_infos.items():
             self._outputs[name] = Output(info)

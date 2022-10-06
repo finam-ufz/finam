@@ -5,7 +5,7 @@ import logging
 from abc import ABC
 from datetime import datetime
 
-from ..data import Info, NoGrid
+from ..data import Info
 from ..tools.log_helper import LogError, loggable
 from .interfaces import (
     ComponentStatus,
@@ -146,11 +146,11 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
 class Input(IInput, Loggable):
     """Default input implementation."""
 
-    def __init__(self, grid=NoGrid, meta=None):
+    def __init__(self, info=None):
         self.source = None
         self.base_logger_name = None
         self.name = ""
-        self.info = Info(grid, meta)
+        self.info = info
         self.info_exchanged = False
 
     def set_source(self, source):
@@ -248,7 +248,7 @@ class Input(IInput, Loggable):
                 raise FinamMetaDataError("Metadata must be of type Info")
 
         in_info = self.source.get_info(info)
-        if not self.info.accepts(in_info):
+        if not info.accepts(in_info):
             if not isinstance(info, Info):
                 with LogError(self.logger):
                     raise FinamMetaDataError("Can't accept incoming data info")
@@ -286,8 +286,8 @@ class CallbackInput(Input):
         A callback ``callback(data, time)``, returning the transformed data.
     """
 
-    def __init__(self, callback, grid=NoGrid, meta=None):
-        super().__init__(grid, meta)
+    def __init__(self, callback, info=None):
+        super().__init__(info)
         self.source = None
         self.callback = callback
 
@@ -443,18 +443,22 @@ class Output(IOutput, Loggable):
         self.logger.debug("get info")
 
         if self.info is None:
-            raise FinamNoDataError(f"No data info available in {self.name}")
+            raise FinamNoDataError("No data info available")
 
         if self.info.grid is None:
             if info.grid is None:
-                raise FinamNoDataError("Can't set property `grid` from target info, as it is not provided")
+                raise FinamNoDataError(
+                    "Can't set property `grid` from target info, as it is not provided"
+                )
 
             self.info.grid = info.grid
 
         for k, v in self.info.meta.items():
             if v is None:
                 if k not in info.meta or info.meta[k] is None:
-                    raise FinamNoDataError(f"Can't set property `meta.{k}` from target info, as it is not provided")
+                    raise FinamNoDataError(
+                        f"Can't set property `meta.{k}` from target info, as it is not provided"
+                    )
 
                 self.info.meta[k] = info.meta[k]
 

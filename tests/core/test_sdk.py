@@ -8,7 +8,7 @@ from datetime import datetime
 from finam.core.interfaces import ComponentStatus, FinamStatusError
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, CallbackInput, Output
-from finam.data import Info
+from finam.data import Info, NoGrid
 
 
 class MockupAdapter(AAdapter):
@@ -70,7 +70,7 @@ class TestOutput(unittest.TestCase):
     def test_push_notify(self):
         counter = 0
         t = datetime(2000, 1, 1)
-        info = Info(meta={"test": 0})
+        info = Info(grid=NoGrid, meta={"test": 0})
 
         def callback(clr, time):
             nonlocal counter

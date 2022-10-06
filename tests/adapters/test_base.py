@@ -14,7 +14,7 @@ from finam.adapters.base import (
     Scale,
     ValueToGrid,
 )
-from finam.data import Info
+from finam.data import Info, NoGrid
 from finam.data.grid import Grid, GridSpec
 from finam.modules.generators import CallbackGenerator
 
@@ -33,6 +33,7 @@ class TestCallback(unittest.TestCase):
 
         self.source.outputs["Step"] >> self.adapter
 
+        self.adapter.get_info(Info(grid=NoGrid))
         self.source.connect()
         self.source.validate()
 
@@ -59,6 +60,7 @@ class TestScale(unittest.TestCase):
 
         self.source.outputs["Step"] >> self.adapter
 
+        self.adapter.get_info(Info(grid=NoGrid))
         self.source.connect()
         self.source.validate()
 
@@ -90,6 +92,7 @@ class TestGridCallback(unittest.TestCase):
 
         self.source.outputs["Grid"] >> self.adapter
 
+        self.adapter.get_info(Info(grid=NoGrid))
         self.source.connect()
         self.source.validate()
 
@@ -128,6 +131,7 @@ class TestGridToValue(unittest.TestCase):
         self.adapter = GridToValue(func=np.ma.mean)
         self.source.outputs["Grid"] >> self.adapter
 
+        self.adapter.get_info(Info(grid=NoGrid))
         self.source.connect()
         self.source.validate()
 
@@ -138,6 +142,7 @@ class TestGridToValue(unittest.TestCase):
         self.adapter = GridToValue(func=np.ma.sum)
         self.source.outputs["Grid"] >> self.adapter
 
+        self.adapter.get_info(Info(grid=NoGrid))
         self.source.connect()
         self.source.validate()
 
@@ -162,6 +167,7 @@ class TestValueToGrid(unittest.TestCase):
         self.adapter = ValueToGrid(GridSpec(10, 10))
         self.source.outputs["Value"] >> self.adapter
 
+        self.adapter.get_info(Info(grid=NoGrid))
         self.source.connect()
         self.source.validate()
 
