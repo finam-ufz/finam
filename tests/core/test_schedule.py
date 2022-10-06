@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 from finam.adapters.base import Scale
 from finam.core.interfaces import (
     ComponentStatus,
-    FinamNoDataError,
     FinamStatusError,
     NoBranchAdapter,
 )
@@ -124,7 +123,7 @@ class MockupCircularComponent(ATimeComponent):
         super().connect()
 
         push_data = {}
-        pulled_data = self.connector.data["Input"]
+        pulled_data = self.connector.in_data["Input"]
         if pulled_data is not None:
             push_data["Output"] = pulled_data
 

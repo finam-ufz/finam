@@ -29,24 +29,34 @@ class ConnectHelper:
         self._pulled_data = {name: None for name in required_in_data or []}
 
         self._pushed_infos = {
-            name: False for name, outp in self._outputs.items() if not outp.has_info()
+            name: outp.has_info() for name, outp in self._outputs.items()
         }
         self._pushed_data = {name: False for name in self._outputs.keys()}
 
     @property
     def in_infos(self):
-        """The exchanged input infos so far. May contain None values."""
+        """dict: The exchanged input infos so far. May contain None values."""
         return self._exchanged_in_infos
 
     @property
     def out_infos(self):
-        """The exchanged output infos so far. May contain None values."""
+        """dict: The exchanged output infos so far. May contain None values."""
         return self._exchanged_out_infos
 
     @property
-    def data(self):
-        """The pulled input data so far. May contain None values."""
+    def in_data(self):
+        """dict: The pulled input data so far. May contain None values."""
         return self._pulled_data
+
+    @property
+    def infos_pushed(self):
+        """dict: If an info was pushed for outputs so far."""
+        return self._pushed_infos
+
+    @property
+    def data_pushed(self):
+        """dict: If data was pushed for outputs so far."""
+        return self._pushed_data
 
     def connect(self, time, exchange_infos=None, push_infos=None, push_data=None):
         """Exchange the data info with the input's source.
