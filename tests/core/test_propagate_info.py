@@ -5,7 +5,7 @@ import copy
 import unittest
 from datetime import datetime, timedelta
 
-from finam.core.interfaces import ComponentStatus, FinamNoDataError
+from finam.core.interfaces import ComponentStatus, FinamMetaDataError
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
 from finam.data import Info
@@ -160,6 +160,30 @@ class TestPropagate(unittest.TestCase):
             sink.inputs["Input"].info,
             Info(grid="sink_spec", meta={"unit": "sink_unit"}),
         )
+
+    def test_propagate_info_fail(self):
+        source = CallbackGenerator(
+            callbacks={
+                "Output": (
+                    lambda t: 1,
+                    Info(grid="source_spec", meta={"unit": "source_unit"}),
+                )
+            },
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+
+        sink = MockupConsumer(
+            datetime(2000, 1, 1), Info(grid="sink_spec", meta={"unit": "sink_unit"})
+        )
+
+        composition = Composition([source, sink])
+        composition.initialize()
+
+        source.outputs["Output"] >> sink.inputs["Input"]
+
+        with self.assertRaises(FinamMetaDataError):
+            composition.run(t_max=datetime(2000, 1, 2))
 
     def test_propagate_info_from_source(self):
         source = CallbackGenerator(

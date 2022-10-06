@@ -6,11 +6,7 @@ import unittest
 from datetime import datetime, timedelta
 
 from finam.adapters.base import Scale
-from finam.core.interfaces import (
-    ComponentStatus,
-    FinamStatusError,
-    NoBranchAdapter,
-)
+from finam.core.interfaces import ComponentStatus, FinamStatusError, NoBranchAdapter
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
 from finam.data import Info, NoGrid

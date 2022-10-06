@@ -55,20 +55,37 @@ class Info:
 
         return other
 
-    def accepts(self, incoming):
-        """Tests whether this info can accept/is compatible with an incoming info"""
+    def accepts(self, incoming, fail_info):
+        """Tests whether this info can accept/is compatible with an incoming info
+
+        Parameters
+        ----------
+        incoming : Info
+            Incoming/source info to check. This is the info from upstream.
+        fail_info : dict
+            Dictionary that will be filled with failed properties; name: (source, target).
+
+        Returns
+        -------
+        bool
+            Whether the incoming info is accepted
+        """
         if not isinstance(incoming, Info):
+            fail_info["type"] = (incoming.__class__, self.__class__)
             return False
 
-        if self.grid != incoming.grid:
-            return False
+        success = True
+        if self.grid is not None and self.grid != incoming.grid:
+            fail_info["grid"] = (incoming.grid, self.grid)
+            success = False
 
         for k, v in self.meta.items():
-            if k in incoming.meta:
+            if v is not None and k in incoming.meta:
                 if incoming.meta[k] != v:
-                    return False
+                    fail_info["meta." + k] = (incoming.meta[k], v)
+                    success = False
 
-        return True
+        return success
 
     def __copy__(self):
         """Shallow copy of the info"""

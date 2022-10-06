@@ -240,19 +240,19 @@ class Input(IInput, Loggable):
         dict
             delivered parameters
         """
-        self.logger.debug("pull info")
-        if info is None:
-            with LogError(self.logger):
+        self.logger.debug("exchanging info")
+        with LogError(self.logger):
+            if info is None:
                 raise FinamMetaDataError("No metadata provided")
-        if not isinstance(info, Info):
-            with LogError(self.logger):
+            if not isinstance(info, Info):
                 raise FinamMetaDataError("Metadata must be of type Info")
 
-        in_info = self.source.get_info(info)
-        if not info.accepts(in_info):
-            if not isinstance(info, Info):
-                with LogError(self.logger):
-                    raise FinamMetaDataError("Can't accept incoming data info")
+            in_info = self.source.get_info(info)
+            fail_info = {}
+            if not info.accepts(in_info, fail_info):
+                raise FinamMetaDataError(
+                    f"Can't accept incoming data info. Failed entries:\n{fail_info}"
+                )
 
         self._info = in_info
         return in_info
@@ -585,6 +585,31 @@ class AAdapter(IAdapter, Input, Output, ABC):
         self.logger.debug("get info")
 
         return self.exchange_info(info)
+
+    def exchange_info(self, info):
+        """Exchange the data info with the input's source.
+
+        Parameters
+        ----------
+        info : Info
+            request parameters
+
+        Returns
+        -------
+        dict
+            delivered parameters
+        """
+        self.logger.debug("exchanging info")
+        with LogError(self.logger):
+            if info is None:
+                raise FinamMetaDataError("No metadata provided")
+            if not isinstance(info, Info):
+                raise FinamMetaDataError("Metadata must be of type Info")
+
+        in_info = self.source.get_info(info)
+
+        self._info = in_info
+        return in_info
 
     @property
     def name(self):
