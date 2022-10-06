@@ -1,7 +1,7 @@
 import unittest
 
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 
 from finam.data.grid_spec import RectilinearGrid, UniformGrid, UnstructuredGrid
 from finam.data.grid_tools import CellType
@@ -17,21 +17,21 @@ class TestUniform(unittest.TestCase):
         self.assertEqual(grid.cell_count, 2)
         self.assertEqual(grid.data_shape, (2, 1))
 
-        assert_array_equal(grid.axes[0], [2.0, 3.0, 4.0])
-        assert_array_equal(grid.axes[1], [1.0, 3.0])
+        assert_allclose(grid.axes[0], [2.0, 3.0, 4.0])
+        assert_allclose(grid.axes[1], [1.0, 3.0])
 
-        assert_array_equal(grid.cell_axes[0], [2.5, 3.5])
-        assert_array_equal(grid.cell_axes[1], [2.0])
+        assert_allclose(grid.cell_axes[0], [2.5, 3.5])
+        assert_allclose(grid.cell_axes[1], [2.0])
 
-        assert_array_equal(grid.data_axes[0], [2.5, 3.5])
-        assert_array_equal(grid.data_axes[1], [2.0])
+        assert_allclose(grid.data_axes[0], [2.5, 3.5])
+        assert_allclose(grid.data_axes[1], [2.0])
 
-        assert_array_equal(
+        assert_allclose(
             grid.points,
             [[2.0, 1.0], [3.0, 1.0], [4.0, 1.0], [2.0, 3.0], [3.0, 3.0], [4.0, 3.0]],
         )
         assert_array_equal(grid.cells, [[3, 4, 1, 0], [4, 5, 2, 1]])
-        assert_array_equal(grid.cell_centers, [[2.5, 2.0], [3.5, 2.0]])
+        assert_allclose(grid.cell_centers, [[2.5, 2.0], [3.5, 2.0]])
 
         assert_array_equal(grid.cell_types, [CellType.QUAD.value, CellType.QUAD.value])
 
@@ -44,21 +44,21 @@ class TestUniform(unittest.TestCase):
         self.assertEqual(grid.cell_count, 2)
         self.assertEqual(grid.data_shape, (2, 1))
 
-        assert_array_equal(grid.axes[0], [2.0, 3.0, 4.0])
-        assert_array_equal(grid.axes[1], [1.0, 3.0])
+        assert_allclose(grid.axes[0], [2.0, 3.0, 4.0])
+        assert_allclose(grid.axes[1], [1.0, 3.0])
 
-        assert_array_equal(grid.cell_axes[0], [2.5, 3.5])
-        assert_array_equal(grid.cell_axes[1], [2.0])
+        assert_allclose(grid.cell_axes[0], [2.5, 3.5])
+        assert_allclose(grid.cell_axes[1], [2.0])
 
-        assert_array_equal(grid.data_axes[0], [2.5, 3.5])
-        assert_array_equal(grid.data_axes[1], [2.0])
+        assert_allclose(grid.data_axes[0], [2.5, 3.5])
+        assert_allclose(grid.data_axes[1], [2.0])
 
-        assert_array_equal(
+        assert_allclose(
             grid.points,
             [[2.0, 1.0], [3.0, 1.0], [4.0, 1.0], [2.0, 3.0], [3.0, 3.0], [4.0, 3.0]],
         )
         assert_array_equal(grid.cells, [[3, 4, 1, 0], [4, 5, 2, 1]])
-        assert_array_equal(grid.cell_centers, [[2.5, 2.0], [3.5, 2.0]])
+        assert_allclose(grid.cell_centers, [[2.5, 2.0], [3.5, 2.0]])
 
         assert_array_equal(grid.cell_types, [CellType.QUAD.value, CellType.QUAD.value])
 
@@ -85,6 +85,6 @@ class TestUniform(unittest.TestCase):
         self.assertEqual(grid.data_size, 2)
 
         assert_array_equal(grid.cell_types, [3, 3])
-        assert_array_equal(grid.cell_centers, [[1.0, 1.0], [3.0, 1.0]])
+        assert_allclose(grid.cell_centers, [[1.0, 1.0], [3.0, 1.0]])
         assert_array_equal(grid.cell_node_counts, [4, 4])
-        assert_array_equal(grid.data_points, [[1.0, 1.0], [3.0, 1.0]])
+        assert_allclose(grid.data_points, [[1.0, 1.0], [3.0, 1.0]])

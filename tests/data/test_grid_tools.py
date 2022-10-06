@@ -1,7 +1,7 @@
 import unittest
 
 import numpy as np
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 
 from finam.data.grid_spec import UniformGrid, UnstructuredGrid
 from finam.data.grid_tools import (
@@ -31,49 +31,49 @@ class TestGridTools(unittest.TestCase):
 
     def test_gen_node_centers(self):
         uniform = UniformGrid((2, 3), (2.0, 2.0, 2.0), (1.0, 1.0, 1.0))
-        assert_array_equal(gen_node_centers(uniform), [[2.0, 2.0], [2.0, 4.0]])
+        assert_allclose(gen_node_centers(uniform), [[2.0, 2.0], [2.0, 4.0]])
 
         unstruct = UnstructuredGrid(
             points=[[0.0, 0.0], [0.0, 3.0], [3.0, 0.0]],
             cells=[0, 1, 2],
             cell_types=[CellType.TRI.value],
         )
-        assert_array_equal(gen_node_centers(unstruct), [[1.0, 1.0]])
+        assert_allclose(gen_node_centers(unstruct), [[1.0, 1.0]])
 
         unstruct = UnstructuredGrid(
             points=[[0.0, 0.0], [0.0, 2.0], [2.0, 2.0], [2.0, 0.0]],
             cells=[0, 1, 2, 3],
             cell_types=[CellType.QUAD.value],
         )
-        assert_array_equal(gen_node_centers(unstruct), [[1.0, 1.0]])
+        assert_allclose(gen_node_centers(unstruct), [[1.0, 1.0]])
 
     def test_gen_axes(self):
         axes = gen_axes((3, 4), (2.0, 3.0), (1.0, 1.0))
-        assert_array_equal(axes[0], [1.0, 3.0, 5.0])
-        assert_array_equal(axes[1], [1.0, 4.0, 7.0, 10.0])
+        assert_allclose(axes[0], [1.0, 3.0, 5.0])
+        assert_allclose(axes[1], [1.0, 4.0, 7.0, 10.0])
 
         axes = gen_axes((3, 4), (2.0, 3.0), (1.0, 1.0), (False, False))
-        assert_array_equal(axes[0], [5.0, 3.0, 1.0])
-        assert_array_equal(axes[1], [10.0, 7.0, 4.0, 1.0])
+        assert_allclose(axes[0], [5.0, 3.0, 1.0])
+        assert_allclose(axes[1], [10.0, 7.0, 4.0, 1.0])
 
     def test_gen_points(self):
         axes = gen_axes((3, 4), (2.0, 3.0), (1.0, 1.0))
         points = gen_points(axes)
-        assert_array_equal(
+        assert_allclose(
             points[:6],
             [[1.0, 1.0], [3.0, 1.0], [5.0, 1.0], [1.0, 4.0], [3.0, 4.0], [5.0, 4.0]],
         )
 
         axes = gen_axes((3, 4), (2.0, 3.0), (1.0, 1.0))
         points = gen_points(axes, order="C")
-        assert_array_equal(
+        assert_allclose(
             points[:6],
             [[1.0, 1.0], [1.0, 4.0], [1.0, 7.0], [1.0, 10.0], [3.0, 1.0], [3.0, 4.0]],
         )
 
         axes = gen_axes((3, 4), (2.0, 3.0), (1.0, 1.0), (False, False))
         points = gen_points(axes, order="C", axes_increase=(False, False))
-        assert_array_equal(
+        assert_allclose(
             points[:6],
             [[1.0, 1.0], [1.0, 4.0], [1.0, 7.0], [1.0, 10.0], [3.0, 1.0], [3.0, 4.0]],
         )
