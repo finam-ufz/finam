@@ -87,7 +87,7 @@ class TestOutput(unittest.TestCase):
         self.assertTrue(out.has_targets)
         self.assertEqual(out.get_info(info), info)
         self.assertEqual(out.get_data(t), 100)
-        self.assertEqual(inp.pull_info(info), info)
+        self.assertEqual(inp.exchange_info(info), info)
         self.assertEqual(inp.pull_data(t), 100)
         self.assertEqual(counter, 1)
 

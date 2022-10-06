@@ -188,18 +188,18 @@ class IInput(ABC):
         """
 
     @abstractmethod
-    def pull_info(self, request_params):
-        """Retrieve the data from the input's source.
+    def exchange_info(self, info):
+        """Exchange the data info with the input's source.
 
         Parameters
         ----------
-        request_params : dict
-            Dictionary of request parameters
+        info : Info
+            request parameters
 
         Returns
         -------
         dict
-            Dictionary of request parameters
+            delivered parameters
         """
 
 
@@ -241,13 +241,13 @@ class IOutput(ABC):
         """
 
     @abstractmethod
-    def push_info(self, request_params):
+    def push_info(self, info):
         """Push data info into the output.
 
         Parameters
         ----------
-        request_params : dict
-            Data request parameters to push
+        info : Info
+            Delivered data info
         """
 
     @abstractmethod
@@ -282,18 +282,18 @@ class IOutput(ABC):
         """
 
     @abstractmethod
-    def get_info(self, request_params):
+    def get_info(self, info):
         """Get the output's data info.
 
         Parameters
         ----------
-        request_params : dict
-            Data request parameters
+        info : Info
+            Requested data info
 
         Returns
         -------
         dict
-            Data info.
+            Delivered data info
 
         Raises
         ------

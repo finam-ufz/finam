@@ -219,21 +219,21 @@ class Input(IInput, Loggable):
 
         return self.source.get_data(time)
 
-    def pull_info(self, request_params):
-        """Retrieve the data from the input's source.
+    def exchange_info(self, info):
+        """Exchange the data info with the input's source.
 
         Parameters
         ----------
-        request_params : dict
-            Dictionary of request parameters
+        info : Info
+            request parameters
 
         Returns
         -------
         dict
-            Dictionary of request parameters
+            delivered parameters
         """
         self.logger.debug("pull info")
-        return self.source.get_info(request_params)
+        return self.source.get_info(info)
 
     @property
     def has_source(self):
@@ -341,16 +341,16 @@ class Output(IOutput, Loggable):
         self.data = data
         self.notify_targets(time)
 
-    def push_info(self, request_params):
+    def push_info(self, info):
         """Push data info into the output.
 
         Parameters
         ----------
-        request_params : dict
-            Data request parameters to push
+        info : Info
+            Delivered data info
         """
         self.logger.debug("push info")
-        self.info = request_params
+        self.info = info
 
     def notify_targets(self, time):
         """Notify all targets by calling their ``source_changed(time)`` method.
@@ -394,18 +394,18 @@ class Output(IOutput, Loggable):
 
         return self.data
 
-    def get_info(self, request_params):
+    def get_info(self, info):
         """Get the output's data info.
 
         Parameters
         ----------
-        request_params : dict
-            Data request parameters
+        info : Info
+            Requested data info
 
         Returns
         -------
         dict
-            Data info.
+            Delivered data info
 
         Raises
         ------
@@ -497,18 +497,18 @@ class AAdapter(IAdapter, Input, Output, ABC):
 
         self.notify_targets(time)
 
-    def get_info(self, request_params):
+    def get_info(self, info):
         """Get the output's data info.
 
         Parameters
         ----------
-        request_params : dict
-            Data request parameters
+        info : Info
+            Requested data info
 
         Returns
         -------
         dict
-            Data info.
+            Delivered data info
 
         Raises
         ------
@@ -517,7 +517,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
         """
         self.logger.debug("get info")
 
-        return self.pull_info(request_params)
+        return self.exchange_info(info)
 
     @property
     def name(self):

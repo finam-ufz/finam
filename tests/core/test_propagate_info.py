@@ -27,7 +27,7 @@ class MockupConsumer(ATimeComponent):
 
     def connect(self):
         super().connect()
-        self.info = self.inputs["Input"].pull_info(
+        self.info = self.inputs["Input"].exchange_info(
             {"spec": "sink_spec", "unit": "sink_unit"}
         )
         self.data = self.inputs["Input"].pull_data(self.time)
@@ -57,14 +57,14 @@ class SpecAdapter(AAdapter):
     def get_data(self, time):
         return self.pull_data(time)
 
-    def get_info(self, request_params):
+    def get_info(self, info):
         self.logger.debug("get info")
 
-        info = self.pull_info(request_params)
-        out_info = dict(info)
-        if "spec" in request_params:
-            out_info["spec"] = request_params["spec"]
-            print(f"convert from spec '{info['spec']}' to '{request_params['spec']}'")
+        in_info = self.exchange_info(info)
+        out_info = dict(in_info)
+        if "spec" in info:
+            out_info["spec"] = info["spec"]
+            print(f"convert from spec '{in_info['spec']}' to '{info['spec']}'")
         return out_info
 
 
@@ -75,14 +75,14 @@ class UnitAdapter(AAdapter):
     def get_data(self, time):
         return self.pull_data(time)
 
-    def get_info(self, request_params):
+    def get_info(self, info):
         self.logger.debug("get info")
 
-        info = self.pull_info(request_params)
-        out_info = dict(info)
-        if "unit" in request_params:
-            out_info["unit"] = request_params["unit"]
-            print(f"convert from unit '{info['unit']}' to '{request_params['unit']}'")
+        in_info = self.exchange_info(info)
+        out_info = dict(in_info)
+        if "unit" in info:
+            out_info["unit"] = info["unit"]
+            print(f"convert from unit '{in_info['unit']}' to '{info['unit']}'")
         return out_info
 
 

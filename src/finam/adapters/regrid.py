@@ -26,21 +26,21 @@ class ARegridding(AAdapter, ABC):
     def _update_grid_specs(self):
         """set up interpolator"""
 
-    def get_info(self, request_params):
+    def get_info(self, info):
         self.logger.debug("get info")
 
-        info = self.pull_info(request_params)
+        in_info = self.exchange_info(info)
 
-        if "grid_spec" not in request_params:
+        if "grid_spec" not in info:
             with LogError(self.logger):
                 raise FinamMetaDataError("Missing target grid specification")
-        if "grid_spec" not in info:
+        if "grid_spec" not in in_info:
             with LogError(self.logger):
                 raise FinamMetaDataError("Missing source grid specification")
 
         if (
             self.output_grid is not None
-            and self.output_grid != request_params["grid_spec"]
+            and self.output_grid != info["grid_spec"]
         ):
             with LogError(self.logger):
                 raise FinamMetaDataError(
@@ -49,10 +49,10 @@ class ARegridding(AAdapter, ABC):
 
         needs_update = self.output_grid is None
 
-        self.input_grid = info["grid_spec"]
-        self.output_grid = request_params["grid_spec"]
+        self.input_grid = in_info["grid_spec"]
+        self.output_grid = info["grid_spec"]
 
-        out_info = dict(info)
+        out_info = dict(in_info)
         out_info["grid_spec"] = self.output_grid
 
         if needs_update:

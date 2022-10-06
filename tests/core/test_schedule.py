@@ -76,7 +76,7 @@ class MockupDependentComponent(ATimeComponent):
     def connect(self):
         super().connect()
         try:
-            _info = self.inputs["Input"].pull_info({"test": 0})
+            _info = self.inputs["Input"].exchange_info({"test": 0})
             _pulled = self.inputs["Input"].pull_data(self.time)
         except FinamNoDataError:
             self.status = ComponentStatus.CONNECTING_IDLE
@@ -115,7 +115,7 @@ class MockupCircularComponent(ATimeComponent):
     def connect(self):
         super().connect()
         try:
-            _info = self.inputs["Input"].pull_info({"test": 0})
+            _info = self.inputs["Input"].exchange_info({"test": 0})
             pulled = self._inputs["Input"].pull_data(self.time)
         except FinamNoDataError:
             self.status = ComponentStatus.CONNECTING_IDLE
