@@ -18,16 +18,16 @@ from finam.data.grid_tools import (
 
 class TestGridTools(unittest.TestCase):
     def test_point_order(self):
-        self.assertEqual(point_order("C", False), "C")
-        self.assertEqual(point_order("C", True), "F")
-        self.assertEqual(point_order("F", False), "F")
-        self.assertEqual(point_order("F", True), "C")
+        self.assertEqual(point_order(order="C", axes_reversed=False), "C")
+        self.assertEqual(point_order(order="C", axes_reversed=True), "F")
+        self.assertEqual(point_order(order="F", axes_reversed=False), "F")
+        self.assertEqual(point_order(order="F", axes_reversed=True), "C")
 
     def test_order_map(self):
-        assert_array_equal(order_map((2, 3), "C", "C"), [0, 1, 2, 3, 4, 5])
-        assert_array_equal(order_map((2, 3), "F", "F"), [0, 1, 2, 3, 4, 5])
-        assert_array_equal(order_map((2, 3), "F", "C"), [0, 2, 4, 1, 3, 5])
-        assert_array_equal(order_map((2, 3), "C", "F"), [0, 3, 1, 4, 2, 5])
+        assert_array_equal(order_map((2, 3), of="C", to="C"), [0, 1, 2, 3, 4, 5])
+        assert_array_equal(order_map((2, 3), of="F", to="F"), [0, 1, 2, 3, 4, 5])
+        assert_array_equal(order_map((2, 3), of="F", to="C"), [0, 2, 4, 1, 3, 5])
+        assert_array_equal(order_map((2, 3), of="C", to="F"), [0, 3, 1, 4, 2, 5])
 
     def test_gen_node_centers(self):
         uniform = UniformGrid((2, 3), (2.0, 2.0, 2.0), (1.0, 1.0, 1.0))
