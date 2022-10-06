@@ -26,17 +26,15 @@ class MockupConsumer(ATimeComponent):
         self.time = time
         self.step = timedelta(days=1)
         self.units = units
-        self.info = None
         self.data = None
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
+        self._inputs["Input"] = Input(meta={"units": self.units})
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        self.info = self.inputs["Input"].exchange_info(Info(meta={"units": self.units}))
         self.data = self.inputs["Input"].pull_data(self.time)
         self.status = ComponentStatus.CONNECTED
 
@@ -85,6 +83,6 @@ class TestUnits(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink.info.meta, {"units": reg.kilometer})
+        self.assertEqual(sink.inputs["Input"].info.meta, {"units": reg.kilometer})
         self.assertEqual(sink.data.pint.units, reg.kilometer)
         self.assertEqual(sink.data.pint.magnitude[0, 0], 0.001)

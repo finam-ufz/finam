@@ -26,17 +26,15 @@ class MockupConsumer(ATimeComponent):
         self.time = time
         self.step = timedelta(days=1)
         self.grid_spec = grid_spec
-        self.info = None
         self.data = None
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
+        self._inputs["Input"] = Input(grid=self.grid_spec)
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        self.info = self.inputs["Input"].exchange_info(Info(grid=self.grid_spec))
         self.data = self.inputs["Input"].pull_data(self.time)
         self.status = ComponentStatus.CONNECTED
 
@@ -86,7 +84,7 @@ class TestRegrid(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink.info.grid, out_spec)
+        self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
         self.assertEqual(sink.data[0, 0], 1.0 * reg.meter)
         self.assertEqual(sink.data[0, 1], 1.0 * reg.meter)
         self.assertEqual(sink.data[1, 0], 1.0 * reg.meter)
@@ -123,7 +121,7 @@ class TestRegrid(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink.info.grid, out_spec)
+        self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
         self.assertEqual(sink.data[0, 0], 1.0 * reg.meter)
         self.assertEqual(sink.data[0, 1], 0.5 * reg.meter)
         self.assertEqual(sink.data[1, 0], 0.5 * reg.meter)
@@ -158,7 +156,7 @@ class TestRegrid(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink.info.grid, out_spec)
+        self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
         self.assertEqual(sink.data[0, 0], 1.0 * reg.meter)
         self.assertEqual(sink.data[0, 1], 0.5 * reg.meter)
         self.assertEqual(sink.data[1, 0], 0.5 * reg.meter)
@@ -198,13 +196,13 @@ class TestRegrid(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink_1.info.grid, out_spec_1)
+        self.assertEqual(sink_1.inputs["Input"].info.grid, out_spec_1)
         self.assertEqual(sink_1.data[0, 0], 1.0 * reg.meter)
         self.assertEqual(sink_1.data[0, 1], 0.5 * reg.meter)
         self.assertEqual(sink_1.data[1, 0], 0.5 * reg.meter)
         self.assertEqual(sink_1.data[1, 1], 0.25 * reg.meter)
 
-        self.assertEqual(sink_2.info.grid, out_spec_2)
+        self.assertEqual(sink_2.inputs["Input"].info.grid, out_spec_2)
         self.assertEqual(sink_2.data[0, 0], 1.0 * reg.meter)
         self.assertEqual(sink_2.data[0, 1], 0.5 * reg.meter)
         self.assertEqual(sink_2.data[1, 0], 0.5 * reg.meter)

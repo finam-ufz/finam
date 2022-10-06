@@ -23,15 +23,13 @@ class MockupConsumer(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
+        self._inputs["Input"] = Input(grid="sink_spec", meta={"unit": "sink_unit"})
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        self.info = self.inputs["Input"].exchange_info(
-            Info(grid="sink_spec", meta={"unit": "sink_unit"})
-        )
         self.data = self.inputs["Input"].pull_data(self.time)
+        self.info = self.inputs["Input"].info
         self.status = ComponentStatus.CONNECTED
 
     def validate(self):
@@ -62,8 +60,7 @@ class SpecAdapter(AAdapter):
         self.logger.debug("get info")
 
         in_info = self.exchange_info(info)
-        out_info = copy.copy(in_info)
-        out_info.grid = info.grid
+        out_info = in_info.copy_with(grid=info.grid)
         return out_info
 
 

@@ -5,7 +5,7 @@ import logging
 from abc import ABC
 from datetime import datetime
 
-from ..data import Info
+from ..data import Info, NoGrid
 from ..tools.log_helper import LogError, loggable
 from .interfaces import (
     ComponentStatus,
@@ -146,10 +146,12 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
 class Input(IInput, Loggable):
     """Default input implementation."""
 
-    def __init__(self):
+    def __init__(self, grid=NoGrid, meta=None):
         self.source = None
         self.base_logger_name = None
         self.name = ""
+        self.info = Info(grid, meta)
+        self.info_exchanged = False
 
     def set_source(self, source):
         """Set the input's source output or adapter
@@ -219,6 +221,9 @@ class Input(IInput, Loggable):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
 
+        if not self.info_exchanged:
+            self.exchange_info(self.info)
+
         return self.source.get_data(time)
 
     def exchange_info(self, info):
@@ -235,10 +240,22 @@ class Input(IInput, Loggable):
             delivered parameters
         """
         self.logger.debug("pull info")
+        if info is None:
+            with LogError(self.logger):
+                raise FinamMetaDataError("No metadata provided")
         if not isinstance(info, Info):
             with LogError(self.logger):
                 raise FinamMetaDataError("Metadata must be of type Info")
-        return self.source.get_info(info)
+
+        in_info = self.source.get_info(info)
+        if not self.info.accepts(in_info):
+            if not isinstance(info, Info):
+                with LogError(self.logger):
+                    raise FinamMetaDataError("Can't accept incoming data info")
+
+        self.info = in_info
+        self.info_exchanged = True
+        return in_info
 
     @property
     def has_source(self):
@@ -269,8 +286,8 @@ class CallbackInput(Input):
         A callback ``callback(data, time)``, returning the transformed data.
     """
 
-    def __init__(self, callback):
-        super().__init__()
+    def __init__(self, callback, grid=NoGrid, meta=None):
+        super().__init__(grid, meta)
         self.source = None
         self.callback = callback
 
@@ -293,12 +310,15 @@ class CallbackInput(Input):
 class Output(IOutput, Loggable):
     """Default output implementation."""
 
-    def __init__(self):
+    def __init__(self, info=None):
         self.targets = []
         self.data = None
         self.info = None
         self.base_logger_name = None
         self.name = ""
+
+        if info is not None:
+            self.push_info(info)
 
     def add_target(self, target):
         """Add a target input or adapter for this output.

@@ -27,7 +27,7 @@ class TestCallback(unittest.TestCase):
         )
 
         trans = CallbackComponent(
-            inputs=["In1"],
+            inputs={"In1": Info()},
             outputs={"Out1": Info()},
             callback=transform,
             start=datetime(2000, 1, 1),
@@ -35,7 +35,7 @@ class TestCallback(unittest.TestCase):
         )
 
         consumer = CallbackComponent(
-            inputs=["In1"],
+            inputs={"In1": Info()},
             outputs={},
             callback=consume,
             start=datetime(2000, 1, 1),

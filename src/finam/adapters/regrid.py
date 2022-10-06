@@ -1,7 +1,6 @@
 """
 Basic linear and nearest neighbour regridding adapters.
 """
-import copy
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -50,8 +49,7 @@ class ARegridding(AAdapter, ABC):
         self.input_grid = in_info.grid
         self.output_grid = info.grid
 
-        out_info = copy.copy(in_info)
-        out_info.grid = self.output_grid
+        out_info = in_info.copy_with(grid=self.output_grid)
 
         if needs_update:
             self._update_grid_specs()

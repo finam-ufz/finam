@@ -1,8 +1,6 @@
 """
 Unit conversion adapter.
 """
-import copy
-
 from ..core.interfaces import FinamMetaDataError
 from ..core.sdk import AAdapter
 from ..tools.log_helper import LogError
@@ -36,7 +34,6 @@ class ConvertUnits(AAdapter):
 
         self.out_units = info.meta["units"]
 
-        out_info = copy.copy(in_info)
-        out_info.meta["units"] = self.out_units
+        out_info = in_info.copy_with(units=self.out_units)
 
         return out_info
