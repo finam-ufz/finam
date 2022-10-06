@@ -445,6 +445,19 @@ class Output(IOutput, Loggable):
         if self.info is None:
             raise FinamNoDataError(f"No data info available in {self.name}")
 
+        if self.info.grid is None:
+            if info.grid is None:
+                raise FinamNoDataError("Can't set property `grid` from target info, as it is not provided")
+
+            self.info.grid = info.grid
+
+        for k, v in self.info.meta.items():
+            if v is None:
+                if k not in info.meta or info.meta[k] is None:
+                    raise FinamNoDataError(f"Can't set property `meta.{k}` from target info, as it is not provided")
+
+                self.info.meta[k] = info.meta[k]
+
         return self.info
 
     def chain(self, other):

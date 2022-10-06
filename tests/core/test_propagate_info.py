@@ -13,23 +13,22 @@ from finam.modules.generators import CallbackGenerator
 
 
 class MockupConsumer(ATimeComponent):
-    def __init__(self, time):
+    def __init__(self, time, info):
         super().__init__()
         self.status = ComponentStatus.CREATED
         self.time = time
         self.step = timedelta(days=1)
-        self.info = None
+        self.info = info
         self.data = None
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input(grid="sink_spec", meta={"unit": "sink_unit"})
+        self._inputs["Input"] = Input(self.info.grid, self.info.meta)
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
         self.data = self.inputs["Input"].pull_data(self.time)
-        self.info = self.inputs["Input"].info
         self.status = ComponentStatus.CONNECTED
 
     def validate(self):
@@ -94,7 +93,8 @@ class TestPropagate(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        sink = MockupConsumer(datetime(2000, 1, 1))
+        sink = MockupConsumer(datetime(2000, 1, 1),
+                              Info(grid="sink_spec", meta={"unit": "sink_unit"}))
 
         composition = Composition([source, sink])
         composition.initialize()
@@ -108,4 +108,54 @@ class TestPropagate(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink.info, Info(grid="sink_spec", meta={"unit": "sink_unit"}))
+        self.assertEqual(sink.inputs["Input"].info, Info(grid="sink_spec", meta={"unit": "sink_unit"}))
+
+    def test_propagate_info_from_source(self):
+        source = CallbackGenerator(
+            callbacks={
+                "Output": (
+                    lambda t: 1,
+                    Info(grid="source_spec", meta={"unit": "source_unit"}),
+                )
+            },
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+
+        sink = MockupConsumer(datetime(2000, 1, 1),
+                              Info(grid=None, meta={"unit": None}))
+
+        composition = Composition([source, sink])
+        composition.initialize()
+
+        source.outputs["Output"] >> sink.inputs["Input"]
+
+        composition.run(t_max=datetime(2000, 1, 2))
+
+        self.assertEqual(sink.inputs["Input"].info, Info(grid="source_spec", meta={"unit": "source_unit"}))
+
+    def test_propagate_info_from_target(self):
+        source = CallbackGenerator(
+            callbacks={
+                "Output": (
+                    lambda t: 1,
+                    Info(grid=None, meta={"unit": None}),
+                )
+            },
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+
+        sink = MockupConsumer(datetime(2000, 1, 1),
+                              Info(grid="sink_spec", meta={"unit": "sink_unit"}))
+
+        composition = Composition([source, sink])
+        composition.initialize()
+
+        source.outputs["Output"] >> sink.inputs["Input"]
+
+        composition.run(t_max=datetime(2000, 1, 2))
+
+        print(source.outputs["Output"].info.grid)
+        print(source.outputs["Output"].info.meta)
+        self.assertEqual(source.outputs["Output"].info, Info(grid="sink_spec", meta={"unit": "sink_unit"}))
