@@ -17,10 +17,12 @@ from ..tools.log_helper import LogError
 class ARegridding(AAdapter, ABC):
     """Abstract regridding class for handling data info"""
 
-    def __init__(self):
+    def __init__(self, in_grid=None, out_grid=None):
         super().__init__()
-        self.input_grid = None
-        self.output_grid = None
+        self.input_grid = in_grid
+        self.output_grid = out_grid
+
+        self._is_initialized = False
 
     @abstractmethod
     def _update_grid_specs(self):
@@ -29,30 +31,38 @@ class ARegridding(AAdapter, ABC):
     def get_info(self, info):
         self.logger.debug("get info")
 
-        in_info = self.exchange_info(info)
+        request = (
+            info.copy_with(grid=self.input_grid)
+            if info.grid is None and self.input_grid is not None
+            else info
+        )
+        in_info = self.exchange_info(request)
 
-        if info.grid is None:
+        if self.output_grid is None and info.grid is None:
             with LogError(self.logger):
                 raise FinamMetaDataError("Missing target grid specification")
-        if in_info.grid is None:
+        if self.input_grid is None and in_info.grid is None:
             with LogError(self.logger):
                 raise FinamMetaDataError("Missing source grid specification")
 
-        if self.output_grid is not None and self.output_grid != info.grid:
+        if (
+            self.output_grid is not None
+            and info.grid is not None
+            and self.output_grid != info.grid
+        ):
             with LogError(self.logger):
                 raise FinamMetaDataError(
                     "Target grid specification is already set, new specs differ"
                 )
 
-        needs_update = self.output_grid is None
-
-        self.input_grid = in_info.grid
-        self.output_grid = info.grid
+        self.input_grid = self.input_grid or in_info.grid
+        self.output_grid = self.output_grid or info.grid
 
         out_info = in_info.copy_with(grid=self.output_grid)
 
-        if needs_update:
+        if not self._is_initialized:
             self._update_grid_specs()
+            self._is_initialized = True
 
         return out_info
 
@@ -60,8 +70,8 @@ class ARegridding(AAdapter, ABC):
 class Nearest(ARegridding):
     """Regrid data between two grid specifications with nearest neighbor interpolation"""
 
-    def __init__(self, tree_options=None):
-        super().__init__()
+    def __init__(self, in_grid=None, out_grid=None, tree_options=None):
+        super().__init__(in_grid, out_grid)
         self.tree_options = tree_options
         self.ids = None
 
@@ -92,8 +102,10 @@ class Linear(ARegridding):
     So the actual topology of the grid is not taken into account.
     """
 
-    def __init__(self, fill_with_nearest=False, tree_options=None):
-        super().__init__()
+    def __init__(
+        self, in_grid=None, out_grid=None, fill_with_nearest=False, tree_options=None
+    ):
+        super().__init__(in_grid, out_grid)
         self.tree_options = tree_options
         self.fill_with_nearest = bool(fill_with_nearest)
         self.ids = None

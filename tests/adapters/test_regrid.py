@@ -128,6 +128,44 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink.data[1, 0], 0.5 * reg.meter)
         self.assertEqual(sink.data[1, 1], 0.25 * reg.meter)
 
+    def test_regrid_linear_custom(self):
+        reg = pint.UnitRegistry(force_ndarray_like=True)
+
+        in_spec = UniformGrid(
+            dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
+        )
+        out_spec = UniformGrid(dims=(9, 19), data_location=Location.POINTS)
+
+        in_data = xr.DataArray(
+            np.zeros(shape=in_spec.data_shape, order=in_spec.order)
+        ).pint.quantify(reg.meter)
+        in_data.data[0, 0] = 1.0 * in_data.pint.units
+
+        source = CallbackGenerator(
+            callbacks={"Output": (lambda t: in_data, Info(grid=None))},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+
+        sink = MockupConsumer(datetime(2000, 1, 1), None)
+
+        composition = Composition([source, sink])
+        composition.initialize()
+
+        (
+            source.outputs["Output"]
+            >> Linear(in_grid=in_spec, out_grid=out_spec)
+            >> sink.inputs["Input"]
+        )
+
+        composition.run(t_max=datetime(2000, 1, 2))
+
+        self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
+        self.assertEqual(sink.data[0, 0], 1.0 * reg.meter)
+        self.assertEqual(sink.data[0, 1], 0.5 * reg.meter)
+        self.assertEqual(sink.data[1, 0], 0.5 * reg.meter)
+        self.assertEqual(sink.data[1, 1], 0.25 * reg.meter)
+
     def test_regrid_linear_rev(self):
         reg = pint.UnitRegistry(force_ndarray_like=True)
 
