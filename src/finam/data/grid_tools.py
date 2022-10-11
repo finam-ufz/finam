@@ -220,7 +220,7 @@ def gen_cells(dims, order="F"):
 
 def check_axes_monotonicity(axes):
     """
-    Check axes to be strictly monotonic.
+    Check axes to be strictly monotonic, and makes them strictly monotonic increasing.
 
     Parameters
     ----------
@@ -519,6 +519,25 @@ class Grid(GridBase):
         """str: Point, cell and data order (C-like for flat data)."""
         return "C"
 
+    @property
+    @abstractmethod
+    def axes_names(self):
+        """list of str: Axes names (xyz order)."""
+        # should be used for xarray later on
+
+    def __eq__(self, other):
+        if not isinstance(other, Grid):
+            return False
+
+        # Might comparison of data_points be sufficient here?
+        return (
+            self.dim == other.dim
+            and self.crs == other.crs
+            and self.order == other.order
+            and self.data_location == other.data_location
+            and np.array_equal(self.data_points, other.data_points)
+        )
+
     def export_vtk(
         self,
         path,
@@ -599,12 +618,6 @@ class StructuredGrid(Grid):
     @abstractmethod
     def axes_attributes(self):
         """list of dict: Axes attributes following the CF convention (xyz order)."""
-        # should be used for xarray later on
-
-    @property
-    @abstractmethod
-    def axes_names(self):
-        """list of str: Axes names (xyz order)."""
         # should be used for xarray later on
 
     @property

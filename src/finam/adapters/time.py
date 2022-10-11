@@ -316,6 +316,6 @@ def _check_time(logger, time, time_range=(None, None)):
 
         if time_range[0] is not None and time < time_range[0]:
             raise FinamTimeError(
-                "Requested data for time point in the path. "
+                "Requested data for time point in the past. "
                 f"Earliest data: {time_range[0]}, request: {time}"
             )

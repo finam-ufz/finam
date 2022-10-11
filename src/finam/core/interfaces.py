@@ -22,6 +22,10 @@ class FinamNoDataError(Exception):
     """Error for data not yet being available."""
 
 
+class FinamMetaDataError(Exception):
+    """Error for missing but required metadata."""
+
+
 class ComponentStatus(Enum):
     """Status for components."""
 
@@ -138,6 +142,11 @@ class IMpiComponent(ABC):
 class IInput(ABC):
     """Interface for input slots."""
 
+    @property
+    @abstractmethod
+    def info(self):
+        """Info: The input's data info."""
+
     @abstractmethod
     def set_source(self, source):
         """Set the input's source output or adapter
@@ -183,9 +192,42 @@ class IInput(ABC):
             Data set for the given simulation time.
         """
 
+    @abstractmethod
+    def exchange_info(self, info):
+        """Exchange the data info with the input's source.
+
+        Parameters
+        ----------
+        info : Info
+            request parameters
+
+        Returns
+        -------
+        dict
+            delivered parameters
+        """
+
 
 class IOutput(ABC):
     """Interface for output slots."""
+
+    @property
+    @abstractmethod
+    def info(self):
+        """Info: The output's data info.
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if infos were not yet exchanged
+        """
+
+    @abstractmethod
+    def has_info(self):
+        """Returns if the output has a data info.
+
+        The info is not required to be validly exchanged.
+        """
 
     @abstractmethod
     def add_target(self, target):
@@ -222,6 +264,16 @@ class IOutput(ABC):
         """
 
     @abstractmethod
+    def push_info(self, info):
+        """Push data info into the output.
+
+        Parameters
+        ----------
+        info : Info
+            Delivered data info
+        """
+
+    @abstractmethod
     def notify_targets(self, time):
         """Notify all targets by calling their ``source_changed(time)`` method.
 
@@ -250,6 +302,26 @@ class IOutput(ABC):
         ------
         FinamNoDataError
             Raises the error if no data is available
+        """
+
+    @abstractmethod
+    def get_info(self, info):
+        """Exchange and get the output's data info.
+
+        Parameters
+        ----------
+        info : Info
+            Requested data info
+
+        Returns
+        -------
+        dict
+            Delivered data info
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no info is available
         """
 
     @abstractmethod

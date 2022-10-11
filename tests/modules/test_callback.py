@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import numpy as np
 
 from finam.core.schedule import Composition
+from finam.data import Info, NoGrid
 from finam.modules.callback import CallbackComponent
 from finam.modules.generators import CallbackGenerator
 
@@ -20,22 +21,22 @@ def consume(inputs, time):
 class TestCallback(unittest.TestCase):
     def test_callback(self):
         source = CallbackGenerator(
-            callbacks={"Out1": lambda t: np.random.random(1)[0]},
+            callbacks={"Out1": (lambda t: np.random.random(1)[0], Info(grid=NoGrid))},
             start=datetime(2000, 1, 1),
             step=timedelta(days=7),
         )
 
         trans = CallbackComponent(
-            inputs=["In1"],
-            outputs=["Out1"],
+            inputs={"In1": Info(grid=NoGrid)},
+            outputs={"Out1": Info(grid=NoGrid)},
             callback=transform,
             start=datetime(2000, 1, 1),
             step=timedelta(days=7),
         )
 
         consumer = CallbackComponent(
-            inputs=["In1"],
-            outputs=[],
+            inputs={"In1": Info(grid=NoGrid)},
+            outputs={},
             callback=consume,
             start=datetime(2000, 1, 1),
             step=timedelta(days=7),

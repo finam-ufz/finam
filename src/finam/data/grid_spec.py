@@ -327,6 +327,8 @@ class UnstructuredGrid(Grid):
         Cell types given as integer, e.g. CellType.TRI.value.
     data_location : Location, str, int, optional
         Data location in the grid, by default Location.CELLS
+    axes_names : list of str or None, optional
+        Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
     """
@@ -337,6 +339,7 @@ class UnstructuredGrid(Grid):
         cells,
         cell_types,
         data_location=Location.CELLS,
+        axes_names=None,
         crs=None,
     ):
         # at most 3 axes
@@ -344,6 +347,11 @@ class UnstructuredGrid(Grid):
         self._cells = np.asarray(np.atleast_2d(cells), dtype=int)
         self._cell_types = np.asarray(np.atleast_1d(cell_types), dtype=int)
         self._data_location = set_location(data_location)
+
+        self._axes_names = axes_names or ["x", "y", "z"][: self.dim]
+        if len(self.axes_names) != self.dim:
+            raise ValueError("UnstructuredGrid: wrong length of 'axes_names'")
+
         self._crs = crs
 
     @property
@@ -386,6 +394,11 @@ class UnstructuredGrid(Grid):
         """Location of the associated data (either CELLS or POINTS)."""
         return self._data_location
 
+    @property
+    def axes_names(self):
+        """list of str: Axes names (xyz order)."""
+        return self._axes_names
+
 
 class UnstructuredPoints(UnstructuredGrid):
     """
@@ -395,6 +408,8 @@ class UnstructuredPoints(UnstructuredGrid):
     ----------
     points : arraylike
         Points (n, dim) defining the grid.
+    axes_names : list of str or None, optional
+        Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
     """
@@ -402,6 +417,7 @@ class UnstructuredPoints(UnstructuredGrid):
     def __init__(
         self,
         points,
+        axes_names=None,
         crs=None,
     ):
         # at most 3 axes
@@ -411,6 +427,7 @@ class UnstructuredPoints(UnstructuredGrid):
             cells=np.asarray([range(pnt_cnt)], dtype=int).T,
             cell_types=np.full(pnt_cnt, CellType.VERTEX.value, dtype=int),
             data_location=Location.POINTS,
+            axes_names=axes_names,
             crs=crs,
         )
 

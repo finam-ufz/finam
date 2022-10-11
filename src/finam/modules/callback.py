@@ -12,10 +12,10 @@ class CallbackComponent(ATimeComponent):
 
     Parameters
     ----------
-    inputs : list of str
-        Input names.
-    outputs : list of str
-        Output names.
+    inputs : dict of (name, info)
+        Input names and data info.
+    outputs : dict of (name, info)
+        Output names and data info.
     callback
         Callback f({inputs}, time) -> {outputs}
     start : datetime
@@ -33,8 +33,8 @@ class CallbackComponent(ATimeComponent):
             if not isinstance(step, timedelta):
                 raise ValueError("Step must be of type timedelta")
 
-        self._input_names = inputs
-        self._output_names = outputs
+        self._input_infos = inputs
+        self._output_infos = outputs
         self._callback = callback
         self._step = step
         self._time = start
@@ -43,18 +43,21 @@ class CallbackComponent(ATimeComponent):
     def initialize(self):
         super().initialize()
 
-        for name in self._input_names:
+        for name, info in self._input_infos.items():
             self._inputs[name] = Input()
 
-        for name in self._output_names:
-            self._outputs[name] = Output()
+        for name, info in self._output_infos.items():
+            self._outputs[name] = Output(info)
 
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
 
-        inp = {n: None for n in self._input_names}
+        for name, info in self._input_infos.items():
+            self.inputs[name].exchange_info(info)
+
+        inp = {n: None for n in self._input_infos.keys()}
         outp = self._callback(inp, self.time)
 
         for name, val in outp.items():
@@ -70,7 +73,7 @@ class CallbackComponent(ATimeComponent):
     def update(self):
         super().update()
 
-        inp = {n: self.inputs[n].pull_data(self.time) for n in self._input_names}
+        inp = {n: self.inputs[n].pull_data(self.time) for n in self._input_infos.keys()}
 
         self._time += self._step
 

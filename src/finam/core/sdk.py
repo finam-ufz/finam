@@ -5,10 +5,12 @@ import logging
 from abc import ABC
 from datetime import datetime
 
+from ..data import Info
 from ..tools.log_helper import LogError, loggable
 from .interfaces import (
     ComponentStatus,
     FinamLogError,
+    FinamMetaDataError,
     FinamNoDataError,
     FinamStatusError,
     IAdapter,
@@ -148,6 +150,12 @@ class Input(IInput, Loggable):
         self.source = None
         self.base_logger_name = None
         self.name = ""
+        self._info = None
+
+    @property
+    def info(self):
+        """Info: The input's data info."""
+        return self._info
 
     def set_source(self, source):
         """Set the input's source output or adapter
@@ -219,6 +227,36 @@ class Input(IInput, Loggable):
 
         return self.source.get_data(time)
 
+    def exchange_info(self, info):
+        """Exchange the data info with the input's source.
+
+        Parameters
+        ----------
+        info : Info
+            request parameters
+
+        Returns
+        -------
+        dict
+            delivered parameters
+        """
+        self.logger.debug("exchanging info")
+        with LogError(self.logger):
+            if info is None:
+                raise FinamMetaDataError("No metadata provided")
+            if not isinstance(info, Info):
+                raise FinamMetaDataError("Metadata must be of type Info")
+
+            in_info = self.source.get_info(info)
+            fail_info = {}
+            if not info.accepts(in_info, fail_info):
+                raise FinamMetaDataError(
+                    f"Can't accept incoming data info. Failed entries:\n{fail_info}"
+                )
+
+        self._info = in_info
+        return in_info
+
     @property
     def has_source(self):
         """Flag if this input instance has a source."""
@@ -272,11 +310,34 @@ class CallbackInput(Input):
 class Output(IOutput, Loggable):
     """Default output implementation."""
 
-    def __init__(self):
+    def __init__(self, info=None):
         self.targets = []
         self.data = None
+        self._info = None
         self.base_logger_name = None
         self.name = ""
+
+        if info is not None:
+            self.push_info(info)
+
+        self._info_exchanged = False
+
+    @property
+    def info(self):
+        """Info: The input's data info."""
+        if self._info is None:
+            raise FinamNoDataError("No data info available")
+        if not self._info_exchanged:
+            raise FinamNoDataError("Data info was not exchanged yet")
+
+        return self._info
+
+    def has_info(self):
+        """Returns if the output has a data info.
+
+        The info is not required to be validly exchanged.
+        """
+        return self._info is not None
 
     def add_target(self, target):
         """Add a target input or adapter for this output.
@@ -324,6 +385,20 @@ class Output(IOutput, Loggable):
         self.data = data
         self.notify_targets(time)
 
+    def push_info(self, info):
+        """Push data info into the output.
+
+        Parameters
+        ----------
+        info : Info
+            Delivered data info
+        """
+        self.logger.debug("push info")
+        if not isinstance(info, Info):
+            with LogError(self.logger):
+                raise FinamMetaDataError("Metadata must be of type Info")
+        self._info = info
+
     def notify_targets(self, time):
         """Notify all targets by calling their ``source_changed(time)`` method.
 
@@ -359,10 +434,59 @@ class Output(IOutput, Loggable):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
 
+        if self._info is None:
+            raise FinamNoDataError(f"No data info available in {self.name}")
+        if not self._info_exchanged:
+            raise FinamNoDataError(f"Data info was not yet exchanged in {self.name}")
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
         return self.data
+
+    def get_info(self, info):
+        """Exchange and get the output's data info.
+
+        For internal use. To get the info in a component, use property `info`.
+
+        Parameters
+        ----------
+        info : Info
+            Requested data info
+
+        Returns
+        -------
+        dict
+            Delivered data info
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no info is available
+        """
+        self.logger.debug("get info")
+
+        if self._info is None:
+            raise FinamNoDataError("No data info available")
+
+        if self._info.grid is None:
+            if info.grid is None:
+                raise FinamNoDataError(
+                    "Can't set property `grid` from target info, as it is not provided"
+                )
+
+            self._info.grid = info.grid
+
+        for k, v in self._info.meta.items():
+            if v is None:
+                if k not in info.meta or info.meta[k] is None:
+                    raise FinamNoDataError(
+                        f"Can't set property `meta.{k}` from target info, as it is not provided"
+                    )
+
+                self._info.meta[k] = info.meta[k]
+
+        self._info_exchanged = True
+        return self.info
 
     def chain(self, other):
         """Chain outputs and adapters.
@@ -441,6 +565,53 @@ class AAdapter(IAdapter, Input, Output, ABC):
                 raise ValueError("Time must be of type datetime")
 
         self.notify_targets(time)
+
+    def get_info(self, info):
+        """Exchange and get the output's data info.
+
+        Parameters
+        ----------
+        info : Info
+            Requested data info
+
+        Returns
+        -------
+        dict
+            Delivered data info
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no info is available
+        """
+        self.logger.debug("get info")
+
+        return self.exchange_info(info)
+
+    def exchange_info(self, info):
+        """Exchange the data info with the input's source.
+
+        Parameters
+        ----------
+        info : Info
+            request parameters
+
+        Returns
+        -------
+        dict
+            delivered parameters
+        """
+        self.logger.debug("exchanging info")
+        with LogError(self.logger):
+            if info is None:
+                raise FinamMetaDataError("No metadata provided")
+            if not isinstance(info, Info):
+                raise FinamMetaDataError("Metadata must be of type Info")
+
+        in_info = self.source.get_info(info)
+
+        self._info = in_info
+        return in_info
 
     @property
     def name(self):

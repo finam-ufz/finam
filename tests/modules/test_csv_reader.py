@@ -3,7 +3,8 @@ from datetime import datetime
 from os import path
 from tempfile import TemporaryDirectory
 
-from finam.core.interfaces import ComponentStatus, FinamStatusError
+from finam.core.interfaces import ComponentStatus
+from finam.data import Info, NoGrid
 from finam.modules.readers import CsvReader
 
 
@@ -35,6 +36,9 @@ class TestCsvReader(unittest.TestCase):
             reader.initialize()
 
             self.assertEqual(len(reader.outputs), 2)
+
+            reader.outputs["X"].get_info(Info(grid=NoGrid))
+            reader.outputs["Y"].get_info(Info(grid=NoGrid))
 
             reader.connect()
             reader.validate()

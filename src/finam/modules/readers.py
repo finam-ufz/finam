@@ -6,6 +6,7 @@ from datetime import datetime
 
 from ..core.interfaces import ComponentStatus
 from ..core.sdk import ATimeComponent, Output
+from ..data import Info, NoGrid
 
 
 class CsvReader(ATimeComponent):
@@ -41,7 +42,7 @@ class CsvReader(ATimeComponent):
         self._row_index = 0
 
         self._output_names = outputs
-        self._outputs = {o: Output() for o in outputs}
+        self._outputs = {o: Output(Info(grid=NoGrid)) for o in outputs}
 
         self.status = ComponentStatus.CREATED
 

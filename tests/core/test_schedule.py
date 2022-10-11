@@ -6,14 +6,11 @@ import unittest
 from datetime import datetime, timedelta
 
 from finam.adapters.base import Scale
-from finam.core.interfaces import (
-    ComponentStatus,
-    FinamNoDataError,
-    FinamStatusError,
-    NoBranchAdapter,
-)
+from finam.core.interfaces import ComponentStatus, FinamStatusError, NoBranchAdapter
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
+from finam.data import Info, NoGrid
+from finam.tools.connect_helper import ConnectHelper
 
 
 class MockupComponent(ATimeComponent):
@@ -31,7 +28,7 @@ class MockupComponent(ATimeComponent):
     def initialize(self):
         super().initialize()
         for key, _ in self._callbacks.items():
-            self._outputs[key] = Output()
+            self._outputs[key] = Output(Info(grid=NoGrid))
 
         self.status = ComponentStatus.INITIALIZED
 
@@ -67,20 +64,22 @@ class MockupDependentComponent(ATimeComponent):
         self._time = datetime(2000, 1, 1)
         self.status = ComponentStatus.CREATED
 
+        self.connector = None
+
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
+        self.inputs["Input"] = Input()
+        self.connector = ConnectHelper(
+            self.inputs, self.outputs, required_in_data=["Input"]
+        )
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        try:
-            _pulled = self._inputs["Input"].pull_data(self.time)
-        except FinamNoDataError:
-            self.status = ComponentStatus.CONNECTING_IDLE
-            return
 
-        self.status = ComponentStatus.CONNECTED
+        self.status = self.connector.connect(
+            self.time, exchange_infos={"Input": Info(grid=NoGrid)}
+        )
 
     def validate(self):
         super().validate()
@@ -104,23 +103,29 @@ class MockupCircularComponent(ATimeComponent):
         self._time = datetime(2000, 1, 1)
         self.status = ComponentStatus.CREATED
 
+        self.pulled_data = None
+        self.connector = None
+
     def initialize(self):
         super().initialize()
         self._inputs["Input"] = Input()
-        self._outputs["Output"] = Output()
+        self._outputs["Output"] = Output(Info(grid=NoGrid))
+        self.connector = ConnectHelper(
+            self.inputs, self.outputs, required_in_data=["Input"]
+        )
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        try:
-            pulled = self._inputs["Input"].pull_data(self.time)
-        except FinamNoDataError:
-            self.status = ComponentStatus.CONNECTING_IDLE
-            return
 
-        self._outputs["Output"].push_data(pulled, self.time)
+        push_data = {}
+        pulled_data = self.connector.in_data["Input"]
+        if pulled_data is not None:
+            push_data["Output"] = pulled_data
 
-        self.status = ComponentStatus.CONNECTED
+        self.status = self.connector.connect(
+            self.time, exchange_infos={"Input": Info(grid=NoGrid)}, push_data=push_data
+        )
 
     def validate(self):
         super().validate()
@@ -128,9 +133,9 @@ class MockupCircularComponent(ATimeComponent):
 
     def update(self):
         super().update()
-        pulled = self._inputs["Input"].pull_data(self.time)
+        pulled = self.inputs["Input"].pull_data(self.time)
         self._time += self._step
-        self._outputs["Output"].push_data(pulled, self.time)
+        self.outputs["Output"].push_data(pulled, self.time)
 
         self.status = ComponentStatus.UPDATED
 
@@ -148,6 +153,10 @@ class MockupConsumerComponent(ATimeComponent):
         super().initialize()
         self._inputs["Input"] = Input()
         self.status = ComponentStatus.INITIALIZED
+
+    def connect(self):
+        super().connect()
+        self.inputs["Input"].exchange_info(Info(grid=NoGrid))
 
 
 class CallbackAdapter(AAdapter):

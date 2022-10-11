@@ -1,7 +1,6 @@
 """
 Unit tests for the adapters.time module.
 """
-
 import unittest
 from datetime import datetime, timedelta
 
@@ -12,6 +11,7 @@ from finam.adapters.time import (
     PreviousValue,
 )
 from finam.core.interfaces import FinamTimeError
+from finam.data import Info, NoGrid
 from finam.data.grid import Grid, GridSpec
 from finam.modules.generators import CallbackGenerator
 
@@ -19,7 +19,7 @@ from finam.modules.generators import CallbackGenerator
 class TestNextValue(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": lambda t: t.day - 1},
+            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -29,6 +29,8 @@ class TestNextValue(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Step"] >> self.adapter
+
+        self.adapter.get_info(Info(grid=NoGrid))
 
         self.source.connect()
         self.source.validate()
@@ -52,9 +54,9 @@ class TestNextValue(unittest.TestCase):
 class TestPreviousValue(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": lambda t: t.day - 1},
+            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid))},
             start=datetime(2000, 1, 1),
-            step=timedelta(1.0),
+            step=timedelta(days=1),
         )
 
         self.adapter = PreviousValue()
@@ -62,6 +64,7 @@ class TestPreviousValue(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Step"] >> self.adapter
+        self.adapter.get_info(Info(grid=NoGrid))
 
         self.source.connect()
         self.source.validate()
@@ -88,7 +91,7 @@ class TestPreviousValue(unittest.TestCase):
 class TestLinearInterpolation(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": lambda t: t.day - 1},
+            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -97,6 +100,7 @@ class TestLinearInterpolation(unittest.TestCase):
 
         self.source.initialize()
         self.source.outputs["Step"] >> self.adapter
+        self.adapter.get_info(Info(grid=NoGrid))
 
         self.source.connect()
         self.source.validate()
@@ -123,7 +127,7 @@ class TestLinearInterpolation(unittest.TestCase):
 class TestLinearGridInterpolation(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: create_grid(t.day - 1)},
+            callbacks={"Grid": (lambda t: create_grid(t.day - 1), Info(grid=NoGrid))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -132,6 +136,7 @@ class TestLinearGridInterpolation(unittest.TestCase):
 
         self.source.initialize()
         self.source.outputs["Grid"] >> self.adapter
+        self.adapter.get_info(Info(grid=NoGrid))
 
         self.source.connect()
         self.source.validate()
@@ -158,7 +163,7 @@ class TestLinearGridInterpolation(unittest.TestCase):
 class TestLinearIntegration(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": lambda t: t.day - 1},
+            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -168,6 +173,7 @@ class TestLinearIntegration(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Step"] >> self.adapter
+        self.adapter.get_info(Info(grid=NoGrid))
 
         self.source.connect()
         self.source.validate()
@@ -193,7 +199,7 @@ class TestLinearIntegration(unittest.TestCase):
 class TestLinearGridIntegration(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Grid": lambda t: create_grid(t.day - 1)},
+            callbacks={"Grid": (lambda t: create_grid(t.day - 1), Info(grid=NoGrid))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -203,6 +209,7 @@ class TestLinearGridIntegration(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Grid"] >> self.adapter
+        self.adapter.get_info(Info(grid=NoGrid))
 
         self.source.connect()
         self.source.validate()

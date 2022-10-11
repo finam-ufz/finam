@@ -1,2 +1,2 @@
 """Tools for using FINAM."""
-from . import cwd_helper, log_helper
+from . import connect_helper, cwd_helper, log_helper

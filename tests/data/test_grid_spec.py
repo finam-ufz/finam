@@ -34,7 +34,7 @@ def write_asc(file, info):
             print(f"{val:<12}", info[val], file=f)
 
 
-class TestUniform(unittest.TestCase):
+class TestGridSpec(unittest.TestCase):
     def test_uniform(self):
         grid = UniformGrid((3, 2), spacing=(1.0, 2.0), origin=(2.0, 1.0))
 
@@ -44,6 +44,7 @@ class TestUniform(unittest.TestCase):
         self.assertEqual(grid.point_count, 6)
         self.assertEqual(grid.cell_count, 2)
         self.assertEqual(grid.data_shape, (2, 1))
+        self.assertEqual(grid.axes_names, ["x", "y"])
 
         assert_allclose(grid.axes[0], [2.0, 3.0, 4.0])
         assert_allclose(grid.axes[1], [1.0, 3.0])
@@ -95,6 +96,7 @@ class TestUniform(unittest.TestCase):
         self.assertEqual(grid.point_count, 6)
         self.assertEqual(grid.cell_count, 2)
         self.assertEqual(grid.data_shape, (2, 1))
+        self.assertEqual(grid.axes_names, ["x", "y"])
 
         assert_allclose(grid.axes[0], [2.0, 3.0, 4.0])
         assert_allclose(grid.axes[1], [1.0, 3.0])
@@ -165,6 +167,7 @@ class TestUniform(unittest.TestCase):
         self.assertEqual(grid.cell_count, 2)
         self.assertEqual(grid.data_shape, (2,))
         self.assertEqual(grid.data_size, 2)
+        self.assertEqual(grid.axes_names, ["x", "y"])
 
         assert_array_equal(grid.cell_types, [3, 3])
         assert_allclose(grid.cell_centers, [[1.0, 1.0], [3.0, 1.0]])
