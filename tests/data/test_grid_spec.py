@@ -1,4 +1,6 @@
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
@@ -66,19 +68,21 @@ class TestUniform(unittest.TestCase):
         with self.assertRaises(ValueError):
             UniformGrid((3, 2), origin=(0.0,))
 
-        grid.export_vtk(
-            path="test", data={"data": np.zeros(grid.data_shape)}, mesh_type="uniform"
-        )
-        grid.export_vtk(
-            path="test",
-            data={"data": np.zeros(grid.data_shape)},
-            mesh_type="structured",
-        )
-        grid.export_vtk(
-            path="test",
-            data={"data": np.zeros(grid.data_shape)},
-            mesh_type="unstructured",
-        )
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "test"
+            grid.export_vtk(
+                path=path, data={"data": np.zeros(grid.data_shape)}, mesh_type="uniform"
+            )
+            grid.export_vtk(
+                path=path,
+                data={"data": np.zeros(grid.data_shape)},
+                mesh_type="structured",
+            )
+            grid.export_vtk(
+                path=path,
+                data={"data": np.zeros(grid.data_shape)},
+                mesh_type="unstructured",
+            )
 
     def test_rectilinear(self):
         grid = RectilinearGrid([np.asarray([2.0, 3.0, 4.0]), np.asarray([1.0, 3.0])])
@@ -172,8 +176,10 @@ class TestUniform(unittest.TestCase):
             "yllcenter": 2700050.0,
             "cellsize": 100.0,
         }
-        write_asc("test.txt", header)
-        grid = EsriGrid.from_file("test.txt")
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "test.txt"
+            write_asc(path, header)
+            grid = EsriGrid.from_file(path)
         self.assertAlmostEqual(grid.ncols, header["ncols"])
         self.assertAlmostEqual(grid.nrows, header["nrows"])
         self.assertAlmostEqual(grid.cellsize, header["cellsize"])
