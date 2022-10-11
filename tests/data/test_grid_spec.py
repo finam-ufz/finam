@@ -12,7 +12,7 @@ from finam.data.grid_spec import (
     UnstructuredGrid,
     UnstructuredPoints,
 )
-from finam.data.grid_tools import CellType
+from finam.data.grid_tools import CellType, Location
 
 HEADER = [
     "ncols",
@@ -38,6 +38,7 @@ class TestUniform(unittest.TestCase):
     def test_uniform(self):
         grid = UniformGrid((3, 2), spacing=(1.0, 2.0), origin=(2.0, 1.0))
 
+        self.assertEqual(grid.name, "UniformGrid")
         self.assertEqual(grid.dim, 2)
         self.assertEqual(grid.dims, (3, 2))
         self.assertEqual(grid.point_count, 6)
@@ -87,6 +88,7 @@ class TestUniform(unittest.TestCase):
     def test_rectilinear(self):
         grid = RectilinearGrid([np.asarray([2.0, 3.0, 4.0]), np.asarray([1.0, 3.0])])
 
+        self.assertEqual(grid.name, "RectilinearGrid")
         self.assertIsNone(grid.crs)
         self.assertEqual(grid.dim, 2)
         self.assertEqual(grid.dims, (3, 2))
@@ -123,6 +125,9 @@ class TestUniform(unittest.TestCase):
                 axes_attributes=[{1: 1}],
             )
 
+        grid = RectilinearGrid([np.asarray([1.0]), np.asarray([2.0, 1.0])])
+        assert_array_equal(grid.axes_increase, [True, False])
+
     def test_unstructured(self):
         grid = UnstructuredGrid(
             points=[
@@ -150,8 +155,12 @@ class TestUniform(unittest.TestCase):
                 [4.0, 0.0],
             ],
         )
+        self.assertEqual(grid.name, "UnstructuredGrid")
+        self.assertEqual(grid2.name, "UnstructuredPoints")
         self.assertIsNone(grid.crs)
         self.assertEqual(grid.dim, 2)
+        self.assertEqual(grid.order, "C")
+        self.assertEqual(grid.mesh_dim, 2)
         self.assertEqual(grid.point_count, 8)
         self.assertEqual(grid.cell_count, 2)
         self.assertEqual(grid.data_shape, (2,))
@@ -180,8 +189,23 @@ class TestUniform(unittest.TestCase):
             path = Path(tmp) / "test.txt"
             write_asc(path, header)
             grid = EsriGrid.from_file(path)
+        self.assertEqual(grid.name, "EsriGrid")
         self.assertAlmostEqual(grid.ncols, header["ncols"])
         self.assertAlmostEqual(grid.nrows, header["nrows"])
         self.assertAlmostEqual(grid.cellsize, header["cellsize"])
         self.assertAlmostEqual(grid.xllcorner, 4375000)
         self.assertAlmostEqual(grid.yllcorner, 2700000)
+
+    def test_data_location(self):
+        grid1 = UniformGrid((1,), data_location=0)
+        grid2 = UniformGrid((2, 2), data_location="CELLS")
+        grid3 = UniformGrid((2, 2), data_location=Location.CELLS)
+        grid4 = UniformGrid((2, 2), data_location=1)
+        grid5 = UniformGrid((2, 2), data_location="POINTS")
+        grid6 = UniformGrid((2, 2), data_location=Location.POINTS)
+        self.assertEqual(grid1.data_location, Location.CELLS)
+        self.assertEqual(grid2.data_location, Location.CELLS)
+        self.assertEqual(grid3.data_location, Location.CELLS)
+        self.assertEqual(grid4.data_location, Location.POINTS)
+        self.assertEqual(grid5.data_location, Location.POINTS)
+        self.assertEqual(grid6.data_location, Location.POINTS)

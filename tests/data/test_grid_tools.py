@@ -122,9 +122,25 @@ class TestGridTools(unittest.TestCase):
         assert_array_equal(axes[1], [0, 1, 2, 3])
 
         axes = [np.asarray([2, 0, 1]), np.asarray([0, 1, 2, 3])]
-        with self.assertRaises(ValueError) as _context:
+        with self.assertRaises(ValueError):
             check_axes_monotonicity(axes)
 
         axes = [np.asarray([0, 1, 2]), np.asarray([0, 2, 1, 3])]
-        with self.assertRaises(ValueError) as _context:
+        with self.assertRaises(ValueError):
             check_axes_monotonicity(axes)
+
+    def test_errors(self):
+        # needs a Grid
+        with self.assertRaises(ValueError):
+            gen_node_centers(None)
+        # wrong len(axes_increase)
+        with self.assertRaises(ValueError):
+            UniformGrid((4, 2), axes_increase=[False])
+        # wrong mesh_type
+        with self.assertRaises(ValueError):
+            grid = UniformGrid((2, 2))
+            grid.export_vtk("test", mesh_type="wrong")
+        # wrong mesh_type
+        with self.assertRaises(ValueError):
+            grid = UniformGrid((2, 2), data_location=None)
+            grid.data_points
