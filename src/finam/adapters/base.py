@@ -4,8 +4,6 @@ Basic data transformation adapters.
 from datetime import datetime
 
 import numpy as np
-import pint
-import pint_xarray
 import xarray as xr
 
 from ..core.sdk import AAdapter
@@ -116,12 +114,11 @@ class ValueToGrid(AAdapter):
 
         value = self.pull_data(time)
         with LogError(self.logger):
-            assert_type(self, "input", value, xr.DataArray)
+            assert_type(self, "input", value, [xr.DataArray])
 
-        self.data.fill(value)
         data = xr.DataArray(
-            np.full(self.grid.data_shape, value.pint.magnitude[0], dtype=value.dtype)
-        )
+            np.full(self.grid.data_shape, value.pint.magnitude, dtype=value.dtype)
+        ).pint.quantify(value.pint.units)
         return data
 
     def get_info(self, info):

@@ -4,6 +4,11 @@ Unit tests for the adapters.time module.
 import unittest
 from datetime import datetime, timedelta
 
+import numpy as np
+import pint
+import pint_xarray
+import xarray as xr
+
 from finam.adapters.time import (
     LinearIntegration,
     LinearInterpolation,
@@ -11,8 +16,10 @@ from finam.adapters.time import (
     PreviousValue,
 )
 from finam.core.interfaces import FinamTimeError
-from finam.data import Info, NoGrid
+from finam.data import Info, NoGrid, UniformGrid
 from finam.modules.generators import CallbackGenerator
+
+reg = pint.UnitRegistry(force_ndarray_like=True)
 
 
 class TestNextValue(unittest.TestCase):
@@ -125,8 +132,11 @@ class TestLinearInterpolation(unittest.TestCase):
 
 class TestLinearGridInterpolation(unittest.TestCase):
     def setUp(self):
+        grid, _ = create_grid(10, 15, 0)
         self.source = CallbackGenerator(
-            callbacks={"Grid": (lambda t: create_grid(t.day - 1), Info(grid=NoGrid))},
+            callbacks={
+                "Grid": (lambda t: create_grid(10, 15, t.day - 1)[1], Info(grid=grid))
+            },
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -135,19 +145,29 @@ class TestLinearGridInterpolation(unittest.TestCase):
 
         self.source.initialize()
         self.source.outputs["Grid"] >> self.adapter
-        self.adapter.get_info(Info(grid=NoGrid))
+        self.adapter.get_info(Info(grid=grid))
 
         self.source.connect()
         self.source.validate()
 
     def test_linear_grid_interpolation(self):
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0)).get(2, 3), 0.0)
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 1, 0)).pint.magnitude[2, 3], 0.0
+        )
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12)).get(2, 3), 0.5)
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)).get(2, 3), 1.0)
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 1, 12)).pint.magnitude[2, 3], 0.5
+        )
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 2, 0)).pint.magnitude[2, 3], 1.0
+        )
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)).get(2, 3), 1.5)
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)).get(2, 3), 2.0)
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 2, 12)).pint.magnitude[2, 3], 1.5
+        )
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 3, 0)).pint.magnitude[2, 3], 2.0
+        )
 
         with self.assertRaises(FinamTimeError) as context:
             self.adapter.get_data(datetime(2000, 1, 1, 0))
@@ -197,8 +217,11 @@ class TestLinearIntegration(unittest.TestCase):
 
 class TestLinearGridIntegration(unittest.TestCase):
     def setUp(self):
+        grid, _ = create_grid(10, 15, 0)
         self.source = CallbackGenerator(
-            callbacks={"Grid": (lambda t: create_grid(t.day - 1), Info(grid=NoGrid))},
+            callbacks={
+                "Grid": (lambda t: create_grid(10, 15, t.day - 1)[1], Info(grid=grid))
+            },
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -216,12 +239,16 @@ class TestLinearGridIntegration(unittest.TestCase):
     def test_linear_grid_integration(self):
         self.source.update()
         self.assertEqual(
-            self.adapter.get_data(datetime(2000, 1, 1, 12)).get(2, 3), 0.25
+            self.adapter.get_data(datetime(2000, 1, 1, 12)).pint.magnitude[2, 3], 0.25
         )
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)).get(2, 3), 0.75)
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 2, 0)).pint.magnitude[2, 3], 0.75
+        )
         self.source.update()
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 4, 0)).get(2, 3), 2.0)
+        self.assertEqual(
+            self.adapter.get_data(datetime(2000, 1, 4, 0)).pint.magnitude[2, 3], 2.0
+        )
 
         with self.assertRaises(FinamTimeError) as context:
             self.adapter.get_data(datetime(2000, 1, 2, 0))
@@ -233,14 +260,14 @@ class TestLinearGridIntegration(unittest.TestCase):
             self.adapter.get_data(100)
 
 
-def create_grid(t):
-    grid = Grid(GridSpec(10, 5))
-    grid.fill(t)
+def create_grid(cols, rows, value):
+    grid = UniformGrid((cols, rows), data_location="POINTS")
 
-    for r in range(5):
-        grid.set_masked(4, r)
+    data = xr.DataArray(
+        np.full(shape=grid.data_shape, fill_value=value, order=grid.order)
+    ).pint.quantify(reg.meter)
 
-    return grid
+    return grid, data
 
 
 if __name__ == "__main__":

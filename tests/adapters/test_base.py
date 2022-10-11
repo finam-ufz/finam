@@ -6,10 +6,16 @@ import unittest
 from datetime import datetime, timedelta
 
 import numpy as np
+import pint
+import pint_xarray
+import xarray as xr
+from numpy.testing import assert_allclose
 
 from finam.adapters.base import Callback, GridToValue, Scale, ValueToGrid
-from finam.data import Info, NoGrid
+from finam.data import Info, NoGrid, UniformGrid
 from finam.modules.generators import CallbackGenerator
+
+reg = pint.UnitRegistry(force_ndarray_like=True)
 
 
 class TestCallback(unittest.TestCase):
@@ -68,11 +74,10 @@ class TestScale(unittest.TestCase):
 
 class TestGridToValue(unittest.TestCase):
     def setUp(self):
-        grid = Grid(GridSpec(20, 10))
-        grid.fill(1.0)
+        grid, data = create_grid(20, 10, 1.0)
 
         self.source = CallbackGenerator(
-            callbacks={"Grid": (lambda t: grid, Info())},
+            callbacks={"Grid": (lambda t: data, Info(grid=grid))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -88,7 +93,7 @@ class TestGridToValue(unittest.TestCase):
         self.source.validate()
 
         result = self.adapter.get_data(datetime(2000, 1, 1))
-        self.assertEqual(result, 1.0)
+        self.assertEqual(result, xr.DataArray(1.0).pint.quantify(reg.meter))
 
     def test_grid_to_value_sum(self):
         self.adapter = GridToValue(func=np.ma.sum)
@@ -99,16 +104,19 @@ class TestGridToValue(unittest.TestCase):
         self.source.validate()
 
         result = self.adapter.get_data(datetime(2000, 1, 1))
-        self.assertEqual(result, 200.0)
+        self.assertEqual(result, xr.DataArray(200.0).pint.quantify(reg.meter))
 
 
 class TestValueToGrid(unittest.TestCase):
     def setUp(self):
-        matrix = Grid(GridSpec(10, 10))
-        matrix.fill(1.0)
 
         self.source = CallbackGenerator(
-            callbacks={"Value": (lambda t: 1.0, Info())},
+            callbacks={
+                "Value": (
+                    lambda t: xr.DataArray(1.0).pint.quantify(reg.meter),
+                    Info(grid=NoGrid),
+                )
+            },
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -116,17 +124,30 @@ class TestValueToGrid(unittest.TestCase):
         self.source.initialize()
 
     def test_value_to_grid(self):
-        self.adapter = ValueToGrid(GridSpec(10, 10))
+        grid, data = create_grid(10, 10, 1.0)
+
+        self.adapter = ValueToGrid(grid)
         self.source.outputs["Value"] >> self.adapter
 
         self.adapter.get_info(Info(grid=NoGrid))
         self.source.connect()
         self.source.validate()
 
-        reference = Grid(GridSpec(10, 10))
-        reference.fill(1.0)
+        _reference_grid, reference_data = create_grid(10, 10, 1.0)
+        out_data = self.adapter.get_data(datetime(2000, 1, 1))
 
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1)), reference)
+        assert_allclose(out_data.pint.magnitude, reference_data.pint.magnitude)
+        self.assertEqual(out_data.pint.units, reference_data.pint.units)
+
+
+def create_grid(cols, rows, value):
+    grid = UniformGrid((cols, rows), data_location="POINTS")
+
+    data = xr.DataArray(
+        np.full(shape=grid.data_shape, fill_value=value, order=grid.order)
+    ).pint.quantify(reg.meter)
+
+    return grid, data
 
 
 if __name__ == "__main__":
