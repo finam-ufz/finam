@@ -14,6 +14,7 @@ from .grid_tools import (
     gen_axes,
     prepare_vtk_data,
     prepare_vtk_kwargs,
+    set_location,
 )
 
 
@@ -28,7 +29,7 @@ class RectilinearGrid(StructuredGrid):
     ----------
     axes : list of np.ndarray
         Axes defining the coordinates in each direction (xyz order).
-    data_location : Location, optional
+    data_location : Location, str, int, optional
         Data location in the grid, by default Location.CELLS
     order : str, optional
         Point and cell ordering.
@@ -57,7 +58,7 @@ class RectilinearGrid(StructuredGrid):
         self._axes = [np.asarray(np.atleast_1d(ax), dtype=float) for ax in axes[:3]]
         self._axes_increase = check_axes_monotonicity(self.axes)
         self._dim = len(self.dims)
-        self._data_location = data_location
+        self._data_location = set_location(data_location)
         self._order = order
         self._axes_reversed = bool(axes_reversed)
         self._axes_attributes = axes_attributes or (self.dim * [{}])
@@ -133,7 +134,7 @@ class UniformGrid(RectilinearGrid):
         ``(1.0, 1.0, 1.0)``. Must be positive.
     origin : iterable, optional
         Origin of the uniform grid.  Defaults to ``(0.0, 0.0, 0.0)``.
-    data_location : Location, optional
+    data_location : Location, str, int, optional
         Data location in the grid, by default Location.CELLS
     order : str, optional
         Point and cell ordering.
@@ -324,7 +325,7 @@ class UnstructuredGrid(Grid):
         Cells given by set list of point IDs defining the grid.
     cell_types : arraylike
         Cell types given as integer, e.g. CellType.TRI.value.
-    data_location : Location, optional
+    data_location : Location, str, int, optional
         Data location in the grid, by default Location.CELLS
     crs : str or None, optional
         The coordinate reference system, by default None
@@ -342,7 +343,7 @@ class UnstructuredGrid(Grid):
         self._points = np.asarray(np.atleast_2d(points), dtype=float)[:, :3]
         self._cells = np.asarray(np.atleast_2d(cells), dtype=int)
         self._cell_types = np.asarray(np.atleast_1d(cell_types), dtype=int)
-        self._data_location = data_location
+        self._data_location = set_location(data_location)
         self._crs = crs
 
     @property

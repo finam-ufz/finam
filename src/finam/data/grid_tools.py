@@ -360,6 +360,34 @@ def flatten_cells(cells):
     return np.ma.masked_values(cells, -1).compressed()
 
 
+def set_location(data_location):
+    """
+    Correctly set the data location.
+
+    Parameters
+    ----------
+    data_location : Location, str, int
+        Data location in the grid
+
+    Returns
+    -------
+    Location
+        Data location in the grid
+
+    Raises
+    ------
+    ValueError
+        If data location is unknown
+    """
+    if data_location in list(Location):
+        return data_location
+    if data_location in [loc.value for loc in Location]:
+        return Location(data_location)
+    if data_location in [loc.name for loc in Location]:
+        return Location[data_location]
+    raise ValueError(f"Grid: unknown data location '{data_location}'")
+
+
 class Location(Enum):
     """Data location in the grid."""
 
@@ -474,9 +502,7 @@ class Grid(GridBase):
         """Points of the associated data (either cell_centers or points)."""
         if self.data_location == Location.POINTS:
             return self.points
-        if self.data_location == Location.CELLS:
-            return self.cell_centers
-        raise ValueError(f"Grid: unknown data location: '{self.data_location}'")
+        return self.cell_centers
 
     @property
     def data_shape(self):
