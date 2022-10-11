@@ -1,6 +1,24 @@
 """
 Specialized data types for exchanges between models/modules.
 """
+from .grid_spec import (
+    EsriGrid,
+    NoGrid,
+    RectilinearGrid,
+    UniformGrid,
+    UnstructuredGrid,
+    UnstructuredPoints,
+)
+
+__all__ = [
+    "assert_type",
+    "EsriGrid",
+    "NoGrid",
+    "RectilinearGrid",
+    "UniformGrid",
+    "UnstructuredGrid",
+    "UnstructuredPoints",
+]
 
 
 def assert_type(cls, slot, obj, types):
