@@ -616,12 +616,6 @@ class StructuredGrid(Grid):
 
     @property
     @abstractmethod
-    def axes_names(self):
-        """list of str: Axes names (xyz order)."""
-        # should be used for xarray later on
-
-    @property
-    @abstractmethod
     def axes_attributes(self):
         """list of dict: Axes attributes following the CF convention (xyz order)."""
         # should be used for xarray later on
