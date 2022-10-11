@@ -2,4 +2,4 @@
 Live visualization modules.
 """
 
-from . import grid, schedule, time_series
+from . import schedule, time_series

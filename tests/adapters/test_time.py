@@ -12,7 +12,6 @@ from finam.adapters.time import (
 )
 from finam.core.interfaces import FinamTimeError
 from finam.data import Info, NoGrid
-from finam.data.grid import Grid, GridSpec
 from finam.modules.generators import CallbackGenerator
 
 

@@ -7,15 +7,8 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam.adapters.base import (
-    Callback,
-    GridCellCallback,
-    GridToValue,
-    Scale,
-    ValueToGrid,
-)
+from finam.adapters.base import Callback, GridToValue, Scale, ValueToGrid
 from finam.data import Info, NoGrid
-from finam.data.grid import Grid, GridSpec
 from finam.modules.generators import CallbackGenerator
 
 
@@ -71,47 +64,6 @@ class TestScale(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(t), 2)
         self.source.update()
         self.assertEqual(self.adapter.get_data(t), 4)
-
-
-class TestGridCallback(unittest.TestCase):
-    def setUp(self):
-        grid = Grid(GridSpec(20, 10))
-        grid.fill(1.0)
-        for r in range(10):
-            grid.set_masked(4, r)
-
-        self.source = CallbackGenerator(
-            callbacks={"Grid": (lambda t: grid, Info())},
-            start=datetime(2000, 1, 1),
-            step=timedelta(1.0),
-        )
-
-        self.adapter = GridCellCallback(callback=lambda x, y, v, t: v + (t.day - 1) + x)
-
-        self.source.initialize()
-
-        self.source.outputs["Grid"] >> self.adapter
-
-        self.adapter.get_info(Info(grid=NoGrid))
-        self.source.connect()
-        self.source.validate()
-
-    def test_grid_callback_adapter(self):
-        t = datetime(2000, 1, 1)
-
-        self.assertEqual(self.adapter.get_data(t).get(0, 0), 1.0)
-        self.assertEqual(self.adapter.get_data(t).get(1, 0), 2.0)
-        self.assertEqual(self.adapter.get_data(t).get(2, 0), 3.0)
-
-        self.assertTrue(self.adapter.get_data(t).get(4, 0) is np.ma.masked)
-
-        self.source.update()
-
-        t = datetime(2000, 1, 2)
-
-        self.assertEqual(self.adapter.get_data(t).get(0, 0), 2.0)
-        self.assertEqual(self.adapter.get_data(t).get(1, 0), 3.0)
-        self.assertEqual(self.adapter.get_data(t).get(2, 0), 4.0)
 
 
 class TestGridToValue(unittest.TestCase):
