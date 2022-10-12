@@ -27,7 +27,7 @@ __all__ = [
 class Info:
     """Data info containing grid specification and metadata"""
 
-    def __init__(self, grid=None, meta=None):
+    def __init__(self, grid=None, meta=None, **meta_kwargs):
         """Creates a data info object.
 
         Parameters
@@ -36,9 +36,12 @@ class Info:
             grid specification
         meta : dict
             dictionary of metadata
+        **meta_kwargs
+            additional metadata by name, will overwrite entries in ``meta``
         """
         self.grid = grid
         self.meta = meta or {}
+        self.meta.update(meta_kwargs)
 
     def copy(self):
         """Copies the info object"""
@@ -95,8 +98,24 @@ class Info:
         """Equality check for two infos"""
         if not isinstance(other, Info):
             return False
-
         return self.grid == other.grid and self.meta == other.meta
+
+    def __getattr__(self, name):
+        # only called if attribute is not present in class
+        if "meta" in self.__dict__ and name in self.meta:
+            return self.meta[name]
+        raise AttributeError(f"'Info' object has no attribute '{name}'")
+
+    def __setattr__(self, name, value):
+        # first check if attribute present in class (e.g. grid)
+        if name in self.__dir__():
+            super().__setattr__(name, value)
+        # then check if meta present and add value there
+        elif "meta" in self.__dict__:
+            self.__dict__["meta"][name] = value
+        # if not, set a new attribute (default)
+        else:
+            super().__setattr__(name, value)
 
 
 def assert_type(cls, slot, obj, types):
