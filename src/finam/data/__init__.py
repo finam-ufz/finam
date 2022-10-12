@@ -116,8 +116,10 @@ class Info:
     def __repr__(self):
         grid = self.grid.name if self.grid is not None else "None"
         meta = ", " * bool(self.meta)
-        meta += ", ".join(f"{k}='{v}'" for k, v in self.meta.items())
-        return f"Info(grid={grid}" + meta + ")"
+        meta += ", ".join(
+            f"{k}=" + ("None" if v is None else f"'{v}'") for k, v in self.meta.items()
+        )
+        return f"Info(grid={grid}{meta})"
 
 
 def assert_type(cls, slot, obj, types):
