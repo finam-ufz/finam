@@ -17,6 +17,7 @@ from finam.data import Info
 from finam.data.grid_spec import UniformGrid
 from finam.data.grid_tools import Location
 from finam.modules.generators import CallbackGenerator
+from finam.tools.connect_helper import ConnectHelper
 
 
 class MockupConsumer(ATimeComponent):
@@ -27,17 +28,23 @@ class MockupConsumer(ATimeComponent):
         self.step = timedelta(days=1)
         self.units = units
         self.data = None
+        self._connector = None
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
+        self._inputs["Input"] = Input(Info(meta={"units": self.units}))
+        self._connector = ConnectHelper(
+            self.inputs, self.outputs, required_in_data=["Input"]
+        )
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        self.inputs["Input"].exchange_info(Info(meta={"units": self.units}))
-        self.data = self.inputs["Input"].pull_data(self.time)
-        self.status = ComponentStatus.CONNECTED
+        self.status = self._connector.connect(self.time)
+
+        data = self._connector.in_data["Input"]
+        if data is not None:
+            self.data = data
 
     def validate(self):
         super().validate()

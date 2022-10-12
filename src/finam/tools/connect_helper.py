@@ -83,16 +83,7 @@ class ConnectHelper:
         push_data = push_data or {}
 
         any_done = self._push(time, push_infos, push_data)
-
-        for name, info in exchange_infos.items():
-            if self._exchanged_in_infos[name] is None:
-                try:
-                    self._exchanged_in_infos[name] = self._inputs[name].exchange_info(
-                        info
-                    )
-                    any_done = True
-                except FinamNoDataError:
-                    pass
+        any_done |= self._exchange_in_infos(exchange_infos)
 
         for name, info in self._exchanged_out_infos.items():
             if info is None:
@@ -123,6 +114,29 @@ class ConnectHelper:
             return ComponentStatus.CONNECTING
 
         return ComponentStatus.CONNECTING_IDLE
+
+    def _exchange_in_infos(self, exchange_infos):
+        any_done = False
+        for name, info in self._exchanged_in_infos.items():
+            if info is None and self._inputs[name].info is not None:
+                try:
+                    self._exchanged_in_infos[name] = self._inputs[name].exchange_info()
+                    any_done = True
+                except FinamNoDataError:
+                    pass
+
+        for name, info in exchange_infos.items():
+            if self._exchanged_in_infos[name] is None:
+                try:
+                    inf = self._inputs[name].info
+                    self._exchanged_in_infos[name] = self._inputs[name].exchange_info(
+                        None if inf is not None else info
+                    )
+                    any_done = True
+                except FinamNoDataError:
+                    pass
+
+        return any_done
 
     def _push(self, time, push_infos, push_data):
         any_done = False

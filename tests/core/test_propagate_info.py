@@ -26,15 +26,13 @@ class MockupConsumer(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self.inputs["Input"] = Input()
+        self.inputs["Input"] = Input(self.info)
         self.connector = ConnectHelper(self.inputs, self.outputs)
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        self.status = self.connector.connect(
-            self.time, exchange_infos={"Input": self.info}
-        )
+        self.status = self.connector.connect(self.time)
 
     def validate(self):
         super().validate()
