@@ -49,7 +49,7 @@ class Info:
 
     def copy_with(self, **kwargs):
         """Copies the info object and sets variables and meta values according to the kwargs"""
-        other = copy.copy(self)
+        other = Info(grid=self.grid, meta=copy.copy(self.meta))
         for k, v in kwargs.items():
             if k == "grid":
                 other.grid = v
