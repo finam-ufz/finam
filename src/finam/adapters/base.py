@@ -4,10 +4,10 @@ Basic data transformation adapters.
 from datetime import datetime
 
 import numpy as np
+import xarray as xr
 
 from ..core.sdk import AAdapter
-from ..data import assert_type
-from ..data.grid import Grid
+from ..data import NoGrid, assert_type
 from ..tools.log_helper import LogError
 
 
@@ -81,50 +81,6 @@ class Scale(AAdapter):
         return d * self.scale
 
 
-class GridCellCallback(AAdapter):
-    """Transform grid data using a per-cell callback.
-
-    Parameters
-    ----------
-    callback : callable
-        A callback ``callback(col, row, data, time)``, returning the transformed cell value.
-    """
-
-    def __init__(self, callback):
-        super().__init__()
-        self.callback = callback
-
-    def get_data(self, time):
-        """Get the output's data-set for the given time.
-
-        Parameters
-        ----------
-        time : datetime
-            simulation time to get the data for.
-
-        Returns
-        -------
-        array_like
-            data-set for the requested time.
-        """
-        self.logger.debug("get data")
-        if not isinstance(time, datetime):
-            with LogError(self.logger):
-                raise ValueError("Time must be of type datetime")
-
-        inp = self.pull_data(time)
-        with LogError(self.logger):
-            assert_type(self, "input", inp, [Grid])
-
-        out = Grid.create_like(inp)
-
-        for row in range(inp.spec.nrows):
-            for col in range(inp.spec.ncols):
-                out.set(col, row, self.callback(col, row, inp.get(col, row), time))
-
-        return out
-
-
 class ValueToGrid(AAdapter):
     """Convert a scalar value to a Matrix filled with that value.
 
@@ -134,9 +90,9 @@ class ValueToGrid(AAdapter):
         Grid specification.
     """
 
-    def __init__(self, grid_spec):
+    def __init__(self, grid):
         super().__init__()
-        self.data = Grid(grid_spec)
+        self.grid = grid
 
     def get_data(self, time):
         """Get the output's data-set for the given time.
@@ -158,10 +114,20 @@ class ValueToGrid(AAdapter):
 
         value = self.pull_data(time)
         with LogError(self.logger):
-            assert_type(self, "input", value, [int, float])
+            assert_type(self, "input", value, [xr.DataArray])
 
-        self.data.fill(value)
-        return self.data
+        data = xr.DataArray(
+            np.full(self.grid.data_shape, value.pint.magnitude, dtype=value.dtype)
+        ).pint.quantify(value.pint.units)
+        return data
+
+    def get_info(self, info):
+        self.logger.debug("get info")
+
+        in_info = self.exchange_info(info)
+        out_info = in_info.copy_with(grid=self.grid)
+
+        return out_info
 
 
 class GridToValue(AAdapter):
@@ -197,11 +163,17 @@ class GridToValue(AAdapter):
 
         grid = self.pull_data(time)
         with LogError(self.logger):
-            assert_type(self, "input", grid, [Grid])
+            assert_type(self, "input", grid, [xr.DataArray])
 
-        result = self.func(grid)
-
-        if isinstance(result, np.ndarray):
-            result = result.item()
+        func_result = self.func(grid.pint.magnitude)
+        result = xr.DataArray(func_result).pint.quantify(grid.pint.units)
 
         return result
+
+    def get_info(self, info):
+        self.logger.debug("get info")
+
+        in_info = self.exchange_info(info)
+        out_info = in_info.copy_with(grid=NoGrid)
+
+        return out_info
