@@ -15,7 +15,7 @@ import pint
 
 # isort: on
 
-from . import NoGrid
+from .grid_spec import NoGrid
 from .grid_tools import Grid, StructuredGrid
 
 # set default format to cf-convention for pint.dequantify
