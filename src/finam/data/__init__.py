@@ -107,15 +107,17 @@ class Info:
         raise AttributeError(f"'Info' object has no attribute '{name}'")
 
     def __setattr__(self, name, value):
-        # first check if attribute present in class (e.g. grid)
-        if name in self.__dir__():
+        # first check if attribute present or meta not yet present (e.g. grid)
+        if name in self.__dir__() or "meta" not in self.__dict__:
             super().__setattr__(name, value)
-        # then check if meta present and add value there
-        elif "meta" in self.__dict__:
-            self.__dict__["meta"][name] = value
-        # if not, set a new attribute (default)
         else:
-            super().__setattr__(name, value)
+            self.__dict__["meta"][name] = value
+
+    def __repr__(self):
+        grid = self.grid.name if self.grid is not None else "None"
+        meta = ", " * bool(self.meta)
+        meta += ", ".join(f"{k}='{v}'" for k, v in self.meta.items())
+        return f"Info(grid={grid}" + meta + ")"
 
 
 def assert_type(cls, slot, obj, types):
