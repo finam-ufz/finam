@@ -146,11 +146,13 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
 class Input(IInput, Loggable):
     """Default input implementation."""
 
-    def __init__(self):
+    def __init__(self, info=None):
         self.source = None
         self.base_logger_name = None
         self.name = ""
-        self._info = None
+        self._info = info
+
+        self._in_info_exchanged = False
 
     @property
     def info(self):
@@ -227,7 +229,7 @@ class Input(IInput, Loggable):
 
         return self.source.get_data(time)
 
-    def exchange_info(self, info):
+    def exchange_info(self, info=None):
         """Exchange the data info with the input's source.
 
         Parameters
@@ -241,9 +243,20 @@ class Input(IInput, Loggable):
             delivered parameters
         """
         self.logger.debug("exchanging info")
+
         with LogError(self.logger):
-            if info is None:
+            if self._in_info_exchanged:
+                raise FinamMetaDataError("Input info was already exchanged.")
+
+            if self._info is not None and info is not None:
+                raise FinamMetaDataError("An internal info was already provided")
+
+            if self._info is None and info is None:
                 raise FinamMetaDataError("No metadata provided")
+
+            if info is None:
+                info = self._info
+
             if not isinstance(info, Info):
                 raise FinamMetaDataError("Metadata must be of type Info")
 
@@ -255,6 +268,7 @@ class Input(IInput, Loggable):
                 )
 
         self._info = in_info
+        self._in_info_exchanged = True
         return in_info
 
     @property
@@ -320,14 +334,14 @@ class Output(IOutput, Loggable):
         if info is not None:
             self.push_info(info)
 
-        self._info_exchanged = False
+        self._out_info_exchanged = False
 
     @property
     def info(self):
         """Info: The input's data info."""
         if self._info is None:
             raise FinamNoDataError("No data info available")
-        if not self._info_exchanged:
+        if not self._out_info_exchanged:
             raise FinamNoDataError("Data info was not exchanged yet")
 
         return self._info
@@ -436,7 +450,7 @@ class Output(IOutput, Loggable):
 
         if self._info is None:
             raise FinamNoDataError(f"No data info available in {self.name}")
-        if not self._info_exchanged:
+        if not self._out_info_exchanged:
             raise FinamNoDataError(f"Data info was not yet exchanged in {self.name}")
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
@@ -485,7 +499,7 @@ class Output(IOutput, Loggable):
 
                 self._info.meta[k] = info.meta[k]
 
-        self._info_exchanged = True
+        self._out_info_exchanged = True
         return self.info
 
     def chain(self, other):
@@ -588,7 +602,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
 
         return self.exchange_info(info)
 
-    def exchange_info(self, info):
+    def exchange_info(self, info=None):
         """Exchange the data info with the input's source.
 
         Parameters

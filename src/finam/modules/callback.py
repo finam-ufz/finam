@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from ..core.interfaces import ComponentStatus
 from ..core.sdk import ATimeComponent, Input, Output
+from ..tools.connect_helper import ConnectHelper
 from ..tools.log_helper import LogError
 
 
@@ -38,30 +39,29 @@ class CallbackComponent(ATimeComponent):
         self._callback = callback
         self._step = step
         self._time = start
+        self._connector = None
         self.status = ComponentStatus.CREATED
 
     def initialize(self):
         super().initialize()
 
         for name, info in self._input_infos.items():
-            self._inputs[name] = Input()
+            self._inputs[name] = Input(info)
 
         for name, info in self._output_infos.items():
             self._outputs[name] = Output(info)
+
+        self._connector = ConnectHelper(self.inputs, self.outputs)
 
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
 
-        for name, info in self._input_infos.items():
-            self.inputs[name].exchange_info(info)
-
         inp = {n: None for n in self._input_infos.keys()}
         outp = self._callback(inp, self.time)
 
-        for name, val in outp.items():
-            self._outputs[name].push_data(val, self.time)
+        self._connector.connect(self._time, push_data=outp)
 
         self.status = ComponentStatus.CONNECTED
 
