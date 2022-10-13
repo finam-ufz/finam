@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 
 from ..core.interfaces import ComponentStatus
-from ..core.sdk import ATimeComponent, Output
+from ..core.sdk import ATimeComponent
 from ..tools.connect_helper import ConnectHelper
 from ..tools.log_helper import LogError
 

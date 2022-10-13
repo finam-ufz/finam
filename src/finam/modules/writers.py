@@ -49,7 +49,8 @@ class CsvWriter(ATimeComponent):
         self._time = start
 
         self._input_names = inputs
-        self._inputs = {inp: Input() for inp in inputs}
+        for inp in inputs:
+            self.inputs.add(name=inp)
 
         self._rows = []
 

@@ -56,7 +56,8 @@ class TimeSeriesView(ATimeComponent):
         self._lines = None
 
         self._input_names = inputs
-        self._inputs = {inp: Input() for inp in inputs}
+        for inp in inputs:
+            self.inputs.add(name=inp)
 
         self.status = ComponentStatus.CREATED
 

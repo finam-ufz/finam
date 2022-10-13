@@ -5,7 +5,7 @@ Modules for reading data.
 from datetime import datetime
 
 from ..core.interfaces import ComponentStatus
-from ..core.sdk import ATimeComponent, Output
+from ..core.sdk import ATimeComponent
 from ..data import Info, NoGrid
 
 

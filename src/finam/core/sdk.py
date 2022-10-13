@@ -669,7 +669,7 @@ class IOList(collections.abc.Mapping):
         """
         self.io_type = get_enum_value(io_type, IOType)
         self.io_cls = [Input, Output][self.io_type.value]
-        self._dict = dict()
+        self._dict = {}
         self.frozen = False
 
     def add(self, io=None, *, name=None, info=None):
@@ -691,7 +691,7 @@ class IOList(collections.abc.Mapping):
             If io is not of the correct type.
         """
         if self.frozen:
-            raise ValueError(f"IO.add: list is frozen.")
+            raise ValueError("IO.add: list is frozen.")
         if io is not None:
             if not isinstance(io, self.io_cls):
                 raise ValueError(f"IO.add: io is not of type {self.io_cls.__name__}")
@@ -718,7 +718,7 @@ class IOList(collections.abc.Mapping):
                 raise FinamLogError(
                     f"{self.io_type.name} '{name}' can't get logger from '{module.name}'."
                 )
-            elif loggable(item) and item.uses_base_logger_name:
+            if loggable(item) and item.uses_base_logger_name:
                 item.base_logger_name = module.logger_name
 
     def items(self):
@@ -736,7 +736,7 @@ class IOList(collections.abc.Mapping):
 
     def __setitem__(self, key, value):
         if self.frozen:
-            raise ValueError(f"IO: list is frozen.")
+            raise ValueError("IO: list is frozen.")
         if key in self._dict:
             raise ValueError(f"IO: {self.io_type.name} '{key}' already exists.")
         if not isinstance(value, self.io_cls):

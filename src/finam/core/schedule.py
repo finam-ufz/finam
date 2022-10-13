@@ -10,7 +10,6 @@ from pathlib import Path
 from ..tools.log_helper import LogError, loggable
 from .interfaces import (
     ComponentStatus,
-    FinamLogError,
     FinamStatusError,
     IAdapter,
     IComponent,

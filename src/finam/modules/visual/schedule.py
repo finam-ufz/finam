@@ -36,7 +36,8 @@ class ScheduleView(AComponent):
         self._x = [[] for _ in inputs]
 
         self._input_names = inputs
-        self._inputs = {inp: CallbackInput(self.data_changed) for inp in inputs}
+        for inp in inputs:
+            self.inputs.add(CallbackInput(self.data_changed, name=inp))
 
         self.status = ComponentStatus.CREATED
 
