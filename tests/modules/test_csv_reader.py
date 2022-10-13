@@ -37,8 +37,8 @@ class TestCsvReader(unittest.TestCase):
 
             self.assertEqual(len(reader.outputs), 2)
 
-            reader.outputs["X"].get_info(Info(grid=NoGrid))
-            reader.outputs["Y"].get_info(Info(grid=NoGrid))
+            reader.outputs["X"].get_info(Info(grid=NoGrid()))
+            reader.outputs["Y"].get_info(Info(grid=NoGrid()))
 
             reader.connect()
             reader.validate()

@@ -15,7 +15,8 @@ import pint
 
 # isort: on
 
-from .grid_spec import NoGrid
+from ..core.interfaces import FinamMetaDataError
+from .grid_spec import GridBase, NoGrid
 from .grid_tools import Grid, StructuredGrid
 
 # set default format to cf-convention for pint.dequantify
@@ -109,13 +110,18 @@ def to_xarray(data, name, info, time=None):
         # reshape flat arrays
         data = data.reshape(info.grid.data_shape, order=info.grid.order)
     # generate quantified DataArray
-    return xr.DataArray(
+    out_array = xr.DataArray(
         name=name,
         data=data[np.newaxis, ...] if time else data,
         dims=_gen_dims(np.ndim(data), info, time),
         coords=dict(time=[pd.Timestamp(time)]) if time else None,
         attrs=info.meta,
-    ).pint.quantify()
+    )
+    return (
+        out_array.pint.quantify()
+        if "units" in info.meta
+        else out_array.pint.quantify("")
+    )
 
 
 def has_time(xdata):
@@ -406,6 +412,11 @@ class Info:
         **meta_kwargs
             additional metadata by name, will overwrite entries in ``meta``
         """
+        if grid is not None and not isinstance(grid, GridBase):
+            raise FinamMetaDataError(
+                "Grid in Info must be either None or of a sub-class of GridBase"
+            )
+
         self.grid = grid
         self.meta = meta or {}
         self.meta.update(meta_kwargs)

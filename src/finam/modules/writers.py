@@ -74,7 +74,7 @@ class CsvWriter(ATimeComponent):
         super().connect()
 
         for _, inp in self.inputs.items():
-            inp.exchange_info(Info(grid=NoGrid))
+            inp.exchange_info(Info(grid=NoGrid()))
 
         self.status = ComponentStatus.CONNECTED
 

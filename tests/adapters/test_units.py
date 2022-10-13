@@ -6,14 +6,12 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import pint
-import pint_xarray
-import xarray as xr
 
 from finam.adapters.units import ConvertUnits
 from finam.core.interfaces import ComponentStatus
 from finam.core.schedule import Composition
 from finam.core.sdk import ATimeComponent, Input
-from finam.data import Info
+from finam.data import Info, tools
 from finam.data.grid_spec import UniformGrid
 from finam.data.grid_tools import Location
 from finam.modules.generators import CallbackGenerator
@@ -67,17 +65,18 @@ class TestUnits(unittest.TestCase):
     def test_units(self):
         reg = pint.UnitRegistry(force_ndarray_like=True)
 
-        in_spec = UniformGrid(
-            dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
+        in_info = Info(
+            grid=UniformGrid(
+                dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
+            ),
+            units=reg.meter,
         )
 
-        in_data = xr.DataArray(
-            np.zeros(shape=in_spec.data_shape, order=in_spec.order)
-        ).pint.quantify(reg.meter)
-        in_data.data[0, 0] = 1.0 * in_data.pint.units
+        in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
+        in_data.data[0, 0] = 1.0
 
         source = CallbackGenerator(
-            callbacks={"Output": (lambda t: in_data, Info(grid=in_spec))},
+            callbacks={"Output": (lambda t: in_data, in_info)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -92,5 +91,5 @@ class TestUnits(unittest.TestCase):
         composition.run(t_max=datetime(2000, 1, 2))
 
         self.assertEqual(sink.inputs["Input"].info.meta, {"units": reg.kilometer})
-        self.assertEqual(sink.data.pint.units, reg.kilometer)
-        self.assertEqual(sink.data.pint.magnitude[0, 0], 0.001)
+        self.assertEqual(tools.get_units(sink.data), reg.kilometer)
+        self.assertEqual(tools.get_magnitued(sink.data)[0, 0, 0], 0.001)

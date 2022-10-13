@@ -7,7 +7,7 @@ from abc import ABC
 from datetime import datetime
 from enum import IntEnum
 
-from ..data import Info
+from ..data import Info, tools
 from ..tools.enum_helper import get_enum_value
 from ..tools.log_helper import LogError, loggable
 from .interfaces import (
@@ -455,7 +455,7 @@ class Output(IOutput, Loggable):
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        return self.data
+        return tools.to_xarray(self.data, self.name, self.info, time)
 
     def get_info(self, info):
         """Exchange and get the output's data info.
@@ -624,7 +624,8 @@ class AAdapter(IAdapter, Input, Output, ABC):
 
         in_info = self.source.get_info(info)
 
-        self._info = in_info
+        self._input_info = in_info
+        self._output_info = in_info
         return in_info
 
     @property

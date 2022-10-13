@@ -5,6 +5,7 @@ from datetime import datetime
 
 from ..core.interfaces import FinamNoDataError, FinamTimeError, NoBranchAdapter
 from ..core.sdk import AAdapter
+from ..data import tools
 from ..tools.log_helper import LogError
 
 
@@ -170,7 +171,7 @@ class LinearInterpolation(AAdapter):
         o = self.old_data[1]
         n = self.new_data[1]
 
-        return _interpolate(o, n, dt)
+        return tools.to_xarray(_interpolate(o, n, dt), self.name, self.info, time)
 
 
 class LinearIntegration(AAdapter, NoBranchAdapter):
@@ -260,7 +261,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
 
         self.prev_time = time
 
-        return sum_value
+        return tools.to_xarray(sum_value, self.name, self.info, time)
 
 
 def _interpolate(old_value, new_value, dt):
@@ -280,7 +281,9 @@ def _interpolate(old_value, new_value, dt):
     array_like
         Interpolated value.
     """
-    return old_value + dt * (new_value - old_value)
+    return tools.get_data(old_value) + dt * (
+        tools.get_data(new_value) - tools.get_data(old_value)
+    )
 
 
 def _check_time(logger, time, time_range=(None, None)):

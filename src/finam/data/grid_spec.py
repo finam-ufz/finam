@@ -21,6 +21,9 @@ from .grid_tools import (
 class NoGrid(GridBase):
     """Indicator for data without a spatial grid."""
 
+    def __eq__(self, other):
+        return isinstance(other, NoGrid)
+
 
 class RectilinearGrid(StructuredGrid):
     """Regular grid with variable spacing in up to three coordinate directions.

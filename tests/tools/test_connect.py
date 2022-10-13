@@ -10,7 +10,7 @@ from finam.tools.connect_helper import ConnectHelper
 class TestConnectHelper(unittest.TestCase):
     def test_connect(self):
         time = datetime(2020, 10, 6)
-        info = Info(grid=NoGrid)
+        info = Info(grid=NoGrid())
 
         inputs = IOList("INPUT")
         inputs.add(name="In1")
