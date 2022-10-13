@@ -109,28 +109,15 @@ class Composition(Loggable):
             if loggable(mod) and mod.uses_base_logger_name:
                 mod.base_logger_name = self.logger_name
             mod.initialize()
-            self._check_status(mod, [ComponentStatus.INITIALIZED])
+            # freeze IO lists
+            mod.inputs.frozen = True
+            mod.outputs.frozen = True
+            # set logger
+            with LogError(self.logger):
+                mod.inputs.set_logger(mod)
+                mod.outputs.set_logger(mod)
 
-            for name, item in mod.inputs.items():
-                # forward name in dict to class attribute
-                item.name = name
-                if loggable(item) and item.uses_base_logger_name and not loggable(mod):
-                    with LogError(self.logger):
-                        raise FinamLogError(
-                            f"Input '{name}' can't get base logger from '{mod.name}'."
-                        )
-                elif loggable(item) and item.uses_base_logger_name:
-                    item.base_logger_name = mod.logger_name
-            for name, item in mod.outputs.items():
-                # forward name in dict to class attribute
-                item.name = name
-                if loggable(item) and item.uses_base_logger_name and not loggable(mod):
-                    with LogError(self.logger):
-                        raise FinamLogError(
-                            f"Output '{name}' can't get base logger from '{mod.name}'."
-                        )
-                elif loggable(item) and item.uses_base_logger_name:
-                    item.base_logger_name = mod.logger_name
+            self._check_status(mod, [ComponentStatus.INITIALIZED])
 
     def run(self, t_max):
         """Run this composition using the loop-based update strategy.

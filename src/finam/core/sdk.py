@@ -30,8 +30,8 @@ class AComponent(IComponent, Loggable, ABC):
 
     def __init__(self):
         self._status = None
-        self._inputs = {}
-        self._outputs = {}
+        self._inputs = IOList("INPUT")
+        self._outputs = IOList("OUTPUT")
         self.base_logger_name = None
 
     def initialize(self):
@@ -149,10 +149,12 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
 class Input(IInput, Loggable):
     """Default input implementation."""
 
-    def __init__(self, info=None):
+    def __init__(self, name, info=None):
         self.source = None
         self.base_logger_name = None
-        self.name = ""
+        if name is None:
+            raise ValueError("Input: needs a name.")
+        self.name = name
         self._info = info
 
         self._in_info_exchanged = False
@@ -303,8 +305,8 @@ class CallbackInput(Input):
         A callback ``callback(data, time)``, returning the transformed data.
     """
 
-    def __init__(self, callback):
-        super().__init__()
+    def __init__(self, callback, name, info=None):
+        super().__init__(name=name, info=info)
         self.source = None
         self.callback = callback
 
@@ -327,11 +329,13 @@ class CallbackInput(Input):
 class Output(IOutput, Loggable):
     """Default output implementation."""
 
-    def __init__(self, info=None):
+    def __init__(self, name=None, info=None):
         self.targets = []
         self.data = None
         self._info = None
         self.base_logger_name = None
+        if name is None:
+            raise ValueError("Output: needs a name.")
         self.name = ""
 
         if info is not None:
@@ -545,7 +549,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
     """Abstract adapter implementation."""
 
     def __init__(self):
-        super().__init__()
+        super().__init__(name=self.__class__.__name__)
         self.source = None
         self.targets = []
 
@@ -631,15 +635,6 @@ class AAdapter(IAdapter, Input, Output, ABC):
         return in_info
 
     @property
-    def name(self):
-        """Class name."""
-        return self.__class__.__name__
-
-    @name.setter
-    def name(self, _):
-        pass
-
-    @property
     def logger_name(self):
         """Logger name derived from source logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
@@ -675,6 +670,7 @@ class IOList(collections.Mapping):
         self.io_type = get_enum_value(io_type, IOType)
         self.io_cls = [Input, Output][self.io_type.value]
         self._dict = dict()
+        self.frozen = False
 
     def add(self, io=None, *, name=None, info=None):
         """
@@ -694,12 +690,36 @@ class IOList(collections.Mapping):
         ValueError
             If io is not of the correct type.
         """
+        if self.frozen:
+            raise ValueError(f"IO.add: list is frozen.")
         if io is not None:
             if not isinstance(io, self.io_cls):
                 raise ValueError(f"IO.add: io is not of type {self.io_cls.__name__}")
             self._dict[io.name] = io
         else:
             self._dict[name] = self.io_cls(name, info)
+
+    def set_logger(self, module):
+        """
+        Set the logger in the items of the IOList.
+
+        Parameters
+        ----------
+        module : IComponent
+            Module holding the IOList.
+
+        Raises
+        ------
+        FinamLogError
+            When item is loggable but not the base module.
+        """
+        for name, item in self.items():
+            if loggable(item) and item.uses_base_logger_name and not loggable(module):
+                raise FinamLogError(
+                    f"{self.io_type.name} '{name}' can't get logger from '{module.name}'."
+                )
+            elif loggable(item) and item.uses_base_logger_name:
+                item.base_logger_name = module.logger_name
 
     def items(self):
         """A set-like object providing a view on the items."""
@@ -715,12 +735,14 @@ class IOList(collections.Mapping):
         return self._dict[key]
 
     def __setitem__(self, key, value):
+        if self.frozen:
+            raise ValueError(f"IO: list is frozen.")
         if key in self._dict:
-            raise ValueError(f"IO: {self.io_type} '{key}' already exists.")
+            raise ValueError(f"IO: {self.io_type.name} '{key}' already exists.")
         if not isinstance(value, self.io_cls):
             raise ValueError(f"IO: value is not of type {self.io_cls.__name__}")
         if key != value.name:
-            raise ValueError(f"IO: {self.io_type} name differs from key")
+            raise ValueError(f"IO: {self.io_type.name} name differs from key")
         self._dict[key] = value
 
     def __str__(self):

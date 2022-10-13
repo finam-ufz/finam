@@ -53,7 +53,7 @@ class CallbackGenerator(ATimeComponent):
         super().initialize()
 
         for key, (_, info) in self._callbacks.items():
-            self._outputs[key] = Output(info)
+            self.outputs.add(name=key, info=info)
 
         self._connector = ConnectHelper(self.inputs, self.outputs)
 

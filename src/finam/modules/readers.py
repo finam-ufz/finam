@@ -42,7 +42,8 @@ class CsvReader(ATimeComponent):
         self._row_index = 0
 
         self._output_names = outputs
-        self._outputs = {o: Output(Info(grid=NoGrid)) for o in outputs}
+        for name in outputs:
+            self.outputs.add(name=name, info=Info(grid=NoGrid))
 
         self.status = ComponentStatus.CREATED
 

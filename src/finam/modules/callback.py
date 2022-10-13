@@ -46,10 +46,10 @@ class CallbackComponent(ATimeComponent):
         super().initialize()
 
         for name, info in self._input_infos.items():
-            self._inputs[name] = Input(info)
+            self.inputs.add(name=name, info=info)
 
         for name, info in self._output_infos.items():
-            self._outputs[name] = Output(info)
+            self.outputs.add(name=name, info=info)
 
         self._connector = ConnectHelper(self.inputs, self.outputs)
 
