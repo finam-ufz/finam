@@ -321,18 +321,25 @@ def check(xdata, name, info, time=None):
     if time is not None:
         if not has_time(xdata):
             raise FinamDataError("check: given data should hold a time.")
-        if pd.Timestamp(time) != pd.Timestamp(xdata[time][0]):
+        if time != get_time(xdata)[0]:
             raise FinamDataError("check: given data has wrong time.")
+        if isinstance(info.grid, Grid) and xdata.shape[1:] != info.grid.data_shape:
+            raise FinamDataError("check: given data has wrong shape.")
     elif has_time(xdata):
         raise FinamDataError("check: given data shouldn't hold a time.")
+    elif isinstance(info.grid, Grid) and xdata.shape != info.grid.data_shape:
+        raise FinamDataError("check: given data has wrong shape.")
     dims = _gen_dims(len(xdata.dims) - (1 if time else 0), info, time)
     if dims != list(xdata.dims):
         raise FinamDataError("check: given data has wrong dimensions.")
-    att = xdata.attrs
     # pint_xarray will remove the "units" entry in the data attributes
-    meta = dict(units=info.units, **att) if "units" in info.meta else att
-    if info.meta != meta:
+    meta = copy.copy(info.meta)
+    meta.pop("units", None)
+    if meta != xdata.attrs:
         raise FinamDataError("check: given data has wrong meta data.")
+    # check units
+    if "units" in info.meta and pint.Unit(info.units) != get_units(xdata):
+        raise FinamDataError("check: given data has wrong units.")
 
 
 def is_quantified(xdata):
