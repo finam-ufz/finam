@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 
 from ...core.interfaces import ComponentStatus
-from ...core.sdk import ATimeComponent, Input
+from ...core.sdk import ATimeComponent
 from ...data import Info, NoGrid, assert_type
 from ...tools.log_helper import LogError
 
