@@ -1,11 +1,14 @@
 """
 Implementations of the coupling interfaces for simpler development of modules and adapters.
 """
+import collections
 import logging
 from abc import ABC
 from datetime import datetime
+from enum import IntEnum
 
 from ..data import Info
+from ..tools.enum_helper import get_enum_value
 from ..tools.log_helper import LogError, loggable
 from .interfaces import (
     ComponentStatus,
@@ -641,3 +644,87 @@ class AAdapter(IAdapter, Input, Output, ABC):
         """Logger name derived from source logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
         return ".".join(([base_logger.name, "ADAPTER", self.name]))
+
+
+class IOType(IntEnum):
+    """IOType of the IOList."""
+
+    INPUT = 0
+    OUTPUT = 1
+
+
+class IOList(collections.Mapping):
+    """
+    Map for IO.
+
+    Parameters
+    ----------
+    io_type : int, str, IOType
+        IO type. Either "INPUT" or "OUTPUT".
+    """
+
+    def __init__(self, io_type):
+        """
+        _summary_
+
+        Parameters
+        ----------
+        io_type : _type_
+            _description_
+        """
+        self.io_type = get_enum_value(io_type, IOType)
+        self.io_cls = [Input, Output][self.io_type.value]
+        self._dict = dict()
+
+    def add(self, io=None, *, name=None, info=None):
+        """
+        Add a new IO object either directly ob by attributes.
+
+        Parameters
+        ----------
+        io : Input or Output, optional
+            IO object to add, by default None
+        name : str, optional
+            Name of the new IO object to add, by default None
+        info : Info, optional
+            Info of the new IO object to add, by default None
+
+        Raises
+        ------
+        ValueError
+            If io is not of the correct type.
+        """
+        if io is not None:
+            if not isinstance(io, self.io_cls):
+                raise ValueError(f"IO.add: io is not of type {self.io_cls.__name__}")
+            self._dict[io.name] = io
+        else:
+            self._dict[name] = self.io_cls(name, info)
+
+    def items(self):
+        """A set-like object providing a view on the items."""
+        return self._dict.items()
+
+    def __iter__(self):
+        return iter(self._dict)
+
+    def __len__(self):
+        return len(self._dict)
+
+    def __getitem__(self, key):
+        return self._dict[key]
+
+    def __setitem__(self, key, value):
+        if key in self._dict:
+            raise ValueError(f"IO: {self.io_type} '{key}' already exists.")
+        if not isinstance(value, self.io_cls):
+            raise ValueError(f"IO: value is not of type {self.io_cls.__name__}")
+        if key != value.name:
+            raise ValueError(f"IO: {self.io_type} name differs from key")
+        self._dict[key] = value
+
+    def __str__(self):
+        return str(self._dict)
+
+    def __repr__(self):
+        return repr(self._dict)
