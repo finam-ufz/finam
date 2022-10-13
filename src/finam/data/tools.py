@@ -27,9 +27,21 @@ class FinamDataError(Exception):
     """Error for wrong data in FINAM."""
 
 
+def _extract_units(xdata):
+    """
+    extract the units of an array
+
+    If ``xdata.data`` is not a quantity, the units are ``None``
+    """
+    try:
+        return xdata.data.units
+    except AttributeError:
+        return None
+
+
 def _gen_dims(ndim, info, time=None):
     """
-    _summary_
+    Generate dimension names.
 
     Parameters
     ----------
@@ -120,6 +132,7 @@ def has_time(xdata):
     bool
         Wether the data has a timestamp.
     """
+    check_quantified(xdata, "has_time")
     return "time" in xdata.coords
 
 
@@ -156,6 +169,7 @@ def get_magnitued(xdata):
     numpy.ndarray
         Magnitude of given data.
     """
+    check_quantified(xdata, "get_magnitude")
     return xdata.data.magnitude
 
 
@@ -173,6 +187,7 @@ def get_data(xdata):
     pint.Quantity
         Quantified data.
     """
+    check_quantified(xdata, "get_data")
     return xdata.data
 
 
@@ -190,6 +205,7 @@ def get_units(xdata):
     pint.Unit
         Units of the data.
     """
+    check_quantified(xdata, "get_units")
     return xdata.pint.units
 
 
@@ -207,6 +223,7 @@ def get_dimensionality(xdata):
     pint.UnitsContainer
         Dimensionality of the data.
     """
+    check_quantified(xdata, "get_dimensionality")
     return xdata.pint.dimensionality
 
 
@@ -226,6 +243,7 @@ def to_units(xdata, units):
     DataArray
         Converted data.
     """
+    check_quantified(xdata, "to_units")
     return xdata.pint.to(pint.Unit(units))
 
 
@@ -247,6 +265,7 @@ def full_like(xdata, value):
         with the data filled with fill_value.
         Coords will be copied from other.
     """
+    check_quantified(xdata, "full_like")
     return xr.full_like(xdata.pint.dequantify(), value).pint.quantify()
 
 
@@ -296,6 +315,7 @@ def check(xdata, name, info, time=None):
     """
     if not isinstance(xdata, xr.DataArray):
         raise FinamDataError("check: given data is not a xarray.DataArray.")
+    check_quantified(xdata, "check")
     if name != xdata.name:
         raise FinamDataError("check: given data has wrong name.")
     if time is not None:
@@ -308,8 +328,48 @@ def check(xdata, name, info, time=None):
     dims = _gen_dims(len(xdata.dims) - (1 if time else 0), info, time)
     if dims != list(xdata.dims):
         raise FinamDataError("check: given data has wrong dimensions.")
-    if info.meta != xdata.attrs:
+    att = xdata.attrs
+    # pint_xarray will remove the "units" entry in the data attributes
+    meta = dict(units=info.units, **att) if "units" in info.meta else att
+    if info.meta != meta:
         raise FinamDataError("check: given data has wrong meta data.")
+
+
+def is_quantified(xdata):
+    """
+    Check if data is a quantified DataArray.
+
+    Parameters
+    ----------
+    xdata : DataArray
+        The given data array.
+
+    Returns
+    -------
+    bool
+        Wether the data is a quantified DataArray.
+    """
+    return isinstance(xdata, xr.DataArray) and _extract_units(xdata) is not None
+
+
+def check_quantified(xdata, routine="check_quantified"):
+    """
+    Check if data is a quantified DataArray.
+
+    Parameters
+    ----------
+    xdata : DataArray
+        The given data array.
+    routine : str, optional
+        Name of the routine to show in the Error, by default "check_quantified"
+
+    Raises
+    ------
+    FinamDataError
+        If the array is not a quantified DataArray.
+    """
+    if not is_quantified(xdata):
+        raise FinamDataError(f"{routine}: given data is not quantified.")
 
 
 def assert_type(cls, slot, obj, types):
@@ -318,7 +378,8 @@ def assert_type(cls, slot, obj, types):
         if isinstance(obj, t):
             return
     raise TypeError(
-        f"Unsupported data type for {slot} in {cls.__class__.__name__}: {obj.__class__.__name__}. "
+        f"Unsupported data type for {slot} in "
+        f"{cls.__class__.__name__}: {obj.__class__.__name__}. "
         f"Expected one of [{', '.join([tp.__name__ for tp in types])}]"
     )
 
