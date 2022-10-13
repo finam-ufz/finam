@@ -23,6 +23,8 @@ from .grid_tools import Grid, StructuredGrid
 # some problems with degree_Celsius and similar here
 pint_xarray.unit_registry.default_format = "~cf"
 
+UNITS = pint_xarray.unit_registry
+
 
 class FinamDataError(Exception):
     """Error for wrong data in FINAM."""
@@ -342,9 +344,11 @@ def check(xdata, name, info, time=None):
     meta = copy.copy(info.meta)
     meta.pop("units", None)
     if meta != xdata.attrs:
-        raise FinamDataError(f"check: given data has wrong meta data.\nData: {xdata.attrs}\nMeta: {meta}")
+        raise FinamDataError(
+            f"check: given data has wrong meta data.\nData: {xdata.attrs}\nMeta: {meta}"
+        )
     # check units
-    if "units" in info.meta and pint.Unit(info.units) != get_units(xdata):
+    if "units" in info.meta and UNITS.Unit(info.units) != get_units(xdata):
         raise FinamDataError("check: given data has wrong units.")
 
 

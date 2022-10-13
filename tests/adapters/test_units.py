@@ -5,7 +5,6 @@ import unittest
 from datetime import datetime, timedelta
 
 import numpy as np
-import pint
 
 from finam.adapters.units import ConvertUnits
 from finam.core.interfaces import ComponentStatus
@@ -63,13 +62,11 @@ class MockupConsumer(ATimeComponent):
 
 class TestUnits(unittest.TestCase):
     def test_units(self):
-        reg = pint.UnitRegistry(force_ndarray_like=True)
-
         in_info = Info(
             grid=UniformGrid(
                 dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
             ),
-            units=reg.meter,
+            units=tools.UNITS.meter,
         )
 
         in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
@@ -81,7 +78,7 @@ class TestUnits(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        sink = MockupConsumer(datetime(2000, 1, 1), reg.kilometer)
+        sink = MockupConsumer(datetime(2000, 1, 1), tools.UNITS.kilometer)
 
         composition = Composition([source, sink])
         composition.initialize()
@@ -90,6 +87,8 @@ class TestUnits(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(sink.inputs["Input"].info.meta, {"units": reg.kilometer})
-        self.assertEqual(tools.get_units(sink.data), reg.kilometer)
+        self.assertEqual(
+            sink.inputs["Input"].info.meta, {"units": tools.UNITS.kilometer}
+        )
+        self.assertEqual(tools.get_units(sink.data), tools.UNITS.kilometer)
         self.assertEqual(tools.get_magnitued(sink.data)[0, 0, 0], 0.001)
