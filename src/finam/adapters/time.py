@@ -171,7 +171,9 @@ class LinearInterpolation(AAdapter):
         o = self.old_data[1]
         n = self.new_data[1]
 
-        return tools.to_xarray(_interpolate(o, n, dt), self.name, self.info, time)
+        result = _interpolate(o, n, dt)
+
+        return tools.to_xarray(result, self.name, self.info, time)
 
 
 class LinearIntegration(AAdapter, NoBranchAdapter):

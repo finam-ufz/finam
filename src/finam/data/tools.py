@@ -104,13 +104,27 @@ def to_xarray(data, name, info, time=None):
     if isinstance(data, xr.DataArray):
         check(data, name, info, time)
         return data
-    data = np.asarray(data)
+
+    units = None
+    if isinstance(data, pint.Quantity):
+        units = data.units
+        data = np.asarray(data.magnitude)
+    else:
+        data = np.asarray(data)
+
     # check correct data size
     if isinstance(info.grid, Grid):
         if data.size != info.grid.data_size:
             raise FinamDataError("to_xarray: data size doesn't match grid size.")
         # reshape flat arrays
         data = data.reshape(info.grid.data_shape, order=info.grid.order)
+
+    if units is not None:
+        if "units" not in info.meta and units != UNITS.dimensionless:
+            raise FinamDataError("Given data has units, but metadata has none.")
+        if "units" in info.meta and UNITS.Unit(info.units) != units:
+            raise FinamDataError("Given data has wrong units.")
+
     # generate quantified DataArray
     out_array = xr.DataArray(
         name=name,
