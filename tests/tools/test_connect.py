@@ -2,7 +2,7 @@ import unittest
 from datetime import datetime
 
 from finam.core.interfaces import ComponentStatus
-from finam.core.sdk import Input, Output
+from finam.core.sdk import Input, IOList, Output
 from finam.data import Info, NoGrid
 from finam.tools.connect_helper import ConnectHelper
 
@@ -12,17 +12,15 @@ class TestConnectHelper(unittest.TestCase):
         time = datetime(2020, 10, 6)
         info = Info(grid=NoGrid)
 
-        inputs = {
-            "In1": Input(),
-            "In2": Input(),
-        }
-        outputs = {
-            "Out1": Output(),
-            "Out2": Output(),
-        }
+        inputs = IOList("INPUT")
+        inputs.add(name="In1")
+        inputs.add(name="In2")
+        outputs = IOList("OUTPUT")
+        outputs.add(name="Out1")
+        outputs.add(name="Out2")
 
-        sources = [Output(), Output()]
-        sinks = [Input(), Input()]
+        sources = [Output("so1"), Output("so1")]
+        sinks = [Input("si1"), Input("si2")]
 
         sources[0] >> inputs["In1"]
         sources[1] >> inputs["In2"]

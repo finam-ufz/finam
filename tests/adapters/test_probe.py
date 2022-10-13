@@ -21,9 +21,9 @@ class TestProbe(unittest.TestCase):
             data = d
             time = t
 
-        out = Output()
+        out = Output("test_out")
         adapter = CallbackProbe(callback=callback)
-        inp = Input()
+        inp = Input("test_in")
 
         out >> adapter >> inp
 

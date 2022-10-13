@@ -76,8 +76,8 @@ class TestOutput(unittest.TestCase):
             nonlocal counter
             counter += 1
 
-        out = Output()
-        inp = CallbackInput(callback=callback)
+        out = Output(name="Output")
+        inp = CallbackInput(callback=callback, name="Callback")
 
         out >> inp
 
@@ -105,7 +105,7 @@ class TestCallbackInput(unittest.TestCase):
             caller = clr
             counter += 1
 
-        inp = CallbackInput(callback=callback)
+        inp = CallbackInput(callback=callback, name="callback")
 
         inp.source_changed(t)
 

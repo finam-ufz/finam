@@ -32,7 +32,7 @@ class MockupConsumer(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input(Info(meta={"units": self.units}))
+        self.inputs.add(name="Input", info=Info(units=self.units))
         self._connector = ConnectHelper(
             self.inputs, self.outputs, required_in_data=["Input"]
         )

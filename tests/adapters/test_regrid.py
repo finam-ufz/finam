@@ -30,7 +30,7 @@ class MockupConsumer(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
+        self.inputs.add(name="Input")
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
