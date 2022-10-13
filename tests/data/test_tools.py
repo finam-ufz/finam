@@ -2,6 +2,7 @@ import unittest
 from datetime import datetime as dt
 
 import numpy as np
+import pint
 
 import finam
 
@@ -26,9 +27,24 @@ class TestDataTools(unittest.TestCase):
         dar0 = finam.data.tools.to_xarray(data, "data", info, time)
         dar1 = finam.data.tools.to_xarray(data, "data", info)
 
+        # assert stuff
+        self.assertIsNone(finam.data.tools.get_time(dar1))
+        self.assertIsInstance(finam.data.tools.get_magnitued(dar0), np.ndarray)
+        self.assertIsInstance(finam.data.tools.get_data(dar0), pint.Quantity)
+        self.assertIsInstance(
+            finam.data.tools.get_dimensionality(dar0), pint.util.UnitsContainer
+        )
+
         # should work
+        finam.data.tools.to_xarray(dar0, "data", info, time)
+        finam.data.tools.to_xarray(dar1, "data", info)
         finam.data.tools.check(dar0, "data", info, time)
         finam.data.tools.check(dar1, "data", info)
+        finam.data.tools.to_units(dar0, "km")
+
+        # wrong shape
+        with self.assertRaises(finam.data.tools.FinamDataError):
+            finam.data.tools.to_xarray(1, "data", info, time)
 
         # no DataArray
         with self.assertRaises(finam.data.tools.FinamDataError):
@@ -77,3 +93,21 @@ class TestDataTools(unittest.TestCase):
             finam.data.tools.check(dar0, "data", inf4, time)
         with self.assertRaises(finam.data.tools.FinamDataError):
             finam.data.tools.check(dar1, "data", inf4)
+
+        # check full_like
+        dar2 = finam.data.tools.full_like(dar0, 0)
+        finam.data.tools.check(dar2, "data", info, time)
+
+        dar3 = finam.data.tools.full(0, "data", info, time)
+        finam.data.tools.check(dar3, "data", info, time)
+
+    def test_other_grids(self):
+        gri0 = finam.data.NoGrid()
+        gri1 = finam.data.UnstructuredPoints(points=[[0, 0], [0, 2], [2, 2]])
+        info = finam.data.Info(gri0, units="s")
+        data = np.arange(3)
+        dar0 = finam.data.tools.to_xarray(data, "data", info)
+        dar1 = finam.data.tools.to_xarray(data, "data", info.copy_with(grid=gri1))
+
+        self.assertTrue("dim_0" in dar0.dims)
+        self.assertTrue("id" in dar1.dims)
