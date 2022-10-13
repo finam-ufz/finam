@@ -648,7 +648,7 @@ class IOType(IntEnum):
     OUTPUT = 1
 
 
-class IOList(collections.Mapping):
+class IOList(collections.abc.Mapping):
     """
     Map for IO.
 
