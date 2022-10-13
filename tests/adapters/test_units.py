@@ -91,4 +91,4 @@ class TestUnits(unittest.TestCase):
             sink.inputs["Input"].info.meta, {"units": tools.UNITS.kilometer}
         )
         self.assertEqual(tools.get_units(sink.data), tools.UNITS.kilometer)
-        self.assertEqual(tools.get_magnitued(sink.data)[0, 0, 0], 0.001)
+        self.assertEqual(tools.get_magnitude(sink.data)[0, 0, 0], 0.001)

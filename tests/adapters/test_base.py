@@ -134,7 +134,7 @@ class TestValueToGrid(unittest.TestCase):
         _reference_grid, reference_data = create_grid(10, 10, 1.0)
         out_data = self.adapter.get_data(datetime(2000, 1, 1))
 
-        assert_allclose(tools.get_magnitued(out_data)[0, ...], reference_data)
+        assert_allclose(tools.get_magnitude(out_data)[0, ...], reference_data)
         self.assertEqual(str(tools.get_units(out_data)), "m")
 
 

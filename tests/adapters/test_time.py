@@ -150,33 +150,33 @@ class TestLinearGridInterpolation(unittest.TestCase):
 
     def test_linear_grid_interpolation(self):
         self.assertEqual(
-            tools.get_magnitued(self.adapter.get_data(datetime(2000, 1, 1, 0)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 0)))[
                 0, 2, 3
             ],
             0.0,
         )
         self.source.update()
         self.assertEqual(
-            tools.get_magnitued(self.adapter.get_data(datetime(2000, 1, 1, 12)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12)))[
                 0, 2, 3
             ],
             0.5,
         )
         self.assertEqual(
-            tools.get_magnitued(self.adapter.get_data(datetime(2000, 1, 2, 0)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0)))[
                 0, 2, 3
             ],
             1.0,
         )
         self.source.update()
         self.assertEqual(
-            tools.get_magnitued(self.adapter.get_data(datetime(2000, 1, 2, 12)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 12)))[
                 0, 2, 3
             ],
             1.5,
         )
         self.assertEqual(
-            tools.get_magnitued(self.adapter.get_data(datetime(2000, 1, 3, 0)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 3, 0)))[
                 0, 2, 3
             ],
             2.0,
@@ -213,15 +213,15 @@ class TestLinearIntegration(unittest.TestCase):
     def test_linear_integration(self):
         self.source.update()
         self.assertEqual(
-            tools.get_magnitued(self.adapter.get_data(datetime(2000, 1, 1, 12))), 0.25
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12))), 0.25
         )
         self.assertEqual(
-            tools.get_magnitued(self.adapter.get_data(datetime(2000, 1, 2, 0))), 0.75
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0))), 0.75
         )
         self.source.update()
         self.source.update()
         self.assertEqual(
-            tools.get_magnitued(self.adapter.get_data(datetime(2000, 1, 4, 0))), 2.0
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 4, 0))), 2.0
         )
 
         with self.assertRaises(FinamTimeError) as context:
@@ -258,13 +258,13 @@ class TestLinearGridIntegration(unittest.TestCase):
     def test_linear_grid_integration(self):
         self.source.update()
         self.assertEqual(
-            tools.get_magnitued(self.adapter.get_data(datetime(2000, 1, 1, 12)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12)))[
                 0, 2, 3
             ],
             0.25,
         )
         self.assertEqual(
-            tools.get_magnitued(self.adapter.get_data(datetime(2000, 1, 2, 0)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0)))[
                 0, 2, 3
             ],
             0.75,
@@ -272,7 +272,7 @@ class TestLinearGridIntegration(unittest.TestCase):
         self.source.update()
         self.source.update()
         self.assertEqual(
-            tools.get_magnitued(self.adapter.get_data(datetime(2000, 1, 4, 0)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 4, 0)))[
                 0, 2, 3
             ],
             2.0,

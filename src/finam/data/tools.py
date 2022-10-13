@@ -163,7 +163,7 @@ def get_time(xdata):
     return None
 
 
-def get_magnitued(xdata):
+def get_magnitude(xdata):
     """
     Get magnitude of given data.
 

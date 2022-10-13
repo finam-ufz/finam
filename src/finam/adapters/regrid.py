@@ -143,10 +143,10 @@ class Linear(ARegridding):
         in_data = self.pull_data(time)
 
         if isinstance(self.input_grid, StructuredGrid):
-            self.inter.values = tools.get_magnitued(np.squeeze(in_data))
+            self.inter.values = tools.get_magnitude(np.squeeze(in_data))
         else:
             self.inter.values = np.ascontiguousarray(
-                tools.get_magnitued(in_data).reshape(
+                tools.get_magnitude(in_data).reshape(
                     (-1, 1), order=self.input_grid.order
                 ),
                 dtype=np.double,
