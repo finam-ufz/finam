@@ -224,8 +224,9 @@ class Input(IInput, Loggable):
         if not isinstance(time, datetime):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
-
-        return self.source.get_data(time)
+        data = self.source.get_data(time)
+        tools.check(data, data.name, self._input_info, time)
+        return data
 
     def exchange_info(self, info=None):
         """Exchange the data info with the input's source.

@@ -342,7 +342,7 @@ def check(xdata, name, info, time=None):
     meta = copy.copy(info.meta)
     meta.pop("units", None)
     if meta != xdata.attrs:
-        raise FinamDataError("check: given data has wrong meta data.")
+        raise FinamDataError(f"check: given data has wrong meta data.\nData: {xdata.attrs}\nMeta: {meta}")
     # check units
     if "units" in info.meta and pint.Unit(info.units) != get_units(xdata):
         raise FinamDataError("check: given data has wrong units.")
