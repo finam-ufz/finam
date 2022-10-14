@@ -17,19 +17,17 @@ For each grid cell, calculations in each model step are as follows:
 
     LAI(t + \Delta t) = 0.9 * (LAI(t) + growth)
 """
-
-import math
 import random
+import numpy as np
 from datetime import datetime, timedelta
 
 from finam.core.interfaces import ComponentStatus
 from finam.core.sdk import ATimeComponent, Input, Output
-from finam.data import assert_type
-from finam.data.grid import Grid
+from finam.data import assert_type, Info, tools
 
 
 class Formind(ATimeComponent):
-    def __init__(self, grid_spec, start, step):
+    def __init__(self, grid, start, step):
         super().__init__()
 
         if not isinstance(start, datetime):
@@ -40,50 +38,32 @@ class Formind(ATimeComponent):
         self._time = start
         self._step = step
 
-        self._grid_spec = grid_spec
+        self.info = Info(grid)
         self.lai = None
 
         self.status = ComponentStatus.CREATED
 
-    def initialize(self):
-        super().initialize()
+    def _initialize(self):
+        self.lai = tools.full(1.0, "LAI", self.info, self.time)
 
-        self.lai = Grid(self._grid_spec)
-        self.lai.fill(1.0)
+        self.inputs.add(name="soil_water", info=self.info)
+        self.outputs.add(name="LAI", info=self.info)
 
-        self._inputs["soil_water"] = Input()
-        self._outputs["LAI"] = Output()
+        self.create_connector()
 
-        self.status = ComponentStatus.INITIALIZED
+    def _connect(self):
+        self.try_connect(time=self.time, push_data={"LAI": self.lai})
 
-    def connect(self):
-        super().connect()
+    def _validate(self):
+        pass
 
-        self._outputs["LAI"].push_data(self.lai, self.time)
-
-        self.status = ComponentStatus.CONNECTED
-
-    def validate(self):
-        super().validate()
-
-        self.status = ComponentStatus.VALIDATED
-
-    def update(self):
-        super().update()
-
+    def _update(self):
         # Retrieve inputs
-        soil_water = self._inputs["soil_water"].pull_data(self.time)
-
-        # Check input data types
-        assert_type(self, "soil_water", soil_water, [Grid])
-        if self.lai.spec != soil_water.spec:
-            raise Exception(
-                f"Grid specifications not matching for soil_water in Formind."
-            )
+        soil_water = self.inputs["soil_water"].pull_data(self.time)
 
         # Run the model step here
         for i in range(len(self.lai.data)):
-            growth = (1.0 - math.exp(-0.1 * soil_water.data[i])) * random.uniform(
+            growth = (1.0 - np.exp(-0.1 * soil_water.data[i])) * random.uniform(
                 0.5, 1.0
             )
             self.lai.data[i] = (self.lai.data[i] + growth) * 0.9
@@ -92,12 +72,7 @@ class Formind(ATimeComponent):
         self._time += self._step
 
         # Push model state to outputs
-        self._outputs["LAI"].push_data(self.lai, self.time)
+        self.outputs["LAI"].push_data(self.lai.data, self.time)
 
-        # Update component status
-        self.status = ComponentStatus.UPDATED
-
-    def finalize(self):
-        super().finalize()
-
-        self.status = ComponentStatus.FINALIZED
+    def _finalize(self):
+        pass

@@ -1,4 +1,5 @@
 import unittest
+import logging
 from datetime import datetime
 
 from finam.core.interfaces import ComponentStatus
@@ -29,6 +30,7 @@ class TestConnectHelper(unittest.TestCase):
         outputs["Out2"] >> sinks[1]
 
         connector: ConnectHelper = ConnectHelper(
+            logging.Logger("Test"),
             inputs,
             outputs,
             required_in_data=list(inputs.keys()),
@@ -72,14 +74,21 @@ class TestConnectHelper(unittest.TestCase):
         self.assertEqual(connector.out_infos, {"Out1": info, "Out2": None})
 
         sources[1].push_info(info.copy())
-        sources[1].push_data(2, time)
 
         status = connector.connect(
             time, exchange_infos={"In2": info.copy()}, push_infos={"Out2": info.copy()}
         )
+        sources[1].push_data(2, time)
+
         self.assertEqual(status, ComponentStatus.CONNECTING)
         self.assertEqual(connector.in_infos, {"In1": info, "In2": info})
-        self.assertEqual(connector.in_data, {"In1": 1, "In2": 2})
+
+        connector.connect(
+            time, exchange_infos={"In2": info.copy()}, push_infos={"Out2": info.copy()}
+        )
+
+        self.assertEqual(connector.in_data["In1"], 1)
+        self.assertEqual(connector.in_data["In2"], 2)
 
         sinks[1].exchange_info(info.copy())
         status = connector.connect(time, push_data={"Out1": 1, "Out2": 2})

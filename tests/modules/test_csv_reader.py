@@ -4,6 +4,7 @@ from os import path
 from tempfile import TemporaryDirectory
 
 from finam.core.interfaces import ComponentStatus
+from finam.core.sdk import Input
 from finam.data import Info, NoGrid
 from finam.modules.readers import CsvReader
 
@@ -32,10 +33,17 @@ class TestCsvReader(unittest.TestCase):
             reader = CsvReader(
                 file, time_column="T", date_format=None, outputs=["X", "Y"]
             )
+            sink1 = Input("In1")
+            sink2 = Input("In2")
 
             reader.initialize()
 
             self.assertEqual(len(reader.outputs), 2)
+
+            reader.outputs["X"] >> sink1
+            reader.outputs["Y"] >> sink2
+            sink1.exchange_info(Info(grid=NoGrid()))
+            sink2.exchange_info(Info(grid=NoGrid()))
 
             reader.outputs["X"].get_info(Info(grid=NoGrid()))
             reader.outputs["Y"].get_info(Info(grid=NoGrid()))

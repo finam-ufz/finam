@@ -148,11 +148,6 @@ class TestComposition(unittest.TestCase):
         self.assertEqual(module.status, ComponentStatus.INITIALIZED)
         self.assertEqual(len(module.outputs), 1)
 
-        composition.run(t_max=datetime(2000, 1, 31))
-
-        self.assertEqual(module.status, ComponentStatus.FINALIZED)
-        self.assertEqual(module.time, datetime(2000, 1, 31))
-
     def test_check_composition(self):
         with self.assertRaises(ValueError):
             _comp = Composition(["not a component"])
