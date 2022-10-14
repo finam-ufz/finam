@@ -6,6 +6,7 @@ import logging
 from abc import ABC
 from datetime import datetime
 from enum import IntEnum
+from typing import final
 
 from ..data import Info, tools
 from ..tools.connect_helper import ConnectHelper
@@ -17,6 +18,7 @@ from .interfaces import (
     FinamMetaDataError,
     FinamNoDataError,
     FinamStatusError,
+    FinamTimeError,
     IAdapter,
     IComponent,
     IInput,
@@ -36,6 +38,7 @@ class AComponent(IComponent, Loggable, ABC):
         self.base_logger_name = None
         self._connector = None
 
+    @final
     def initialize(self):
         """Initialize the component.
 
@@ -43,9 +46,27 @@ class AComponent(IComponent, Loggable, ABC):
         and the component should have status INITIALIZED.
         """
         self.logger.debug("init")
+        self._initialize()
 
+        self.inputs.frozen = True
+        self.outputs.frozen = True
+
+        if self.status != ComponentStatus.FAILED:
+            self.status = ComponentStatus.INITIALIZED
+
+    def _initialize(self):
+        """Initialize the component.
+
+        Components must overwrite this method.
+        After the method call, the component's inputs and outputs must be available.
+        """
+        raise NotImplementedError(
+            f"Method `_initialize` must be implemented by all components, but implementation is missing in {self.name}."
+        )
+
+    @final
     def connect(self):
-        """Push initial values to outputs. Pull initial values from inputs.
+        """Connect exchange data and metadata with linked components.
 
         The method can be called multiple times if there are failed pull attempts.
 
@@ -54,14 +75,38 @@ class AComponent(IComponent, Loggable, ABC):
         could be pulled, and `CONNECTING_IDLE` if nothing could be pulled.
         """
         self.logger.debug("connect")
+        self._connect()
 
+    def _connect(self):
+        """Connect exchange data and metadata with linked components.
+
+        Components must overwrite this method.
+        """
+        raise NotImplementedError(
+            f"Method `_connect` must be implemented by all components, but implementation is missing in {self.name}."
+        )
+
+    @final
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
 
         After the method call, the component should have status VALIDATED.
         """
         self.logger.debug("validate")
+        self._validate()
+        if self.status != ComponentStatus.FAILED:
+            self.status = ComponentStatus.VALIDATED
 
+    def _validate(self):
+        """Validate the correctness of the component's settings and coupling.
+
+        Components must overwrite this method.
+        """
+        raise NotImplementedError(
+            f"Method `_validate` must be implemented by all components, but implementation is missing in {self.name}."
+        )
+
+    @final
     def update(self):
         """Update the component by one time step.
         Push new values to outputs.
@@ -72,12 +117,40 @@ class AComponent(IComponent, Loggable, ABC):
         if isinstance(self, ITimeComponent):
             self.logger.debug("current time: %s", self.time)
 
+        self._update()
+
+        if self.status not in (ComponentStatus.FAILED, ComponentStatus.FINALIZED):
+            self.status = ComponentStatus.UPDATED
+
+    def _update(self):
+        """Update the component by one time step.
+        Push new values to outputs.
+
+        Components must overwrite this method.
+        """
+        raise NotImplementedError(
+            f"Method `_update` must be implemented by all components, but implementation is missing in {self.name}."
+        )
+
+    @final
     def finalize(self):
         """Finalize and clean up the component.
 
         After the method call, the component should have status FINALIZED.
         """
         self.logger.debug("finalize")
+        self._finalize()
+        if self.status != ComponentStatus.FAILED:
+            self.status = ComponentStatus.FINALIZED
+
+    def _finalize(self):
+        """Finalize and clean up the component.
+
+        Components must overwrite this method.
+        """
+        raise NotImplementedError(
+            f"Method `_finalize` must be implemented by all components, but implementation is missing in {self.name}."
+        )
 
     @property
     def inputs(self):
@@ -331,7 +404,9 @@ class Input(IInput, Loggable):
                     f"Can't accept incoming data info. Failed entries:\n{fail_info}"
                 )
 
-        self._input_info = in_info.copy_with(use_none=False, **info.meta)
+        self._input_info = in_info.copy_with(
+            use_none=False, grid=info.grid, **info.meta
+        )
         self._in_info_exchanged = True
         return in_info
 
@@ -612,6 +687,12 @@ class AAdapter(IAdapter, Input, Output, ABC):
         self.source = None
         self.targets = []
 
+    @final
+    @property
+    def info(self):
+        raise NotImplementedError("Property `info` is not implemented for adapters")
+
+    @final
     def push_data(self, data, time):
         """Push data into the output.
 
@@ -631,6 +712,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
 
         self.notify_targets(time)
 
+    @final
     def source_changed(self, time):
         """Informs the input that a new output is available.
 
@@ -644,8 +726,42 @@ class AAdapter(IAdapter, Input, Output, ABC):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
 
+        self._source_changed(time)
+
         self.notify_targets(time)
 
+    def _source_changed(self, time):
+        """Informs the input that a new output is available.
+
+        Adapters can overwrite this method to handle incoming data.
+
+        Parameters
+        ----------
+        time : datetime
+            Simulation time of the notification.
+        """
+
+    @final
+    def get_data(self, time):
+        self.logger.debug("get data")
+        if not isinstance(time, datetime):
+            with LogError(self.logger):
+                raise FinamTimeError("Time must be of type datetime")
+
+        data = self._get_data(time)
+        name = self.get_source().name + "_" + self.name
+        return tools.to_xarray(data, name, self._output_info, time)
+
+    def _get_data(self, time):
+        """Asks the adapter for the transformed data.
+
+        Adapters must overwrite this method.
+        """
+        raise NotImplementedError(
+            f"Method `_get_data` must be implemented by all adapters, but implementation is missing in {self.name}."
+        )
+
+    @final
     def get_info(self, info):
         """Exchange and get the output's data info.
 
@@ -665,9 +781,27 @@ class AAdapter(IAdapter, Input, Output, ABC):
             Raises the error if no info is available
         """
         self.logger.debug("get info")
+        self._output_info = self._get_info(info)
+        return self._output_info
 
+    def _get_info(self, info):
+        """Exchange and get the output's data info.
+
+        Adapters can overwrite this method to manipulate the metadata for the output.
+
+        Parameters
+        ----------
+        info : Info
+            Requested data info
+
+        Returns
+        -------
+        dict
+            Delivered data info
+        """
         return self.exchange_info(info)
 
+    @final
     def exchange_info(self, info=None):
         """Exchange the data info with the input's source.
 

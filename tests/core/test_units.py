@@ -25,35 +25,26 @@ class MockupConsumer(ATimeComponent):
         self.units = units
         self.data = None
 
-    def initialize(self):
-        super().initialize()
+    def _initialize(self):
         self.inputs.add(name="Input", info=Info(units=self.units))
         self.create_connector(required_in_data=["Input"])
-        self.status = ComponentStatus.INITIALIZED
 
-    def connect(self):
-        super().connect()
+    def _connect(self):
         self.try_connect(self.time)
 
         data = self.connector.in_data["Input"]
         if data is not None:
             self.data = data
 
-    def validate(self):
-        super().validate()
-        self.status = ComponentStatus.VALIDATED
+    def _validate(self):
+        pass
 
-    def update(self):
-        super().update()
-
+    def _update(self):
         self.data = self.inputs["Input"].pull_data(self.time)
         self.time += self.step
 
-        self.status = ComponentStatus.UPDATED
-
-    def finalize(self):
-        super().finalize()
-        self.status = ComponentStatus.FINALIZED
+    def _finalize(self):
+        pass
 
 
 class TestUnits(unittest.TestCase):

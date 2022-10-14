@@ -108,9 +108,6 @@ class Composition(Loggable):
             if loggable(mod) and mod.uses_base_logger_name:
                 mod.base_logger_name = self.logger_name
             mod.initialize()
-            # freeze IO lists
-            mod.inputs.frozen = True
-            mod.outputs.frozen = True
             # set logger
             with LogError(self.logger):
                 mod.inputs.set_logger(mod)

@@ -9,7 +9,7 @@ from scipy.spatial import KDTree
 
 from ..core.interfaces import FinamMetaDataError
 from ..core.sdk import AAdapter
-from ..data import Info, tools
+from ..data import tools
 from ..data.grid_spec import StructuredGrid
 from ..tools.log_helper import LogError
 
@@ -29,8 +29,7 @@ class ARegridding(AAdapter, ABC):
     def _update_grid_specs(self):
         """set up interpolator"""
 
-    def get_info(self, info):
-        self.logger.debug("get info")
+    def _get_info(self, info):
 
         request = (
             info.copy_with(grid=self.input_grid)
@@ -85,7 +84,7 @@ class Nearest(ARegridding):
         # only store IDs, since they will be constant
         self.ids = tree.query(self.output_grid.data_points)[1]
 
-    def get_data(self, time):
+    def _get_data(self, time):
         in_data = self.pull_data(time)
 
         res = (
@@ -93,9 +92,7 @@ class Nearest(ARegridding):
             .reshape(-1, order=self.input_grid.order)[self.ids]
             .reshape(self.output_grid.data_shape, order=self.output_grid.order)
         )
-        return tools.to_xarray(
-            res, "Nearest", Info(self.output_grid, self.input_meta), time
-        )
+        return res
 
 
 class Linear(ARegridding):
@@ -139,7 +136,7 @@ class Linear(ARegridding):
             tree = KDTree(self.input_grid.data_points, **kw)
             self.fill_ids = tree.query(out_points)[1]
 
-    def get_data(self, time):
+    def _get_data(self, time):
         in_data = self.pull_data(time)
 
         if isinstance(self.input_grid, StructuredGrid):
@@ -151,10 +148,8 @@ class Linear(ARegridding):
                 ),
                 dtype=np.double,
             )
-        res = self.inter(self.output_grid.data_points)
+        res = self.inter(self.output_grid.data_points) * tools.get_units(in_data)
         if self.fill_with_nearest:
             res[self.out_ids] = self.inter.values[self.fill_ids, 0]
 
-        return tools.to_xarray(
-            res, "Regridded", Info(self.output_grid, self.input_meta), time
-        )
+        return res

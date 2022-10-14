@@ -38,6 +38,7 @@ class ComponentStatus(Enum):
     UPDATED = 6
     FINISHED = 7
     FINALIZED = 8
+    FAILED = 9
 
 
 class Loggable(ABC):
@@ -72,7 +73,7 @@ class IComponent(ABC):
 
     @abstractmethod
     def connect(self):
-        """Push initial values to outputs. Pull initial values from inputs.
+        """Connect exchange data and metadata with linked components.
 
         The method can be called multiple times if there are failed pull attempts.
 

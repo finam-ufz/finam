@@ -1,13 +1,10 @@
 """
 Basic data transformation adapters.
 """
-from datetime import datetime
-
 import numpy as np
 
 from ..core.sdk import AAdapter
 from ..data import NoGrid, tools
-from ..tools.log_helper import LogError
 
 
 class Callback(AAdapter):
@@ -23,7 +20,7 @@ class Callback(AAdapter):
         super().__init__()
         self.callback = callback
 
-    def get_data(self, time):
+    def _get_data(self, time):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -36,11 +33,6 @@ class Callback(AAdapter):
         array_like
             data-set for the requested time.
         """
-        self.logger.debug("get data")
-        if not isinstance(time, datetime):
-            with LogError(self.logger):
-                raise ValueError("Time must be of type datetime")
-
         d = self.pull_data(time)
         return self.callback(d, time)
 
@@ -58,7 +50,7 @@ class Scale(AAdapter):
         super().__init__()
         self.scale = scale
 
-    def get_data(self, time):
+    def _get_data(self, time):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -71,13 +63,8 @@ class Scale(AAdapter):
         array_like
             data-set for the requested time.
         """
-        self.logger.debug("get data")
-        if not isinstance(time, datetime):
-            with LogError(self.logger):
-                raise ValueError("Time must be of type datetime")
-
         d = self.pull_data(time)
-        return d * self.scale
+        return tools.get_data(d) * self.scale
 
 
 class ValueToGrid(AAdapter):
@@ -94,7 +81,7 @@ class ValueToGrid(AAdapter):
         self.grid = grid
         self._info = None
 
-    def get_data(self, time):
+    def _get_data(self, time):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -107,19 +94,12 @@ class ValueToGrid(AAdapter):
         array_like
             data-set for the requested time.
         """
-        self.logger.debug("get data")
-        if not isinstance(time, datetime):
-            with LogError(self.logger):
-                raise ValueError("Time must be of type datetime")
-
         value = self.pull_data(time)
+        return np.full(
+            self.grid.data_shape, tools.get_magnitude(value), dtype=value.dtype
+        ) * tools.get_units(value)
 
-        data = np.full(self.grid.data_shape, value.pint.magnitude, dtype=value.dtype)
-        return tools.to_xarray(data, "ValueToGrid", self._info, time)
-
-    def get_info(self, info):
-        self.logger.debug("get info")
-
+    def _get_info(self, info):
         in_info = self.exchange_info(info)
         out_info = in_info.copy_with(grid=self.grid)
 
@@ -139,9 +119,8 @@ class GridToValue(AAdapter):
     def __init__(self, func):
         super().__init__()
         self.func = func
-        self._info = None
 
-    def get_data(self, time):
+    def _get_data(self, time):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -154,21 +133,13 @@ class GridToValue(AAdapter):
         array_like
             data-set for the requested time.
         """
-        self.logger.debug("get data")
-        if not isinstance(time, datetime):
-            with LogError(self.logger):
-                raise ValueError("Time must be of type datetime")
-
         grid = self.pull_data(time)
 
-        func_result = self.func(grid.pint.magnitude)
+        func_result = self.func(tools.get_magnitude(grid)) * tools.get_units(grid)
 
-        return tools.to_xarray(func_result, "GridToValue", self._info, time)
+        return func_result
 
-    def get_info(self, info):
-        self.logger.debug("get info")
-
+    def _get_info(self, info):
         in_info = self.exchange_info(info)
         out_info = in_info.copy_with(grid=NoGrid())
-        self._info = out_info
         return out_info
