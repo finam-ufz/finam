@@ -163,6 +163,11 @@ class AComponent(IComponent, Loggable, ABC):
         ComponentStatus
             the new component status
         """
+        if self._connector is None:
+            raise FinamStatusError(
+                f"No connector in component {self.name}. Call `create_connector()` in `_initialize()`."
+            )
+
         self.status = self._connector.connect(
             time,
             exchange_infos=exchange_infos,
