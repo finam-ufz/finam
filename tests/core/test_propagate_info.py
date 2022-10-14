@@ -120,8 +120,8 @@ class UnitAdapter(AAdapter):
 
         in_info = self.exchange_info(info)
         out_info = copy.copy(in_info)
-        if "unit" in info.meta:
-            out_info.meta["unit"] = info.meta["unit"]
+        if "units" in info.meta:
+            out_info.meta["units"] = info.meta["units"]
         return out_info
 
 
@@ -131,7 +131,7 @@ class TestPropagate(unittest.TestCase):
             callbacks={
                 "Output": (
                     lambda t: 1,
-                    Info(grid=NoGrid(), meta={"unit": "m"}),
+                    Info(grid=NoGrid(), meta={"units": "m"}),
                 )
             },
             start=datetime(2000, 1, 1),
@@ -139,7 +139,7 @@ class TestPropagate(unittest.TestCase):
         )
 
         sink = MockupConsumer(
-            datetime(2000, 1, 1), Info(grid=NoGrid(), meta={"unit": "m"})
+            datetime(2000, 1, 1), Info(grid=NoGrid(), meta={"units": "km"})
         )
 
         composition = Composition([source, sink])
@@ -156,7 +156,7 @@ class TestPropagate(unittest.TestCase):
 
         self.assertEqual(
             sink.inputs["Input"].info,
-            Info(grid=NoGrid(), meta={"unit": "m"}),
+            Info(grid=NoGrid(), meta={"units": "km"}),
         )
 
     def test_propagate_info_fail(self):
@@ -164,7 +164,7 @@ class TestPropagate(unittest.TestCase):
             callbacks={
                 "Output": (
                     lambda t: 1,
-                    Info(grid=NoGrid(), meta={"unit": "source_unit"}),
+                    Info(grid=NoGrid(), meta={"units": "m"}),
                 )
             },
             start=datetime(2000, 1, 1),
@@ -172,7 +172,7 @@ class TestPropagate(unittest.TestCase):
         )
 
         sink = MockupConsumer(
-            datetime(2000, 1, 1), Info(grid=NoGrid(), meta={"unit": "sink_unit"})
+            datetime(2000, 1, 1), Info(grid=NoGrid(), meta={"units": "m2"})
         )
 
         composition = Composition([source, sink])
@@ -188,7 +188,7 @@ class TestPropagate(unittest.TestCase):
             callbacks={
                 "Output": (
                     lambda t: 1,
-                    Info(grid=NoGrid(), meta={"unit": "source_unit"}),
+                    Info(grid=NoGrid(), meta={"units": "m"}),
                 )
             },
             start=datetime(2000, 1, 1),
@@ -196,7 +196,7 @@ class TestPropagate(unittest.TestCase):
         )
 
         sink = MockupConsumer(
-            datetime(2000, 1, 1), Info(grid=None, meta={"unit": None})
+            datetime(2000, 1, 1), Info(grid=None, meta={"units": None})
         )
 
         composition = Composition([source, sink])
@@ -208,16 +208,16 @@ class TestPropagate(unittest.TestCase):
 
         self.assertEqual(
             sink.inputs["Input"].info,
-            Info(grid=NoGrid(), meta={"unit": "source_unit"}),
+            Info(grid=NoGrid(), meta={"units": "m"}),
         )
 
     def test_propagate_info_from_target(self):
         source = MockupProducer(
-            time=datetime(2000, 1, 1), info=Info(grid=None, meta={"unit": None})
+            time=datetime(2000, 1, 1), info=Info(grid=None, meta={"units": None})
         )
 
         sink = MockupConsumer(
-            datetime(2000, 1, 1), Info(grid=NoGrid(), meta={"unit": "sink_unit"})
+            datetime(2000, 1, 1), Info(grid=NoGrid(), meta={"units": "m"})
         )
 
         composition = Composition([source, sink])
@@ -229,9 +229,9 @@ class TestPropagate(unittest.TestCase):
 
         self.assertEqual(
             source.outputs["Output"].info,
-            Info(grid=NoGrid(), meta={"unit": "sink_unit"}),
+            Info(grid=NoGrid(), meta={"units": "m"}),
         )
         self.assertEqual(
             source.out_info,
-            Info(grid=NoGrid(), meta={"unit": "sink_unit"}),
+            Info(grid=NoGrid(), meta={"units": "m"}),
         )

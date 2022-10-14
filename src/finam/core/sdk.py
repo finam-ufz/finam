@@ -226,6 +226,10 @@ class Input(IInput, Loggable):
                 raise ValueError("Time must be of type datetime")
 
         data = self.source.get_data(time)
+
+        if "units" in self._input_info.meta:
+            data = tools.to_units(data, self._input_info.units)
+
         tools.check(data, data.name, self._input_info, time)
         return data
 
@@ -267,7 +271,7 @@ class Input(IInput, Loggable):
                     f"Can't accept incoming data info. Failed entries:\n{fail_info}"
                 )
 
-        self._input_info = in_info
+        self._input_info = in_info.copy_with(use_none=False, **info.meta)
         self._in_info_exchanged = True
         return in_info
 

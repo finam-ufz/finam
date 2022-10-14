@@ -443,14 +443,16 @@ class Info:
         """Copies the info object"""
         return copy.copy(self)
 
-    def copy_with(self, **kwargs):
+    def copy_with(self, use_none=True, **kwargs):
         """Copies the info object and sets variables and meta values according to the kwargs"""
         other = Info(grid=self.grid, meta=copy.copy(self.meta))
         for k, v in kwargs.items():
             if k == "grid":
-                other.grid = v
+                if v is not None or use_none:
+                    other.grid = v
             else:
-                other.meta[k] = v
+                if v is not None or use_none:
+                    other.meta[k] = v
 
         return other
 
@@ -480,9 +482,14 @@ class Info:
 
         for k, v in self.meta.items():
             if v is not None and k in incoming.meta:
-                if incoming.meta[k] != v:
-                    fail_info["meta." + k] = (incoming.meta[k], v)
-                    success = False
+                if k == "units":
+                    if not UNITS.Unit(v).is_compatible_with(incoming.meta[k]):
+                        fail_info["meta." + k] = (incoming.meta[k], v)
+                        success = False
+                else:
+                    if incoming.meta[k] != v:
+                        fail_info["meta." + k] = (incoming.meta[k], v)
+                        success = False
 
         return success
 
