@@ -336,7 +336,7 @@ class Output(IOutput, Loggable):
         self.base_logger_name = None
         if name is None:
             raise ValueError("Output: needs a name.")
-        self.name = ""
+        self.name = name
 
         if info is not None:
             self.push_info(info)
@@ -667,8 +667,11 @@ class IOList(collections.abc.Mapping):
         io_type : _type_
             _description_
         """
-        self.io_type = get_enum_value(io_type, IOType)
-        self.io_cls = [Input, Output][self.io_type.value]
+        self.type = get_enum_value(io_type, IOType)
+        self.cls = [Input, Output][self.type.value]
+        self.name = self.cls.__name__
+        self.icls = [IInput, IOutput][self.type.value]
+        self.iname = self.icls.__name__
         self._dict = {}
         self.frozen = False
 
@@ -692,12 +695,10 @@ class IOList(collections.abc.Mapping):
         """
         if self.frozen:
             raise ValueError("IO.add: list is frozen.")
-        if io is not None:
-            if not isinstance(io, self.io_cls):
-                raise ValueError(f"IO.add: io is not of type {self.io_cls.__name__}")
-            self._dict[io.name] = io
-        else:
-            self._dict[name] = self.io_cls(name, info)
+        io = self.cls(name, info) if io is None else io
+        if not isinstance(io, self.icls):
+            raise ValueError(f"IO.add: {self.name} is not of type {self.iname}")
+        self._dict[io.name] = io
 
     def set_logger(self, module):
         """
@@ -716,14 +717,10 @@ class IOList(collections.abc.Mapping):
         for name, item in self.items():
             if loggable(item) and item.uses_base_logger_name and not loggable(module):
                 raise FinamLogError(
-                    f"{self.io_type.name} '{name}' can't get logger from '{module.name}'."
+                    f"IO: {self.type.name} '{name}' can't get logger from '{module.name}'."
                 )
             if loggable(item) and item.uses_base_logger_name:
                 item.base_logger_name = module.logger_name
-
-    def items(self):
-        """A set-like object providing a view on the items."""
-        return self._dict.items()
 
     def __iter__(self):
         return iter(self._dict)
@@ -738,11 +735,13 @@ class IOList(collections.abc.Mapping):
         if self.frozen:
             raise ValueError("IO: list is frozen.")
         if key in self._dict:
-            raise ValueError(f"IO: {self.io_type.name} '{key}' already exists.")
-        if not isinstance(value, self.io_cls):
-            raise ValueError(f"IO: value is not of type {self.io_cls.__name__}")
+            raise ValueError(f"IO: {self.name} '{key}' already exists.")
+        if not isinstance(value, self.icls):
+            raise ValueError(f"IO: {self.name} is not of type {self.iname}")
         if key != value.name:
-            raise ValueError(f"IO: {self.io_type.name} name differs from key")
+            raise ValueError(
+                f"IO: {self.name} name '{value.name}' differs from key '{key}'"
+            )
         self._dict[key] = value
 
     def __str__(self):
