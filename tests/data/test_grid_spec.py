@@ -234,5 +234,5 @@ class TestGridSpec(unittest.TestCase):
     def test_cast(self):
         grid = EsriGrid(3, 2)
         us_grid = grid.to_unstructured()
-        self.assertEqual(grid, us_grid)
+        assert_allclose(grid.data_points, us_grid.data_points)
         self.assertIsInstance(us_grid, UnstructuredGrid)
