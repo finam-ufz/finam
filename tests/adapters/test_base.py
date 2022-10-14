@@ -24,7 +24,7 @@ class TestCallback(unittest.TestCase):
             step=timedelta(1.0),
         )
 
-        self.adapter = Callback(callback=lambda v, t: v * 2)
+        self.adapter = Callback(callback=lambda v, t: tools.get_magnitude(v) * 2)
 
         self.source.initialize()
 

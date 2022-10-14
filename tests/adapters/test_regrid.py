@@ -26,32 +26,23 @@ class MockupConsumer(ATimeComponent):
         self.grid_spec = grid_spec
         self.data = None
 
-    def initialize(self):
-        super().initialize()
+    def _initialize(self):
         self.inputs.add(name="Input")
-        self.status = ComponentStatus.INITIALIZED
+        self.create_connector(required_in_data=["Input"])
 
-    def connect(self):
-        super().connect()
-        self.data = self.inputs["Input"].exchange_info(Info(grid=self.grid_spec))
-        self.data = self.inputs["Input"].pull_data(self.time)
-        self.status = ComponentStatus.CONNECTED
+    def _connect(self):
+        self.try_connect(self.time, exchange_infos={"Input": Info(grid=self.grid_spec)})
+        self.data = self.connector.in_data["Input"]
 
-    def validate(self):
-        super().validate()
-        self.status = ComponentStatus.VALIDATED
+    def _validate(self):
+        pass
 
-    def update(self):
-        super().update()
-
+    def _update(self):
         self.data = self.inputs["Input"].pull_data(self.time)
         self.time += self.step
 
-        self.status = ComponentStatus.UPDATED
-
-    def finalize(self):
-        super().finalize()
-        self.status = ComponentStatus.FINALIZED
+    def _finalize(self):
+        pass
 
 
 class TestRegrid(unittest.TestCase):

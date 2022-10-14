@@ -17,7 +17,7 @@ class NextValue(AAdapter):
         self.data = None
         self.time = None
 
-    def source_changed(self, time):
+    def _source_changed(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -25,17 +25,13 @@ class NextValue(AAdapter):
         time : datetime
             Simulation time of the notification.
         """
-        self.logger.debug("source changed")
-
         _check_time(self.logger, time)
 
         data = self.pull_data(time)
         self.data = data
         self.time = time
 
-        self.notify_targets(time)
-
-    def get_data(self, time):
+    def _get_data(self, time):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -48,14 +44,12 @@ class NextValue(AAdapter):
         array_like
             data-set for the requested time.
         """
-        self.logger.debug("get data")
-
         _check_time(self.logger, time, (None, self.time))
 
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        return self.data
+        return tools.get_magnitude(self.data)
 
 
 class PreviousValue(AAdapter):
@@ -66,7 +60,7 @@ class PreviousValue(AAdapter):
         self.old_data = None
         self.new_data = None
 
-    def source_changed(self, time):
+    def _source_changed(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -74,8 +68,6 @@ class PreviousValue(AAdapter):
         time : datetime
             Simulation time of the notification.
         """
-        self.logger.debug("source changed")
-
         _check_time(self.logger, time)
 
         data = self.pull_data(time)
@@ -86,9 +78,7 @@ class PreviousValue(AAdapter):
 
         self.new_data = (time, data)
 
-        self.notify_targets(time)
-
-    def get_data(self, time):
+    def _get_data(self, time):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -101,17 +91,15 @@ class PreviousValue(AAdapter):
         array_like
             data-set for the requested time.
         """
-        self.logger.debug("get data")
-
         _check_time(self.logger, time, (self.old_data[0], self.new_data[0]))
 
         if self.new_data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
         if time < self.new_data[0]:
-            return self.old_data[1]
+            return tools.get_magnitude(self.old_data[1])
 
-        return self.new_data[1]
+        return tools.get_magnitude(self.new_data[1])
 
 
 class LinearInterpolation(AAdapter):
@@ -122,7 +110,7 @@ class LinearInterpolation(AAdapter):
         self.old_data = None
         self.new_data = None
 
-    def source_changed(self, time):
+    def _source_changed(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -130,16 +118,12 @@ class LinearInterpolation(AAdapter):
         time : datetime
             Simulation time of the notification.
         """
-        self.logger.debug("source changed")
-
         _check_time(self.logger, time)
 
         self.old_data = self.new_data
         self.new_data = (time, self.pull_data(time))
 
-        self.notify_targets(time)
-
-    def get_data(self, time):
+    def _get_data(self, time):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -152,8 +136,6 @@ class LinearInterpolation(AAdapter):
         array_like
             data-set for the requested time.
         """
-        self.logger.debug("get data")
-
         _check_time(
             self.logger,
             time,
@@ -164,7 +146,7 @@ class LinearInterpolation(AAdapter):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         if self.old_data is None:
-            return self.new_data[1]
+            return tools.get_magnitude(self.new_data[1])
 
         dt = (time - self.old_data[0]) / (self.new_data[0] - self.old_data[0])
 
@@ -173,7 +155,7 @@ class LinearInterpolation(AAdapter):
 
         result = _interpolate(o, n, dt)
 
-        return tools.to_xarray(result, self.name, self.info, time)
+        return result
 
 
 class LinearIntegration(AAdapter, NoBranchAdapter):
@@ -187,7 +169,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         self.data = []
         self.prev_time = None
 
-    def source_changed(self, time):
+    def _source_changed(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -195,8 +177,6 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         time : datetime
             Simulation time of the notification.
         """
-        self.logger.debug("source changed")
-
         _check_time(self.logger, time)
 
         data = self.pull_data(time)
@@ -205,9 +185,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         if self.prev_time is None:
             self.prev_time = time
 
-        self.notify_targets(time)
-
-    def get_data(self, time):
+    def _get_data(self, time):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -220,17 +198,16 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         array_like
             data-set for the requested time.
         """
-        self.logger.debug("get data")
         _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
 
         if len(self.data) == 0:
             raise FinamNoDataError(f"No data available in {self.name}")
 
         if len(self.data) == 1:
-            return self.data[0][1]
+            return tools.get_magnitude(self.data[0][1])
 
         if time <= self.data[0][0]:
-            return self.data[0][1]
+            return tools.get_magnitude(self.data[0][1])
 
         sum_value = None
 
@@ -263,7 +240,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
 
         self.prev_time = time
 
-        return tools.to_xarray(sum_value, self.name, self.info, time)
+        return sum_value
 
 
 def _interpolate(old_value, new_value, dt):

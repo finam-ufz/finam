@@ -47,65 +47,47 @@ class CsvReader(ATimeComponent):
 
         self.status = ComponentStatus.CREATED
 
-    def initialize(self):
+    def _initialize(self):
         """Initialize the component.
 
         After the method call, the component's inputs and outputs must be available,
         and the component should have status INITIALIZED.
         """
-        super().initialize()
-
         import pandas
 
         self._data = pandas.read_csv(self._path, sep=";")
 
-        self.status = ComponentStatus.INITIALIZED
-
-    def connect(self):
+    def _connect(self):
         """Push initial values to outputs.
 
         After the method call, the component should have status CONNECTED.
         """
-        super().connect()
-
         self._time = self._push_row(self._data.iloc[self._row_index])
         self._row_index += 1
 
-        self.status = ComponentStatus.CONNECTED
-
-    def validate(self):
+    def _validate(self):
         """Validate the correctness of the component's settings and coupling.
 
         After the method call, the component should have status VALIDATED.
         """
-        super().validate()
 
-        self.status = ComponentStatus.VALIDATED
-
-    def update(self):
+    def _update(self):
         """Update the component by one time step.
         Push new values to outputs.
 
         After the method call, the component should have status UPDATED or FINISHED.
         """
-        super().update()
-
         self._time = self._push_row(self._data.iloc[self._row_index])
         self._row_index += 1
 
         if self._row_index >= self._data.shape[0]:
             self.status = ComponentStatus.FINISHED
-        else:
-            self.status = ComponentStatus.UPDATED
 
-    def finalize(self):
+    def _finalize(self):
         """Finalize and clean up the component.
 
         After the method call, the component should have status FINALIZED.
         """
-        super().finalize()
-
-        self.status = ComponentStatus.FINALIZED
 
     def _push_row(self, row):
         if self._date_format is None:

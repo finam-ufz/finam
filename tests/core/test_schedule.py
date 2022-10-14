@@ -8,9 +8,8 @@ from datetime import datetime, timedelta
 from finam.adapters.base import Scale
 from finam.core.interfaces import ComponentStatus, FinamStatusError, NoBranchAdapter
 from finam.core.schedule import Composition
-from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
+from finam.core.sdk import AAdapter, ATimeComponent
 from finam.data import Info, NoGrid, tools
-from finam.tools.connect_helper import ConnectHelper
 
 
 class MockupComponent(ATimeComponent):
@@ -25,38 +24,29 @@ class MockupComponent(ATimeComponent):
         self._time = datetime(2000, 1, 1)
         self.status = ComponentStatus.CREATED
 
-    def initialize(self):
-        super().initialize()
+    def _initialize(self):
         for key, _ in self._callbacks.items():
             self.outputs.add(name=key, info=Info(grid=NoGrid()))
         self.create_connector()
-        self.status = ComponentStatus.INITIALIZED
 
-    def connect(self):
-        super().connect()
-
+    def _connect(self):
         push_data = {}
         for key, callback in self._callbacks.items():
             push_data[key] = callback(self._time)
 
         self.try_connect(self.time, push_data=push_data)
 
-    def validate(self):
-        super().validate()
-        self.status = ComponentStatus.VALIDATED
+    def _validate(self):
+        pass
 
-    def update(self):
-        super().update()
+    def _update(self):
         self._time += self._step
 
         for key, callback in self._callbacks.items():
             self.outputs[key].push_data(callback(self._time), self.time)
 
-        self.status = ComponentStatus.UPDATED
-
-    def finalize(self):
-        super().finalize()
-        self.status = ComponentStatus.FINALIZED
+    def _finalize(self):
+        pass
 
 
 class MockupDependentComponent(ATimeComponent):
@@ -66,30 +56,22 @@ class MockupDependentComponent(ATimeComponent):
         self._time = datetime(2000, 1, 1)
         self.status = ComponentStatus.CREATED
 
-    def initialize(self):
-        super().initialize()
+    def _initialize(self):
         self.inputs.add(name="Input")
         self.create_connector(required_in_data=["Input"])
-        self.status = ComponentStatus.INITIALIZED
 
-    def connect(self):
-        super().connect()
-
+    def _connect(self):
         self.try_connect(self.time, exchange_infos={"Input": Info(grid=NoGrid())})
 
-    def validate(self):
-        super().validate()
-        self.status = ComponentStatus.VALIDATED
+    def _validate(self):
+        pass
 
-    def update(self):
-        super().update()
+    def _update(self):
         _pulled = self.inputs["Input"].pull_data(self.time)
         self._time += self._step
-        self.status = ComponentStatus.UPDATED
 
-    def finalize(self):
-        super().finalize()
-        self.status = ComponentStatus.FINALIZED
+    def _finalize(self):
+        pass
 
 
 class MockupCircularComponent(ATimeComponent):
@@ -101,16 +83,12 @@ class MockupCircularComponent(ATimeComponent):
 
         self.pulled_data = None
 
-    def initialize(self):
-        super().initialize()
+    def _initialize(self):
         self.inputs.add(name="Input")
         self.outputs.add(name="Output", info=Info(grid=NoGrid()))
         self.create_connector(required_in_data=["Input"])
-        self.status = ComponentStatus.INITIALIZED
 
-    def connect(self):
-        super().connect()
-
+    def _connect(self):
         push_data = {}
         pulled_data = self.connector.in_data["Input"]
         if pulled_data is not None:
@@ -122,21 +100,16 @@ class MockupCircularComponent(ATimeComponent):
             push_data=push_data,
         )
 
-    def validate(self):
-        super().validate()
-        self.status = ComponentStatus.VALIDATED
+    def _validate(self):
+        pass
 
-    def update(self):
-        super().update()
+    def _update(self):
         pulled = self.inputs["Input"].pull_data(self.time)
         self._time += self._step
         self.outputs["Output"].push_data(tools.get_data(pulled), self.time)
 
-        self.status = ComponentStatus.UPDATED
-
-    def finalize(self):
-        super().finalize()
-        self.status = ComponentStatus.FINALIZED
+    def _finalize(self):
+        pass
 
 
 class MockupConsumerComponent(ATimeComponent):
@@ -144,14 +117,11 @@ class MockupConsumerComponent(ATimeComponent):
         super().__init__()
         self.status = ComponentStatus.CREATED
 
-    def initialize(self):
-        super().initialize()
+    def _initialize(self):
         self.inputs.add(name="Input")
         self.create_connector()
-        self.status = ComponentStatus.INITIALIZED
 
-    def connect(self):
-        super().connect()
+    def _connect(self):
         self.try_connect(exchange_infos=Info(grid=NoGrid()))
 
 
@@ -160,12 +130,12 @@ class CallbackAdapter(AAdapter):
         super().__init__()
         self.callback = callback
 
-    def get_data(self, time):
+    def _get_data(self, time):
         return self.callback(self.pull_data(time), time)
 
 
 class NbAdapter(AAdapter, NoBranchAdapter):
-    def get_data(self, time):
+    def _get_data(self, time):
         return self.pull_data(time)
 
 

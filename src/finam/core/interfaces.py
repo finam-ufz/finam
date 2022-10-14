@@ -38,6 +38,7 @@ class ComponentStatus(Enum):
     UPDATED = 6
     FINISHED = 7
     FINALIZED = 8
+    FAILED = 9
 
 
 class Loggable(ABC):

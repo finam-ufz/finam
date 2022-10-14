@@ -49,52 +49,43 @@ class CsvWriter(ATimeComponent):
         self._time = start
 
         self._input_names = inputs
-        for inp in inputs:
-            self.inputs.add(name=inp)
 
         self._rows = []
 
         self.status = ComponentStatus.CREATED
 
-    def initialize(self):
+    def _initialize(self):
         """Initialize the component.
 
         After the method call, the component's inputs and outputs must be available,
         and the component should have status INITIALIZED.
         """
-        super().initialize()
+        for inp in self._input_names:
+            self.inputs.add(name=inp)
 
-        self.status = ComponentStatus.INITIALIZED
+        self.create_connector()
 
-    def connect(self):
+    def _connect(self):
         """Push initial values to outputs.
 
         After the method call, the component should have status CONNECTED.
         """
-        super().connect()
+        self.try_connect(
+            exchange_infos={name: Info(grid=NoGrid()) for name in self.inputs}
+        )
 
-        for _, inp in self.inputs.items():
-            inp.exchange_info(Info(grid=NoGrid()))
-
-        self.status = ComponentStatus.CONNECTED
-
-    def validate(self):
+    def _validate(self):
         """Validate the correctness of the component's settings and coupling.
 
         After the method call, the component should have status VALIDATED.
         """
-        super().validate()
 
-        self.status = ComponentStatus.VALIDATED
-
-    def update(self):
+    def _update(self):
         """Update the component by one time step.
         Push new values to outputs.
 
         After the method call, the component should have status UPDATED or FINISHED.
         """
-        super().update()
-
         values = [self.inputs[inp].pull_data(self.time) for inp in self._input_names]
 
         with LogError(self.logger):
@@ -105,15 +96,11 @@ class CsvWriter(ATimeComponent):
 
         self._time += self._step
 
-        self.status = ComponentStatus.UPDATED
-
-    def finalize(self):
+    def _finalize(self):
         """Finalize and clean up the component.
 
         After the method call, the component should have status FINALIZED.
         """
-        super().finalize()
-
         np.savetxt(
             self._path,
             self._rows,
@@ -122,5 +109,3 @@ class CsvWriter(ATimeComponent):
             header=";".join(["time"] + self._input_names),
             comments="",
         )
-
-        self.status = ComponentStatus.FINALIZED

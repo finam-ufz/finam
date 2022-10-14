@@ -42,28 +42,22 @@ class CallbackGenerator(ATimeComponent):
         self._initial_data = None
         self.status = ComponentStatus.CREATED
 
-    def initialize(self):
+    def _initialize(self):
         """Initialize the component.
 
         After the method call, the component's inputs and outputs must be available,
         and the component should have status INITIALIZED.
         """
-        super().initialize()
-
         for key, (_, info) in self._callbacks.items():
             self.outputs.add(name=key, info=info)
 
         self.create_connector()
 
-        self.status = ComponentStatus.INITIALIZED
-
-    def connect(self):
+    def _connect(self):
         """Push initial values to outputs.
 
         After the method call, the component should have status CONNECTED.
         """
-        super().connect()
-
         if self._initial_data is None:
             self._initial_data = {
                 key: callback(self._time)
@@ -81,35 +75,25 @@ class CallbackGenerator(ATimeComponent):
             del self._initial_data
             del self._connector
 
-    def validate(self):
+    def _validate(self):
         """Validate the correctness of the component's settings and coupling.
 
         After the method call, the component should have status VALIDATED.
         """
-        super().validate()
 
-        self.status = ComponentStatus.VALIDATED
-
-    def update(self):
+    def _update(self):
         """Update the component by one time step.
         Push new values to outputs.
 
         After the method call, the component should have status UPDATED or FINISHED.
         """
-        super().update()
-
         self._time += self._step
 
         for key, (callback, _) in self._callbacks.items():
             self.outputs[key].push_data(callback(self._time), self.time)
 
-        self.status = ComponentStatus.UPDATED
-
-    def finalize(self):
+    def _finalize(self):
         """Finalize and clean up the component.
 
         After the method call, the component should have status FINALIZED.
         """
-        super().finalize()
-
-        self.status = ComponentStatus.FINALIZED

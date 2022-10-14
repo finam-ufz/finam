@@ -22,7 +22,7 @@ class MockupAdapter(AAdapter):
     def __init__(self):
         super().__init__()
 
-    def get_data(self, time):
+    def _get_data(self, time):
         return time
 
 
@@ -32,6 +32,9 @@ class MockupComponent(ATimeComponent):
         self._time = datetime(2000, 1, 1)
         self.status = ComponentStatus.CREATED
 
+    def _initialize(self):
+        self.status = ComponentStatus.FAILED
+
 
 class MockupComponentIO(ATimeComponent):
     def __init__(self):
@@ -39,11 +42,9 @@ class MockupComponentIO(ATimeComponent):
         self._time = datetime(2000, 1, 1)
         self.status = ComponentStatus.CREATED
 
-    def initialize(self):
-        super().initialize()
+    def _initialize(self):
         self.inputs.add(name="Input")
         self.outputs.add(name="Output")
-        self.status = ComponentStatus.INITIALIZED
 
 
 class TestComponent(unittest.TestCase):

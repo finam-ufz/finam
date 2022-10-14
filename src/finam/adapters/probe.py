@@ -3,6 +3,7 @@ Adapters for direct probing from link connections.
 """
 
 from ..core.sdk import AAdapter
+from ..data import tools
 
 
 class CallbackProbe(AAdapter):
@@ -18,7 +19,7 @@ class CallbackProbe(AAdapter):
         super().__init__()
         self.callback = callback
 
-    def get_data(self, time):
+    def _get_data(self, time):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -31,7 +32,6 @@ class CallbackProbe(AAdapter):
         array_like
             data-set for the requested time.
         """
-        self.logger.debug("get data")
         data = self.pull_data(time)
         self.callback(data, time)
-        return data
+        return tools.get_magnitude(data)
