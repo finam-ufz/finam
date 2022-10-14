@@ -16,8 +16,8 @@ import pint
 # isort: on
 
 from ..core.interfaces import FinamMetaDataError
-from .grid_spec import GridBase, NoGrid
-from .grid_tools import Grid, StructuredGrid
+from .grid_spec import NoGrid, GridBase
+from .grid_tools import Grid
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here
