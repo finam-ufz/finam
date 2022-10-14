@@ -40,7 +40,7 @@ autodoc_member_order = "groupwise"
 autodoc_default_options = {
     "members": True,
     "undoc-members": True,
-    "private-members": True,
+    "private-members": "_initialize, _connect, _validate, _update, _finalize, _get_data, _get_info, _source_changed",
     "inherited-members": True,
     "show-inheritance": True,
 }
