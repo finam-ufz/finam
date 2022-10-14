@@ -3,7 +3,7 @@
 from enum import Enum
 
 
-def get_enum_value(value, enum_cls):
+def get_enum_value(value, enum_cls, error=ValueError):
     """
     Convert value to corresponding enum value.
 
@@ -13,6 +13,9 @@ def get_enum_value(value, enum_cls):
         Value to convert to enum value.
     enum_cls : Enum
         Enumeration class to get value from.
+    error : Exception, optional
+        Error to raise if value is not present in enum class,
+        by default ValueError
 
     Returns
     -------
@@ -23,7 +26,7 @@ def get_enum_value(value, enum_cls):
     ------
     ValueError
         If enum_cls is not a subclass of Enum
-    ValueError
+    error
         If value couldn't be found in given enum class.
     """
     if not isinstance(enum_cls, type) or not issubclass(enum_cls, Enum):
@@ -34,4 +37,4 @@ def get_enum_value(value, enum_cls):
         return enum_cls(value)
     if value in [e.name for e in enum_cls]:
         return enum_cls[value]
-    raise ValueError(f"Unknown {enum_cls.__name__} value '{value}'")
+    raise error(f"Unknown {enum_cls.__name__} value '{value}'")

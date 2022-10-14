@@ -95,15 +95,8 @@ class AComponent(IComponent, Loggable, ABC):
     @status.setter
     def status(self, status):
         """The component's current status."""
-        if isinstance(status, ComponentStatus):
-            self._status = status
-        elif isinstance(status, int) and status in [e.value for e in ComponentStatus]:
-            self._status = ComponentStatus(status)
-        elif isinstance(status, str) and status in [e.name for e in ComponentStatus]:
-            self._status = ComponentStatus[status]
-        else:
-            with LogError(self.logger):
-                raise FinamStatusError(f"Unknown model state {status} in {self.name}")
+        with LogError(self.logger):
+            self._status = get_enum_value(status, ComponentStatus, FinamStatusError)
 
     @property
     def name(self):
@@ -668,9 +661,9 @@ class IOList(collections.abc.Mapping):
             _description_
         """
         self.type = get_enum_value(io_type, IOType)
-        self.cls = [Input, Output][self.type.value]
+        self.cls = [Input, Output][self.type]
         self.name = self.cls.__name__
-        self.icls = [IInput, IOutput][self.type.value]
+        self.icls = [IInput, IOutput][self.type]
         self.iname = self.icls.__name__
         self._dict = {}
         self.frozen = False
