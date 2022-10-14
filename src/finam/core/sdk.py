@@ -55,11 +55,16 @@ class AComponent(IComponent, Loggable, ABC):
             self.status = ComponentStatus.INITIALIZED
 
     def _initialize(self):
+        """Initialize the component.
+
+        Components must overwrite this method.
+        After the method call, the component's inputs and outputs must be available.
+        """
         raise NotImplementedError()
 
     @final
     def connect(self):
-        """Push initial values to outputs. Pull initial values from inputs.
+        """Connect exchange data and metadata with linked components.
 
         The method can be called multiple times if there are failed pull attempts.
 
@@ -71,6 +76,10 @@ class AComponent(IComponent, Loggable, ABC):
         self._connect()
 
     def _connect(self):
+        """Connect exchange data and metadata with linked components.
+
+        Components must overwrite this method.
+        """
         raise NotImplementedError()
 
     @final
@@ -85,6 +94,10 @@ class AComponent(IComponent, Loggable, ABC):
             self.status = ComponentStatus.VALIDATED
 
     def _validate(self):
+        """Validate the correctness of the component's settings and coupling.
+
+        Components must overwrite this method.
+        """
         raise NotImplementedError()
 
     @final
@@ -104,6 +117,11 @@ class AComponent(IComponent, Loggable, ABC):
             self.status = ComponentStatus.UPDATED
 
     def _update(self):
+        """Update the component by one time step.
+        Push new values to outputs.
+
+        Components must overwrite this method.
+        """
         raise NotImplementedError()
 
     @final
@@ -118,6 +136,10 @@ class AComponent(IComponent, Loggable, ABC):
             self.status = ComponentStatus.FINALIZED
 
     def _finalize(self):
+        """Finalize and clean up the component.
+
+        Components must overwrite this method.
+        """
         raise NotImplementedError()
 
     @property
@@ -698,6 +720,15 @@ class AAdapter(IAdapter, Input, Output, ABC):
         self.notify_targets(time)
 
     def _source_changed(self, time):
+        """Informs the input that a new output is available.
+
+        Adapters can overwrite this method to handle incoming data.
+
+        Parameters
+        ----------
+        time : datetime
+            Simulation time of the notification.
+        """
         pass
 
     @final
@@ -712,6 +743,10 @@ class AAdapter(IAdapter, Input, Output, ABC):
         return tools.to_xarray(data, name, self._output_info, time)
 
     def _get_data(self, time):
+        """Asks the adapter for the transformed data.
+
+        Adapters must overwrite this method.
+        """
         raise NotImplementedError()
 
     @final
@@ -738,6 +773,20 @@ class AAdapter(IAdapter, Input, Output, ABC):
         return self._output_info
 
     def _get_info(self, info):
+        """Exchange and get the output's data info.
+
+        Adapters can overwrite this method to manipulate the metadata for the output.
+
+        Parameters
+        ----------
+        info : Info
+            Requested data info
+
+        Returns
+        -------
+        dict
+            Delivered data info
+        """
         return self.exchange_info(info)
 
     @final

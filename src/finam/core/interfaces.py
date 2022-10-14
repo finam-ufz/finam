@@ -73,7 +73,7 @@ class IComponent(ABC):
 
     @abstractmethod
     def connect(self):
-        """Push initial values to outputs. Pull initial values from inputs.
+        """Connect exchange data and metadata with linked components.
 
         The method can be called multiple times if there are failed pull attempts.
 
