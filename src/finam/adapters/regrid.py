@@ -148,7 +148,7 @@ class Linear(ARegridding):
                 ),
                 dtype=np.double,
             )
-        res = self.inter(self.output_grid.data_points)
+        res = self.inter(self.output_grid.data_points) * tools.get_units(in_data)
         if self.fill_with_nearest:
             res[self.out_ids] = self.inter.values[self.fill_ids, 0]
 

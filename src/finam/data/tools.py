@@ -123,7 +123,9 @@ def to_xarray(data, name, info, time=None):
         if "units" not in info.meta and units != UNITS.dimensionless:
             raise FinamDataError("Given data has units, but metadata has none.")
         if "units" in info.meta and UNITS.Unit(info.units) != units:
-            raise FinamDataError("Given data has wrong units.")
+            raise FinamDataError(
+                f"Given data has wrong units. Got {str(units)}, expected {str(info.units)}"
+            )
 
     # generate quantified DataArray
     out_array = xr.DataArray(

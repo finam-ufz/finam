@@ -34,4 +34,4 @@ class CallbackProbe(AAdapter):
         """
         data = self.pull_data(time)
         self.callback(data, time)
-        return tools.get_magnitude(data)
+        return tools.get_data(data)

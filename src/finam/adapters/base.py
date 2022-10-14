@@ -64,7 +64,7 @@ class Scale(AAdapter):
             data-set for the requested time.
         """
         d = self.pull_data(time)
-        return tools.get_magnitude(d) * self.scale
+        return tools.get_data(d) * self.scale
 
 
 class ValueToGrid(AAdapter):
@@ -95,10 +95,9 @@ class ValueToGrid(AAdapter):
             data-set for the requested time.
         """
         value = self.pull_data(time)
-
         return np.full(
             self.grid.data_shape, tools.get_magnitude(value), dtype=value.dtype
-        )
+        ) * tools.get_units(value)
 
     def _get_info(self, info):
         in_info = self.exchange_info(info)
@@ -136,7 +135,7 @@ class GridToValue(AAdapter):
         """
         grid = self.pull_data(time)
 
-        func_result = self.func(tools.get_magnitude(grid))
+        func_result = self.func(tools.get_magnitude(grid)) * tools.get_units(grid)
 
         return func_result
 

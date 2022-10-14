@@ -49,7 +49,7 @@ class NextValue(AAdapter):
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        return tools.get_magnitude(self.data)
+        return tools.get_data(self.data)
 
 
 class PreviousValue(AAdapter):
@@ -97,9 +97,9 @@ class PreviousValue(AAdapter):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         if time < self.new_data[0]:
-            return tools.get_magnitude(self.old_data[1])
+            return tools.get_data(self.old_data[1])
 
-        return tools.get_magnitude(self.new_data[1])
+        return tools.get_data(self.new_data[1])
 
 
 class LinearInterpolation(AAdapter):
@@ -146,7 +146,7 @@ class LinearInterpolation(AAdapter):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         if self.old_data is None:
-            return tools.get_magnitude(self.new_data[1])
+            return tools.get_data(self.new_data[1])
 
         dt = (time - self.old_data[0]) / (self.new_data[0] - self.old_data[0])
 
@@ -204,10 +204,10 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         if len(self.data) == 1:
-            return tools.get_magnitude(self.data[0][1])
+            return tools.get_data(self.data[0][1])
 
         if time <= self.data[0][0]:
-            return tools.get_magnitude(self.data[0][1])
+            return tools.get_data(self.data[0][1])
 
         sum_value = None
 

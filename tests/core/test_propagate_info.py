@@ -73,26 +73,11 @@ class SpecAdapter(AAdapter):
         super().__init__()
 
     def _get_data(self, time):
-        return tools.get_magnitude(self.pull_data(time))
+        return tools.get_data(self.pull_data(time))
 
     def _get_info(self, info):
         in_info = self.exchange_info(info)
         out_info = in_info.copy_with(grid=info.grid)
-        return out_info
-
-
-class UnitAdapter(AAdapter):
-    def __init__(self):
-        super().__init__()
-
-    def _get_data(self, time):
-        return tools.get_magnitude(self.pull_data(time))
-
-    def _get_info(self, info):
-        in_info = self.exchange_info(info)
-        out_info = copy.copy(in_info)
-        if "units" in info.meta:
-            out_info.meta["units"] = info.meta["units"]
         return out_info
 
 
@@ -116,12 +101,7 @@ class TestPropagate(unittest.TestCase):
         composition = Composition([source, sink])
         composition.initialize()
 
-        (
-            source.outputs["Output"]
-            >> SpecAdapter()
-            >> UnitAdapter()
-            >> sink.inputs["Input"]
-        )
+        (source.outputs["Output"] >> SpecAdapter() >> sink.inputs["Input"])
 
         composition.run(t_max=datetime(2000, 1, 2))
 
