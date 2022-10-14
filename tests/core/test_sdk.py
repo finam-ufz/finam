@@ -5,9 +5,16 @@ Unit tests for the sdk implementations.
 import unittest
 from datetime import datetime
 
-from finam.core.interfaces import ComponentStatus, FinamStatusError
+from finam.core.interfaces import ComponentStatus, FinamLogError, FinamStatusError
 from finam.core.schedule import Composition
-from finam.core.sdk import AAdapter, ATimeComponent, CallbackInput, Output
+from finam.core.sdk import (
+    AAdapter,
+    ATimeComponent,
+    CallbackInput,
+    Input,
+    IOList,
+    Output,
+)
 from finam.data import Info, NoGrid
 
 
@@ -111,6 +118,47 @@ class TestCallbackInput(unittest.TestCase):
 
         self.assertEqual(caller, inp)
         self.assertEqual(counter, 1)
+
+
+class TestIOList(unittest.TestCase):
+    def test_io_list(self):
+        inp = Input("test1")
+        out = Output("test2")
+        inp_list = IOList("INPUT")
+        out_list = IOList("OUTPUT")
+
+        # io setting
+        inp_list.add(inp)
+        out_list["test2"] = out
+        inp_list.add(name="test0")
+
+        # wrong type
+        with self.assertRaises(ValueError):
+            inp_list.add(out)
+        with self.assertRaises(ValueError):
+            out_list["test1"] = inp
+
+        # no logger
+        with self.assertRaises(FinamLogError):
+            inp_list.set_logger(None)
+
+        # already present
+        with self.assertRaises(ValueError):
+            inp_list["test1"] = inp
+        with self.assertRaises(ValueError):
+            out_list.add(out)
+
+        # wrong name
+        with self.assertRaises(ValueError):
+            inp_list["test2"] = inp
+
+        # make frozen
+        inp_list.frozen = True
+        out_list.frozen = True
+        with self.assertRaises(ValueError):
+            inp_list["test1"] = inp
+        with self.assertRaises(ValueError):
+            out_list.add(name="test3")
 
 
 if __name__ == "__main__":

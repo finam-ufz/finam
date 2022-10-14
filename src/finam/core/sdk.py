@@ -691,6 +691,8 @@ class IOList(collections.abc.Mapping):
         io = self.cls(name, info) if io is None else io
         if not isinstance(io, self.icls):
             raise ValueError(f"IO.add: {self.name} is not of type {self.iname}")
+        if io.name in self._dict:
+            raise ValueError(f"IO.add: {self.name} '{io.name}' already exists.")
         self._dict[io.name] = io
 
     def set_logger(self, module):
@@ -709,8 +711,9 @@ class IOList(collections.abc.Mapping):
         """
         for name, item in self.items():
             if loggable(item) and item.uses_base_logger_name and not loggable(module):
+                mname = getattr(module, "name", None)
                 raise FinamLogError(
-                    f"IO: {self.type.name} '{name}' can't get logger from '{module.name}'."
+                    f"IO: {self.name} '{name}' can't get logger from '{mname}'."
                 )
             if loggable(item) and item.uses_base_logger_name:
                 item.base_logger_name = module.logger_name

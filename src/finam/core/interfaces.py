@@ -106,12 +106,12 @@ class IComponent(ABC):
     @property
     @abstractmethod
     def inputs(self):
-        """dict: The component's inputs."""
+        """IOList: The component's inputs."""
 
     @property
     @abstractmethod
     def outputs(self):
-        """dict: The component's outputs."""
+        """IOList: The component's outputs."""
 
     @property
     @abstractmethod
