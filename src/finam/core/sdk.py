@@ -250,6 +250,7 @@ class AComponent(IComponent, Loggable, ABC):
             push_infos=push_infos,
             push_data=push_data,
         )
+        self.logger.debug("try_connect status is %s", self.status)
 
 
 class ATimeComponent(ITimeComponent, AComponent, ABC):
