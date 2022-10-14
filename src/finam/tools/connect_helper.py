@@ -69,7 +69,7 @@ class ConnectHelper:
         return self._pushed_data
 
     def connect(self, time, exchange_infos=None, push_infos=None, push_data=None):
-        """Exchange the data info with the input's source.
+        """Exchange the info and data with linked components.
 
         Parameters
         ----------

@@ -29,15 +29,17 @@ class MockupComponent(ATimeComponent):
         super().initialize()
         for key, _ in self._callbacks.items():
             self.outputs.add(name=key, info=Info(grid=NoGrid()))
-
+        self.create_connector()
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        for key, callback in self._callbacks.items():
-            self.outputs[key].push_data(callback(self._time), self.time)
 
-        self.status = ComponentStatus.CONNECTED
+        push_data = {}
+        for key, callback in self._callbacks.items():
+            push_data[key] = callback(self._time)
+
+        self.try_connect(self.time, push_data=push_data)
 
     def validate(self):
         super().validate()
@@ -64,22 +66,16 @@ class MockupDependentComponent(ATimeComponent):
         self._time = datetime(2000, 1, 1)
         self.status = ComponentStatus.CREATED
 
-        self.connector = None
-
     def initialize(self):
         super().initialize()
         self.inputs.add(name="Input")
-        self.connector = ConnectHelper(
-            self.inputs, self.outputs, required_in_data=["Input"]
-        )
+        self.create_connector(required_in_data=["Input"])
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
 
-        self.status = self.connector.connect(
-            self.time, exchange_infos={"Input": Info(grid=NoGrid())}
-        )
+        self.try_connect(self.time, exchange_infos={"Input": Info(grid=NoGrid())})
 
     def validate(self):
         super().validate()
@@ -104,15 +100,12 @@ class MockupCircularComponent(ATimeComponent):
         self.status = ComponentStatus.CREATED
 
         self.pulled_data = None
-        self.connector = None
 
     def initialize(self):
         super().initialize()
         self.inputs.add(name="Input")
         self.outputs.add(name="Output", info=Info(grid=NoGrid()))
-        self.connector = ConnectHelper(
-            self.inputs, self.outputs, required_in_data=["Input"]
-        )
+        self.create_connector(required_in_data=["Input"])
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
@@ -123,7 +116,7 @@ class MockupCircularComponent(ATimeComponent):
         if pulled_data is not None:
             push_data["Output"] = tools.get_data(pulled_data)
 
-        self.status = self.connector.connect(
+        self.try_connect(
             self.time,
             exchange_infos={"Input": Info(grid=NoGrid())},
             push_data=push_data,
@@ -154,11 +147,12 @@ class MockupConsumerComponent(ATimeComponent):
     def initialize(self):
         super().initialize()
         self.inputs.add(name="Input")
+        self.create_connector()
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        self.inputs["Input"].exchange_info(Info(grid=NoGrid()))
+        self.try_connect(exchange_infos=Info(grid=NoGrid()))
 
 
 class CallbackAdapter(AAdapter):

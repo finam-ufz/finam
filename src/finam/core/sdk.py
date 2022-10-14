@@ -8,6 +8,7 @@ from datetime import datetime
 from enum import IntEnum
 
 from ..data import Info, tools
+from ..tools.connect_helper import ConnectHelper
 from ..tools.enum_helper import get_enum_value
 from ..tools.log_helper import LogError, loggable
 from .interfaces import (
@@ -33,6 +34,7 @@ class AComponent(IComponent, Loggable, ABC):
         self._inputs = IOList("INPUT")
         self._outputs = IOList("OUTPUT")
         self.base_logger_name = None
+        self._connector = None
 
     def initialize(self):
         """Initialize the component.
@@ -114,6 +116,59 @@ class AComponent(IComponent, Loggable, ABC):
     def uses_base_logger_name(self):
         """Whether this class has a 'base_logger_name' attribute."""
         return True
+
+    @property
+    def connector(self):
+        """The component's ConnectHelper"""
+        return self._connector
+
+    def create_connector(self, required_in_data=None, required_out_infos=None):
+        """
+        Create the component's ConnectHelper
+
+        Parameters
+        ----------
+        required_in_data : arraylike
+            Names of the inputs that are to be pulled
+        required_out_infos : arraylike
+            Names of the outputs that need exchanged info
+        """
+        self._connector = ConnectHelper(
+            self.inputs,
+            self.outputs,
+            required_in_data=required_in_data,
+            required_out_infos=required_out_infos,
+        )
+        self.inputs.frozen = True
+        self.outputs.frozen = True
+
+    def try_connect(
+        self, time=None, exchange_infos=None, push_infos=None, push_data=None
+    ):
+        """Exchange the info and data with linked components.
+
+        Parameters
+        ----------
+        time : datetime
+            time for data pulls
+        exchange_infos : dict
+            currently available input data infos by input name
+        push_infos : dict
+            currently available output data infos by output name
+        push_data : dict
+            currently available output data by output name
+
+        Returns
+        -------
+        ComponentStatus
+            the new component status
+        """
+        self.status = self._connector.connect(
+            time,
+            exchange_infos=exchange_infos,
+            push_infos=push_infos,
+            push_data=push_data,
+        )
 
 
 class ATimeComponent(ITimeComponent, AComponent, ABC):

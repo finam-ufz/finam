@@ -22,17 +22,15 @@ class MockupConsumer(ATimeComponent):
         self.info = info
         self.data = None
 
-        self.connector = None
-
     def initialize(self):
         super().initialize()
         self.inputs.add(name="Input", info=self.info)
-        self.connector = ConnectHelper(self.inputs, self.outputs)
+        self.create_connector()
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        self.status = self.connector.connect(self.time)
+        self.try_connect(self.time)
 
     def validate(self):
         super().validate()
@@ -61,19 +59,15 @@ class MockupProducer(ATimeComponent):
 
         self.out_info = None
 
-        self.connector = None
-
     def initialize(self):
         super().initialize()
         self.outputs.add(name="Output", info=self.info)
-        self.connector = ConnectHelper(
-            self.inputs, self.outputs, required_out_infos=["Output"]
-        )
+        self.create_connector(required_out_infos=["Output"])
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        self.status = self.connector.connect(self.time, push_data={"Output": 1})
+        self.try_connect(self.time, push_data={"Output": 1})
         self.out_info = self.connector.out_infos["Output"]
 
     def validate(self):

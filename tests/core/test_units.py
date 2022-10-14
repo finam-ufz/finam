@@ -24,21 +24,18 @@ class MockupConsumer(ATimeComponent):
         self.step = timedelta(days=1)
         self.units = units
         self.data = None
-        self._connector = None
 
     def initialize(self):
         super().initialize()
         self.inputs.add(name="Input", info=Info(units=self.units))
-        self._connector = ConnectHelper(
-            self.inputs, self.outputs, required_in_data=["Input"]
-        )
+        self.create_connector(required_in_data=["Input"])
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
-        self.status = self._connector.connect(self.time)
+        self.try_connect(self.time)
 
-        data = self._connector.in_data["Input"]
+        data = self.connector.in_data["Input"]
         if data is not None:
             self.data = data
 

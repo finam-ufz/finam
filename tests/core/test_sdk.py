@@ -33,6 +33,19 @@ class MockupComponent(ATimeComponent):
         self.status = ComponentStatus.CREATED
 
 
+class MockupComponentIO(ATimeComponent):
+    def __init__(self):
+        super().__init__()
+        self._time = datetime(2000, 1, 1)
+        self.status = ComponentStatus.CREATED
+
+    def initialize(self):
+        super().initialize()
+        self.inputs.add(name="Input")
+        self.outputs.add(name="Output")
+        self.status = ComponentStatus.INITIALIZED
+
+
 class TestComponent(unittest.TestCase):
     def test_component_status(self):
         component = MockupComponent()
@@ -44,6 +57,21 @@ class TestComponent(unittest.TestCase):
 
         with self.assertRaises(FinamStatusError):
             composition.initialize()
+
+    def test_connect_helper(self):
+        component = MockupComponentIO()
+        composition = Composition([component])
+        composition.initialize()
+
+        component.create_connector()
+
+        self.assertTrue(component.connector is not None)
+        self.assertEqual(component.connector._inputs, component.inputs)
+        self.assertEqual(component.connector._outputs, component.outputs)
+
+        component.try_connect()
+
+        self.assertEqual(component.status, ComponentStatus.CONNECTING_IDLE)
 
 
 class TestChaining(unittest.TestCase):
