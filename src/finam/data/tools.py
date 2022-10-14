@@ -65,14 +65,8 @@ def _gen_dims(ndim, info, time=None):
     if isinstance(info.grid, NoGrid):
         # xarray has dim_0, dim_1 ... as default names
         dims += [f"dim_{i}" for i in range(ndim)]
-    elif isinstance(info.grid, StructuredGrid):
-        dims += (
-            list(reversed(info.grid.axes_names))
-            if info.grid.axes_reversed
-            else list(info.grid.axes_names)
-        )
     else:
-        dims += ["id"]
+        dims += info.grid.data_axes_names
     return dims
 
 

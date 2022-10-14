@@ -319,7 +319,9 @@ def prepare_vtk_data(
     if data is not None:
         data = dict(data)
         for name, value in data.items():
-            data[name] = _prepare(value, axes_reversed, axes_increase, flat, order)
+            data[name] = np.ascontiguousarray(
+                _prepare(value, axes_reversed, axes_increase, flat, order)
+            )
     return data
 
 
@@ -336,7 +338,37 @@ def _prepare(data, axes_reversed, axes_increase, flat, order):
             data = np.flip(data, axis=i)
     # get 3D or flat shape
     shape = -1 if flat else (data.shape + (1,) * (3 - data.ndim))
-    return np.ascontiguousarray(data.reshape(shape, order=order))
+    return data.reshape(shape, order=order)
+
+
+def canonical_data(data, grid, flat=False):
+    """
+    Make data canonical.
+
+    Data axes will follow increasing (x, y, z) axes.
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        The data to be made canonical
+    grid : Grid
+            grid specification
+    flat : bool, optional
+        True to flatten data, by default False
+
+    Returns
+    -------
+    numpy.ndarray
+        The canonical data array.
+    """
+    if not isinstance(grid, Grid):
+        raise ValueError("canonical_data: grid is not an instance of Grid.")
+    flat = flat or not isinstance(grid, StructuredGrid)
+    axes_reversed = getattr(grid, "axes_reversed", False)
+    axes_increase = getattr(grid, "axes_increase", None)
+    res = _prepare(data, axes_reversed, axes_increase, flat, grid.order)
+    # remove appended dimensions
+    return res if flat else np.squeeze(res, axis=tuple(range(grid.dim, 3)))
 
 
 def flatten_cells(cells):
@@ -487,15 +519,20 @@ class Grid(GridBase):
         return np.prod(self.data_shape)
 
     @property
+    @abstractmethod
     def order(self):
-        """str: Point, cell and data order (C-like for flat data)."""
-        return "C"
+        """str: Data order (C-like or F-like to flatten data)."""
 
     @property
     @abstractmethod
     def axes_names(self):
         """list of str: Axes names (xyz order)."""
         # should be used for xarray later on
+
+    @property
+    def data_axes_names(self):
+        """list of str: Axes names of the data."""
+        return ["id"]
 
     def __eq__(self, other):
         if not isinstance(other, Grid):
@@ -561,7 +598,7 @@ class Grid(GridBase):
             typ = VTK_TYPE_MAP[self.cell_types]
             unstructuredGridToVTK(path, x, y, z, con, off, typ, **kw)
         else:
-            raise ValueError(f"export_vtk: unknown mesh type '{mesh_type}'")
+            raise ValueError(f"export_vtk: unsupported mesh type '{mesh_type}'")
 
 
 class StructuredGrid(Grid):
@@ -670,6 +707,13 @@ class StructuredGrid(Grid):
         ]
 
     @property
+    def data_axes_names(self):
+        """list of str: Axes names of the data."""
+        return list(
+            reversed(self.axes_names) if self.axes_reversed else self.axes_names
+        )
+
+    @property
     def data_shape(self):
         """tuple: Shape of the associated data."""
         dims = np.asarray(self.dims[::-1] if self.axes_reversed else self.dims)
@@ -716,7 +760,7 @@ class StructuredGrid(Grid):
             flat=mesh_type == "unstructured",
             order=point_order(self.order, self.axes_reversed),
         )
-        if mesh_type != "structured":
+        if mesh_type not in ["structured", "rectilinear"]:
             super().export_vtk(path, data, cell_data, point_data, field_data, mesh_type)
         else:
             kw = prepare_vtk_kwargs(
