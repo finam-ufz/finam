@@ -20,7 +20,9 @@ class ConnectHelper:
         Names of the outputs that need exchanged info
     """
 
-    def __init__(self, logger, inputs, outputs, required_in_data=None, required_out_infos=None):
+    def __init__(
+        self, logger, inputs, outputs, required_in_data=None, required_out_infos=None
+    ):
 
         self.logger = logger
         self._inputs = inputs
@@ -106,7 +108,6 @@ class ConnectHelper:
                     self.logger.debug(f"Successfully pulled output info for {name}")
                 except FinamNoDataError:
                     self.logger.debug(f"Failed to pull output info for {name}")
-                    pass
 
         for name, data in self.in_data.items():
             if data is None:
@@ -116,7 +117,6 @@ class ConnectHelper:
                     self.logger.debug(f"Successfully pulled input data for {name}")
                 except FinamNoDataError:
                     self.logger.debug(f"Failed to pull input data for {name}")
-                    pass
 
         if (
             all(v is not None for v in self.in_infos.values())
@@ -142,7 +142,6 @@ class ConnectHelper:
                     self.logger.debug(f"Successfully exchanged input info for {name}")
                 except FinamNoDataError:
                     self.logger.debug(f"Failed to exchange input info for {name}")
-                    pass
 
         for name, info in exchange_infos.items():
             if self.in_infos[name] is None:
@@ -155,7 +154,6 @@ class ConnectHelper:
                     self.logger.debug(f"Successfully exchanged input info for {name}")
                 except FinamNoDataError:
                     self.logger.debug(f"Failed to exchange input info for {name}")
-                    pass
 
         return any_done
 

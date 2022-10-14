@@ -52,6 +52,7 @@ class CsvReader(ATimeComponent):
         and the component should have status INITIALIZED.
         """
         import pandas
+
         self._data = pandas.read_csv(self._path, sep=";")
         for name in self._output_names:
             self.outputs.add(name=name, info=Info(grid=NoGrid()))
@@ -73,7 +74,9 @@ class CsvReader(ATimeComponent):
         else:
             time = datetime.strptime(row[self._time_column], self._date_format)
 
-        self.try_connect(time=time, push_data={name: row[name] for name in self.outputs})
+        self.try_connect(
+            time=time, push_data={name: row[name] for name in self.outputs}
+        )
 
     def _validate(self):
         """Validate the correctness of the component's settings and coupling.

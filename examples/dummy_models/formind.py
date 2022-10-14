@@ -18,12 +18,13 @@ For each grid cell, calculations in each model step are as follows:
     LAI(t + \Delta t) = 0.9 * (LAI(t) + growth)
 """
 import random
-import numpy as np
 from datetime import datetime, timedelta
+
+import numpy as np
 
 from finam.core.interfaces import ComponentStatus
 from finam.core.sdk import ATimeComponent, Input, Output
-from finam.data import assert_type, Info, tools
+from finam.data import Info, assert_type, tools
 
 
 class Formind(ATimeComponent):

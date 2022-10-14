@@ -1,5 +1,5 @@
-import unittest
 import logging
+import unittest
 from datetime import datetime
 
 from finam.core.interfaces import ComponentStatus

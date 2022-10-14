@@ -121,7 +121,7 @@ class Linear(ARegridding):
             self.inter = RegularGridInterpolator(
                 points=self.input_grid.data_axes,
                 values=np.zeros(self.input_grid.data_shape, dtype=np.double),
-                bounds_error=False
+                bounds_error=False,
             )
         else:
             self.inter = LinearNDInterpolator(
@@ -144,7 +144,9 @@ class Linear(ARegridding):
             self.inter.values = tools.get_magnitude(np.squeeze(in_data))
             res = self.inter(self.output_grid.data_points)
             if self.fill_with_nearest:
-                res[self.out_ids] = self.inter.values.flatten(order=self.input_grid.order)[self.fill_ids]
+                res[self.out_ids] = self.inter.values.flatten(
+                    order=self.input_grid.order
+                )[self.fill_ids]
         else:
             self.inter.values = np.ascontiguousarray(
                 tools.get_magnitude(in_data).reshape(

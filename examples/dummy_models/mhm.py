@@ -26,12 +26,13 @@ For each grid cell, calculations in each model step are as follows:
 
 Output ``ETP`` is the average of ``etp`` over all cells. ``GW_recharge`` is the sum of ``gwr`` over all cells.
 """
-import numpy as np
 from datetime import datetime, timedelta
+
+import numpy as np
 
 from finam.core.interfaces import ComponentStatus
 from finam.core.sdk import ATimeComponent
-from finam.data import Info, tools, NoGrid
+from finam.data import Info, NoGrid, tools
 
 
 class Mhm(ATimeComponent):

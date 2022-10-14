@@ -8,9 +8,9 @@ from datetime import datetime, timedelta
 
 from dummy_models import formind, mhm
 
-from finam.adapters import time, regrid
+from finam.adapters import regrid, time
 from finam.core.schedule import Composition
-from finam.data import UniformGrid, Info, NoGrid
+from finam.data import Info, NoGrid, UniformGrid
 from finam.data.tools import UNITS
 from finam.modules import generators
 
@@ -25,15 +25,20 @@ if __name__ == "__main__":
 
     precipitation = generators.CallbackGenerator(
         callbacks={"precipitation": (precip, Info(grid=NoGrid(), units="mm"))},
-        start=start_date, step=timedelta(days=1)
+        start=start_date,
+        step=timedelta(days=1),
     )
     mhm = mhm.Mhm(
-        grid=UniformGrid((21, 11), spacing=(1000.0, 1000.0, 1000.0), data_location="POINTS"),
+        grid=UniformGrid(
+            (21, 11), spacing=(1000.0, 1000.0, 1000.0), data_location="POINTS"
+        ),
         start=start_date,
         step=timedelta(days=7),
     )
     formind = formind.Formind(
-        grid=UniformGrid((11, 7), spacing=(2000.0, 2000.0, 2000.0), data_location="POINTS"),
+        grid=UniformGrid(
+            (11, 7), spacing=(2000.0, 2000.0, 2000.0), data_location="POINTS"
+        ),
         start=start_date,
         step=timedelta(days=365),
     )
