@@ -60,7 +60,9 @@ class AComponent(IComponent, Loggable, ABC):
         Components must overwrite this method.
         After the method call, the component's inputs and outputs must be available.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            f"Method `_initialize` must be implemented by all components, but implementation is missing in {self.name}."
+        )
 
     @final
     def connect(self):
@@ -80,7 +82,9 @@ class AComponent(IComponent, Loggable, ABC):
 
         Components must overwrite this method.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            f"Method `_connect` must be implemented by all components, but implementation is missing in {self.name}."
+        )
 
     @final
     def validate(self):
@@ -98,7 +102,9 @@ class AComponent(IComponent, Loggable, ABC):
 
         Components must overwrite this method.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            f"Method `_validate` must be implemented by all components, but implementation is missing in {self.name}."
+        )
 
     @final
     def update(self):
@@ -122,7 +128,9 @@ class AComponent(IComponent, Loggable, ABC):
 
         Components must overwrite this method.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            f"Method `_update` must be implemented by all components, but implementation is missing in {self.name}."
+        )
 
     @final
     def finalize(self):
@@ -140,7 +148,9 @@ class AComponent(IComponent, Loggable, ABC):
 
         Components must overwrite this method.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            f"Method `_finalize` must be implemented by all components, but implementation is missing in {self.name}."
+        )
 
     @property
     def inputs(self):
@@ -677,9 +687,10 @@ class AAdapter(IAdapter, Input, Output, ABC):
         self.source = None
         self.targets = []
 
+    @final
     @property
     def info(self):
-        raise NotImplementedError()
+        raise NotImplementedError("Property `info` is not implemented for adapters")
 
     @final
     def push_data(self, data, time):
@@ -729,7 +740,6 @@ class AAdapter(IAdapter, Input, Output, ABC):
         time : datetime
             Simulation time of the notification.
         """
-        pass
 
     @final
     def get_data(self, time):
@@ -747,7 +757,9 @@ class AAdapter(IAdapter, Input, Output, ABC):
 
         Adapters must overwrite this method.
         """
-        raise NotImplementedError()
+        raise NotImplementedError(
+            f"Method `_get_data` must be implemented by all adapters, but implementation is missing in {self.name}."
+        )
 
     @final
     def get_info(self, info):
