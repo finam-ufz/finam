@@ -9,15 +9,17 @@ from .grid_spec import (
     UnstructuredGrid,
     UnstructuredPoints,
 )
+from .grid_tools import canonical_data
 from .tools import Info, assert_type
 
 __all__ = [
     "assert_type",
-    "EsriGrid",
+    "canonical_data",
     "Info",
     "NoGrid",
     "RectilinearGrid",
     "UniformGrid",
+    "EsriGrid",
     "UnstructuredGrid",
     "UnstructuredPoints",
 ]
