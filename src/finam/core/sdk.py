@@ -207,6 +207,7 @@ class AComponent(IComponent, Loggable, ABC):
             Names of the outputs that need exchanged info
         """
         self._connector = ConnectHelper(
+            self.logger,
             self.inputs,
             self.outputs,
             required_in_data=required_in_data,
@@ -236,6 +237,8 @@ class AComponent(IComponent, Loggable, ABC):
         ComponentStatus
             the new component status
         """
+        self.logger.debug("try_connect")
+
         if self._connector is None:
             raise FinamStatusError(
                 f"No connector in component {self.name}. Call `create_connector()` in `_initialize()`."
@@ -533,9 +536,17 @@ class Output(IOutput, Loggable):
             Simulation time of the data set.
         """
         self.logger.debug("push data")
+
+        if not self.has_targets:
+            self.logger.debug("skipping push to unconnected output")
+            return
+
         if not isinstance(time, datetime):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
+
+        if not self._out_info_exchanged:
+            raise FinamNoDataError("Can't push data before output info was exchanged.")
 
         self.data = data
         self.notify_targets(time)
