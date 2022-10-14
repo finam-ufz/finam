@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 from pyevtk.hl import imageToVTK
 
+from ..tools.enum_helper import get_enum_value
 from .grid_tools import (
     CellType,
     Grid,
@@ -14,7 +15,6 @@ from .grid_tools import (
     gen_axes,
     prepare_vtk_data,
     prepare_vtk_kwargs,
-    set_location,
 )
 
 
@@ -58,7 +58,7 @@ class RectilinearGrid(StructuredGrid):
         self._axes = [np.asarray(np.atleast_1d(ax), dtype=float) for ax in axes[:3]]
         self._axes_increase = check_axes_monotonicity(self.axes)
         self._dim = len(self.dims)
-        self._data_location = set_location(data_location)
+        self._data_location = get_enum_value(data_location, Location)
         self._order = order
         self._axes_reversed = bool(axes_reversed)
         self._axes_attributes = axes_attributes or (self.dim * [{}])
@@ -324,7 +324,7 @@ class UnstructuredGrid(Grid):
     cells : arraylike
         Cells given by set list of point IDs defining the grid.
     cell_types : arraylike
-        Cell types given as integer, e.g. CellType.TRI.value.
+        Cell types given as integer, e.g. CellType.TRI.
     data_location : Location, str, int, optional
         Data location in the grid, by default Location.CELLS
     axes_names : list of str or None, optional
@@ -346,7 +346,7 @@ class UnstructuredGrid(Grid):
         self._points = np.asarray(np.atleast_2d(points), dtype=float)[:, :3]
         self._cells = np.asarray(np.atleast_2d(cells), dtype=int)
         self._cell_types = np.asarray(np.atleast_1d(cell_types), dtype=int)
-        self._data_location = set_location(data_location)
+        self._data_location = get_enum_value(data_location, Location)
 
         self._axes_names = axes_names or ["x", "y", "z"][: self.dim]
         if len(self.axes_names) != self.dim:
@@ -425,7 +425,7 @@ class UnstructuredPoints(UnstructuredGrid):
         super().__init__(
             points=points,
             cells=np.asarray([range(pnt_cnt)], dtype=int).T,
-            cell_types=np.full(pnt_cnt, CellType.VERTEX.value, dtype=int),
+            cell_types=np.full(pnt_cnt, CellType.VERTEX, dtype=int),
             data_location=Location.POINTS,
             axes_names=axes_names,
             crs=crs,

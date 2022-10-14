@@ -23,15 +23,25 @@ class ConnectHelper:
         self._inputs = inputs
         self._outputs = outputs
 
-        self._exchanged_in_infos = {name: None for name in self._inputs.keys()}
+        self._exchanged_in_infos = {name: None for name in self.inputs.keys()}
         self._exchanged_out_infos = {name: None for name in required_out_infos or []}
 
         self._pulled_data = {name: None for name in required_in_data or []}
 
         self._pushed_infos = {
-            name: outp.has_info() for name, outp in self._outputs.items()
+            name: outp.has_info() for name, outp in self.outputs.items()
         }
-        self._pushed_data = {name: False for name in self._outputs.keys()}
+        self._pushed_data = {name: False for name in self.outputs.keys()}
+
+    @property
+    def inputs(self):
+        """dict: The component's inputs."""
+        return self._inputs
+
+    @property
+    def outputs(self):
+        """dict: The component's outputs."""
+        return self._outputs
 
     @property
     def in_infos(self):
@@ -85,28 +95,28 @@ class ConnectHelper:
         any_done = self._push(time, push_infos, push_data)
         any_done |= self._exchange_in_infos(exchange_infos)
 
-        for name, info in self._exchanged_out_infos.items():
+        for name, info in self.out_infos.items():
             if info is None:
                 try:
-                    self._exchanged_out_infos[name] = self._outputs[name].info
+                    self.out_infos[name] = self.outputs[name].info
                     any_done = True
                 except FinamNoDataError:
                     pass
 
-        for name, data in self._pulled_data.items():
+        for name, data in self.in_data.items():
             if data is None:
                 try:
-                    self._pulled_data[name] = self._inputs[name].pull_data(time)
+                    self.in_data[name] = self.inputs[name].pull_data(time)
                     any_done = True
                 except FinamNoDataError:
                     pass
 
         if (
-            all(v is not None for v in self._exchanged_in_infos.values())
-            and all(v is not None for v in self._exchanged_out_infos.values())
-            and all(v is not None for v in self._pulled_data.values())
-            and all(v for v in self._pushed_infos.values())
-            and all(v for v in self._pushed_data.values())
+            all(v is not None for v in self.in_infos.values())
+            and all(v is not None for v in self.out_infos.values())
+            and all(v is not None for v in self.in_data.values())
+            and all(v for v in self.infos_pushed.values())
+            and all(v for v in self.data_pushed.values())
         ):
             return ComponentStatus.CONNECTED
 
@@ -117,19 +127,19 @@ class ConnectHelper:
 
     def _exchange_in_infos(self, exchange_infos):
         any_done = False
-        for name, info in self._exchanged_in_infos.items():
-            if info is None and self._inputs[name].info is not None:
+        for name, info in self.in_infos.items():
+            if info is None and self.inputs[name].info is not None:
                 try:
-                    self._exchanged_in_infos[name] = self._inputs[name].exchange_info()
+                    self.in_infos[name] = self.inputs[name].exchange_info()
                     any_done = True
                 except FinamNoDataError:
                     pass
 
         for name, info in exchange_infos.items():
-            if self._exchanged_in_infos[name] is None:
+            if self.in_infos[name] is None:
                 try:
-                    inf = self._inputs[name].info
-                    self._exchanged_in_infos[name] = self._inputs[name].exchange_info(
+                    inf = self.inputs[name].info
+                    self.in_infos[name] = self.inputs[name].exchange_info(
                         None if inf is not None else info
                     )
                     any_done = True
@@ -142,15 +152,15 @@ class ConnectHelper:
         any_done = False
 
         for name, info in push_infos.items():
-            if not self._pushed_infos[name]:
-                self._outputs[name].push_info(info)
-                self._pushed_infos[name] = True
+            if not self.infos_pushed[name]:
+                self.outputs[name].push_info(info)
+                self.infos_pushed[name] = True
                 any_done = True
 
         for name, data in push_data.items():
-            if not self._pushed_data[name]:
-                self._outputs[name].push_data(data, time)
-                self._pushed_data[name] = True
+            if not self.data_pushed[name]:
+                self.outputs[name].push_data(data, time)
+                self.data_pushed[name] = True
                 any_done = True
 
         return any_done

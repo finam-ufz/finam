@@ -28,14 +28,14 @@ class MockupComponent(ATimeComponent):
     def initialize(self):
         super().initialize()
         for key, _ in self._callbacks.items():
-            self._outputs[key] = Output(Info(grid=NoGrid))
+            self.outputs.add(name=key, info=Info(grid=NoGrid))
 
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):
         super().connect()
         for key, callback in self._callbacks.items():
-            self._outputs[key].push_data(callback(self._time), self.time)
+            self.outputs[key].push_data(callback(self._time), self.time)
 
         self.status = ComponentStatus.CONNECTED
 
@@ -48,7 +48,7 @@ class MockupComponent(ATimeComponent):
         self._time += self._step
 
         for key, callback in self._callbacks.items():
-            self._outputs[key].push_data(callback(self._time), self.time)
+            self.outputs[key].push_data(callback(self._time), self.time)
 
         self.status = ComponentStatus.UPDATED
 
@@ -68,7 +68,7 @@ class MockupDependentComponent(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self.inputs["Input"] = Input()
+        self.inputs.add(name="Input")
         self.connector = ConnectHelper(
             self.inputs, self.outputs, required_in_data=["Input"]
         )
@@ -87,7 +87,7 @@ class MockupDependentComponent(ATimeComponent):
 
     def update(self):
         super().update()
-        _pulled = self._inputs["Input"].pull_data(self.time)
+        _pulled = self.inputs["Input"].pull_data(self.time)
         self._time += self._step
         self.status = ComponentStatus.UPDATED
 
@@ -108,8 +108,8 @@ class MockupCircularComponent(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
-        self._outputs["Output"] = Output(Info(grid=NoGrid))
+        self.inputs.add(name="Input")
+        self.outputs.add(name="Output", info=Info(grid=NoGrid))
         self.connector = ConnectHelper(
             self.inputs, self.outputs, required_in_data=["Input"]
         )
@@ -151,7 +151,7 @@ class MockupConsumerComponent(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self._inputs["Input"] = Input()
+        self.inputs.add(name="Input")
         self.status = ComponentStatus.INITIALIZED
 
     def connect(self):

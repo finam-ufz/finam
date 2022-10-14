@@ -26,7 +26,7 @@ class MockupConsumer(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self.inputs["Input"] = Input(self.info)
+        self.inputs.add(name="Input", info=self.info)
         self.connector = ConnectHelper(self.inputs, self.outputs)
         self.status = ComponentStatus.INITIALIZED
 
@@ -65,7 +65,7 @@ class MockupProducer(ATimeComponent):
 
     def initialize(self):
         super().initialize()
-        self.outputs["Output"] = Output(self.info)
+        self.outputs.add(name="Output", info=self.info)
         self.connector = ConnectHelper(
             self.inputs, self.outputs, required_out_infos=["Output"]
         )

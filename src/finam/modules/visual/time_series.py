@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 
 from ...core.interfaces import ComponentStatus
-from ...core.sdk import ATimeComponent, Input
+from ...core.sdk import ATimeComponent
 from ...data import Info, NoGrid, assert_type
 from ...tools.log_helper import LogError
 
@@ -56,7 +56,8 @@ class TimeSeriesView(ATimeComponent):
         self._lines = None
 
         self._input_names = inputs
-        self._inputs = {inp: Input() for inp in inputs}
+        for inp in inputs:
+            self.inputs.add(name=inp)
 
         self.status = ComponentStatus.CREATED
 
@@ -117,7 +118,7 @@ class TimeSeriesView(ATimeComponent):
 
         for i, inp in enumerate(self._input_names):
             if self._updates % self._intervals[i] == 0:
-                value = self._inputs[inp].pull_data(self.time)
+                value = self.inputs[inp].pull_data(self.time)
                 with LogError(self.logger):
                     assert_type(self, inp, value, [int, float])
 

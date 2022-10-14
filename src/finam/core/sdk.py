@@ -1,11 +1,14 @@
 """
 Implementations of the coupling interfaces for simpler development of modules and adapters.
 """
+import collections
 import logging
 from abc import ABC
 from datetime import datetime
+from enum import IntEnum
 
 from ..data import Info
+from ..tools.enum_helper import get_enum_value
 from ..tools.log_helper import LogError, loggable
 from .interfaces import (
     ComponentStatus,
@@ -27,8 +30,8 @@ class AComponent(IComponent, Loggable, ABC):
 
     def __init__(self):
         self._status = None
-        self._inputs = {}
-        self._outputs = {}
+        self._inputs = IOList("INPUT")
+        self._outputs = IOList("OUTPUT")
         self.base_logger_name = None
 
     def initialize(self):
@@ -92,15 +95,8 @@ class AComponent(IComponent, Loggable, ABC):
     @status.setter
     def status(self, status):
         """The component's current status."""
-        if isinstance(status, ComponentStatus):
-            self._status = status
-        elif isinstance(status, int) and status in [e.value for e in ComponentStatus]:
-            self._status = ComponentStatus(status)
-        elif isinstance(status, str) and status in [e.name for e in ComponentStatus]:
-            self._status = ComponentStatus[status]
-        else:
-            with LogError(self.logger):
-                raise FinamStatusError(f"Unknown model state {status} in {self.name}")
+        with LogError(self.logger):
+            self._status = get_enum_value(status, ComponentStatus, FinamStatusError)
 
     @property
     def name(self):
@@ -146,10 +142,12 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
 class Input(IInput, Loggable):
     """Default input implementation."""
 
-    def __init__(self, info=None):
+    def __init__(self, name, info=None):
         self.source = None
         self.base_logger_name = None
-        self.name = ""
+        if name is None:
+            raise ValueError("Input: needs a name.")
+        self.name = name
         self._info = info
 
         self._in_info_exchanged = False
@@ -300,8 +298,8 @@ class CallbackInput(Input):
         A callback ``callback(data, time)``, returning the transformed data.
     """
 
-    def __init__(self, callback):
-        super().__init__()
+    def __init__(self, callback, name, info=None):
+        super().__init__(name=name, info=info)
         self.source = None
         self.callback = callback
 
@@ -324,12 +322,14 @@ class CallbackInput(Input):
 class Output(IOutput, Loggable):
     """Default output implementation."""
 
-    def __init__(self, info=None):
+    def __init__(self, name=None, info=None):
         self.targets = []
         self.data = None
         self._info = None
         self.base_logger_name = None
-        self.name = ""
+        if name is None:
+            raise ValueError("Output: needs a name.")
+        self.name = name
 
         if info is not None:
             self.push_info(info)
@@ -542,7 +542,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
     """Abstract adapter implementation."""
 
     def __init__(self):
-        super().__init__()
+        super().__init__(name=self.__class__.__name__)
         self.source = None
         self.targets = []
 
@@ -628,16 +628,120 @@ class AAdapter(IAdapter, Input, Output, ABC):
         return in_info
 
     @property
-    def name(self):
-        """Class name."""
-        return self.__class__.__name__
-
-    @name.setter
-    def name(self, _):
-        pass
-
-    @property
     def logger_name(self):
         """Logger name derived from source logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
         return ".".join(([base_logger.name, "ADAPTER", self.name]))
+
+
+class IOType(IntEnum):
+    """IOType of the IOList."""
+
+    INPUT = 0
+    OUTPUT = 1
+
+
+class IOList(collections.abc.Mapping):
+    """
+    Map for IO.
+
+    Parameters
+    ----------
+    io_type : int, str, IOType
+        IO type. Either "INPUT" or "OUTPUT".
+    """
+
+    def __init__(self, io_type):
+        """
+        _summary_
+
+        Parameters
+        ----------
+        io_type : _type_
+            _description_
+        """
+        self.type = get_enum_value(io_type, IOType)
+        self.cls = [Input, Output][self.type]
+        self.name = self.cls.__name__
+        self.icls = [IInput, IOutput][self.type]
+        self.iname = self.icls.__name__
+        self._dict = {}
+        self.frozen = False
+
+    def add(self, io=None, *, name=None, info=None):
+        """
+        Add a new IO object either directly ob by attributes.
+
+        Parameters
+        ----------
+        io : Input or Output, optional
+            IO object to add, by default None
+        name : str, optional
+            Name of the new IO object to add, by default None
+        info : Info, optional
+            Info of the new IO object to add, by default None
+
+        Raises
+        ------
+        ValueError
+            If io is not of the correct type.
+        """
+        if self.frozen:
+            raise ValueError("IO.add: list is frozen.")
+        io = self.cls(name, info) if io is None else io
+        if not isinstance(io, self.icls):
+            raise ValueError(f"IO.add: {self.name} is not of type {self.iname}")
+        if io.name in self._dict:
+            raise ValueError(f"IO.add: {self.name} '{io.name}' already exists.")
+        self._dict[io.name] = io
+
+    def set_logger(self, module):
+        """
+        Set the logger in the items of the IOList.
+
+        Parameters
+        ----------
+        module : IComponent
+            Module holding the IOList.
+
+        Raises
+        ------
+        FinamLogError
+            When item is loggable but not the base module.
+        """
+        for name, item in self.items():
+            if loggable(item) and item.uses_base_logger_name and not loggable(module):
+                mname = getattr(module, "name", None)
+                raise FinamLogError(
+                    f"IO: {self.name} '{name}' can't get logger from '{mname}'."
+                )
+            if loggable(item) and item.uses_base_logger_name:
+                item.base_logger_name = module.logger_name
+
+    def __iter__(self):
+        return iter(self._dict)
+
+    def __len__(self):
+        return len(self._dict)
+
+    def __getitem__(self, key):
+        return self._dict[key]
+
+    def __setitem__(self, key, value):
+        if self.frozen:
+            raise ValueError("IO: list is frozen.")
+        if key in self._dict:
+            raise ValueError(f"IO: {self.name} '{key}' already exists.")
+        if not isinstance(value, self.icls):
+            raise ValueError(f"IO: {self.name} is not of type {self.iname}")
+        if key != value.name:
+            raise ValueError(
+                f"IO: {self.name} name '{value.name}' differs from key '{key}'"
+            )
+        self._dict[key] = value
+
+    def __str__(self):
+        return str(self._dict)
+
+    def __repr__(self):
+        return repr(self._dict)

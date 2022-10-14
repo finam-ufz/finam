@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 
 from ..core.interfaces import ComponentStatus
-from ..core.sdk import ATimeComponent, Output
+from ..core.sdk import ATimeComponent
 from ..tools.connect_helper import ConnectHelper
 from ..tools.log_helper import LogError
 
@@ -53,7 +53,7 @@ class CallbackGenerator(ATimeComponent):
         super().initialize()
 
         for key, (_, info) in self._callbacks.items():
-            self._outputs[key] = Output(info)
+            self.outputs.add(name=key, info=info)
 
         self._connector = ConnectHelper(self.inputs, self.outputs)
 
@@ -103,7 +103,7 @@ class CallbackGenerator(ATimeComponent):
         self._time += self._step
 
         for key, (callback, _) in self._callbacks.items():
-            self._outputs[key].push_data(callback(self._time), self.time)
+            self.outputs[key].push_data(callback(self._time), self.time)
 
         self.status = ComponentStatus.UPDATED
 

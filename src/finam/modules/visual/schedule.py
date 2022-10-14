@@ -36,7 +36,8 @@ class ScheduleView(AComponent):
         self._x = [[] for _ in inputs]
 
         self._input_names = inputs
-        self._inputs = {inp: CallbackInput(self.data_changed) for inp in inputs}
+        for inp in inputs:
+            self.inputs.add(CallbackInput(self.data_changed, name=inp))
 
         self.status = ComponentStatus.CREATED
 
@@ -123,7 +124,7 @@ class ScheduleView(AComponent):
             ]
 
         for i, inp in enumerate(self._input_names):
-            if self._inputs[inp] == self._caller:
+            if self.inputs[inp] == self._caller:
                 self._x[i].append(self._time)
 
         for i, line in enumerate(self._lines):

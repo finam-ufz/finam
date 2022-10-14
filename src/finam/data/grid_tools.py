@@ -1,6 +1,6 @@
 """Grid tools for FINAM."""
 from abc import ABC, abstractmethod
-from enum import Enum
+from enum import Enum, IntEnum
 from pathlib import Path
 
 import numpy as np
@@ -360,34 +360,6 @@ def flatten_cells(cells):
     return np.ma.masked_values(cells, -1).compressed()
 
 
-def set_location(data_location):
-    """
-    Correctly set the data location.
-
-    Parameters
-    ----------
-    data_location : Location, str, int
-        Data location in the grid
-
-    Returns
-    -------
-    Location
-        Data location in the grid
-
-    Raises
-    ------
-    ValueError
-        If data location is unknown
-    """
-    if data_location in list(Location):
-        return data_location
-    if data_location in [loc.value for loc in Location]:
-        return Location(data_location)
-    if data_location in [loc.name for loc in Location]:
-        return Location[data_location]
-    raise ValueError(f"Grid: unknown data location '{data_location}'")
-
-
 class Location(Enum):
     """Data location in the grid."""
 
@@ -395,7 +367,7 @@ class Location(Enum):
     POINTS = 1
 
 
-class CellType(Enum):
+class CellType(IntEnum):
     """Supported cell types."""
 
     # VTK and ESMF cell node order is counter clockwise
@@ -678,12 +650,12 @@ class StructuredGrid(Grid):
     def cell_types(self):
         """np.ndarray: Cell types."""
         if self.mesh_dim == 0:
-            return np.full(self.cell_count, CellType.VERTEX.value)
+            return np.full(self.cell_count, CellType.VERTEX, dtype=int)
         if self.mesh_dim == 1:
-            return np.full(self.cell_count, CellType.LINE.value)
+            return np.full(self.cell_count, CellType.LINE, dtype=int)
         if self.mesh_dim == 2:
-            return np.full(self.cell_count, CellType.QUAD.value)
-        return np.full(self.cell_count, CellType.HEX.value)
+            return np.full(self.cell_count, CellType.QUAD, dtype=int)
+        return np.full(self.cell_count, CellType.HEX, dtype=int)
 
     @property
     def data_axes(self):

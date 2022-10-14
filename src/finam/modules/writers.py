@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 import numpy as np
 
 from ..core.interfaces import ComponentStatus
-from ..core.sdk import ATimeComponent, Input
+from ..core.sdk import ATimeComponent
 from ..data import Info, NoGrid, assert_type
 from ..tools.log_helper import LogError
 
@@ -49,7 +49,8 @@ class CsvWriter(ATimeComponent):
         self._time = start
 
         self._input_names = inputs
-        self._inputs = {inp: Input() for inp in inputs}
+        for inp in inputs:
+            self.inputs.add(name=inp)
 
         self._rows = []
 
@@ -94,7 +95,7 @@ class CsvWriter(ATimeComponent):
         """
         super().update()
 
-        values = [self._inputs[inp].pull_data(self.time) for inp in self._input_names]
+        values = [self.inputs[inp].pull_data(self.time) for inp in self._input_names]
 
         with LogError(self.logger):
             for (value, name) in zip(values, self._input_names):

@@ -5,7 +5,7 @@ Modules for reading data.
 from datetime import datetime
 
 from ..core.interfaces import ComponentStatus
-from ..core.sdk import ATimeComponent, Output
+from ..core.sdk import ATimeComponent
 from ..data import Info, NoGrid
 
 
@@ -42,7 +42,8 @@ class CsvReader(ATimeComponent):
         self._row_index = 0
 
         self._output_names = outputs
-        self._outputs = {o: Output(Info(grid=NoGrid)) for o in outputs}
+        for name in outputs:
+            self.outputs.add(name=name, info=Info(grid=NoGrid))
 
         self.status = ComponentStatus.CREATED
 
@@ -113,6 +114,6 @@ class CsvReader(ATimeComponent):
             time = datetime.strptime(row[self._time_column], self._date_format)
 
         for o in self._output_names:
-            self._outputs[o].push_data(row[o], time)
+            self.outputs[o].push_data(row[o], time)
 
         return time
