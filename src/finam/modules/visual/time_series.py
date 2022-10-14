@@ -118,7 +118,7 @@ class TimeSeriesView(ATimeComponent):
 
         for i, inp in enumerate(self._input_names):
             if self._updates % self._intervals[i] == 0:
-                value = self._inputs[inp].pull_data(self.time)
+                value = self.inputs[inp].pull_data(self.time)
                 with LogError(self.logger):
                     assert_type(self, inp, value, [int, float])
 

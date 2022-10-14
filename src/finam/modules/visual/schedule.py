@@ -124,7 +124,7 @@ class ScheduleView(AComponent):
             ]
 
         for i, inp in enumerate(self._input_names):
-            if self._inputs[inp] == self._caller:
+            if self.inputs[inp] == self._caller:
                 self._x[i].append(self._time)
 
         for i, line in enumerate(self._lines):

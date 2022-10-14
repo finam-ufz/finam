@@ -103,7 +103,7 @@ class CallbackGenerator(ATimeComponent):
         self._time += self._step
 
         for key, (callback, _) in self._callbacks.items():
-            self._outputs[key].push_data(callback(self._time), self.time)
+            self.outputs[key].push_data(callback(self._time), self.time)
 
         self.status = ComponentStatus.UPDATED
 

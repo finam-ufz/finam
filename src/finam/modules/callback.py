@@ -79,7 +79,7 @@ class CallbackComponent(ATimeComponent):
 
         outp = self._callback(inp, self.time)
         for name, val in outp.items():
-            self._outputs[name].push_data(val, self.time)
+            self.outputs[name].push_data(val, self.time)
 
         self.status = ComponentStatus.UPDATED
 

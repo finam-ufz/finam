@@ -95,7 +95,7 @@ class CsvWriter(ATimeComponent):
         """
         super().update()
 
-        values = [self._inputs[inp].pull_data(self.time) for inp in self._input_names]
+        values = [self.inputs[inp].pull_data(self.time) for inp in self._input_names]
 
         with LogError(self.logger):
             for (value, name) in zip(values, self._input_names):

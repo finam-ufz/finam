@@ -114,6 +114,6 @@ class CsvReader(ATimeComponent):
             time = datetime.strptime(row[self._time_column], self._date_format)
 
         for o in self._output_names:
-            self._outputs[o].push_data(row[o], time)
+            self.outputs[o].push_data(row[o], time)
 
         return time
