@@ -7,12 +7,10 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import pint
-import pint_xarray
-import xarray as xr
 from numpy.testing import assert_allclose
 
 from finam.adapters.base import Callback, GridToValue, Scale, ValueToGrid
-from finam.data import Info, NoGrid, UniformGrid
+from finam.data import Info, NoGrid, UniformGrid, tools
 from finam.modules.generators import CallbackGenerator
 
 reg = pint.UnitRegistry(force_ndarray_like=True)
@@ -32,7 +30,7 @@ class TestCallback(unittest.TestCase):
 
         self.source.outputs["Step"] >> self.adapter
 
-        self.adapter.get_info(Info(grid=NoGrid))
+        self.adapter.get_info(Info(grid=NoGrid()))
         self.source.connect()
         self.source.validate()
 
@@ -59,7 +57,7 @@ class TestScale(unittest.TestCase):
 
         self.source.outputs["Step"] >> self.adapter
 
-        self.adapter.get_info(Info(grid=NoGrid))
+        self.adapter.get_info(Info(grid=NoGrid()))
         self.source.connect()
         self.source.validate()
 
@@ -77,7 +75,7 @@ class TestGridToValue(unittest.TestCase):
         grid, data = create_grid(20, 10, 1.0)
 
         self.source = CallbackGenerator(
-            callbacks={"Grid": (lambda t: data, Info(grid=grid))},
+            callbacks={"Grid": (lambda t: data, Info(grid=grid, units="m"))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -88,23 +86,23 @@ class TestGridToValue(unittest.TestCase):
         self.adapter = GridToValue(func=np.ma.mean)
         self.source.outputs["Grid"] >> self.adapter
 
-        self.adapter.get_info(Info(grid=NoGrid))
+        self.adapter.get_info(Info(grid=NoGrid()))
         self.source.connect()
         self.source.validate()
 
         result = self.adapter.get_data(datetime(2000, 1, 1))
-        self.assertEqual(result, xr.DataArray(1.0).pint.quantify(reg.meter))
+        self.assertEqual(result, 1.0 * reg.meter)
 
     def test_grid_to_value_sum(self):
         self.adapter = GridToValue(func=np.ma.sum)
         self.source.outputs["Grid"] >> self.adapter
 
-        self.adapter.get_info(Info(grid=NoGrid))
+        self.adapter.get_info(Info(grid=NoGrid()))
         self.source.connect()
         self.source.validate()
 
         result = self.adapter.get_data(datetime(2000, 1, 1))
-        self.assertEqual(result, xr.DataArray(200.0).pint.quantify(reg.meter))
+        self.assertEqual(result, 200.0 * reg.meter)
 
 
 class TestValueToGrid(unittest.TestCase):
@@ -113,8 +111,8 @@ class TestValueToGrid(unittest.TestCase):
         self.source = CallbackGenerator(
             callbacks={
                 "Value": (
-                    lambda t: xr.DataArray(1.0).pint.quantify(reg.meter),
-                    Info(grid=NoGrid),
+                    lambda t: 1.0,
+                    Info(grid=NoGrid(), units="m"),
                 )
             },
             start=datetime(2000, 1, 1),
@@ -129,23 +127,21 @@ class TestValueToGrid(unittest.TestCase):
         self.adapter = ValueToGrid(grid)
         self.source.outputs["Value"] >> self.adapter
 
-        self.adapter.get_info(Info(grid=NoGrid))
+        self.adapter.get_info(Info(grid=NoGrid()))
         self.source.connect()
         self.source.validate()
 
         _reference_grid, reference_data = create_grid(10, 10, 1.0)
         out_data = self.adapter.get_data(datetime(2000, 1, 1))
 
-        assert_allclose(out_data.pint.magnitude, reference_data.pint.magnitude)
-        self.assertEqual(out_data.pint.units, reference_data.pint.units)
+        assert_allclose(tools.get_magnitude(out_data)[0, ...], reference_data)
+        self.assertEqual(str(tools.get_units(out_data)), "m")
 
 
 def create_grid(cols, rows, value):
     grid = UniformGrid((cols, rows), data_location="POINTS")
 
-    data = xr.DataArray(
-        np.full(shape=grid.data_shape, fill_value=value, order=grid.order)
-    ).pint.quantify(reg.meter)
+    data = np.full(shape=grid.data_shape, fill_value=value, order=grid.order)
 
     return grid, data
 

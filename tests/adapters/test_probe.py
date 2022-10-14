@@ -27,8 +27,8 @@ class TestProbe(unittest.TestCase):
 
         out >> adapter >> inp
 
-        out.push_info(Info(grid=NoGrid))
-        inp.exchange_info(Info(grid=NoGrid))
+        out.push_info(Info(grid=NoGrid()))
+        inp.exchange_info(Info(grid=NoGrid()))
         out.push_data(100, datetime(2000, 1, 1))
         inp.pull_data(datetime(2000, 1, 1))
 

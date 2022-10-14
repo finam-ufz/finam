@@ -4,12 +4,12 @@ Basic linear and nearest neighbour regridding adapters.
 from abc import ABC, abstractmethod
 
 import numpy as np
-import xarray as xr
 from scipy.interpolate import LinearNDInterpolator, RegularGridInterpolator
 from scipy.spatial import KDTree
 
 from ..core.interfaces import FinamMetaDataError
 from ..core.sdk import AAdapter
+from ..data import Info, tools
 from ..data.grid_spec import StructuredGrid
 from ..tools.log_helper import LogError
 
@@ -21,6 +21,7 @@ class ARegridding(AAdapter, ABC):
         super().__init__()
         self.input_grid = in_grid
         self.output_grid = out_grid
+        self.input_meta = None
 
         self._is_initialized = False
 
@@ -64,6 +65,8 @@ class ARegridding(AAdapter, ABC):
             self._update_grid_specs()
             self._is_initialized = True
 
+        self.input_meta = in_info.meta
+
         return out_info
 
 
@@ -85,11 +88,14 @@ class Nearest(ARegridding):
     def get_data(self, time):
         in_data = self.pull_data(time)
 
-        res = in_data.pint.magnitude.reshape(-1, order=self.input_grid.order)[
-            self.ids
-        ].reshape(self.output_grid.data_shape, order=self.output_grid.order)
-
-        return xr.DataArray(res).pint.quantify(in_data.pint.units)
+        res = (
+            tools.get_data(in_data)
+            .reshape(-1, order=self.input_grid.order)[self.ids]
+            .reshape(self.output_grid.data_shape, order=self.output_grid.order)
+        )
+        return tools.to_xarray(
+            res, "Nearest", Info(self.output_grid, self.input_meta), time
+        )
 
 
 class Linear(ARegridding):
@@ -137,16 +143,18 @@ class Linear(ARegridding):
         in_data = self.pull_data(time)
 
         if isinstance(self.input_grid, StructuredGrid):
-            self.inter.values = in_data.pint.magnitude
+            self.inter.values = tools.get_magnitude(np.squeeze(in_data))
         else:
             self.inter.values = np.ascontiguousarray(
-                in_data.pint.magnitude.reshape((-1, 1), order=self.input_grid.order),
+                tools.get_magnitude(in_data).reshape(
+                    (-1, 1), order=self.input_grid.order
+                ),
                 dtype=np.double,
             )
-
         res = self.inter(self.output_grid.data_points)
         if self.fill_with_nearest:
             res[self.out_ids] = self.inter.values[self.fill_ids, 0]
 
-        res = res.reshape(self.output_grid.data_shape, order=self.output_grid.order)
-        return xr.DataArray(res).pint.quantify(in_data.pint.units)
+        return tools.to_xarray(
+            res, "Regridded", Info(self.output_grid, self.input_meta), time
+        )

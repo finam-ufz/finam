@@ -61,9 +61,7 @@ class CallbackComponent(ATimeComponent):
         inp = {n: None for n in self._input_infos.keys()}
         outp = self._callback(inp, self.time)
 
-        self._connector.connect(self._time, push_data=outp)
-
-        self.status = ComponentStatus.CONNECTED
+        self.status = self._connector.connect(self._time, push_data=outp)
 
     def validate(self):
         super().validate()

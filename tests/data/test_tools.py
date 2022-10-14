@@ -29,7 +29,7 @@ class TestDataTools(unittest.TestCase):
 
         # assert stuff
         self.assertIsNone(finam.data.tools.get_time(dar1))
-        self.assertIsInstance(finam.data.tools.get_magnitued(dar0), np.ndarray)
+        self.assertIsInstance(finam.data.tools.get_magnitude(dar0), np.ndarray)
         self.assertIsInstance(finam.data.tools.get_data(dar0), pint.Quantity)
         self.assertIsInstance(
             finam.data.tools.get_dimensionality(dar0), pint.util.UnitsContainer

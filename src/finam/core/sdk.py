@@ -7,7 +7,7 @@ from abc import ABC
 from datetime import datetime
 from enum import IntEnum
 
-from ..data import Info
+from ..data import Info, tools
 from ..tools.enum_helper import get_enum_value
 from ..tools.log_helper import LogError, loggable
 from .interfaces import (
@@ -148,14 +148,14 @@ class Input(IInput, Loggable):
         if name is None:
             raise ValueError("Input: needs a name.")
         self.name = name
-        self._info = info
+        self._input_info = info
 
         self._in_info_exchanged = False
 
     @property
     def info(self):
         """Info: The input's data info."""
-        return self._info
+        return self._input_info
 
     def set_source(self, source):
         """Set the input's source output or adapter
@@ -225,7 +225,13 @@ class Input(IInput, Loggable):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        return self.source.get_data(time)
+        data = self.source.get_data(time)
+
+        if "units" in self._input_info.meta:
+            data = tools.to_units(data, self._input_info.units)
+
+        tools.check(data, data.name, self._input_info, time)
+        return data
 
     def exchange_info(self, info=None):
         """Exchange the data info with the input's source.
@@ -246,14 +252,14 @@ class Input(IInput, Loggable):
             if self._in_info_exchanged:
                 raise FinamMetaDataError("Input info was already exchanged.")
 
-            if self._info is not None and info is not None:
+            if self._input_info is not None and info is not None:
                 raise FinamMetaDataError("An internal info was already provided")
 
-            if self._info is None and info is None:
+            if self._input_info is None and info is None:
                 raise FinamMetaDataError("No metadata provided")
 
             if info is None:
-                info = self._info
+                info = self._input_info
 
             if not isinstance(info, Info):
                 raise FinamMetaDataError("Metadata must be of type Info")
@@ -265,7 +271,7 @@ class Input(IInput, Loggable):
                     f"Can't accept incoming data info. Failed entries:\n{fail_info}"
                 )
 
-        self._info = in_info
+        self._input_info = in_info.copy_with(use_none=False, **info.meta)
         self._in_info_exchanged = True
         return in_info
 
@@ -325,7 +331,7 @@ class Output(IOutput, Loggable):
     def __init__(self, name=None, info=None):
         self.targets = []
         self.data = None
-        self._info = None
+        self._output_info = None
         self.base_logger_name = None
         if name is None:
             raise ValueError("Output: needs a name.")
@@ -339,19 +345,19 @@ class Output(IOutput, Loggable):
     @property
     def info(self):
         """Info: The input's data info."""
-        if self._info is None:
+        if self._output_info is None:
             raise FinamNoDataError("No data info available")
         if not self._out_info_exchanged:
             raise FinamNoDataError("Data info was not exchanged yet")
 
-        return self._info
+        return self._output_info
 
     def has_info(self):
         """Returns if the output has a data info.
 
         The info is not required to be validly exchanged.
         """
-        return self._info is not None
+        return self._output_info is not None
 
     def add_target(self, target):
         """Add a target input or adapter for this output.
@@ -411,7 +417,7 @@ class Output(IOutput, Loggable):
         if not isinstance(info, Info):
             with LogError(self.logger):
                 raise FinamMetaDataError("Metadata must be of type Info")
-        self._info = info
+        self._output_info = info
 
     def notify_targets(self, time):
         """Notify all targets by calling their ``source_changed(time)`` method.
@@ -448,14 +454,14 @@ class Output(IOutput, Loggable):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        if self._info is None:
+        if self._output_info is None:
             raise FinamNoDataError(f"No data info available in {self.name}")
         if not self._out_info_exchanged:
             raise FinamNoDataError(f"Data info was not yet exchanged in {self.name}")
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        return self.data
+        return tools.to_xarray(self.data, self.name, self.info, time)
 
     def get_info(self, info):
         """Exchange and get the output's data info.
@@ -479,25 +485,25 @@ class Output(IOutput, Loggable):
         """
         self.logger.debug("get info")
 
-        if self._info is None:
+        if self._output_info is None:
             raise FinamNoDataError("No data info available")
 
-        if self._info.grid is None:
+        if self._output_info.grid is None:
             if info.grid is None:
                 raise FinamNoDataError(
                     "Can't set property `grid` from target info, as it is not provided"
                 )
 
-            self._info.grid = info.grid
+            self._output_info.grid = info.grid
 
-        for k, v in self._info.meta.items():
+        for k, v in self._output_info.meta.items():
             if v is None:
                 if k not in info.meta or info.meta[k] is None:
                     raise FinamNoDataError(
                         f"Can't set property `meta.{k}` from target info, as it is not provided"
                     )
 
-                self._info.meta[k] = info.meta[k]
+                self._output_info.meta[k] = info.meta[k]
 
         self._out_info_exchanged = True
         return self.info
@@ -624,7 +630,8 @@ class AAdapter(IAdapter, Input, Output, ABC):
 
         in_info = self.source.get_info(info)
 
-        self._info = in_info
+        self._input_info = in_info
+        self._output_info = in_info
         return in_info
 
     @property

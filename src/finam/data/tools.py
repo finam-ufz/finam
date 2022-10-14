@@ -15,12 +15,15 @@ import pint
 
 # isort: on
 
-from .grid_spec import NoGrid
+from ..core.interfaces import FinamMetaDataError
+from .grid_spec import GridBase, NoGrid
 from .grid_tools import Grid, StructuredGrid
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here
 pint_xarray.unit_registry.default_format = "~cf"
+
+UNITS = pint_xarray.unit_registry
 
 
 class FinamDataError(Exception):
@@ -101,21 +104,40 @@ def to_xarray(data, name, info, time=None):
     if isinstance(data, xr.DataArray):
         check(data, name, info, time)
         return data
-    data = np.asarray(data)
+
+    units = None
+    if isinstance(data, pint.Quantity):
+        units = data.units
+        data = np.asarray(data.magnitude)
+    else:
+        data = np.asarray(data)
+
     # check correct data size
     if isinstance(info.grid, Grid):
         if data.size != info.grid.data_size:
             raise FinamDataError("to_xarray: data size doesn't match grid size.")
         # reshape flat arrays
         data = data.reshape(info.grid.data_shape, order=info.grid.order)
+
+    if units is not None:
+        if "units" not in info.meta and units != UNITS.dimensionless:
+            raise FinamDataError("Given data has units, but metadata has none.")
+        if "units" in info.meta and UNITS.Unit(info.units) != units:
+            raise FinamDataError("Given data has wrong units.")
+
     # generate quantified DataArray
-    return xr.DataArray(
+    out_array = xr.DataArray(
         name=name,
         data=data[np.newaxis, ...] if time else data,
         dims=_gen_dims(np.ndim(data), info, time),
         coords=dict(time=[pd.Timestamp(time)]) if time else None,
         attrs=info.meta,
-    ).pint.quantify()
+    )
+    return (
+        out_array.pint.quantify()
+        if "units" in info.meta
+        else out_array.pint.quantify("")
+    )
 
 
 def has_time(xdata):
@@ -155,7 +177,7 @@ def get_time(xdata):
     return None
 
 
-def get_magnitued(xdata):
+def get_magnitude(xdata):
     """
     Get magnitude of given data.
 
@@ -336,9 +358,11 @@ def check(xdata, name, info, time=None):
     meta = copy.copy(info.meta)
     meta.pop("units", None)
     if meta != xdata.attrs:
-        raise FinamDataError("check: given data has wrong meta data.")
+        raise FinamDataError(
+            f"check: given data has wrong meta data.\nData: {xdata.attrs}\nMeta: {meta}"
+        )
     # check units
-    if "units" in info.meta and pint.Unit(info.units) != get_units(xdata):
+    if "units" in info.meta and UNITS.Unit(info.units) != get_units(xdata):
         raise FinamDataError("check: given data has wrong units.")
 
 
@@ -406,6 +430,11 @@ class Info:
         **meta_kwargs
             additional metadata by name, will overwrite entries in ``meta``
         """
+        if grid is not None and not isinstance(grid, GridBase):
+            raise FinamMetaDataError(
+                "Grid in Info must be either None or of a sub-class of GridBase"
+            )
+
         self.grid = grid
         self.meta = meta or {}
         self.meta.update(meta_kwargs)
@@ -414,14 +443,16 @@ class Info:
         """Copies the info object"""
         return copy.copy(self)
 
-    def copy_with(self, **kwargs):
+    def copy_with(self, use_none=True, **kwargs):
         """Copies the info object and sets variables and meta values according to the kwargs"""
         other = Info(grid=self.grid, meta=copy.copy(self.meta))
         for k, v in kwargs.items():
             if k == "grid":
-                other.grid = v
+                if v is not None or use_none:
+                    other.grid = v
             else:
-                other.meta[k] = v
+                if v is not None or use_none:
+                    other.meta[k] = v
 
         return other
 
@@ -451,9 +482,14 @@ class Info:
 
         for k, v in self.meta.items():
             if v is not None and k in incoming.meta:
-                if incoming.meta[k] != v:
-                    fail_info["meta." + k] = (incoming.meta[k], v)
-                    success = False
+                if k == "units":
+                    if not UNITS.Unit(v).is_compatible_with(incoming.meta[k]):
+                        fail_info["meta." + k] = (incoming.meta[k], v)
+                        success = False
+                else:
+                    if incoming.meta[k] != v:
+                        fail_info["meta." + k] = (incoming.meta[k], v)
+                        success = False
 
         return success
 

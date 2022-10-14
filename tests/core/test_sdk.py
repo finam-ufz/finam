@@ -77,7 +77,7 @@ class TestOutput(unittest.TestCase):
     def test_push_notify(self):
         counter = 0
         t = datetime(2000, 1, 1)
-        info = Info(grid=NoGrid, meta={"test": 0})
+        info = Info(grid=NoGrid(), meta={"test": 0})
 
         def callback(clr, time):
             nonlocal counter

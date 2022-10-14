@@ -9,7 +9,7 @@ from finam.adapters.base import Scale
 from finam.core.interfaces import ComponentStatus, FinamStatusError, NoBranchAdapter
 from finam.core.schedule import Composition
 from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
-from finam.data import Info, NoGrid
+from finam.data import Info, NoGrid, tools
 from finam.tools.connect_helper import ConnectHelper
 
 
@@ -28,7 +28,7 @@ class MockupComponent(ATimeComponent):
     def initialize(self):
         super().initialize()
         for key, _ in self._callbacks.items():
-            self.outputs.add(name=key, info=Info(grid=NoGrid))
+            self.outputs.add(name=key, info=Info(grid=NoGrid()))
 
         self.status = ComponentStatus.INITIALIZED
 
@@ -78,7 +78,7 @@ class MockupDependentComponent(ATimeComponent):
         super().connect()
 
         self.status = self.connector.connect(
-            self.time, exchange_infos={"Input": Info(grid=NoGrid)}
+            self.time, exchange_infos={"Input": Info(grid=NoGrid())}
         )
 
     def validate(self):
@@ -109,7 +109,7 @@ class MockupCircularComponent(ATimeComponent):
     def initialize(self):
         super().initialize()
         self.inputs.add(name="Input")
-        self.outputs.add(name="Output", info=Info(grid=NoGrid))
+        self.outputs.add(name="Output", info=Info(grid=NoGrid()))
         self.connector = ConnectHelper(
             self.inputs, self.outputs, required_in_data=["Input"]
         )
@@ -121,10 +121,12 @@ class MockupCircularComponent(ATimeComponent):
         push_data = {}
         pulled_data = self.connector.in_data["Input"]
         if pulled_data is not None:
-            push_data["Output"] = pulled_data
+            push_data["Output"] = tools.get_data(pulled_data)
 
         self.status = self.connector.connect(
-            self.time, exchange_infos={"Input": Info(grid=NoGrid)}, push_data=push_data
+            self.time,
+            exchange_infos={"Input": Info(grid=NoGrid())},
+            push_data=push_data,
         )
 
     def validate(self):
@@ -135,7 +137,7 @@ class MockupCircularComponent(ATimeComponent):
         super().update()
         pulled = self.inputs["Input"].pull_data(self.time)
         self._time += self._step
-        self.outputs["Output"].push_data(pulled, self.time)
+        self.outputs["Output"].push_data(tools.get_data(pulled), self.time)
 
         self.status = ComponentStatus.UPDATED
 
@@ -156,7 +158,7 @@ class MockupConsumerComponent(ATimeComponent):
 
     def connect(self):
         super().connect()
-        self.inputs["Input"].exchange_info(Info(grid=NoGrid))
+        self.inputs["Input"].exchange_info(Info(grid=NoGrid()))
 
 
 class CallbackAdapter(AAdapter):

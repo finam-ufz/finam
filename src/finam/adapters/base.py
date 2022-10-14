@@ -4,10 +4,9 @@ Basic data transformation adapters.
 from datetime import datetime
 
 import numpy as np
-import xarray as xr
 
 from ..core.sdk import AAdapter
-from ..data import NoGrid, assert_type
+from ..data import NoGrid, tools
 from ..tools.log_helper import LogError
 
 
@@ -93,6 +92,7 @@ class ValueToGrid(AAdapter):
     def __init__(self, grid):
         super().__init__()
         self.grid = grid
+        self._info = None
 
     def get_data(self, time):
         """Get the output's data-set for the given time.
@@ -113,13 +113,9 @@ class ValueToGrid(AAdapter):
                 raise ValueError("Time must be of type datetime")
 
         value = self.pull_data(time)
-        with LogError(self.logger):
-            assert_type(self, "input", value, [xr.DataArray])
 
-        data = xr.DataArray(
-            np.full(self.grid.data_shape, value.pint.magnitude, dtype=value.dtype)
-        ).pint.quantify(value.pint.units)
-        return data
+        data = np.full(self.grid.data_shape, value.pint.magnitude, dtype=value.dtype)
+        return tools.to_xarray(data, "ValueToGrid", self._info, time)
 
     def get_info(self, info):
         self.logger.debug("get info")
@@ -127,6 +123,7 @@ class ValueToGrid(AAdapter):
         in_info = self.exchange_info(info)
         out_info = in_info.copy_with(grid=self.grid)
 
+        self._info = out_info
         return out_info
 
 
@@ -142,6 +139,7 @@ class GridToValue(AAdapter):
     def __init__(self, func):
         super().__init__()
         self.func = func
+        self._info = None
 
     def get_data(self, time):
         """Get the output's data-set for the given time.
@@ -162,18 +160,15 @@ class GridToValue(AAdapter):
                 raise ValueError("Time must be of type datetime")
 
         grid = self.pull_data(time)
-        with LogError(self.logger):
-            assert_type(self, "input", grid, [xr.DataArray])
 
         func_result = self.func(grid.pint.magnitude)
-        result = xr.DataArray(func_result).pint.quantify(grid.pint.units)
 
-        return result
+        return tools.to_xarray(func_result, "GridToValue", self._info, time)
 
     def get_info(self, info):
         self.logger.debug("get info")
 
         in_info = self.exchange_info(info)
-        out_info = in_info.copy_with(grid=NoGrid)
-
+        out_info = in_info.copy_with(grid=NoGrid())
+        self._info = out_info
         return out_info
