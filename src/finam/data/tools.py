@@ -444,7 +444,15 @@ class Info:
         return copy.copy(self)
 
     def copy_with(self, use_none=True, **kwargs):
-        """Copies the info object and sets variables and meta values according to the kwargs"""
+        """Copies the info object and sets variables and meta values according to the kwargs
+
+        Parameters
+        ----------
+        use_none : bool
+            whether properties with None value should also be transferred
+        **kwargs
+            key values pairs for properties to change
+        """
         other = Info(grid=self.grid, meta=copy.copy(self.meta))
         for k, v in kwargs.items():
             if k == "grid":

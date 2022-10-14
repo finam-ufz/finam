@@ -655,6 +655,10 @@ class AAdapter(IAdapter, Input, Output, ABC):
         self.source = None
         self.targets = []
 
+    @property
+    def info(self):
+        raise NotImplementedError()
+
     @final
     def push_data(self, data, time):
         """Push data into the output.
@@ -704,7 +708,8 @@ class AAdapter(IAdapter, Input, Output, ABC):
                 raise FinamTimeError("Time must be of type datetime")
 
         data = self._get_data(time)
-        return tools.to_xarray(data, self.name, self._output_info, time)
+        name = self.get_source().name + "_" + self.name
+        return tools.to_xarray(data, name, self._output_info, time)
 
     def _get_data(self, time):
         raise NotImplementedError()

@@ -501,6 +501,9 @@ class Grid(GridBase):
         if not isinstance(other, Grid):
             return False
 
+        if isinstance(self, StructuredGrid) != isinstance(other, StructuredGrid):
+            return False
+
         # Might comparison of data_points be sufficient here?
         return (
             self.dim == other.dim

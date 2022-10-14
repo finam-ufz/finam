@@ -96,7 +96,9 @@ class ValueToGrid(AAdapter):
         """
         value = self.pull_data(time)
 
-        return np.full(self.grid.data_shape, value.pint.magnitude, dtype=value.dtype)
+        return np.full(
+            self.grid.data_shape, tools.get_magnitude(value), dtype=value.dtype
+        )
 
     def _get_info(self, info):
         in_info = self.exchange_info(info)
