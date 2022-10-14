@@ -72,6 +72,25 @@ class RectilinearGrid(StructuredGrid):
             raise ValueError("RectilinearGrid: wrong length of 'axes_names'")
         self._crs = crs
 
+    def to_unstructured(self):
+        """
+        Cast grid to an unstructured grid.
+
+        Returns
+        -------
+        UnstructuredGrid
+            Grid as unstructured grid.
+        """
+        return UnstructuredGrid(
+            points=self.points,
+            cells=self.cells,
+            cell_types=self.cell_types,
+            data_location=self.data_location,
+            order=self.order,
+            axes_names=self.axes_names,
+            crs=self.crs,
+        )
+
     @property
     def dims(self):
         """tuple: Axes lengths (xyz order)."""
@@ -248,6 +267,9 @@ class EsriGrid(UniformGrid):
         x value of lower left corner, by default 0.0
     yllcorner : float, optional
         y value of lower left corner, by default 0.0
+    order : str, optional
+        Point and cell ordering.
+        Either Fortran-like ("F") or C-like ("C"), by default "C"
     axes_attributes : list of dict or None, optional
         Axes attributes following the CF convention (xyz order), by default None
     axes_names : list of str or None, optional
@@ -263,6 +285,7 @@ class EsriGrid(UniformGrid):
         cellsize=1.0,
         xllcorner=0.0,
         yllcorner=0.0,
+        order="C",
         axes_attributes=None,
         axes_names=None,
         crs=None,
@@ -276,7 +299,7 @@ class EsriGrid(UniformGrid):
             dims=(self.ncols + 1, self.nrows + 1),
             spacing=(self.cellsize, self.cellsize),
             origin=(self.xllcorner, self.yllcorner),
-            order="C",
+            order=order,
             axes_reversed=True,
             axes_increase=(True, False),
             axes_attributes=axes_attributes,
@@ -330,6 +353,9 @@ class UnstructuredGrid(Grid):
         Cell types given as integer, e.g. CellType.TRI.
     data_location : Location, str, int, optional
         Data location in the grid, by default Location.CELLS
+    order : str, optional
+        Data ordering.
+        Either Fortran-like ("F") or C-like ("C"), by default "C"
     axes_names : list of str or None, optional
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
@@ -342,6 +368,7 @@ class UnstructuredGrid(Grid):
         cells,
         cell_types,
         data_location=Location.CELLS,
+        order="C",
         axes_names=None,
         crs=None,
     ):
@@ -350,7 +377,7 @@ class UnstructuredGrid(Grid):
         self._cells = np.asarray(np.atleast_2d(cells), dtype=int)
         self._cell_types = np.asarray(np.atleast_1d(cell_types), dtype=int)
         self._data_location = get_enum_value(data_location, Location)
-
+        self._order = order
         self._axes_names = axes_names or ["x", "y", "z"][: self.dim]
         if len(self.axes_names) != self.dim:
             raise ValueError("UnstructuredGrid: wrong length of 'axes_names'")
@@ -398,6 +425,11 @@ class UnstructuredGrid(Grid):
         return self._data_location
 
     @property
+    def order(self):
+        """str: Point, cell and data order (C-like or F-like for flatten)."""
+        return self._order
+
+    @property
     def axes_names(self):
         """list of str: Axes names (xyz order)."""
         return self._axes_names
@@ -411,6 +443,9 @@ class UnstructuredPoints(UnstructuredGrid):
     ----------
     points : arraylike
         Points (n, dim) defining the grid.
+    order : str, optional
+        Data ordering.
+        Either Fortran-like ("F") or C-like ("C"), by default "C"
     axes_names : list of str or None, optional
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
@@ -420,6 +455,7 @@ class UnstructuredPoints(UnstructuredGrid):
     def __init__(
         self,
         points,
+        order="C",
         axes_names=None,
         crs=None,
     ):
@@ -430,6 +466,7 @@ class UnstructuredPoints(UnstructuredGrid):
             cells=np.asarray([range(pnt_cnt)], dtype=int).T,
             cell_types=np.full(pnt_cnt, CellType.VERTEX, dtype=int),
             data_location=Location.POINTS,
+            order=order,
             axes_names=axes_names,
             crs=crs,
         )

@@ -17,7 +17,7 @@ import pint
 
 from ..core.interfaces import FinamMetaDataError
 from .grid_spec import GridBase, NoGrid
-from .grid_tools import Grid, StructuredGrid
+from .grid_tools import Grid
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here
@@ -65,14 +65,8 @@ def _gen_dims(ndim, info, time=None):
     if isinstance(info.grid, NoGrid):
         # xarray has dim_0, dim_1 ... as default names
         dims += [f"dim_{i}" for i in range(ndim)]
-    elif isinstance(info.grid, StructuredGrid):
-        dims += (
-            list(reversed(info.grid.axes_names))
-            if info.grid.axes_reversed
-            else list(info.grid.axes_names)
-        )
     else:
-        dims += ["id"]
+        dims += info.grid.data_axes_names
     return dims
 
 

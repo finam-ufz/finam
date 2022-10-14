@@ -3,9 +3,10 @@ import unittest
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
 
-from finam.data.grid_spec import UniformGrid, UnstructuredGrid
+from finam.data.grid_spec import EsriGrid, NoGrid, UniformGrid, UnstructuredGrid
 from finam.data.grid_tools import (
     CellType,
+    canonical_data,
     check_axes_monotonicity,
     gen_axes,
     gen_cells,
@@ -144,3 +145,15 @@ class TestGridTools(unittest.TestCase):
         with self.assertRaises(ValueError):
             grid = UniformGrid((2, 2), data_location=None)
             grid.data_points
+
+    def test_canonical(self):
+        grid = EsriGrid(ncols=2, nrows=3)
+        data = np.arange(6).reshape((3, 2))
+        cdat = canonical_data(data, grid)
+
+        with self.assertRaises(ValueError):
+            canonical_data(data, NoGrid())
+
+        assert_array_equal(cdat.shape, data.shape[::-1])
+        assert_array_equal(cdat[0][::-1], data[:, 0])
+        assert_array_equal(cdat[1][::-1], data[:, 1])

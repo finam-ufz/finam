@@ -62,7 +62,7 @@ class TestGridSpec(unittest.TestCase):
         assert_array_equal(grid.cells, [[3, 4, 1, 0], [4, 5, 2, 1]])
         assert_allclose(grid.cell_centers, [[2.5, 2.0], [3.5, 2.0]])
 
-        assert_array_equal(grid.cell_types, [CellType.QUAD.value, CellType.QUAD.value])
+        assert_array_equal(grid.cell_types, [CellType.QUAD, CellType.QUAD])
 
         with self.assertRaises(ValueError):
             UniformGrid((3, 2), spacing=(1.0,))
@@ -114,7 +114,7 @@ class TestGridSpec(unittest.TestCase):
         assert_array_equal(grid.cells, [[3, 4, 1, 0], [4, 5, 2, 1]])
         assert_allclose(grid.cell_centers, [[2.5, 2.0], [3.5, 2.0]])
 
-        assert_array_equal(grid.cell_types, [CellType.QUAD.value, CellType.QUAD.value])
+        assert_array_equal(grid.cell_types, [CellType.QUAD, CellType.QUAD])
 
         with self.assertRaises(ValueError):
             RectilinearGrid(
@@ -143,7 +143,7 @@ class TestGridSpec(unittest.TestCase):
                 [4.0, 0.0],
             ],
             cells=[[0, 1, 2, 3], [4, 5, 6, 7]],
-            cell_types=[CellType.QUAD.value, CellType.QUAD.value],
+            cell_types=[CellType.QUAD, CellType.QUAD],
         )
         grid2 = UnstructuredPoints(
             points=[
@@ -157,6 +157,24 @@ class TestGridSpec(unittest.TestCase):
                 [4.0, 0.0],
             ],
         )
+
+        with self.assertRaises(ValueError):
+            UnstructuredGrid(
+                points=[
+                    [0.0, 0.0],
+                    [0.0, 2.0],
+                    [2.0, 2.0],
+                    [2.0, 0.0],
+                    [2.0, 0.0],
+                    [2.0, 2.0],
+                    [4.0, 2.0],
+                    [4.0, 0.0],
+                ],
+                cells=[[0, 1, 2, 3], [4, 5, 6, 7]],
+                cell_types=[CellType.QUAD, CellType.QUAD],
+                axes_names=["to_few"],
+            )
+
         self.assertEqual(grid.name, "UnstructuredGrid")
         self.assertEqual(grid2.name, "UnstructuredPoints")
         self.assertIsNone(grid.crs)
@@ -212,3 +230,9 @@ class TestGridSpec(unittest.TestCase):
         self.assertEqual(grid4.data_location, Location.POINTS)
         self.assertEqual(grid5.data_location, Location.POINTS)
         self.assertEqual(grid6.data_location, Location.POINTS)
+
+    def test_cast(self):
+        grid = EsriGrid(3, 2)
+        us_grid = grid.to_unstructured()
+        assert_allclose(grid.data_points, us_grid.data_points)
+        self.assertIsInstance(us_grid, UnstructuredGrid)
