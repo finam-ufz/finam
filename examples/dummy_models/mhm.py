@@ -55,11 +55,11 @@ class Mhm(ATimeComponent):
     def _initialize(self):
         self.soil_water = tools.full(1.0, "soil_water", Info(grid=self.grid), self.time)
 
-        self.inputs.add(name="precipitation", info=Info(grid=NoGrid(), units="mm"))
-        self.inputs.add(name="LAI", info=Info(grid=self.grid))
-        self.outputs.add(name="ETP", info=Info(NoGrid(), units="mm"))
-        self.outputs.add(name="GW_recharge", info=Info(grid=NoGrid(), units="mm"))
-        self.outputs.add(name="soil_water", info=Info(grid=self.grid))
+        self.inputs.add(name="precipitation", grid=NoGrid(), units="mm")
+        self.inputs.add(name="LAI", grid=self.grid)
+        self.outputs.add(name="ETP", grid=NoGrid(), units="mm")
+        self.outputs.add(name="GW_recharge", grid=NoGrid(), units="mm")
+        self.outputs.add(name="soil_water", grid=self.grid)
 
         self.create_connector()
 

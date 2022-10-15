@@ -286,14 +286,17 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
 class Input(IInput, Loggable):
     """Default input implementation."""
 
-    def __init__(self, name, info=None):
+    def __init__(self, name, info=None, **info_kwargs):
         self.source = None
         self.base_logger_name = None
         if name is None:
             raise ValueError("Input: needs a name.")
         self.name = name
+        if info_kwargs:
+            if info is not None:
+                raise ValueError("Input: can't use **kwargs in combination with info")
+            info = Info(**info_kwargs)
         self._input_info = info
-
         self._in_info_exchanged = False
 
     @property
@@ -403,13 +406,10 @@ class Input(IInput, Loggable):
         with LogError(self.logger):
             if self._in_info_exchanged:
                 raise FinamMetaDataError("Input info was already exchanged.")
-
             if self._input_info is not None and info is not None:
                 raise FinamMetaDataError("An internal info was already provided")
-
             if self._input_info is None and info is None:
                 raise FinamMetaDataError("No metadata provided")
-
             if info is None:
                 info = self._input_info
 
@@ -464,8 +464,8 @@ class CallbackInput(Input):
         A callback ``callback(data, time)``, returning the transformed data.
     """
 
-    def __init__(self, callback, name, info=None):
-        super().__init__(name=name, info=info)
+    def __init__(self, callback, name, info=None, **info_kwargs):
+        super().__init__(name=name, info=info, **info_kwargs)
         self.source = None
         self.callback = callback
 
@@ -488,7 +488,7 @@ class CallbackInput(Input):
 class Output(IOutput, Loggable):
     """Default output implementation."""
 
-    def __init__(self, name=None, info=None):
+    def __init__(self, name=None, info=None, **info_kwargs):
         self.targets = []
         self.data = None
         self._output_info = None
@@ -497,6 +497,10 @@ class Output(IOutput, Loggable):
             raise ValueError("Output: needs a name.")
         self.name = name
 
+        if info_kwargs:
+            if info is not None:
+                raise ValueError("Input: can't use **kwargs in combination with info")
+            info = Info(**info_kwargs)
         if info is not None:
             self.push_info(info)
 
@@ -912,7 +916,7 @@ class IOList(collections.abc.Mapping):
         self._dict = {}
         self.frozen = False
 
-    def add(self, io=None, *, name=None, info=None):
+    def add(self, io=None, *, name=None, info=None, **info_kwargs):
         """
         Add a new IO object either directly ob by attributes.
 
@@ -924,6 +928,8 @@ class IOList(collections.abc.Mapping):
             Name of the new IO object to add, by default None
         info : Info, optional
             Info of the new IO object to add, by default None
+        **info_kwargs
+            Optional keyword arguments to instantiate an Info object
 
         Raises
         ------
@@ -932,7 +938,7 @@ class IOList(collections.abc.Mapping):
         """
         if self.frozen:
             raise ValueError("IO.add: list is frozen.")
-        io = self.cls(name, info) if io is None else io
+        io = self.cls(name, info, **info_kwargs) if io is None else io
         if not isinstance(io, self.icls):
             raise ValueError(f"IO.add: {self.name} is not of type {self.iname}")
         if io.name in self._dict:

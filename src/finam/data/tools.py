@@ -460,7 +460,7 @@ def assert_type(cls, slot, obj, types):
 class Info:
     """Data info containing grid specification and metadata"""
 
-    def __init__(self, grid=None, meta=None, **meta_kwargs):
+    def __init__(self, grid, meta=None, **meta_kwargs):
         """Creates a data info object.
 
         Parameters

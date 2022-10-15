@@ -19,7 +19,7 @@ reg = pint.UnitRegistry(force_ndarray_like=True)
 class TestCallback(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": (lambda t: t.day - 1, Info())},
+            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid()))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -49,7 +49,7 @@ class TestCallback(unittest.TestCase):
 class TestScale(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": (lambda t: t.day - 1, Info())},
+            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid()))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )

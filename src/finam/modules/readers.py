@@ -6,7 +6,7 @@ from datetime import datetime
 
 from ..core.interfaces import ComponentStatus
 from ..core.sdk import ATimeComponent
-from ..data import Info, NoGrid
+from ..data import NoGrid
 
 
 class CsvReader(ATimeComponent):
@@ -56,7 +56,7 @@ class CsvReader(ATimeComponent):
 
         self._data = pandas.read_csv(self._path, sep=";")
         for name in self._output_names:
-            self.outputs.add(name=name, info=Info(grid=NoGrid()))
+            self.outputs.add(name=name, grid=NoGrid())
 
         self.create_connector()
 

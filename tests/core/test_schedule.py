@@ -27,7 +27,7 @@ class MockupComponent(ATimeComponent):
 
     def _initialize(self):
         for key, _ in self._callbacks.items():
-            self.outputs.add(name=key, info=Info(grid=NoGrid()))
+            self.outputs.add(name=key, grid=NoGrid())
         self.create_connector()
 
     def _connect(self):
@@ -86,7 +86,7 @@ class MockupCircularComponent(ATimeComponent):
 
     def _initialize(self):
         self.inputs.add(name="Input")
-        self.outputs.add(name="Output", info=Info(grid=NoGrid()))
+        self.outputs.add(name="Output", grid=NoGrid())
         self.create_connector(required_in_data=["Input"])
 
     def _connect(self):
@@ -121,7 +121,7 @@ class MockupConsumerComponent(ATimeComponent):
         self.status = ComponentStatus.CREATED
 
     def _initialize(self):
-        self.inputs.add(name="Input", info=Info(grid=NoGrid()))
+        self.inputs.add(name="Input", grid=NoGrid())
         self.create_connector()
 
     def _connect(self):
