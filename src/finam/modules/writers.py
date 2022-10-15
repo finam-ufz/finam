@@ -7,7 +7,7 @@ import numpy as np
 
 from ..core.interfaces import ComponentStatus
 from ..core.sdk import ATimeComponent
-from ..data import Info, NoGrid, assert_type, tools
+from ..data import NoGrid, assert_type, tools
 from ..tools.log_helper import LogError
 
 
@@ -61,7 +61,7 @@ class CsvWriter(ATimeComponent):
         and the component should have status INITIALIZED.
         """
         for inp in self._input_names:
-            self.inputs.add(name=inp, info=Info(grid=NoGrid(), units=None))
+            self.inputs.add(name=inp, grid=NoGrid(), units=None)
 
         self.create_connector()
 

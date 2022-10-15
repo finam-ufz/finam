@@ -25,7 +25,7 @@ class MockupConsumer(ATimeComponent):
         self.data = None
 
     def _initialize(self):
-        self.inputs.add(name="Input", info=Info(grid=None, units=self.units))
+        self.inputs.add(name="Input", grid=None, units=self.units)
         self.create_connector(required_in_data=["Input"])
 
     def _connect(self):

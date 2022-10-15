@@ -38,8 +38,8 @@ class Ogs(ATimeComponent):
 
     def _initialize(self):
 
-        self.inputs.add(name="GW_recharge", info=Info(grid=NoGrid(), units="mm"))
-        self.outputs.add(name="head", info=Info(grid=NoGrid(), units="mm"))
+        self.inputs.add(name="GW_recharge", grid=NoGrid(), units="mm")
+        self.outputs.add(name="head", grid=NoGrid(), units="mm")
 
         self.create_connector()
 
