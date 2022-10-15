@@ -40,6 +40,7 @@ class CsvReader(ATimeComponent):
         self._date_format = date_format
         self._data = None
         self._row_index = 0
+        self._first_connect = True
 
         self._output_names = outputs
 
@@ -64,18 +65,19 @@ class CsvReader(ATimeComponent):
 
         After the method call, the component should have status CONNECTED.
         """
-        row = self._data.iloc[self._row_index]
-        if self.status == ComponentStatus.INITIALIZED:
+        row = self._data.iloc[0]
+        if self._first_connect:
             self._time = self._push_row(row, False)
-            self._row_index += 1
+            self._row_index = 1
+            self._first_connect = False
 
         if self._date_format is None:
-            time = datetime.fromisoformat(row[self._time_column])
+            self._time = datetime.fromisoformat(row[self._time_column])
         else:
-            time = datetime.strptime(row[self._time_column], self._date_format)
+            self._time = datetime.strptime(row[self._time_column], self._date_format)
 
         self.try_connect(
-            time=time, push_data={name: row[name] for name in self.outputs}
+            time=self._time, push_data={name: row[name] for name in self.outputs}
         )
 
     def _validate(self):

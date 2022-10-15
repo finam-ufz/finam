@@ -75,7 +75,13 @@ class AComponent(IComponent, Loggable, ABC):
         could be pulled, and `CONNECTING_IDLE` if nothing could be pulled.
         """
         self.logger.debug("connect")
-        self._connect()
+
+        if self.status == ComponentStatus.INITIALIZED:
+            for _, inp in self.inputs.items():
+                inp.ping()
+            self.status = ComponentStatus.CONNECTING
+        else:
+            self._connect()
 
     def _connect(self):
         """Connect exchange data and metadata with linked components.
@@ -370,6 +376,13 @@ class Input(IInput, Loggable):
         tools.check(data, data.name, self._input_info, time)
         return data
 
+    def ping(self):
+        """Pings upstream to inform outputs about the number of connected inputs.
+
+        Must be called after linking and before the connect phase.
+        """
+        self.source.pinged()
+
     def exchange_info(self, info=None):
         """Exchange the data info with the input's source.
 
@@ -479,15 +492,16 @@ class Output(IOutput, Loggable):
         if info is not None:
             self.push_info(info)
 
-        self._out_info_exchanged = False
+        self._connected_inputs = 0
+        self._out_infos_exchanged = 0
 
     @property
     def info(self):
         """Info: The input's data info."""
         if self._output_info is None:
             raise FinamNoDataError("No data info available")
-        if not self._out_info_exchanged:
-            raise FinamNoDataError("Data info was not exchanged yet")
+        if self.has_targets and self._out_infos_exchanged < self._connected_inputs:
+            raise FinamNoDataError("Data info was not completely exchanged yet")
 
         return self._output_info
 
@@ -523,6 +537,10 @@ class Output(IOutput, Loggable):
         """
         return self.targets
 
+    def pinged(self):
+        """Called when receiving a ping from a downstream input."""
+        self._connected_inputs += 1
+
     def push_data(self, data, time):
         """Push data into the output.
 
@@ -545,7 +563,7 @@ class Output(IOutput, Loggable):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        if not self._out_info_exchanged:
+        if self.has_targets and self._out_infos_exchanged < self._connected_inputs:
             raise FinamNoDataError("Can't push data before output info was exchanged.")
 
         self.data = data
@@ -602,7 +620,7 @@ class Output(IOutput, Loggable):
 
         if self._output_info is None:
             raise FinamNoDataError(f"No data info available in {self.name}")
-        if not self._out_info_exchanged:
+        if self._out_infos_exchanged < self._connected_inputs:
             raise FinamNoDataError(f"Data info was not yet exchanged in {self.name}")
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
@@ -636,7 +654,7 @@ class Output(IOutput, Loggable):
 
         if self._output_info.grid is None:
             if info.grid is None:
-                raise FinamNoDataError(
+                raise FinamMetaDataError(
                     "Can't set property `grid` from target info, as it is not provided"
                 )
 
@@ -645,14 +663,15 @@ class Output(IOutput, Loggable):
         for k, v in self._output_info.meta.items():
             if v is None:
                 if k not in info.meta or info.meta[k] is None:
-                    raise FinamNoDataError(
+                    raise FinamMetaDataError(
                         f"Can't set property `meta.{k}` from target info, as it is not provided"
                     )
 
                 self._output_info.meta[k] = info.meta[k]
 
-        self._out_info_exchanged = True
-        return self.info
+        self._out_infos_exchanged += 1
+
+        return self._output_info
 
     def chain(self, other):
         """Chain outputs and adapters.
@@ -811,6 +830,10 @@ class AAdapter(IAdapter, Input, Output, ABC):
             Delivered data info
         """
         return self.exchange_info(info)
+
+    def pinged(self):
+        """Called when receiving a ping from a downstream input."""
+        self.ping()
 
     @final
     def exchange_info(self, info=None):

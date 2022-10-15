@@ -29,6 +29,11 @@ class TestConnectHelper(unittest.TestCase):
         outputs["Out1"] >> sinks[0]
         outputs["Out2"] >> sinks[1]
 
+        inputs["In1"].ping()
+        inputs["In2"].ping()
+        sinks[0].ping()
+        sinks[1].ping()
+
         connector: ConnectHelper = ConnectHelper(
             "TestLogger",
             inputs,

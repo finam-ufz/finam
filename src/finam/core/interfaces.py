@@ -194,6 +194,13 @@ class IInput(ABC):
         """
 
     @abstractmethod
+    def ping(self):
+        """Pings upstream to inform outputs about the number of connected inputs.
+
+        Must be called after linking and before the connect phase.
+        """
+
+    @abstractmethod
     def exchange_info(self, info):
         """Exchange the data info with the input's source.
 
@@ -249,6 +256,10 @@ class IOutput(ABC):
         list
             List of targets.
         """
+
+    @abstractmethod
+    def pinged(self):
+        """Called when receiving a ping from a downstream input."""
 
     @abstractmethod
     def push_data(self, data, time):

@@ -32,6 +32,7 @@ class TestCallback(unittest.TestCase):
 
         self.adapter.get_info(Info(grid=NoGrid()))
         self.source.connect()
+        self.source.connect()
         self.source.validate()
 
     def test_callback_adapter(self):
@@ -58,6 +59,7 @@ class TestScale(unittest.TestCase):
         self.source.outputs["Step"] >> self.adapter
 
         self.adapter.get_info(Info(grid=NoGrid()))
+        self.source.connect()
         self.source.connect()
         self.source.validate()
 
@@ -88,6 +90,7 @@ class TestGridToValue(unittest.TestCase):
 
         self.adapter.get_info(Info(grid=NoGrid()))
         self.source.connect()
+        self.source.connect()
         self.source.validate()
 
         result = self.adapter.get_data(datetime(2000, 1, 1))
@@ -98,6 +101,7 @@ class TestGridToValue(unittest.TestCase):
         self.source.outputs["Grid"] >> self.adapter
 
         self.adapter.get_info(Info(grid=NoGrid()))
+        self.source.connect()
         self.source.connect()
         self.source.validate()
 
@@ -128,6 +132,7 @@ class TestValueToGrid(unittest.TestCase):
         self.source.outputs["Value"] >> self.adapter
 
         self.adapter.get_info(Info(grid=NoGrid()))
+        self.source.connect()
         self.source.connect()
         self.source.validate()
 

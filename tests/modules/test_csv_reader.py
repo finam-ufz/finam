@@ -42,6 +42,13 @@ class TestCsvReader(unittest.TestCase):
 
             reader.outputs["X"] >> sink1
             reader.outputs["Y"] >> sink2
+
+            sink1.ping()
+            sink2.ping()
+
+            reader.connect()
+            reader.connect()
+
             sink1.exchange_info(Info(grid=NoGrid()))
             sink2.exchange_info(Info(grid=NoGrid()))
 
