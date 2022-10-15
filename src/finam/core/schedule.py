@@ -53,7 +53,7 @@ class Composition(Loggable):
         self.logger.setLevel(log_level)
         # set log format
         formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            "%(asctime)s %(levelname)s: %(message)-36s - %(name)s"
         )
         # setup log output
         if print_log:
@@ -123,7 +123,6 @@ class Composition(Loggable):
         t_max : datetime
             Simulation time up to which to simulate.
         """
-        self.logger.debug("run composition")
         self._validate()
 
         if not isinstance(t_max, datetime):
@@ -132,12 +131,14 @@ class Composition(Loggable):
 
         self._connect()
 
+        self.logger.debug("validate components")
         for mod in self.modules:
             mod.validate()
             self._check_status(mod, [ComponentStatus.VALIDATED])
 
         time_modules = [m for m in self.modules if isinstance(m, ITimeComponent)]
 
+        self.logger.debug("running composition")
         while True:
             to_update = min(time_modules, key=lambda m: m.time)
             to_update.update()
@@ -198,7 +199,10 @@ class Composition(Loggable):
                             targets.append((target, no_branch))
 
     def _connect(self):
+        self.logger.debug("connect components")
+        counter = 0
         while True:
+            self.logger.debug("connect iteration %d", counter)
             any_unconnected = False
             any_new_connection = False
             for mod in self.modules:
@@ -233,6 +237,8 @@ class Composition(Loggable):
                         f"Circular dependency during initial connect. "
                         f"Unconnected components: [{', '.join(unconn)}]"
                     )
+
+            counter += 1
 
     @property
     def logger_name(self):
