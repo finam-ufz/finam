@@ -373,7 +373,9 @@ class Input(IInput, Loggable):
         if "units" in self._input_info.meta:
             data = tools.to_units(data, self._input_info.units)
 
-        tools.check(data, data.name, self._input_info, time)
+        with LogError(self.logger):
+            tools.check(data, data.name, self._input_info, time)
+
         return data
 
     def ping(self):
@@ -417,6 +419,12 @@ class Input(IInput, Loggable):
             in_info = self.source.get_info(info)
             fail_info = {}
             if not info.accepts(in_info, fail_info):
+                fail_info = "\n".join(
+                    [
+                        f"{name} - got {got}, expected {exp}"
+                        for name, (got, exp) in fail_info.items()
+                    ]
+                )
                 raise FinamMetaDataError(
                     f"Can't accept incoming data info. Failed entries:\n{fail_info}"
                 )
@@ -625,7 +633,8 @@ class Output(IOutput, Loggable):
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        return tools.to_xarray(self.data, self.name, self.info, time)
+        with LogError(self.logger):
+            return tools.to_xarray(self.data, self.name, self.info, time)
 
     def get_info(self, info):
         """Exchange and get the output's data info.
