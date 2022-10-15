@@ -109,7 +109,7 @@ def to_xarray(data, name, info, time=None):
     # check correct data size
     if isinstance(info.grid, Grid):
         if data.size != info.grid.data_size:
-            raise FinamDataError("to_xarray: data size doesn't match grid size.")
+            raise FinamDataError(f"to_xarray: data size doesn't match grid size. Got {data.size}, expected {info.grid.data_size}")
         # reshape flat arrays
         data = data.reshape(info.grid.data_shape, order=info.grid.order)
     elif isinstance(info.grid, NoGrid):
@@ -211,6 +211,23 @@ def get_data(xdata):
     check_quantified(xdata, "get_data")
     return xdata.data
 
+
+def strip_time(xdata):
+    """Returns a view of the xarray data with the time dimension squeezed if there is only a single entry
+
+    Raises
+    ------
+    FinamDataError
+        If the data is not an xarray, or has multiple time entries.
+    """
+    if not isinstance(xdata, xr.DataArray):
+        raise FinamDataError("Can strip time of xarray DataArray only")
+    if has_time(xdata):
+        if xdata.shape[0] > 1:
+            raise FinamDataError("Can't strip time of a data array with multiple time entries")
+        return xdata[0, ...]
+    else:
+        return xdata
 
 def get_units(xdata):
     """
