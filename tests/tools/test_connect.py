@@ -30,7 +30,7 @@ class TestConnectHelper(unittest.TestCase):
         outputs["Out2"] >> sinks[1]
 
         connector: ConnectHelper = ConnectHelper(
-            logging.Logger("Test"),
+            "TestLogger",
             inputs,
             outputs,
             required_in_data=list(inputs.keys()),

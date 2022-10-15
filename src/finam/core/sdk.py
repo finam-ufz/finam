@@ -206,8 +206,9 @@ class AComponent(IComponent, Loggable, ABC):
         required_out_infos : arraylike
             Names of the outputs that need exchanged info
         """
+        self.logger.debug("create connector")
         self._connector = ConnectHelper(
-            self.logger,
+            self.logger_name,
             self.inputs,
             self.outputs,
             required_in_data=required_in_data,
@@ -237,7 +238,7 @@ class AComponent(IComponent, Loggable, ABC):
         ComponentStatus
             the new component status
         """
-        self.logger.debug("try_connect")
+        self.logger.debug("try connect")
 
         if self._connector is None:
             raise FinamStatusError(
@@ -302,6 +303,7 @@ class Input(IInput, Loggable):
         source :
             source output or adapter
         """
+        self.logger.debug("set source")
         # fix to set base-logger for adapters derived from Input source logger
         if isinstance(self, AAdapter):
             if self.uses_base_logger_name and not loggable(source):
@@ -311,7 +313,6 @@ class Input(IInput, Loggable):
                     )
             else:
                 self.base_logger_name = source.logger_name
-        self.logger.debug("set source")
         with LogError(self.logger):
             if self.source is not None:
                 raise ValueError(
@@ -331,7 +332,6 @@ class Input(IInput, Loggable):
         Output
             The input's source.
         """
-        self.logger.debug("get source")
         return self.source
 
     def source_changed(self, time):
@@ -521,7 +521,6 @@ class Output(IOutput, Loggable):
         list
             List of targets.
         """
-        self.logger.debug("get targets")
         return self.targets
 
     def push_data(self, data, time):
