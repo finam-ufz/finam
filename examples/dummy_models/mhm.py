@@ -26,18 +26,17 @@ For each grid cell, calculations in each model step are as follows:
 
 Output ``ETP`` is the average of ``etp`` over all cells. ``GW_recharge`` is the sum of ``gwr`` over all cells.
 """
-
-import math
 from datetime import datetime, timedelta
 
+import numpy as np
+
 from finam.core.interfaces import ComponentStatus
-from finam.core.sdk import ATimeComponent, Input, Output
-from finam.data import assert_type
-from finam.data.grid import Grid
+from finam.core.sdk import ATimeComponent
+from finam.data import Info, NoGrid, tools
 
 
 class Mhm(ATimeComponent):
-    def __init__(self, grid_spec, start, step):
+    def __init__(self, grid, start, step):
         super().__init__()
 
         if not isinstance(start, datetime):
@@ -48,82 +47,71 @@ class Mhm(ATimeComponent):
         self._time = start
         self._step = step
 
-        self._grid_spec = grid_spec
+        self.grid = grid
         self.soil_water = None
 
         self.status = ComponentStatus.CREATED
 
-    def initialize(self):
-        super().initialize()
+    def _initialize(self):
+        self.soil_water = tools.full(1.0, "soil_water", Info(grid=self.grid), self.time)
 
-        self.soil_water = Grid(self._grid_spec)
+        self.inputs.add(name="precipitation", info=Info(grid=NoGrid(), units="mm"))
+        self.inputs.add(name="LAI", info=Info(grid=self.grid))
+        self.outputs.add(name="ETP", info=Info(NoGrid(), units="mm"))
+        self.outputs.add(name="GW_recharge", info=Info(grid=NoGrid(), units="mm"))
+        self.outputs.add(name="soil_water", info=Info(grid=self.grid))
 
-        self._inputs["precipitation"] = Input()
-        self._inputs["LAI"] = Input()
-        self._outputs["ETP"] = Output()
-        self._outputs["GW_recharge"] = Output()
-        self._outputs["soil_water"] = Output()
+        self.create_connector()
 
-        self.status = ComponentStatus.INITIALIZED
+    def _connect(self):
+        push_data = {
+            "soil_water": self.soil_water,
+            "GW_recharge": 0.0,
+            "ETP": 0.0,
+        }
+        self.try_connect(time=self.time, push_data=push_data)
 
-    def connect(self):
-        super().connect()
+    def _validate(self):
+        pass
 
-        self._outputs["soil_water"].push_data(self.soil_water, self.time)
-        self._outputs["GW_recharge"].push_data(0.0, self.time)
-        self._outputs["ETP"].push_data(0.0, self.time)
-
-        self.status = ComponentStatus.CONNECTED
-
-    def validate(self):
-        super().validate()
-
-        self.status = ComponentStatus.VALIDATED
-
-    def update(self):
-        super().update()
-
+    def _update(self):
         # Retrieve inputs
-        precipitation = self._inputs["precipitation"].pull_data(self.time)
-        lai = self._inputs["LAI"].pull_data(self.time)
-
-        # Check input data types
-        assert_type(self, "precipitation", precipitation, [int, float])
-        assert_type(self, "LAI", lai, [Grid])
-        if self.soil_water.spec != lai.spec:
-            raise Exception(f"Grid specifications not matching for LAI in mHM.")
+        precipitation = tools.strip_time(
+            self.inputs["precipitation"].pull_data(self.time)
+        )
+        lai = tools.strip_time(self.inputs["LAI"].pull_data(self.time))
 
         # Run the model step here
         base_flow = 0.0
-        total_recharge = 0.0
-        mean_evaporation = 0.0
-        for i in range(len(self.soil_water.data)):
-            sm = self.soil_water.data[i]
-            sm += precipitation
-            recharge = 0.1 * sm
-            evaporation = 0.5 * sm * (1.0 - math.exp(-0.05 * lai.data[i]))
-            sm -= recharge + evaporation
-            self.soil_water.data[i] = sm
+        mm = tools.UNITS.Unit("mm")
+        total_recharge = 0.0 * mm
+        mean_evaporation = 0.0 * mm
+        for x in range(self.soil_water.shape[1]):
+            for y in range(self.soil_water.shape[2]):
+                sm = self.soil_water[0, x, y]
+                sm += tools.get_magnitude(precipitation)
+                recharge = 0.1 * sm
+                evaporation = 0.5 * sm * (1.0 - np.exp(-0.05 * lai[x, y]))
+                sm -= recharge + evaporation
+                self.soil_water[0, x, y] = sm
 
-            total_recharge += recharge
-            mean_evaporation += evaporation
+                total_recharge += recharge * mm
+                mean_evaporation += evaporation * mm
 
         mean_evaporation /= float(len(self.soil_water.data))
 
         # Increment model time
         self._time += self._step
         # Push model state to outputs
-        self._outputs["soil_water"].push_data(self.soil_water, self.time)
-        self._outputs["GW_recharge"].push_data(total_recharge, self.time)
-        self._outputs["ETP"].push_data(mean_evaporation, self.time)
+        self.outputs["soil_water"].push_data(tools.get_data(self.soil_water), self.time)
+        self.outputs["GW_recharge"].push_data(tools.get_data(total_recharge), self.time)
+        self.outputs["ETP"].push_data(tools.get_data(mean_evaporation), self.time)
 
         # Update component status
         self.status = ComponentStatus.UPDATED
 
-    def finalize(self):
-        super().finalize()
-
-        self.status = ComponentStatus.FINALIZED
+    def _finalize(self):
+        pass
 
     @property
     def step(self):

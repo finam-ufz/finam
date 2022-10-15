@@ -21,8 +21,16 @@ from .grid_tools import (
 class NoGrid(GridBase):
     """Indicator for data without a spatial grid."""
 
+    def __init__(self, dim=0):
+        self._dim = dim
+
+    @property
+    def dim(self):
+        """int: Dimension of the grid or data."""
+        return self._dim
+
     def __eq__(self, other):
-        return isinstance(other, NoGrid)
+        return isinstance(other, NoGrid) and self.dim == other.dim
 
 
 class RectilinearGrid(StructuredGrid):

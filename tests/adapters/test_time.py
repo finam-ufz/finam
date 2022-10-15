@@ -37,6 +37,7 @@ class TestNextValue(unittest.TestCase):
         self.adapter.get_info(Info(grid=NoGrid()))
 
         self.source.connect()
+        self.source.connect()
         self.source.validate()
 
     def test_next_value(self):
@@ -70,6 +71,7 @@ class TestPreviousValue(unittest.TestCase):
         self.source.outputs["Step"] >> self.adapter
         self.adapter.get_info(Info(grid=NoGrid()))
 
+        self.source.connect()
         self.source.connect()
         self.source.validate()
 
@@ -106,6 +108,7 @@ class TestLinearInterpolation(unittest.TestCase):
         self.source.outputs["Step"] >> self.adapter
         self.adapter.get_info(Info(grid=NoGrid()))
 
+        self.source.connect()
         self.source.connect()
         self.source.validate()
 
@@ -145,6 +148,7 @@ class TestLinearGridInterpolation(unittest.TestCase):
         self.source.outputs["Grid"] >> self.adapter
         self.adapter.get_info(Info(grid=grid))
 
+        self.source.connect()
         self.source.connect()
         self.source.validate()
 
@@ -208,6 +212,7 @@ class TestLinearIntegration(unittest.TestCase):
         self.adapter.get_info(Info(grid=NoGrid()))
 
         self.source.connect()
+        self.source.connect()
         self.source.validate()
 
     def test_linear_integration(self):
@@ -252,6 +257,7 @@ class TestLinearGridIntegration(unittest.TestCase):
         self.source.outputs["Grid"] >> self.adapter
         self.adapter.get_info(Info(grid=NoGrid()))
 
+        self.source.connect()
         self.source.connect()
         self.source.validate()
 

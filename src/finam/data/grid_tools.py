@@ -442,14 +442,14 @@ class GridBase(ABC):
         """Grid name."""
         return self.__class__.__name__
 
-
-class Grid(GridBase):
-    """Abstract grid specification."""
-
     @property
     @abstractmethod
     def dim(self):
-        """int: Dimension of the grid."""
+        """int: Dimension of the grid or data."""
+
+
+class Grid(GridBase):
+    """Abstract grid specification."""
 
     @property
     @abstractmethod

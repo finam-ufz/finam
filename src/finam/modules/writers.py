@@ -7,7 +7,7 @@ import numpy as np
 
 from ..core.interfaces import ComponentStatus
 from ..core.sdk import ATimeComponent
-from ..data import Info, NoGrid, assert_type
+from ..data import Info, NoGrid, assert_type, tools
 from ..tools.log_helper import LogError
 
 
@@ -61,7 +61,7 @@ class CsvWriter(ATimeComponent):
         and the component should have status INITIALIZED.
         """
         for inp in self._input_names:
-            self.inputs.add(name=inp)
+            self.inputs.add(name=inp, info=Info(grid=NoGrid(), units=None))
 
         self.create_connector()
 
@@ -70,9 +70,7 @@ class CsvWriter(ATimeComponent):
 
         After the method call, the component should have status CONNECTED.
         """
-        self.try_connect(
-            exchange_infos={name: Info(grid=NoGrid()) for name in self.inputs}
-        )
+        self.try_connect()
 
     def _validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -86,11 +84,13 @@ class CsvWriter(ATimeComponent):
 
         After the method call, the component should have status UPDATED or FINISHED.
         """
-        values = [self.inputs[inp].pull_data(self.time) for inp in self._input_names]
-
+        values = [
+            tools.get_magnitude(tools.strip_time(self.inputs[inp].pull_data(self.time)))
+            for inp in self._input_names
+        ]
         with LogError(self.logger):
             for (value, name) in zip(values, self._input_names):
-                assert_type(self, name, value, [int, float])
+                assert_type(self, name, value.item(), [int, float])
 
         self._rows.append([self.time.isoformat()] + values)
 

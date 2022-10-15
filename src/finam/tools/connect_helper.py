@@ -1,13 +1,17 @@
 """Iterative connection helpers."""
-from ..core.interfaces import ComponentStatus, FinamNoDataError
+import logging
+
+from ..core.interfaces import ComponentStatus, FinamNoDataError, Loggable
 
 
-class ConnectHelper:
+class ConnectHelper(Loggable):
     """
     Helper for iterative connect
 
     Parameters
     ----------
+    logger : Logger
+        Logger to use
     inputs : dict
         All inputs of the component.
     outputs : dict
@@ -18,8 +22,16 @@ class ConnectHelper:
         Names of the outputs that need exchanged info
     """
 
-    def __init__(self, inputs, outputs, required_in_data=None, required_out_infos=None):
+    def __init__(
+        self,
+        logger_name,
+        inputs,
+        outputs,
+        required_in_data=None,
+        required_out_infos=None,
+    ):
 
+        self.base_logger_name = logger_name
         self._inputs = inputs
         self._outputs = outputs
 
@@ -32,6 +44,23 @@ class ConnectHelper:
             name: outp.has_info() for name, outp in self.outputs.items()
         }
         self._pushed_data = {name: False for name in self.outputs.keys()}
+
+    @property
+    def logger(self):
+        """Logger for this component."""
+        return logging.getLogger(self.logger_name)
+
+    @property
+    def logger_name(self):
+        """Logger name derived from base logger name and class name."""
+        base_logger = logging.getLogger(self.base_logger_name)
+        # logger hierarchy indicated by "." in name
+        return ".".join(([base_logger.name, self.__class__.__name__]))
+
+    @property
+    def uses_base_logger_name(self):
+        """Whether this class has a 'base_logger_name' attribute."""
+        return True
 
     @property
     def inputs(self):
@@ -100,16 +129,18 @@ class ConnectHelper:
                 try:
                     self.out_infos[name] = self.outputs[name].info
                     any_done = True
+                    self.logger.debug("Successfully pulled output info for %s", name)
                 except FinamNoDataError:
-                    pass
+                    self.logger.debug("Failed to pull output info for %s", name)
 
         for name, data in self.in_data.items():
             if data is None:
                 try:
                     self.in_data[name] = self.inputs[name].pull_data(time)
                     any_done = True
+                    self.logger.debug("Successfully pulled input data for %s", name)
                 except FinamNoDataError:
-                    pass
+                    self.logger.debug("Failed to pull input data for %s", name)
 
         if (
             all(v is not None for v in self.in_infos.values())
@@ -127,13 +158,14 @@ class ConnectHelper:
 
     def _exchange_in_infos(self, exchange_infos):
         any_done = False
-        for name, info in self.in_infos.items():
+        for name, info in self._exchanged_in_infos.items():
             if info is None and self.inputs[name].info is not None:
                 try:
                     self.in_infos[name] = self.inputs[name].exchange_info()
                     any_done = True
+                    self.logger.debug("Successfully exchanged input info for %s", name)
                 except FinamNoDataError:
-                    pass
+                    self.logger.debug("Failed to exchange input info for %s", name)
 
         for name, info in exchange_infos.items():
             if self.in_infos[name] is None:
@@ -143,8 +175,9 @@ class ConnectHelper:
                         None if inf is not None else info
                     )
                     any_done = True
+                    self.logger.debug("Successfully exchanged input info for %s", name)
                 except FinamNoDataError:
-                    pass
+                    self.logger.debug("Failed to exchange input info for %s", name)
 
         return any_done
 
@@ -156,11 +189,16 @@ class ConnectHelper:
                 self.outputs[name].push_info(info)
                 self.infos_pushed[name] = True
                 any_done = True
+                self.logger.debug("Successfully pushed output info for %s", name)
 
         for name, data in push_data.items():
-            if not self.data_pushed[name]:
-                self.outputs[name].push_data(data, time)
-                self.data_pushed[name] = True
-                any_done = True
+            if not self.data_pushed[name] and self.infos_pushed[name]:
+                try:
+                    self.outputs[name].push_data(data, time)
+                    self.data_pushed[name] = True
+                    any_done = True
+                    self.logger.debug("Successfully pushed output data for %s", name)
+                except FinamNoDataError:
+                    self.logger.debug("Failed to push output data for %s", name)
 
         return any_done

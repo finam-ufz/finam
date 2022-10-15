@@ -28,7 +28,7 @@ class NextValue(AAdapter):
         _check_time(self.logger, time)
 
         data = self.pull_data(time)
-        self.data = data
+        self.data = tools.strip_time(data)
         self.time = time
 
     def _get_data(self, time):
@@ -70,7 +70,7 @@ class PreviousValue(AAdapter):
         """
         _check_time(self.logger, time)
 
-        data = self.pull_data(time)
+        data = tools.strip_time(self.pull_data(time))
         if self.new_data is None:
             self.old_data = (time, data)
         else:
@@ -121,7 +121,7 @@ class LinearInterpolation(AAdapter):
         _check_time(self.logger, time)
 
         self.old_data = self.new_data
-        self.new_data = (time, self.pull_data(time))
+        self.new_data = (time, tools.strip_time(self.pull_data(time)))
 
     def _get_data(self, time):
         """Get the output's data-set for the given time.
@@ -179,7 +179,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         """
         _check_time(self.logger, time)
 
-        data = self.pull_data(time)
+        data = tools.strip_time(self.pull_data(time))
         self.data.append((time, data))
 
         if self.prev_time is None:

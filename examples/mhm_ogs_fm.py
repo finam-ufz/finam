@@ -25,7 +25,7 @@ Coupling flow chart, without connections to CSV output:
     | OGS 30d   |
     +-----------+
 """
-
+import logging
 import random
 import time as sys_time
 from datetime import datetime, timedelta
@@ -33,9 +33,10 @@ from datetime import datetime, timedelta
 import numpy as np
 from dummy_models import formind, mhm, ogs
 
-from finam.adapters import base, time
+from finam.adapters import base, regrid, time
 from finam.core.schedule import Composition
-from finam.data.grid import GridSpec
+from finam.data import Info, NoGrid, UniformGrid
+from finam.data.tools import UNITS
 from finam.modules import generators, writers
 from finam.modules.visual import schedule
 
@@ -51,19 +52,25 @@ if __name__ == "__main__":
     def precip(t):
         tt = (t - start_date).days
         p = 0.1 * (1 + int(tt / (5 * 365)) % 2)
-        return 1.0 if random.uniform(0, 1) < p else 0.0
+        return (1.0 if random.uniform(0, 1) < p else 0.0) * UNITS.Unit("mm")
 
     precipitation = generators.CallbackGenerator(
-        {"precipitation": precip}, start=start_date, step=timedelta(days=1)
+        {"precipitation": (precip, Info(grid=NoGrid(), units="mm"))},
+        start=start_date,
+        step=timedelta(days=1),
     )
     mhm = mhm.Mhm(
-        grid_spec=GridSpec(5, 5, cell_size=1000),
+        grid=UniformGrid(
+            (21, 11), spacing=(1000.0, 1000.0, 1000.0), data_location="POINTS"
+        ),
         start=start_date,
         step=timedelta(days=7),
     )
     ogs = ogs.Ogs(start=start_date, step=timedelta(days=30))
     formind = formind.Formind(
-        grid_spec=GridSpec(5, 5, cell_size=1000),
+        grid=UniformGrid(
+            (11, 7), spacing=(2000.0, 2000.0, 2000.0), data_location="POINTS"
+        ),
         start=start_date,
         step=timedelta(days=365),
     )
@@ -95,7 +102,7 @@ if __name__ == "__main__":
         )
 
         sleep_mod = generators.CallbackGenerator(
-            {"time": lambda t: sys_time.sleep(sleep_seconds)},
+            {"time": (lambda t: sys_time.sleep(sleep_seconds), Info(grid=NoGrid()))},
             start=start_date,
             step=timedelta(days=1),
         )
@@ -103,7 +110,8 @@ if __name__ == "__main__":
     composition = Composition(
         [precipitation, mhm, ogs, formind]
         + ([mhm_csv, ogs_csv, formind_csv] if write_files else [])
-        + ([schedule_view, sleep_mod] if schedule_view else [])
+        + ([schedule_view, sleep_mod] if schedule_view else []),
+        log_level=logging.DEBUG,
     )
     composition.initialize()
 
@@ -118,15 +126,20 @@ if __name__ == "__main__":
     (  # mHM -> Formind (soil moisture)
         mhm.outputs["soil_water"]
         >> time.LinearIntegration()
+        >> regrid.Linear(fill_with_nearest=True)
         >> formind.inputs["soil_water"]
     )
 
     (  # Formind -> mHM (LAI)
-        formind.outputs["LAI"] >> time.NextValue() >> mhm.inputs["LAI"]
+        formind.outputs["LAI"]
+        >> time.NextValue()
+        >> regrid.Linear(fill_with_nearest=True)
+        >> mhm.inputs["LAI"]
     )
 
     (  # mHM -> OGS (base_flow)
         mhm.outputs["GW_recharge"]
+        >> base.GridToValue(func=np.sum)
         >> time.LinearIntegration()
         >> base.Scale(ogs.step.days)
         >> ogs.inputs["GW_recharge"]
@@ -144,26 +157,30 @@ if __name__ == "__main__":
 
         (  # mHM/Formind -> CSV (LAI input)
             formind.outputs["LAI"]
-            >> base.GridToValue(func=np.ma.mean)
+            >> base.GridToValue(func=np.mean)
             >> time.NextValue()
             >> mhm_csv.inputs["LAI_in"]
         )
 
         (  # mHM -> CSV (soil_water)
             mhm.outputs["soil_water"]
-            >> base.GridToValue(func=np.ma.mean)
+            >> base.GridToValue(func=np.mean)
             >> time.LinearInterpolation()
             >> mhm_csv.inputs["soil_water"]
         )
 
         (  # mHM -> CSV (base_flow)
             mhm.outputs["GW_recharge"]
+            >> base.GridToValue(func=np.mean)
             >> time.LinearInterpolation()
             >> mhm_csv.inputs["GW_recharge"]
         )
 
         (  # mHM -> CSV (ETP)
-            mhm.outputs["ETP"] >> time.LinearInterpolation() >> mhm_csv.inputs["ETP"]
+            mhm.outputs["ETP"]
+            >> base.GridToValue(func=np.mean)
+            >> time.LinearInterpolation()
+            >> mhm_csv.inputs["ETP"]
         )
 
         (  # OGS -> CSV (head)
@@ -173,20 +190,21 @@ if __name__ == "__main__":
         (  # OGS -> CSV (base_flow_in)
             mhm.outputs["GW_recharge"]
             >> time.LinearIntegration()
+            >> base.GridToValue(func=np.mean)
             >> base.Scale(ogs_csv._step.days)
             >> ogs_csv.inputs["GW_recharge_in"]
         )
 
         (  # formind -> CSV (LAI)
             formind.outputs["LAI"]
-            >> base.GridToValue(func=np.ma.mean)
+            >> base.GridToValue(func=np.mean)
             >> time.LinearInterpolation()
             >> formind_csv.inputs["LAI"]
         )
 
         (  # formind -> CSV (soil_water_in)
             mhm.outputs["soil_water"]
-            >> base.GridToValue(func=np.ma.mean)
+            >> base.GridToValue(func=np.mean)
             >> time.LinearIntegration()
             >> formind_csv.inputs["soil_water_in"]
         )

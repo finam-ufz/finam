@@ -4,7 +4,7 @@ from datetime import datetime
 
 from ...core.interfaces import ComponentStatus
 from ...core.sdk import AComponent, CallbackInput
-from ...data import Info, NoGrid
+from ...data import Info
 
 
 class ScheduleView(AComponent):
@@ -37,7 +37,9 @@ class ScheduleView(AComponent):
 
         self._input_names = inputs
         for inp in inputs:
-            self.inputs.add(CallbackInput(self.data_changed, name=inp))
+            self.inputs.add(
+                CallbackInput(self.data_changed, name=inp, info=Info(grid=None))
+            )
 
         self.status = ComponentStatus.CREATED
 
@@ -68,9 +70,7 @@ class ScheduleView(AComponent):
 
         After the method call, the component should have status CONNECTED.
         """
-        self.try_connect(
-            exchange_infos={name: Info(grid=NoGrid()) for name in self.inputs}
-        )
+        self.try_connect()
 
     def _validate(self):
         """Validate the correctness of the component's settings and coupling.

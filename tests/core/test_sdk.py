@@ -118,6 +118,7 @@ class TestOutput(unittest.TestCase):
         out >> inp
 
         out.push_info(info)
+        out.get_info(info)
         out.push_data(100, t)
 
         self.assertTrue(inp.has_source)

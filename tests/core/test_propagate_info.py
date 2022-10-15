@@ -1,9 +1,10 @@
 """
 Unit tests for data info propagation.
 """
-import copy
 import unittest
 from datetime import datetime, timedelta
+
+import numpy as np
 
 from finam.core.interfaces import ComponentStatus, FinamMetaDataError
 from finam.core.schedule import Composition
@@ -73,7 +74,7 @@ class SpecAdapter(AAdapter):
         super().__init__()
 
     def _get_data(self, time):
-        return tools.get_data(self.pull_data(time))
+        return tools.get_data(tools.strip_time(self.pull_data(time)))
 
     def _get_info(self, info):
         in_info = self.exchange_info(info)

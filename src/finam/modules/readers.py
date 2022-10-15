@@ -40,10 +40,9 @@ class CsvReader(ATimeComponent):
         self._date_format = date_format
         self._data = None
         self._row_index = 0
+        self._first_connect = True
 
         self._output_names = outputs
-        for name in outputs:
-            self.outputs.add(name=name, info=Info(grid=NoGrid()))
 
         self.status = ComponentStatus.CREATED
 
@@ -56,14 +55,30 @@ class CsvReader(ATimeComponent):
         import pandas
 
         self._data = pandas.read_csv(self._path, sep=";")
+        for name in self._output_names:
+            self.outputs.add(name=name, info=Info(grid=NoGrid()))
+
+        self.create_connector()
 
     def _connect(self):
         """Push initial values to outputs.
 
         After the method call, the component should have status CONNECTED.
         """
-        self._time = self._push_row(self._data.iloc[self._row_index])
-        self._row_index += 1
+        row = self._data.iloc[0]
+        if self._first_connect:
+            self._time = self._push_row(row, False)
+            self._row_index = 1
+            self._first_connect = False
+
+        if self._date_format is None:
+            self._time = datetime.fromisoformat(row[self._time_column])
+        else:
+            self._time = datetime.strptime(row[self._time_column], self._date_format)
+
+        self.try_connect(
+            time=self._time, push_data={name: row[name] for name in self.outputs}
+        )
 
     def _validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -77,7 +92,7 @@ class CsvReader(ATimeComponent):
 
         After the method call, the component should have status UPDATED or FINISHED.
         """
-        self._time = self._push_row(self._data.iloc[self._row_index])
+        self._time = self._push_row(self._data.iloc[self._row_index], True)
         self._row_index += 1
 
         if self._row_index >= self._data.shape[0]:
@@ -89,13 +104,14 @@ class CsvReader(ATimeComponent):
         After the method call, the component should have status FINALIZED.
         """
 
-    def _push_row(self, row):
+    def _push_row(self, row, push):
         if self._date_format is None:
             time = datetime.fromisoformat(row[self._time_column])
         else:
             time = datetime.strptime(row[self._time_column], self._date_format)
 
-        for o in self._output_names:
-            self.outputs[o].push_data(row[o], time)
+        if push:
+            for o in self._output_names:
+                self.outputs[o].push_data(row[o], time)
 
         return time
