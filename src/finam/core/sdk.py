@@ -74,13 +74,14 @@ class AComponent(IComponent, Loggable, ABC):
         connecting was completed, CONNECTING if some but not all required initial input(s)
         could be pulled, and `CONNECTING_IDLE` if nothing could be pulled.
         """
-        self.logger.debug("connect")
 
         if self.status == ComponentStatus.INITIALIZED:
+            self.logger.debug("connect: ping phase")
             for _, inp in self.inputs.items():
                 inp.ping()
             self.status = ComponentStatus.CONNECTING
         else:
+            self.logger.debug("connect")
             self._connect()
 
     def _connect(self):
@@ -445,7 +446,7 @@ class Input(IInput, Loggable):
         """Logger name derived from base logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
         # logger hierarchy indicated by "." in name
-        return ".".join(([base_logger.name, "INPUT", self.name]))
+        return ".".join(([base_logger.name, "<-", self.name]))
 
     @property
     def uses_base_logger_name(self):
@@ -714,7 +715,7 @@ class Output(IOutput, Loggable):
         """Logger name derived from base logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
         # logger hierarchy indicated by "." in name
-        return ".".join(([base_logger.name, "OUTPUT", self.name]))
+        return ".".join(([base_logger.name, "->", self.name]))
 
     @property
     def uses_base_logger_name(self):
@@ -879,7 +880,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
     def logger_name(self):
         """Logger name derived from source logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
-        return ".".join(([base_logger.name, "ADAPTER", self.name]))
+        return ".".join(([base_logger.name, " >> ", self.name]))
 
 
 class IOType(IntEnum):
