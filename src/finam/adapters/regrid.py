@@ -141,7 +141,7 @@ class Linear(ARegridding):
         in_data = self.pull_data(time)
 
         if isinstance(self.input_grid, StructuredGrid):
-            self.inter.values = tools.get_magnitude(np.squeeze(in_data))
+            self.inter.values = tools.get_magnitude(tools.strip_time(in_data))
             res = self.inter(self.output_grid.data_points)
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values.flatten(

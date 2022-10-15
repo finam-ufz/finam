@@ -1,7 +1,6 @@
 """
 Adapters for direct probing from link connections.
 """
-
 from ..core.sdk import AAdapter
 from ..data import tools
 
@@ -32,6 +31,6 @@ class CallbackProbe(AAdapter):
         array_like
             data-set for the requested time.
         """
-        data = self.pull_data(time)
+        data = tools.get_data(tools.strip_time(self.pull_data(time)))
         self.callback(data, time)
-        return tools.get_data(data)
+        return data

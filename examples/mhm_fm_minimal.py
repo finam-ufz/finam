@@ -24,7 +24,7 @@ if __name__ == "__main__":
         return (1.0 if random.uniform(0, 1) < p else 0.0) * UNITS.Unit("mm")
 
     precipitation = generators.CallbackGenerator(
-        callbacks={"precipitation": (precip, Info(grid=NoGrid(), units="mm"))},
+        {"precipitation": (precip, Info(grid=NoGrid(), units="mm"))},
         start=start_date,
         step=timedelta(days=1),
     )

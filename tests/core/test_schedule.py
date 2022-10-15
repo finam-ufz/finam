@@ -1,9 +1,10 @@
 """
 Unit tests for the driver/scheduler.
 """
-
 import unittest
 from datetime import datetime, timedelta
+
+import numpy as np
 
 from finam.adapters.base import Scale
 from finam.core.interfaces import ComponentStatus, FinamStatusError, NoBranchAdapter
@@ -92,7 +93,7 @@ class MockupCircularComponent(ATimeComponent):
         push_data = {}
         pulled_data = self.connector.in_data["Input"]
         if pulled_data is not None:
-            push_data["Output"] = tools.get_data(pulled_data)
+            push_data["Output"] = tools.get_data(tools.strip_time(pulled_data))
 
         self.try_connect(
             self.time,
@@ -106,7 +107,9 @@ class MockupCircularComponent(ATimeComponent):
     def _update(self):
         pulled = self.inputs["Input"].pull_data(self.time)
         self._time += self._step
-        self.outputs["Output"].push_data(tools.get_data(pulled), self.time)
+        self.outputs["Output"].push_data(
+            tools.get_data(tools.strip_time(pulled)), self.time
+        )
 
     def _finalize(self):
         pass
@@ -118,11 +121,11 @@ class MockupConsumerComponent(ATimeComponent):
         self.status = ComponentStatus.CREATED
 
     def _initialize(self):
-        self.inputs.add(name="Input")
+        self.inputs.add(name="Input", info=Info(grid=NoGrid()))
         self.create_connector()
 
     def _connect(self):
-        self.try_connect(exchange_infos=Info(grid=NoGrid()))
+        self.try_connect()
 
 
 class CallbackAdapter(AAdapter):

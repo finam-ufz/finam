@@ -76,32 +76,36 @@ class Mhm(ATimeComponent):
 
     def _update(self):
         # Retrieve inputs
-        precipitation = self.inputs["precipitation"].pull_data(self.time)
-        lai = self.inputs["LAI"].pull_data(self.time)
+        precipitation = tools.strip_time(
+            self.inputs["precipitation"].pull_data(self.time)
+        )
+        lai = tools.strip_time(self.inputs["LAI"].pull_data(self.time))
 
         # Run the model step here
         base_flow = 0.0
-        total_recharge = 0.0
-        mean_evaporation = 0.0
-        for i in range(len(self.soil_water.data)):
-            sm = self.soil_water.data[i]
-            sm += tools.get_magnitude(precipitation)
-            recharge = 0.1 * sm
-            evaporation = 0.5 * sm * (1.0 - np.exp(-0.05 * lai.data[i]))
-            sm -= recharge + evaporation
-            self.soil_water.data[i] = sm
+        mm = tools.UNITS.Unit("mm")
+        total_recharge = 0.0 * mm
+        mean_evaporation = 0.0 * mm
+        for x in range(self.soil_water.shape[1]):
+            for y in range(self.soil_water.shape[2]):
+                sm = self.soil_water[0, x, y]
+                sm += tools.get_magnitude(precipitation)
+                recharge = 0.1 * sm
+                evaporation = 0.5 * sm * (1.0 - np.exp(-0.05 * lai[x, y]))
+                sm -= recharge + evaporation
+                self.soil_water[0, x, y] = sm
 
-            total_recharge += recharge
-            mean_evaporation += evaporation
+                total_recharge += recharge * mm
+                mean_evaporation += evaporation * mm
 
         mean_evaporation /= float(len(self.soil_water.data))
 
         # Increment model time
         self._time += self._step
         # Push model state to outputs
-        self.outputs["soil_water"].push_data(self.soil_water.data, self.time)
-        self.outputs["GW_recharge"].push_data(total_recharge.data, self.time)
-        self.outputs["ETP"].push_data(mean_evaporation.data, self.time)
+        self.outputs["soil_water"].push_data(tools.get_data(self.soil_water), self.time)
+        self.outputs["GW_recharge"].push_data(tools.get_data(total_recharge), self.time)
+        self.outputs["ETP"].push_data(tools.get_data(mean_evaporation), self.time)
 
         # Update component status
         self.status = ComponentStatus.UPDATED

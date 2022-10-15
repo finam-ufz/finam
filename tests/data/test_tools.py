@@ -1,3 +1,4 @@
+import datetime
 import unittest
 from datetime import datetime as dt
 
@@ -102,7 +103,7 @@ class TestDataTools(unittest.TestCase):
         finam.data.tools.check(dar3, "data", info, time)
 
     def test_other_grids(self):
-        gri0 = finam.data.NoGrid()
+        gri0 = finam.data.NoGrid(dim=1)
         gri1 = finam.data.UnstructuredPoints(points=[[0, 0], [0, 2], [2, 2]])
         info = finam.data.Info(gri0, units="s")
         data = np.arange(3)
@@ -111,3 +112,34 @@ class TestDataTools(unittest.TestCase):
 
         self.assertTrue("dim_0" in dar0.dims)
         self.assertTrue("id" in dar1.dims)
+
+    def test_strip_time(self):
+        xdata = finam.data.tools.to_xarray(
+            1.0, "data", finam.data.Info(grid=finam.data.NoGrid())
+        )
+        self.assertEqual(xdata.shape, ())
+        stripped = finam.data.tools.strip_time(xdata)
+        self.assertEqual(xdata.shape, stripped.shape)
+
+        xdata = finam.data.tools.to_xarray(
+            1.0,
+            "data",
+            finam.data.Info(grid=finam.data.NoGrid()),
+            datetime.datetime(2000, 1, 1),
+        )
+        self.assertEqual(xdata.shape, (1,))
+        stripped = finam.data.tools.strip_time(xdata)
+        self.assertEqual(stripped.shape, ())
+
+        xdata = finam.data.tools.to_xarray(
+            [1.0, 2.0, 3.0],
+            "data",
+            finam.data.Info(grid=finam.data.NoGrid(dim=1)),
+            datetime.datetime(2000, 1, 1),
+        )
+        self.assertEqual(xdata.shape, (1, 3))
+        stripped = finam.data.tools.strip_time(xdata)
+        self.assertEqual(stripped.shape, (3,))
+
+        with self.assertRaises(finam.data.tools.FinamDataError):
+            stripped_ = finam.data.tools.strip_time(np.asarray([1.0, 2.0]))
