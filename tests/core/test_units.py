@@ -9,11 +9,10 @@ import numpy as np
 from finam.core.interfaces import ComponentStatus, FinamMetaDataError
 from finam.core.schedule import Composition
 from finam.core.sdk import ATimeComponent
-from finam.data import Info, tools
+from finam.data import Info, NoGrid, tools
 from finam.data.grid_spec import UniformGrid
 from finam.data.grid_tools import Location
 from finam.modules.generators import CallbackGenerator
-from finam.tools.connect_helper import ConnectHelper
 
 
 class MockupConsumer(ATimeComponent):
@@ -26,7 +25,7 @@ class MockupConsumer(ATimeComponent):
         self.data = None
 
     def _initialize(self):
-        self.inputs.add(name="Input", info=Info(units=self.units))
+        self.inputs.add(name="Input", info=Info(grid=None, units=self.units))
         self.create_connector(required_in_data=["Input"])
 
     def _connect(self):

@@ -293,9 +293,10 @@ class Input(IInput, Loggable):
             raise ValueError("Input: needs a name.")
         self.name = name
         if info_kwargs:
+            if info is not None:
+                raise ValueError("Input: can't use **kwargs in combination with info")
             info = Info(**info_kwargs)
         self._input_info = info
-
         self._in_info_exchanged = False
 
     @property
@@ -405,13 +406,10 @@ class Input(IInput, Loggable):
         with LogError(self.logger):
             if self._in_info_exchanged:
                 raise FinamMetaDataError("Input info was already exchanged.")
-
             if self._input_info is not None and info is not None:
                 raise FinamMetaDataError("An internal info was already provided")
-
             if self._input_info is None and info is None:
                 raise FinamMetaDataError("No metadata provided")
-
             if info is None:
                 info = self._input_info
 
@@ -500,6 +498,8 @@ class Output(IOutput, Loggable):
         self.name = name
 
         if info_kwargs:
+            if info is not None:
+                raise ValueError("Input: can't use **kwargs in combination with info")
             info = Info(**info_kwargs)
         if info is not None:
             self.push_info(info)
