@@ -1,8 +1,11 @@
 """
 Unit tests for the driver/scheduler.
 """
+import logging
+import os
 import unittest
 from datetime import datetime, timedelta
+from tempfile import TemporaryDirectory
 
 from finam import (
     AAdapter,
@@ -136,7 +139,7 @@ class NbAdapter(AAdapter, NoBranchAdapter):
 
 
 class TestComposition(unittest.TestCase):
-    def test_init_run(self):
+    def test_init(self):
         module = MockupComponent(callbacks={"Output": lambda t: t}, step=timedelta(1.0))
         composition = Composition([module])
         composition.initialize()
@@ -180,6 +183,42 @@ class TestComposition(unittest.TestCase):
             composition._validate()
 
         self.assertTrue("Unconnected input" in str(context.exception))
+
+    def test_log_file(self):
+        with TemporaryDirectory() as tmp:
+            log_file = os.path.join(tmp, "test.log")
+
+            module1 = MockupComponent(
+                callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+            )
+            module2 = MockupDependentComponent(step=timedelta(1.0))
+
+            composition = Composition(
+                [module2, module1], log_level=logging.DEBUG, log_file=log_file
+            )
+            composition.initialize()
+
+            module1.outputs["Output"] >> module2.inputs["Input"]
+
+            composition.run(t_max=datetime(2000, 1, 2))
+
+            with open(log_file) as f:
+                lines = f.readlines()
+                self.assertNotEqual(len(lines), 0)
+
+    def test_fail_time(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+        )
+        composition = Composition([module1])
+        composition.initialize()
+
+        with self.assertRaises(ValueError):
+            composition.run(t_max=100)
+
+    def test_base_logger(self):
+        composition = Composition([])
+        self.assertFalse(composition.uses_base_logger_name)
 
     def test_iterative_connect(self):
         module1 = MockupComponent(

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from os import path
 from tempfile import TemporaryDirectory
 
-from numpy.testing import assert_array_almost_equal, assert_array_equal
+from numpy.testing import assert_array_equal
 
 from finam import Composition, Info, NoGrid
 from finam.modules.generators import CallbackGenerator

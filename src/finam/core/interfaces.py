@@ -129,17 +129,6 @@ class ITimeComponent(IComponent, ABC):
         """The component's current simulation time."""
 
 
-class IMpiComponent(ABC):
-    """Interface for components which require MPI processes."""
-
-    @abstractmethod
-    def run_mpi(self):
-        """Run a worker process for the component. This is called for all processes except rank 0.
-
-        Use ``core.mpi.is_null(comm)`` to test if the current process is in the component's communicator.
-        """
-
-
 class IInput(ABC):
     """Interface for input slots."""
 
