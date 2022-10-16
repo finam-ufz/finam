@@ -6,10 +6,10 @@ from pyevtk.hl import imageToVTK
 
 from ..tools import get_enum_value
 from .grid_tools import (
-    Grid,
-    Location,
     CellType,
+    Grid,
     GridBase,
+    Location,
     StructuredGrid,
     check_axes_monotonicity,
     gen_axes,

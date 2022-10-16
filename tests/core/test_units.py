@@ -6,12 +6,17 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam.core.interfaces import ComponentStatus, FinamMetaDataError
-from finam.core.schedule import Composition
-from finam.core.sdk import ATimeComponent
-from finam.data import Info, NoGrid, tools
-from finam.data.grid_spec import UniformGrid
-from finam.data.grid_tools import Location
+from finam import (
+    UNITS,
+    ATimeComponent,
+    ComponentStatus,
+    Composition,
+    FinamMetaDataError,
+    Info,
+    Location,
+    UniformGrid,
+)
+from finam import data as tools
 from finam.modules.generators import CallbackGenerator
 
 
@@ -52,7 +57,7 @@ class TestUnits(unittest.TestCase):
             grid=UniformGrid(
                 dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
             ),
-            units=tools.UNITS.meter,
+            units=UNITS.meter,
         )
 
         in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
@@ -64,7 +69,7 @@ class TestUnits(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        sink = MockupConsumer(datetime(2000, 1, 1), tools.UNITS.kilometer)
+        sink = MockupConsumer(datetime(2000, 1, 1), UNITS.kilometer)
 
         composition = Composition([source, sink])
         composition.initialize()
@@ -73,10 +78,8 @@ class TestUnits(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 2))
 
-        self.assertEqual(
-            sink.inputs["Input"].info.meta, {"units": tools.UNITS.kilometer}
-        )
-        self.assertEqual(tools.get_units(sink.data), tools.UNITS.kilometer)
+        self.assertEqual(sink.inputs["Input"].info.meta, {"units": UNITS.kilometer})
+        self.assertEqual(tools.get_units(sink.data), UNITS.kilometer)
         self.assertEqual(tools.get_magnitude(sink.data)[0, 0, 0], 0.001)
 
     def test_units_fail(self):
@@ -84,7 +87,7 @@ class TestUnits(unittest.TestCase):
             grid=UniformGrid(
                 dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
             ),
-            units=tools.UNITS.meter,
+            units=UNITS.meter,
         )
 
         in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
@@ -96,7 +99,7 @@ class TestUnits(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        sink = MockupConsumer(datetime(2000, 1, 1), tools.UNITS.seconds)
+        sink = MockupConsumer(datetime(2000, 1, 1), UNITS.seconds)
 
         composition = Composition([source, sink])
         composition.initialize()

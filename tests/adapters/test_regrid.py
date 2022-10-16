@@ -7,13 +7,17 @@ from datetime import datetime, timedelta
 import numpy as np
 import pint
 
+from finam import (
+    ATimeComponent,
+    ComponentStatus,
+    Composition,
+    FinamMetaDataError,
+    Info,
+    Location,
+    RectilinearGrid,
+    UniformGrid,
+)
 from finam.adapters.regrid import Linear, Nearest
-from finam.core.interfaces import ComponentStatus, FinamMetaDataError
-from finam.core.schedule import Composition
-from finam.core.sdk import ATimeComponent, Input
-from finam.data import Info
-from finam.data.grid_spec import RectilinearGrid, UniformGrid
-from finam.data.grid_tools import Location
 from finam.modules.generators import CallbackGenerator
 
 
@@ -248,8 +252,6 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink_2.data[0, 1, 1], 0.25 * reg.meter)
 
     def test_regrid_multi_fail(self):
-        reg = pint.UnitRegistry(force_ndarray_like=True)
-
         in_info = Info(
             UniformGrid(
                 dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS

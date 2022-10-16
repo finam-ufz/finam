@@ -9,8 +9,9 @@ import numpy as np
 import pint
 from numpy.testing import assert_allclose
 
+from finam import Info, NoGrid, UniformGrid
+from finam import data as fmdata
 from finam.adapters.base import Callback, GridToValue, Scale, ValueToGrid
-from finam.data import Info, NoGrid, UniformGrid, tools
 from finam.modules.generators import CallbackGenerator
 
 reg = pint.UnitRegistry(force_ndarray_like=True)
@@ -25,7 +26,7 @@ class TestCallback(unittest.TestCase):
         )
 
         self.adapter = Callback(
-            callback=lambda v, t: tools.get_magnitude(tools.strip_time(v)) * 2
+            callback=lambda v, t: fmdata.get_magnitude(fmdata.strip_time(v)) * 2
         )
 
         self.source.initialize()
@@ -36,6 +37,8 @@ class TestCallback(unittest.TestCase):
         self.source.connect()
         self.source.connect()
         self.source.validate()
+
+        print(self.adapter.info)
 
     def test_callback_adapter(self):
         t = datetime(2000, 1, 1)
@@ -141,8 +144,8 @@ class TestValueToGrid(unittest.TestCase):
         _reference_grid, reference_data = create_grid(10, 10, 1.0)
         out_data = self.adapter.get_data(datetime(2000, 1, 1))
 
-        assert_allclose(tools.get_magnitude(out_data)[0, ...], reference_data)
-        self.assertEqual(str(tools.get_units(out_data)), "m")
+        assert_allclose(fmdata.get_magnitude(out_data)[0, ...], reference_data)
+        self.assertEqual(str(fmdata.get_units(out_data)), "m")
 
 
 def create_grid(cols, rows, value):

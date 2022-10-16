@@ -2,9 +2,8 @@ import logging
 import unittest
 from datetime import datetime
 
-from finam.core.interfaces import ComponentStatus
-from finam.core.sdk import Input, IOList, Output
-from finam.data import Info, NoGrid
+from finam import ComponentStatus, Info, Input, NoGrid, Output
+from finam.core.sdk import IOList
 from finam.tools.connect_helper import ConnectHelper
 
 

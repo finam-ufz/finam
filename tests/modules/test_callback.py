@@ -3,18 +3,17 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam.core.schedule import Composition
-from finam.data import Info, NoGrid
+from finam import Composition, Info, NoGrid
 from finam.modules.callback import CallbackComponent
 from finam.modules.generators import CallbackGenerator
 
 
-def transform(inputs, time):
+def transform(inputs, _time):
     inp = inputs["In1"]
     return {"Out1": 0.0 if inp is None else inputs["In1"] * 2.0}
 
 
-def consume(inputs, time):
+def consume(_inputs, _time):
     return {}
 
 

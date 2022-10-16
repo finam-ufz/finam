@@ -120,7 +120,7 @@ class Composition(Loggable):
 
         Parameters
         ----------
-        t_max : datetime
+        t_max : datetime.datatime
             Simulation time up to which to simulate.
         """
         self._validate()

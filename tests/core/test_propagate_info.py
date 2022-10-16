@@ -4,12 +4,16 @@ Unit tests for data info propagation.
 import unittest
 from datetime import datetime, timedelta
 
-import numpy as np
-
-from finam.core.interfaces import ComponentStatus, FinamMetaDataError
-from finam.core.schedule import Composition
-from finam.core.sdk import AAdapter, ATimeComponent, Input, Output
-from finam.data import Info, NoGrid, tools
+from finam import (
+    AAdapter,
+    ATimeComponent,
+    ComponentStatus,
+    Composition,
+    FinamMetaDataError,
+    Info,
+    NoGrid,
+)
+from finam import data as tools
 from finam.modules.generators import CallbackGenerator
 
 

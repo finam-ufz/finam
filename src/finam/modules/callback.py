@@ -11,13 +11,13 @@ class CallbackComponent(ATimeComponent):
 
     Parameters
     ----------
-    inputs : dict of (name, info)
+    inputs : dict[str, Info]
         Input names and data info.
-    outputs : dict of (name, info)
+    outputs : dict[name, Info]
         Output names and data info.
     callback
         Callback f({inputs}, time) -> {outputs}
-    start : datetime
+    start : datetime.datatime
         Start date and time
     step : timedelta
         Time step

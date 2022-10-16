@@ -3,9 +3,8 @@ import unittest
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
 
-from finam.data.grid_spec import EsriGrid, NoGrid, UniformGrid, UnstructuredGrid
+from finam import CellType, EsriGrid, NoGrid, UniformGrid, UnstructuredGrid
 from finam.data.grid_tools import (
-    CellType,
     canonical_data,
     check_axes_monotonicity,
     gen_axes,

@@ -5,17 +5,19 @@ Unit tests for the sdk implementations.
 import unittest
 from datetime import datetime
 
-from finam.core.interfaces import ComponentStatus, FinamLogError, FinamStatusError
-from finam.core.schedule import Composition
-from finam.core.sdk import (
+from finam import (
     AAdapter,
     ATimeComponent,
     CallbackInput,
+    ComponentStatus,
+    Composition,
+    FinamLogError,
+    FinamStatusError,
+    Info,
     Input,
-    IOList,
-    Output,
+    NoGrid,
 )
-from finam.data import Info, NoGrid
+from finam.core.sdk import IOList, Output
 
 
 class MockupAdapter(AAdapter):
@@ -108,7 +110,7 @@ class TestOutput(unittest.TestCase):
         t = datetime(2000, 1, 1)
         info = Info(grid=NoGrid(), meta={"test": 0})
 
-        def callback(clr, time):
+        def callback(_clr, _time):
             nonlocal counter
             counter += 1
 
@@ -136,7 +138,7 @@ class TestCallbackInput(unittest.TestCase):
         counter = 0
         t = datetime(2000, 1, 1)
 
-        def callback(clr, time):
+        def callback(clr, _time):
             nonlocal caller
             nonlocal counter
             caller = clr

@@ -72,8 +72,8 @@ class ValueToGrid(AAdapter):
 
     Parameters
     ----------
-    grid_spec
-        Grid specification.
+    grid: Grid
+        Grid specification to create grid for
     """
 
     def __init__(self, grid):

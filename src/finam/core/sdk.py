@@ -232,7 +232,7 @@ class AComponent(IComponent, Loggable, ABC):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             time for data pulls
         exchange_infos : dict
             currently available input data infos by input name
@@ -350,7 +350,7 @@ class Input(IInput, Loggable):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
@@ -360,7 +360,7 @@ class Input(IInput, Loggable):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             Simulation time to get the data for.
 
         Returns
@@ -476,7 +476,7 @@ class CallbackInput(Input):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
@@ -564,7 +564,7 @@ class Output(IOutput, Loggable):
         ----------
         data : array_like
             Data set to push.
-        time : datetime
+        time : datetime.datatime
             Simulation time of the data set.
         """
         self.logger.debug("push data")
@@ -602,7 +602,7 @@ class Output(IOutput, Loggable):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             Simulation time of the simulation.
         """
         self.logger.debug("notify targets")
@@ -618,7 +618,7 @@ class Output(IOutput, Loggable):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             simulation time to get the data for.
 
         Returns
@@ -692,8 +692,8 @@ class Output(IOutput, Loggable):
 
         Parameters
         ----------
-        other : Output
-            The adapter or output to add as target to this output.
+        other : Input
+            The adapter or input to add as target to this output.
 
         Returns
         -------
@@ -734,7 +734,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
     @final
     @property
     def info(self):
-        raise NotImplementedError("Property `info` is not implemented for adapters")
+        return self._output_info
 
     @final
     def push_data(self, data, time):
@@ -746,7 +746,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
         ----------
         data : array_like
             Data set to push.
-        time : datetime
+        time : datetime.datatime
             Simulation time of the data set.
         """
         self.logger.debug("push data")
@@ -762,7 +762,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
@@ -781,7 +781,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             Simulation time of the notification.
         """
 
@@ -860,7 +860,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
 
         Returns
         -------
-        dict
+        Info
             delivered parameters
         """
         self.logger.debug("exchanging info")

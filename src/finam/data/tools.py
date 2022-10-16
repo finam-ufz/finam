@@ -52,7 +52,7 @@ def _gen_dims(ndim, info, time=None):
         Number of dimensions.
     info : Info
         Info associated with the data.
-    time : datetime or None, optional
+    time : datetime.datatime or None, optional
         Timestamp for the data, by default None
 
     Returns
@@ -82,7 +82,7 @@ def to_xarray(data, name, info, time=None):
         Name of the data.
     info : Info
         Info associated with the data.
-    time : datetime or None, optional
+    time : datetime.datatime or None, optional
         Timestamp for the data, by default None
 
     Returns
@@ -329,7 +329,7 @@ def full(value, name, info, time=None):
         Name of the data.
     info : Info
         Info associated with the data.
-    time : datetime or None, optional
+    time : datetime.datatime or None, optional
         Timestamp for the data, by default None
 
     Returns
@@ -353,7 +353,7 @@ def check(xdata, name, info, time=None, ignore_time=False):
         Name of the data.
     info : Info
         Info associated with the data.
-    time : datetime or None, optional
+    time : datetime.datatime or None, optional
         Timestamp for the data, by default None
     ignore_time : bool
         Allows to ignore the time value; still checks presence of time
@@ -467,7 +467,7 @@ class Info:
 
         Parameters
         ----------
-        grid : Grid
+        grid : Grid or NoGrid or None
             grid specification
         meta : dict
             dictionary of metadata

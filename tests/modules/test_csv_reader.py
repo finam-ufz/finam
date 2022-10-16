@@ -3,9 +3,7 @@ from datetime import datetime
 from os import path
 from tempfile import TemporaryDirectory
 
-from finam.core.interfaces import ComponentStatus
-from finam.core.sdk import Input
-from finam.data import Info, NoGrid
+from finam import ComponentStatus, Info, Input, NoGrid
 from finam.modules.readers import CsvReader
 
 

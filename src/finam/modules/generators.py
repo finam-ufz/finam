@@ -21,7 +21,7 @@ class CallbackGenerator(ATimeComponent):
     ----------
     callbacks : dict of callable
         Dict of tuples (callback, info). ``callback(data, time)`` per output name, returning the generated data.
-    start : datetime
+    start : datetime.datatime
         Starting time.
     step : timedelta
         Time step.
