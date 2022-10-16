@@ -16,6 +16,7 @@ from finam import (
 )
 from finam import data as tools
 from finam.adapters.base import Scale
+from finam.modules import debug
 
 
 class MockupComponent(ATimeComponent):
@@ -120,19 +121,6 @@ class MockupCircularComponent(ATimeComponent):
         pass
 
 
-class MockupConsumerComponent(ATimeComponent):
-    def __init__(self):
-        super().__init__()
-        self.status = ComponentStatus.CREATED
-
-    def _initialize(self):
-        self.inputs.add(name="Input", grid=NoGrid())
-        self.create_connector()
-
-    def _connect(self):
-        self.try_connect()
-
-
 class CallbackAdapter(AAdapter):
     def __init__(self, callback):
         super().__init__()
@@ -180,7 +168,11 @@ class TestComposition(unittest.TestCase):
         self.assertTrue("Disallowed branching" in str(context.exception))
 
     def test_validate_inputs(self):
-        module = MockupConsumerComponent()
+        module = debug.DebugConsumer(
+            {"Input": Info(grid=None)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
         composition = Composition([module])
         composition.initialize()
 
