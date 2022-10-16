@@ -1,5 +1,5 @@
 """
-A prototype for model coupling - interfaces and driver.
+The FINAM model coupling framework.
 """
 
 from . import core, data, tools

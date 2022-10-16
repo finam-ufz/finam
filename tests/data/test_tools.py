@@ -4,6 +4,7 @@ from datetime import datetime as dt
 
 import numpy as np
 import pint
+import xarray as xr
 
 import finam
 
@@ -141,3 +142,85 @@ class TestDataTools(unittest.TestCase):
 
         with self.assertRaises(finam.FinamDataError):
             stripped_ = finam.data.strip_time(np.asarray([1.0, 2.0]))
+
+        arr1 = finam.data.to_xarray(
+            1.0,
+            "A",
+            finam.Info(grid=finam.NoGrid()),
+            time=datetime.datetime(2000, 1, 1),
+        )
+        arr2 = finam.data.to_xarray(
+            1.0,
+            "A",
+            finam.Info(grid=finam.NoGrid()),
+            time=datetime.datetime(2000, 1, 2),
+        )
+        data = xr.concat([arr1, arr2], dim="time")
+        with self.assertRaises(finam.FinamDataError):
+            stripped_ = finam.data.strip_time(data)
+
+    def test_to_xarray(self):
+        with self.assertRaises(finam.FinamDataError):
+            finam.data.to_xarray(
+                np.asarray([1, 2]), "A", finam.Info(grid=finam.NoGrid())
+            )
+
+        with self.assertRaises(finam.FinamDataError):
+            finam.data.to_xarray(
+                1.0 * finam.UNITS.meter, "A", finam.Info(grid=finam.NoGrid())
+            )
+
+        with self.assertRaises(finam.FinamDataError):
+            finam.data.to_xarray(
+                1.0 * finam.UNITS.meter,
+                "A",
+                finam.Info(grid=finam.NoGrid(), units="km"),
+            )
+
+    def test_assert_type(self):
+        finam.data.assert_type(self, "A", 1, [int, float])
+
+        with self.assertRaises(TypeError):
+            finam.data.assert_type(self, "A", "1", [int, float])
+
+    def test_info(self):
+        _info = finam.Info(grid=finam.NoGrid())
+
+        with self.assertRaises(finam.FinamMetaDataError):
+            _info = finam.Info(grid=finam.NoGrid)
+
+        info = finam.Info(grid=finam.NoGrid(), units="m", foo="bar")
+        self.assertEqual(info, info.copy_with())
+
+        self.assertFalse(info.accepts(0, {}))
+        self.assertFalse(info.accepts(finam.Info(grid=None), {}))
+
+        self.assertTrue(info.accepts(finam.Info(grid=finam.NoGrid(), units="m"), {}))
+        self.assertTrue(info.accepts(finam.Info(grid=finam.NoGrid(), units="km"), {}))
+        self.assertFalse(info.accepts(finam.Info(grid=finam.NoGrid(), units="s"), {}))
+
+        self.assertFalse(
+            info.accepts(finam.Info(grid=finam.NoGrid(), units="m", foo="baz"), {})
+        )
+
+        self.assertEqual(info, info.copy())
+        self.assertNotEqual(info, 0)
+
+        with self.assertRaises(AttributeError):
+            info.__getattr__("bar")
+
+        info.__setattr__("bar", "baz")
+        self.assertEqual(info.bar, "baz")
+
+    def test_check_shape(self):
+        xdata = finam.data.to_xarray(
+            1.0,
+            "data",
+            finam.Info(grid=finam.NoGrid()),
+            datetime.datetime(2000, 1, 1),
+        )
+
+        finam.data.tools._check_shape(xdata, finam.NoGrid(), with_time=True)
+
+        with self.assertRaises(finam.FinamDataError):
+            finam.data.tools._check_shape(xdata, finam.NoGrid(dim=1), with_time=True)
