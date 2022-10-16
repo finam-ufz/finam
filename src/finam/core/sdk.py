@@ -378,7 +378,7 @@ class Input(IInput, Loggable):
             data = tools.to_units(data, self._input_info.units)
 
         with LogError(self.logger):
-            tools.check(data, data.name, self._input_info, time)
+            tools.check(data, data.name, self._input_info, time, ignore_time=True)
 
         return data
 
@@ -500,7 +500,7 @@ class Output(IOutput, Loggable):
 
         if info_kwargs:
             if info is not None:
-                raise ValueError("Input: can't use **kwargs in combination with info")
+                raise ValueError("Output: can't use **kwargs in combination with info")
             info = Info(**info_kwargs)
         if info is not None:
             self.push_info(info)
@@ -579,7 +579,7 @@ class Output(IOutput, Loggable):
         if self.has_targets and self._out_infos_exchanged < self._connected_inputs:
             raise FinamNoDataError("Can't push data before output info was exchanged.")
 
-        self.data = data
+        self.data = tools.to_xarray(data, self.name, self.info, time)
         self.notify_targets(time)
 
     def push_info(self, info):
@@ -638,8 +638,7 @@ class Output(IOutput, Loggable):
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        with LogError(self.logger):
-            return tools.to_xarray(self.data, self.name, self.info, time)
+        return self.data
 
     def get_info(self, info):
         """Exchange and get the output's data info.
