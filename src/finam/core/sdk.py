@@ -500,7 +500,7 @@ class Output(IOutput, Loggable):
 
         if info_kwargs:
             if info is not None:
-                raise ValueError("Input: can't use **kwargs in combination with info")
+                raise ValueError("Output: can't use **kwargs in combination with info")
             info = Info(**info_kwargs)
         if info is not None:
             self.push_info(info)
