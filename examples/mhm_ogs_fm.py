@@ -33,10 +33,8 @@ from datetime import datetime, timedelta
 import numpy as np
 from dummy_models import formind, mhm, ogs
 
+from finam import UNITS, Composition, Info, NoGrid, UniformGrid
 from finam.adapters import base, regrid, time
-from finam.core.schedule import Composition
-from finam.data import Info, NoGrid, UniformGrid
-from finam.data.tools import UNITS
 from finam.modules import generators, writers
 from finam.modules.visual import schedule
 

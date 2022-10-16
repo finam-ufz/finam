@@ -30,9 +30,8 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam.core.interfaces import ComponentStatus
-from finam.core.sdk import ATimeComponent
-from finam.data import Info, NoGrid, tools
+from finam import UNITS, ATimeComponent, ComponentStatus, Info, NoGrid
+from finam import data as tools
 
 
 class Mhm(ATimeComponent):
@@ -83,7 +82,7 @@ class Mhm(ATimeComponent):
 
         # Run the model step here
         base_flow = 0.0
-        mm = tools.UNITS.Unit("mm")
+        mm = UNITS.Unit("mm")
         total_recharge = 0.0 * mm
         mean_evaporation = 0.0 * mm
         for x in range(self.soil_water.shape[1]):
