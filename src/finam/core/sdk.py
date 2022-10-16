@@ -378,7 +378,7 @@ class Input(IInput, Loggable):
             data = tools.to_units(data, self._input_info.units)
 
         with LogError(self.logger):
-            tools.check(data, data.name, self._input_info, time)
+            tools.check(data, data.name, self._input_info, time, ignore_time=True)
 
         return data
 

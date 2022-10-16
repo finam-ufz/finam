@@ -341,7 +341,7 @@ def full(value, name, info, time=None):
     return to_xarray(np.full(shape, value), name, info, time)
 
 
-def check(xdata, name, info, time=None):
+def check(xdata, name, info, time=None, ignore_time=False):
     """
     Check if data matches given info.
 
@@ -355,6 +355,8 @@ def check(xdata, name, info, time=None):
         Info associated with the data.
     time : datetime or None, optional
         Timestamp for the data, by default None
+    ignore_time : bool
+        Allows to ignore the time value; still checks presence of time
 
     Raises
     ------
@@ -369,7 +371,7 @@ def check(xdata, name, info, time=None):
     if time is not None:
         if not has_time(xdata):
             raise FinamDataError("check: given data should hold a time.")
-        if time != get_time(xdata)[0]:
+        if not ignore_time and time != get_time(xdata)[0]:
             raise FinamDataError("check: given data has wrong time.")
 
         _check_shape(xdata, info.grid, True)
