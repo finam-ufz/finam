@@ -8,7 +8,8 @@ from datetime import datetime
 from enum import IntEnum
 from typing import final
 
-from ..data import Info, tools
+from ..data import tools
+from ..data.tools import Info
 from ..tools.connect_helper import ConnectHelper
 from ..tools.enum_helper import get_enum_value
 from ..tools.log_helper import LogError, loggable

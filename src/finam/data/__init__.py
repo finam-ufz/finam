@@ -4,6 +4,8 @@ Specialized data types for exchanges between models/modules.
 from .grid_tools import canonical_data
 from .tools import (
     assert_type,
+    check,
+    check_quantified,
     full,
     full_like,
     get_data,
@@ -21,6 +23,8 @@ from .tools import (
 __all__ = ["canonical_data"]
 __all__ += [
     "assert_type",
+    "check",
+    "check_quantified",
     "full",
     "full_like",
     "get_data",

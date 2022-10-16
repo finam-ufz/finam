@@ -2,7 +2,7 @@
 A prototype for model coupling - interfaces and driver.
 """
 
-from . import adapters, core, data, modules, tools
+from . import core, data, tools
 from .core.interfaces import (
     ComponentStatus,
     FinamLogError,
@@ -34,7 +34,7 @@ except ModuleNotFoundError:  # pragma: no cover
 
 
 __all__ = ["__version__"]
-__all__ += ["adapters", "core", "data", "modules", "tools"]
+__all__ += ["core", "data", "tools"]
 __all__ += [
     "ComponentStatus",
     "FinamLogError",

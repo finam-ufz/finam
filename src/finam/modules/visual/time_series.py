@@ -2,10 +2,9 @@
 
 from datetime import datetime, timedelta
 
-from ...core.interfaces import ComponentStatus
-from ...core.sdk import ATimeComponent
-from ...data import Info, NoGrid, assert_type
-from ...tools.log_helper import LogError
+from ... import ATimeComponent, ComponentStatus, Info, NoGrid
+from ... import data as fmdata
+from ...tools import LogError
 
 
 class TimeSeriesView(ATimeComponent):
@@ -110,7 +109,7 @@ class TimeSeriesView(ATimeComponent):
             if self._updates % self._intervals[i] == 0:
                 value = self.inputs[inp].pull_data(self.time)
                 with LogError(self.logger):
-                    assert_type(self, inp, value, [int, float])
+                    fmdata.assert_type(self, inp, value, [int, float])
 
                 self._x[i].append(self.time)
                 self._data[i].append(value)
