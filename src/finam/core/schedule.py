@@ -137,7 +137,14 @@ class Composition(Loggable):
                 break
 
         for mod in self.modules:
-            self._check_status(mod, [ComponentStatus.UPDATED, ComponentStatus.FINISHED])
+            self._check_status(
+                mod,
+                [
+                    ComponentStatus.VALIDATED,
+                    ComponentStatus.UPDATED,
+                    ComponentStatus.FINISHED,
+                ],
+            )
             mod.finalize()
             self._check_status(mod, [ComponentStatus.FINALIZED])
 
