@@ -4,6 +4,7 @@ Basic linear and nearest neighbour regridding adapters.
 from abc import ABC, abstractmethod
 
 import numpy as np
+from pyproj import Transformer, crs
 from scipy.interpolate import LinearNDInterpolator, RegularGridInterpolator
 from scipy.spatial import KDTree
 
@@ -21,6 +22,7 @@ class ARegridding(AAdapter, ABC):
         self.input_grid = in_grid
         self.output_grid = out_grid
         self.input_meta = None
+        self.transformer = None
 
         self._is_initialized = False
 
@@ -57,6 +59,11 @@ class ARegridding(AAdapter, ABC):
         self.input_grid = self.input_grid or in_info.grid
         self.output_grid = self.output_grid or info.grid
 
+        if self.input_grid.crs is None and self.output_grid.crs is not None:
+            raise FinamMetaDataError("Input grid has a CRS, but output grid does not")
+        if self.output_grid.crs is None and self.input_grid.crs is not None:
+            raise FinamMetaDataError("output grid has a CRS, but input grid does not")
+
         out_info = in_info.copy_with(grid=self.output_grid)
 
         if not self._is_initialized:
@@ -66,6 +73,11 @@ class ARegridding(AAdapter, ABC):
         self.input_meta = in_info.meta
 
         return out_info
+
+    def _transform(self, points):
+        if self.transformer is None:
+            return points
+        return np.asarray(list(self.transformer.itransform(points)))
 
 
 class Nearest(ARegridding):
@@ -77,11 +89,12 @@ class Nearest(ARegridding):
         self.ids = None
 
     def _update_grid_specs(self):
+        self.transformer = _create_transformer(self.input_grid, self.output_grid)
         # generate IDs to select data
         kw = self.tree_options or {}
         tree = KDTree(self.input_grid.data_points, **kw)
         # only store IDs, since they will be constant
-        self.ids = tree.query(self.output_grid.data_points)[1]
+        self.ids = tree.query(self._transform(self.output_grid.data_points))[1]
 
     def _get_data(self, time):
         in_data = self.pull_data(time)
@@ -116,6 +129,8 @@ class Linear(ARegridding):
         self.fill_ids = None
 
     def _update_grid_specs(self):
+        self.transformer = _create_transformer(self.input_grid, self.output_grid)
+
         if isinstance(self.input_grid, StructuredGrid):
             self.inter = RegularGridInterpolator(
                 points=self.input_grid.data_axes,
@@ -129,9 +144,10 @@ class Linear(ARegridding):
             )
         if self.fill_with_nearest:
             # check for outliers once
-            res = self.inter(self.output_grid.data_points)
+            points = self._transform(self.output_grid.data_points)
+            res = self.inter(points)
             self.out_ids = np.isnan(res)
-            out_points = self.output_grid.data_points[self.out_ids]
+            out_points = points[self.out_ids]
             kw = self.tree_options or {}
             tree = KDTree(self.input_grid.data_points, **kw)
             self.fill_ids = tree.query(out_points)[1]
@@ -141,7 +157,7 @@ class Linear(ARegridding):
 
         if isinstance(self.input_grid, StructuredGrid):
             self.inter.values = fmdata.get_magnitude(fmdata.strip_time(in_data))
-            res = self.inter(self.output_grid.data_points)
+            res = self.inter(self._transform(self.output_grid.data_points))
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values.flatten(
                     order=self.input_grid.order
@@ -153,8 +169,19 @@ class Linear(ARegridding):
                 ),
                 dtype=np.double,
             )
-            res = self.inter(self.output_grid.data_points)
+            res = self.inter(self._transform(self.output_grid.data_points))
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values[self.fill_ids, 0]
 
         return res * fmdata.get_units(in_data)
+
+
+def _create_transformer(input_grid, output_grid):
+    in_crs = None if input_grid.crs is None else crs.CRS(input_grid.crs)
+    out_crs = None if output_grid.crs is None else crs.CRS(output_grid.crs)
+    transformer = (
+        None
+        if (in_crs is None and out_crs is None) or in_crs == out_crs
+        else Transformer.from_crs(in_crs, out_crs)
+    )
+    return transformer
