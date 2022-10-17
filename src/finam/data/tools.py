@@ -178,7 +178,10 @@ def get_time(xdata):
         timestamps of the data array.
     """
     if has_time(xdata):
-        return list(pd.to_datetime(xdata["time"]).to_pydatetime())
+        time = xdata["time"]
+        if time.size == 1:
+            time = [time.item()]
+        return list(pd.to_datetime(time).to_pydatetime())
     return None
 
 
