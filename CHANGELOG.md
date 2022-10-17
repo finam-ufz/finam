@@ -2,6 +2,8 @@
 
 ## [unpublished]
 
+## [v0.4.0-rc.1]
+
 ### Data and metadata rework
 
 * Grid specifications for structured and unstructured grids:  
