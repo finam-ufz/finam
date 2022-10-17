@@ -24,10 +24,16 @@
 
 * Removed `GridView` component (new implementation in [finam-plot](https://git.ufz.de/FINAM/finam-plot))
 
+### Usability
+
+* The finam package has a flatter module hierarchy now, so the most important classes are now exported at the top level
+* Component developers do not overwrite interface methods like `update()` anymore, but internal methods like `_update()` instead
+
 ### Other
 
 * More ergonomic input and output creation in components
 * Input and output mappings are immutable after initialization
+* Brought up test coverage to 98%
 
 ## [v0.3.0]
 
