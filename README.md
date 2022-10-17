@@ -1,21 +1,18 @@
 # FINAM
 
-A lightweight framework for component-based model coupling.
+FINAM is an open-source component-based model coupling framework for environmental models.
+It aims at enabling bi-directional online couplings of models for different compartments like geo-, hydro-, pedo- and biosphere.
 
-* [Interfaces](https://git.ufz.de/FINAM/finam/-/blob/main/src/finam/core/interfaces.py)
-* [SDK](https://git.ufz.de/FINAM/finam/-/blob/main/src/finam/core/sdk.py)
-* [Modules](https://git.ufz.de/FINAM/finam/-/blob/main/src/finam/modules)
-* [Adapters](https://git.ufz.de/FINAM/finam/-/blob/main/src/finam/adapters)
+<a href="https://finam.pages.ufz.de" title="FINAM homepage" target="_blank">
+  <img width="300" src="https://git.ufz.de/FINAM/finam-book/-/raw/main/src/images/logo_large.svg" />
+</a>
 
-For detailed documentation, see module `core` [sources](https://git.ufz.de/FINAM/finam/-/blob/main/src/finam/core/__init__.py)
-and the [docs](https://finam.pages.ufz.de/finam/finam.core.html).
+The framework is built in Python, with well-defined interfaces for data exchange.
+This approach allows for coupling of models irrespective of their internal structure, architecture or programming language.
 
-## Examples
+### Resources
 
-Examples and dummy model implementations can be found in folder [examples](https://git.ufz.de/FINAM/finam/-/blob/main/examples/).
-
-Run the model coupling example from the project root:
-
-```
-python examples/mhm_ogs_fm.py
-```
+* FINAM [homepage](https://finam.pages.ufz.de)
+* FINAM [user and developer guide](https://finam.pages.ufz.de/finam-book/)
+* FINAM [source code](https://git.ufz.de/FINAM/finam) and [API docs](https://finam.pages.ufz.de/finam/)
+* FINAM [GitLab group](https://git.ufz.de/FINAM), containing further related projects
