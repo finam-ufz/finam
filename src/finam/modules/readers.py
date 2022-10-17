@@ -4,9 +4,7 @@ Modules for reading data.
 # pylint: disable=E1101
 from datetime import datetime
 
-from ..core.interfaces import ComponentStatus
-from ..core.sdk import ATimeComponent
-from ..data import NoGrid
+from .. import ATimeComponent, ComponentStatus, NoGrid
 
 
 class CsvReader(ATimeComponent):

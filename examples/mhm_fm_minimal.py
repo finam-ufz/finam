@@ -8,10 +8,8 @@ from datetime import datetime, timedelta
 
 from dummy_models import formind, mhm
 
+from finam import UNITS, Composition, Info, NoGrid, UniformGrid
 from finam.adapters import regrid, time
-from finam.core.schedule import Composition
-from finam.data import Info, NoGrid, UniformGrid
-from finam.data.tools import UNITS
 from finam.modules import generators
 
 if __name__ == "__main__":

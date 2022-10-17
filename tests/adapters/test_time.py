@@ -7,14 +7,14 @@ from datetime import datetime, timedelta
 import numpy as np
 import pint
 
+from finam import FinamTimeError, Info, NoGrid, UniformGrid
+from finam import data as tools
 from finam.adapters.time import (
     LinearIntegration,
     LinearInterpolation,
     NextValue,
     PreviousValue,
 )
-from finam.core.interfaces import FinamTimeError
-from finam.data import Info, NoGrid, UniformGrid, tools
 from finam.modules.generators import CallbackGenerator
 
 reg = pint.UnitRegistry(force_ndarray_like=True)
@@ -49,10 +49,10 @@ class TestNextValue(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 2.0)
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 4, 0))
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(100)
 
 
@@ -84,13 +84,13 @@ class TestPreviousValue(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 1.0)
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 1, 0))
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 4, 0))
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(100)
 
 
@@ -121,13 +121,13 @@ class TestLinearInterpolation(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 1.5)
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 1, 0))
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 4, 0))
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(100)
 
 
@@ -186,13 +186,13 @@ class TestLinearGridInterpolation(unittest.TestCase):
             2.0,
         )
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 1, 0))
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 4, 0))
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(100)
 
 
@@ -229,13 +229,13 @@ class TestLinearIntegration(unittest.TestCase):
             tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 4, 0))), 2.0
         )
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 2, 0))
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 5, 0))
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(100)
 
 
@@ -284,13 +284,13 @@ class TestLinearGridIntegration(unittest.TestCase):
             2.0,
         )
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 2, 0))
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 5, 0))
 
-        with self.assertRaises(FinamTimeError) as context:
+        with self.assertRaises(FinamTimeError):
             self.adapter.get_data(100)
 
 

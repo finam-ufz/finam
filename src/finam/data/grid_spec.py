@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from pyevtk.hl import imageToVTK
 
-from ..tools.enum_helper import get_enum_value
+from ..tools import get_enum_value
 from .grid_tools import (
     CellType,
     Grid,

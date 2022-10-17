@@ -174,7 +174,7 @@ class IInput(ABC):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             Simulation time of the notification.
         """
 
@@ -184,7 +184,7 @@ class IInput(ABC):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             Simulation time to get the data for.
 
         Returns
@@ -271,7 +271,7 @@ class IOutput(ABC):
         ----------
         data : array_like
             Data set to push.
-        time : datetime
+        time : datetime.datatime
             Simulation time of the data set.
         """
 
@@ -291,7 +291,7 @@ class IOutput(ABC):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             Simulation time of the simulation.
         """
 
@@ -301,7 +301,7 @@ class IOutput(ABC):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             simulation time to get the data for.
 
         Returns
@@ -342,8 +342,8 @@ class IOutput(ABC):
 
         Parameters
         ----------
-        other : Output
-            The adapter or output to add as target to this output.
+        other : IInput or IAdapter
+            The adapter or input to add as target to this output.
 
         Returns
         -------

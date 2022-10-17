@@ -5,14 +5,15 @@ from tempfile import TemporaryDirectory
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
 
-from finam.data.grid_spec import (
+from finam import (
+    CellType,
     EsriGrid,
+    Location,
     RectilinearGrid,
     UniformGrid,
     UnstructuredGrid,
     UnstructuredPoints,
 )
-from finam.data.grid_tools import CellType, Location
 
 HEADER = [
     "ncols",

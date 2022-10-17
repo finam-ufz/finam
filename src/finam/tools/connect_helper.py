@@ -102,7 +102,7 @@ class ConnectHelper(Loggable):
 
         Parameters
         ----------
-        time : datetime
+        time : datetime.datatime
             time for data pulls
         exchange_infos : dict
             currently available input data infos by input name

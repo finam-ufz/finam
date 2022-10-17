@@ -7,11 +7,10 @@ import numpy as np
 from scipy.interpolate import LinearNDInterpolator, RegularGridInterpolator
 from scipy.spatial import KDTree
 
-from ..core.interfaces import FinamMetaDataError
-from ..core.sdk import AAdapter
-from ..data import tools
+from .. import AAdapter, FinamMetaDataError
+from .. import data as fmdata
 from ..data.grid_spec import StructuredGrid
-from ..tools.log_helper import LogError
+from ..tools import LogError
 
 
 class ARegridding(AAdapter, ABC):
@@ -88,7 +87,7 @@ class Nearest(ARegridding):
         in_data = self.pull_data(time)
 
         res = (
-            tools.get_data(in_data)
+            fmdata.get_data(in_data)
             .reshape(-1, order=self.input_grid.order)[self.ids]
             .reshape(self.output_grid.data_shape, order=self.output_grid.order)
         )
@@ -141,7 +140,7 @@ class Linear(ARegridding):
         in_data = self.pull_data(time)
 
         if isinstance(self.input_grid, StructuredGrid):
-            self.inter.values = tools.get_magnitude(tools.strip_time(in_data))
+            self.inter.values = fmdata.get_magnitude(fmdata.strip_time(in_data))
             res = self.inter(self.output_grid.data_points)
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values.flatten(
@@ -149,7 +148,7 @@ class Linear(ARegridding):
                 )[self.fill_ids]
         else:
             self.inter.values = np.ascontiguousarray(
-                tools.get_magnitude(in_data).reshape(
+                fmdata.get_magnitude(in_data).reshape(
                     (-1, 1), order=self.input_grid.order
                 ),
                 dtype=np.double,
@@ -158,4 +157,4 @@ class Linear(ARegridding):
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values[self.fill_ids, 0]
 
-        return res * tools.get_units(in_data)
+        return res * fmdata.get_units(in_data)

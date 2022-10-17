@@ -5,10 +5,9 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from ..core.interfaces import ComponentStatus
-from ..core.sdk import ATimeComponent
-from ..data import NoGrid, assert_type, tools
-from ..tools.log_helper import LogError
+from .. import ATimeComponent, ComponentStatus, NoGrid
+from .. import data as fmdata
+from ..tools import LogError
 
 
 class CsvWriter(ATimeComponent):
@@ -85,12 +84,14 @@ class CsvWriter(ATimeComponent):
         After the method call, the component should have status UPDATED or FINISHED.
         """
         values = [
-            tools.get_magnitude(tools.strip_time(self.inputs[inp].pull_data(self.time)))
+            fmdata.get_magnitude(
+                fmdata.strip_time(self.inputs[inp].pull_data(self.time))
+            )
             for inp in self._input_names
         ]
         with LogError(self.logger):
             for (value, name) in zip(values, self._input_names):
-                assert_type(self, name, value.item(), [int, float])
+                fmdata.assert_type(self, name, value.item(), [int, float])
 
         self._rows.append([self.time.isoformat()] + values)
 

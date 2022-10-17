@@ -4,13 +4,18 @@ Unit tests for the driver/scheduler.
 import unittest
 from datetime import datetime, timedelta
 
-import numpy as np
-
+from finam import (
+    AAdapter,
+    ATimeComponent,
+    ComponentStatus,
+    Composition,
+    FinamStatusError,
+    Info,
+    NoBranchAdapter,
+    NoGrid,
+)
+from finam import data as tools
 from finam.adapters.base import Scale
-from finam.core.interfaces import ComponentStatus, FinamStatusError, NoBranchAdapter
-from finam.core.schedule import Composition
-from finam.core.sdk import AAdapter, ATimeComponent
-from finam.data import Info, NoGrid, tools
 
 
 class MockupComponent(ATimeComponent):
@@ -248,7 +253,7 @@ class TestComposition(unittest.TestCase):
         module1.outputs["Output"] >> module2.inputs["Input"]
         module2.outputs["Output"] >> module1.inputs["Input"]
 
-        with self.assertRaises(FinamStatusError) as context:
+        with self.assertRaises(FinamStatusError):
             composition.run(t_max=datetime(2000, 1, 31))
 
 

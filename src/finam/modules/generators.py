@@ -2,9 +2,8 @@
 
 from datetime import datetime, timedelta
 
-from ..core.interfaces import ComponentStatus
-from ..core.sdk import ATimeComponent
-from ..tools.log_helper import LogError
+from .. import ATimeComponent, ComponentStatus
+from ..tools import LogError
 
 
 class CallbackGenerator(ATimeComponent):
@@ -22,7 +21,7 @@ class CallbackGenerator(ATimeComponent):
     ----------
     callbacks : dict of callable
         Dict of tuples (callback, info). ``callback(data, time)`` per output name, returning the generated data.
-    start : datetime
+    start : datetime.datatime
         Starting time.
     step : timedelta
         Time step.

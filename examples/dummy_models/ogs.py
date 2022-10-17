@@ -17,9 +17,8 @@ Calculations in each model step are as follows:
 """
 from datetime import datetime, timedelta
 
-from finam.core.interfaces import ComponentStatus
-from finam.core.sdk import ATimeComponent
-from finam.data import Info, NoGrid, tools
+from finam import UNITS, ATimeComponent, ComponentStatus, NoGrid
+from finam import data as tools
 
 
 class Ogs(ATimeComponent):
@@ -33,7 +32,7 @@ class Ogs(ATimeComponent):
 
         self._time = start
         self._step = step
-        self.head = 0 * tools.UNITS.Unit("mm")
+        self.head = 0 * UNITS.Unit("mm")
         self.status = ComponentStatus.CREATED
 
     def _initialize(self):

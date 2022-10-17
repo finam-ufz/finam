@@ -22,9 +22,8 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam.core.interfaces import ComponentStatus
-from finam.core.sdk import ATimeComponent, Input, Output
-from finam.data import Info, assert_type, tools
+from finam import ATimeComponent, ComponentStatus, Info
+from finam import data as tools
 
 
 class Formind(ATimeComponent):
