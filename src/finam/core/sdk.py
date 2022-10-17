@@ -37,7 +37,7 @@ class AComponent(IComponent, Loggable, ABC):
         self._inputs = IOList("INPUT")
         self._outputs = IOList("OUTPUT")
         self.base_logger_name = None
-        self._connector = None
+        self._connector: ConnectHelper = None
 
     @final
     def initialize(self):

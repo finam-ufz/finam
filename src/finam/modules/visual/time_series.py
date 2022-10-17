@@ -107,9 +107,9 @@ class TimeSeriesView(ATimeComponent):
 
         for i, inp in enumerate(self._input_names):
             if self._updates % self._intervals[i] == 0:
-                value = self.inputs[inp].pull_data(self.time)
-                with LogError(self.logger):
-                    fmdata.assert_type(self, inp, value, [int, float])
+                value = fmdata.get_magnitude(
+                    fmdata.strip_time(self.inputs[inp].pull_data(self.time))
+                )
 
                 self._x[i].append(self.time)
                 self._data[i].append(value)

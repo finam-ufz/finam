@@ -35,7 +35,7 @@ class CsvWriter(ATimeComponent):
         List of input names that will be written to file.
     """
 
-    def __init__(self, path, start, step, inputs):
+    def __init__(self, path, start, step, inputs, separator=";"):
         super().__init__()
         with LogError(self.logger):
             if not isinstance(start, datetime):
@@ -46,6 +46,7 @@ class CsvWriter(ATimeComponent):
         self._path = path
         self._step = step
         self._time = start
+        self._separator = separator
 
         self._input_names = inputs
 
@@ -106,7 +107,7 @@ class CsvWriter(ATimeComponent):
             self._path,
             self._rows,
             fmt="%s",
-            delimiter=";",
-            header=";".join(["time"] + self._input_names),
+            delimiter=self._separator,
+            header=self._separator.join(["time"] + self._input_names),
             comments="",
         )

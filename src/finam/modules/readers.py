@@ -30,12 +30,13 @@ class CsvReader(ATimeComponent):
         Format specifier for date.
     """
 
-    def __init__(self, path, time_column, outputs, date_format=None):
+    def __init__(self, path, time_column, outputs, date_format=None, separator=";"):
         super().__init__()
         self._path = path
         self._time = None
         self._time_column = time_column
         self._date_format = date_format
+        self._separator = separator
         self._data = None
         self._row_index = 0
         self._first_connect = True
@@ -52,7 +53,7 @@ class CsvReader(ATimeComponent):
         """
         import pandas
 
-        self._data = pandas.read_csv(self._path, sep=";")
+        self._data = pandas.read_csv(self._path, sep=self._separator)
         for name in self._output_names:
             self.outputs.add(name=name, grid=NoGrid())
 

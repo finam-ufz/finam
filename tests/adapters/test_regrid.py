@@ -8,8 +8,6 @@ import numpy as np
 import pint
 
 from finam import (
-    ATimeComponent,
-    ComponentStatus,
     Composition,
     FinamMetaDataError,
     Info,
@@ -18,35 +16,7 @@ from finam import (
     UniformGrid,
 )
 from finam.adapters.regrid import Linear, Nearest
-from finam.modules.generators import CallbackGenerator
-
-
-class MockupConsumer(ATimeComponent):
-    def __init__(self, time, grid_spec):
-        super().__init__()
-        self.status = ComponentStatus.CREATED
-        self.time = time
-        self.step = timedelta(days=1)
-        self.grid_spec = grid_spec
-        self.data = None
-
-    def _initialize(self):
-        self.inputs.add(name="Input")
-        self.create_connector(required_in_data=["Input"])
-
-    def _connect(self):
-        self.try_connect(self.time, exchange_infos={"Input": Info(grid=self.grid_spec)})
-        self.data = self.connector.in_data["Input"]
-
-    def _validate(self):
-        pass
-
-    def _update(self):
-        self.data = self.inputs["Input"].pull_data(self.time)
-        self.time += self.step
-
-    def _finalize(self):
-        pass
+from finam.modules import debug, generators
 
 
 class TestRegrid(unittest.TestCase):
@@ -65,7 +35,7 @@ class TestRegrid(unittest.TestCase):
         in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
         in_data.data[0, 0] = 1.0
 
-        source = CallbackGenerator(
+        source = generators.CallbackGenerator(
             callbacks={
                 "Output": (
                     lambda t: in_data,
@@ -76,7 +46,11 @@ class TestRegrid(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        sink = MockupConsumer(datetime(2000, 1, 1), out_spec)
+        sink = debug.DebugConsumer(
+            {"Input": Info(grid=out_spec)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
 
         composition = Composition([source, sink])
         composition.initialize()
@@ -86,13 +60,13 @@ class TestRegrid(unittest.TestCase):
         composition.run(t_max=datetime(2000, 1, 2))
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
-        self.assertEqual(sink.data[0, 0, 0], 1.0 * reg.meter)
-        self.assertEqual(sink.data[0, 0, 1], 1.0 * reg.meter)
-        self.assertEqual(sink.data[0, 1, 0], 1.0 * reg.meter)
-        self.assertEqual(sink.data[0, 1, 1], 1.0 * reg.meter)
-        self.assertEqual(sink.data[0, 0, 2], 0.0 * reg.meter)
-        self.assertEqual(sink.data[0, 2, 0], 0.0 * reg.meter)
-        self.assertEqual(sink.data[0, 2, 2], 0.0 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 0, 0], 1.0 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 0, 1], 1.0 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 1, 0], 1.0 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 1, 1], 1.0 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 0, 2], 0.0 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 2, 0], 0.0 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 2, 2], 0.0 * reg.meter)
 
     def test_regrid_linear(self):
         reg = pint.UnitRegistry(force_ndarray_like=True)
@@ -108,13 +82,17 @@ class TestRegrid(unittest.TestCase):
         in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
         in_data.data[0, 0] = 1.0
 
-        source = CallbackGenerator(
+        source = generators.CallbackGenerator(
             callbacks={"Output": (lambda t: in_data, in_info)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
 
-        sink = MockupConsumer(datetime(2000, 1, 1), out_spec)
+        sink = debug.DebugConsumer(
+            {"Input": Info(grid=out_spec)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
 
         composition = Composition([source, sink])
         composition.initialize()
@@ -124,10 +102,10 @@ class TestRegrid(unittest.TestCase):
         composition.run(t_max=datetime(2000, 1, 2))
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
-        self.assertEqual(sink.data[0, 0, 0], 1.0 * reg.meter)
-        self.assertEqual(sink.data[0, 0, 1], 0.5 * reg.meter)
-        self.assertEqual(sink.data[0, 1, 0], 0.5 * reg.meter)
-        self.assertEqual(sink.data[0, 1, 1], 0.25 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 0, 0], 1.0 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 0, 1], 0.5 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 1, 0], 0.5 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 1, 1], 0.25 * reg.meter)
 
     def test_regrid_linear_custom(self):
         reg = pint.UnitRegistry(force_ndarray_like=True)
@@ -143,13 +121,17 @@ class TestRegrid(unittest.TestCase):
         in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
         in_data.data[0, 0] = 1.0
 
-        source = CallbackGenerator(
+        source = generators.CallbackGenerator(
             callbacks={"Output": (lambda t: in_data, Info(grid=None, units="m"))},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
 
-        sink = MockupConsumer(datetime(2000, 1, 1), None)
+        sink = debug.DebugConsumer(
+            {"Input": Info(grid=None)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
 
         composition = Composition([source, sink])
         composition.initialize()
@@ -163,10 +145,10 @@ class TestRegrid(unittest.TestCase):
         composition.run(t_max=datetime(2000, 1, 2))
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
-        self.assertEqual(sink.data[0, 0, 0], 1.0 * reg.meter)
-        self.assertEqual(sink.data[0, 0, 1], 0.5 * reg.meter)
-        self.assertEqual(sink.data[0, 1, 0], 0.5 * reg.meter)
-        self.assertEqual(sink.data[0, 1, 1], 0.25 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 0, 0], 1.0 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 0, 1], 0.5 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 1, 0], 0.5 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 1, 1], 0.25 * reg.meter)
 
     def test_regrid_linear_rev(self):
         reg = pint.UnitRegistry(force_ndarray_like=True)
@@ -183,13 +165,17 @@ class TestRegrid(unittest.TestCase):
         in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
         in_data.data[0, 0] = 1.0
 
-        source = CallbackGenerator(
+        source = generators.CallbackGenerator(
             callbacks={"Output": (lambda t: in_data, in_info)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
 
-        sink = MockupConsumer(datetime(2000, 1, 1), out_spec)
+        sink = debug.DebugConsumer(
+            {"Input": Info(grid=out_spec)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
 
         composition = Composition([source, sink])
         composition.initialize()
@@ -199,10 +185,10 @@ class TestRegrid(unittest.TestCase):
         composition.run(t_max=datetime(2000, 1, 2))
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
-        self.assertEqual(sink.data[0, 0, 0], 1.0 * reg.meter)
-        self.assertEqual(sink.data[0, 0, 1], 0.5 * reg.meter)
-        self.assertEqual(sink.data[0, 1, 0], 0.5 * reg.meter)
-        self.assertEqual(sink.data[0, 1, 1], 0.25 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 0, 0], 1.0 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 0, 1], 0.5 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 1, 0], 0.5 * reg.meter)
+        self.assertEqual(sink.data["Input"][0, 1, 1], 0.25 * reg.meter)
 
     def test_regrid_multi(self):
         reg = pint.UnitRegistry(force_ndarray_like=True)
@@ -219,14 +205,22 @@ class TestRegrid(unittest.TestCase):
         in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
         in_data.data[0, 0] = 1.0
 
-        source = CallbackGenerator(
+        source = generators.CallbackGenerator(
             callbacks={"Output": (lambda t: in_data, in_info)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
 
-        sink_1 = MockupConsumer(datetime(2000, 1, 1), out_spec_1)
-        sink_2 = MockupConsumer(datetime(2000, 1, 1), out_spec_2)
+        sink_1 = debug.DebugConsumer(
+            {"Input": Info(grid=out_spec_1)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+        sink_2 = debug.DebugConsumer(
+            {"Input": Info(grid=out_spec_2)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
 
         regrid = Linear()
 
@@ -240,16 +234,16 @@ class TestRegrid(unittest.TestCase):
         composition.run(t_max=datetime(2000, 1, 2))
 
         self.assertEqual(sink_1.inputs["Input"].info.grid, out_spec_1)
-        self.assertEqual(sink_1.data[0, 0, 0], 1.0 * reg.meter)
-        self.assertEqual(sink_1.data[0, 0, 1], 0.5 * reg.meter)
-        self.assertEqual(sink_1.data[0, 1, 0], 0.5 * reg.meter)
-        self.assertEqual(sink_1.data[0, 1, 1], 0.25 * reg.meter)
+        self.assertEqual(sink_1.data["Input"][0, 0, 0], 1.0 * reg.meter)
+        self.assertEqual(sink_1.data["Input"][0, 0, 1], 0.5 * reg.meter)
+        self.assertEqual(sink_1.data["Input"][0, 1, 0], 0.5 * reg.meter)
+        self.assertEqual(sink_1.data["Input"][0, 1, 1], 0.25 * reg.meter)
 
         self.assertEqual(sink_2.inputs["Input"].info.grid, out_spec_2)
-        self.assertEqual(sink_2.data[0, 0, 0], 1.0 * reg.meter)
-        self.assertEqual(sink_2.data[0, 0, 1], 0.5 * reg.meter)
-        self.assertEqual(sink_2.data[0, 1, 0], 0.5 * reg.meter)
-        self.assertEqual(sink_2.data[0, 1, 1], 0.25 * reg.meter)
+        self.assertEqual(sink_2.data["Input"][0, 0, 0], 1.0 * reg.meter)
+        self.assertEqual(sink_2.data["Input"][0, 0, 1], 0.5 * reg.meter)
+        self.assertEqual(sink_2.data["Input"][0, 1, 0], 0.5 * reg.meter)
+        self.assertEqual(sink_2.data["Input"][0, 1, 1], 0.25 * reg.meter)
 
     def test_regrid_multi_fail(self):
         in_info = Info(
@@ -264,14 +258,22 @@ class TestRegrid(unittest.TestCase):
         in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
         in_data.data[0, 0] = 1.0
 
-        source = CallbackGenerator(
+        source = generators.CallbackGenerator(
             callbacks={"Output": (lambda t: in_data, in_info)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
 
-        sink_1 = MockupConsumer(datetime(2000, 1, 1), out_spec_1)
-        sink_2 = MockupConsumer(datetime(2000, 1, 1), out_spec_2)
+        sink_1 = debug.DebugConsumer(
+            {"Input": Info(grid=out_spec_1)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+        sink_2 = debug.DebugConsumer(
+            {"Input": Info(grid=out_spec_2)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
 
         regrid = Linear()
 

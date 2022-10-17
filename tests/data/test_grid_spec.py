@@ -237,3 +237,47 @@ class TestGridSpec(unittest.TestCase):
         us_grid = grid.to_unstructured()
         assert_allclose(grid.data_points, us_grid.data_points)
         self.assertIsInstance(us_grid, UnstructuredGrid)
+
+    def test_equality(self):
+        grid1 = UniformGrid((2, 2), data_location=0)
+        grid2 = UnstructuredGrid(
+            points=[
+                [0.0, 0.0],
+                [0.0, 2.0],
+                [2.0, 2.0],
+                [2.0, 0.0],
+                [2.0, 0.0],
+                [2.0, 2.0],
+                [4.0, 2.0],
+                [4.0, 0.0],
+            ],
+            cells=[[0, 1, 2, 3], [4, 5, 6, 7]],
+            cell_types=[CellType.QUAD, CellType.QUAD],
+            axes_names=["x", "y"],
+        )
+
+        self.assertNotEqual(grid1, 0)
+        self.assertNotEqual(grid1, grid2)
+
+    def test_cell_types(self):
+        grid = UniformGrid((0,))
+        self.assertEqual(grid.cell_types, [CellType.VERTEX])
+
+        grid = UniformGrid((1,))
+        assert_array_equal(grid.cell_types, [CellType.VERTEX])
+
+        grid = UniformGrid((2,))
+        assert_array_equal(grid.cell_types, [CellType.LINE])
+
+        grid = UniformGrid((3,))
+        assert_array_equal(grid.cell_types, [CellType.LINE, CellType.LINE])
+
+        grid = UniformGrid((2, 2))
+        assert_array_equal(grid.cell_types, [CellType.QUAD])
+        grid = UniformGrid((2, 3))
+        assert_array_equal(grid.cell_types, [CellType.QUAD, CellType.QUAD])
+
+        grid = UniformGrid((2, 2, 2))
+        assert_array_equal(grid.cell_types, [CellType.HEX])
+        grid = UniformGrid((2, 2, 3))
+        assert_array_equal(grid.cell_types, [CellType.HEX, CellType.HEX])

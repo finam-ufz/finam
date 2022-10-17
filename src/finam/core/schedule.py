@@ -13,7 +13,6 @@ from .interfaces import (
     FinamStatusError,
     IAdapter,
     IComponent,
-    IMpiComponent,
     ITimeComponent,
     Loggable,
     NoBranchAdapter,
@@ -76,24 +75,6 @@ class Composition(Loggable):
                     )
         self.modules = modules
         self.mpi_rank = mpi_rank
-
-    def run_mpi(self):
-        """Run MPI processes is not on rank 0.
-
-        Returns
-        -------
-        bool
-            True if on rank 0, false otherwise.
-        """
-        self.logger.debug("run mpi composition")
-        if self.mpi_rank == 0:
-            return True
-
-        for mod in self.modules:
-            if isinstance(mod, IMpiComponent):
-                mod.run_mpi()
-
-        return False
 
     def initialize(self):
         """Initialize all modules.
@@ -159,6 +140,8 @@ class Composition(Loggable):
             self._check_status(mod, [ComponentStatus.UPDATED, ComponentStatus.FINISHED])
             mod.finalize()
             self._check_status(mod, [ComponentStatus.FINALIZED])
+
+        self._finalize()
 
     def _validate(self):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
@@ -239,6 +222,12 @@ class Composition(Loggable):
                     )
 
             counter += 1
+
+    def _finalize(self):
+        handlers = self.logger.handlers[:]
+        for handler in handlers:
+            self.logger.removeHandler(handler)
+            handler.close()
 
     @property
     def logger_name(self):
