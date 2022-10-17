@@ -370,12 +370,16 @@ def check(xdata, name, info, time=None, ignore_time=False):
         raise FinamDataError("check: given data is not a xarray.DataArray.")
     check_quantified(xdata, "check")
     if name != xdata.name:
-        raise FinamDataError("check: given data has wrong name.")
+        raise FinamDataError(
+            f"check: given data has wrong name. Got {xdata.name}, expected {name}"
+        )
     if time is not None:
         if not has_time(xdata):
             raise FinamDataError("check: given data should hold a time.")
         if not ignore_time and time != get_time(xdata)[0]:
-            raise FinamDataError("check: given data has wrong time.")
+            raise FinamDataError(
+                f"check: given data has wrong time. Got {get_time(xdata)[0]}, expected {time}"
+            )
 
         _check_shape(xdata, info.grid, True)
 
@@ -428,6 +432,23 @@ def is_quantified(xdata):
         Wether the data is a quantified DataArray.
     """
     return isinstance(xdata, xr.DataArray) and _extract_units(xdata) is not None
+
+
+def quantify(xdata):
+    """
+    Quantifies data from its metadata.
+
+    Parameters
+    ----------
+    xdata : DataArray
+        The given data array.
+
+    Returns
+    -------
+    DataArray
+        The quantified array.
+    """
+    return xdata.pint.quantify(unit_registry=UNITS)
 
 
 def check_quantified(xdata, routine="check_quantified"):
