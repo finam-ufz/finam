@@ -2,6 +2,10 @@
 
 ## [unpublished]
 
+### Data and metadata rework
+
+* Add conversion between CRS to regridding adapters, using `pyproj`
+
 ## [v0.4.0-rc.1]
 
 ### Data and metadata rework
