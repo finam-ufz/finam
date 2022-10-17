@@ -2,7 +2,38 @@
 
 ## [unpublished]
 
-None
+### Data and metadata rework
+
+* Grid specifications for structured and unstructured grids:  
+  `RectilinearGrid`, `UniformGrid`, `EsriGrid`, `UnstructuredGrid` and `UnstructuredPoints`
+* Use of `xarray.DataArray` for all exchanged data
+* All exchanged data must have `pint` units (can be "dimensionless")
+* Metadata about grid specification, units and other metadata is exchanged before the first data exchange
+* Metadata exchange is iterative and bi-directional  
+  Components can depend on metadata from source or target components
+* Inputs check compatibility of incoming metadata with own requirements
+* Inputs and outputs check compatibility of incoming data with metadata
+* Automatic conversion of array-like and scalars to `xarray.DataArray` in outputs, with metadata check
+
+### Adapters
+
+* New adapters for linear and nearest-neighbour regridding from and to all available grid types
+* Removed adapter `GridCellCallback`
+
+### Components
+
+* Removed `GridView` component (new implementation in [finam-plot](https://git.ufz.de/FINAM/finam-plot))
+
+### Usability
+
+* The finam package has a flatter module hierarchy now, so the most important classes are now exported at the top level
+* Component developers do not overwrite interface methods like `update()` anymore, but internal methods like `_update()` instead
+
+### Other
+
+* More ergonomic input and output creation in components
+* Input and output mappings are immutable after initialization
+* Brought up test coverage to 98%
 
 ## [v0.3.0]
 
