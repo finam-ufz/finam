@@ -34,7 +34,6 @@ class MockupComponent(ATimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
-        self.status = ComponentStatus.CREATED
 
     def _initialize(self):
         self.status = ComponentStatus.FAILED
@@ -44,7 +43,6 @@ class MockupComponentIO(ATimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
-        self.status = ComponentStatus.CREATED
 
     def _initialize(self):
         self.inputs.add(name="Input")

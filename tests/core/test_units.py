@@ -23,7 +23,6 @@ from finam.modules.generators import CallbackGenerator
 class MockupConsumer(ATimeComponent):
     def __init__(self, time, units):
         super().__init__()
-        self.status = ComponentStatus.CREATED
         self.time = time
         self.step = timedelta(days=1)
         self.units = units

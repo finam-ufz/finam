@@ -2,9 +2,11 @@
 
 from datetime import datetime, timedelta
 
-from ... import ATimeComponent, ComponentStatus, Info, NoGrid
-from ... import data as fmdata
-from ...tools import LogError
+from ...core.sdk import ATimeComponent
+from ...data import tools as dtools
+from ...data.grid_spec import NoGrid
+from ...data.tools import Info
+from ...tools.log_helper import LogError
 
 
 class TimeSeriesView(ATimeComponent):
@@ -58,8 +60,6 @@ class TimeSeriesView(ATimeComponent):
         for inp in inputs:
             self.inputs.add(name=inp)
 
-        self.status = ComponentStatus.CREATED
-
     def _initialize(self):
         """Initialize the component.
 
@@ -107,8 +107,8 @@ class TimeSeriesView(ATimeComponent):
 
         for i, inp in enumerate(self._input_names):
             if self._updates % self._intervals[i] == 0:
-                value = fmdata.get_magnitude(
-                    fmdata.strip_time(self.inputs[inp].pull_data(self.time))
+                value = dtools.get_magnitude(
+                    dtools.strip_time(self.inputs[inp].pull_data(self.time))
                 )
 
                 self._x[i].append(self.time)

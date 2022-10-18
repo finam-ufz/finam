@@ -26,7 +26,6 @@ from finam.modules import debug
 class NoTimeComponent(AComponent):
     def __init__(self):
         super().__init__()
-        self.status = ComponentStatus.CREATED
 
     def _initialize(self):
         self.create_connector()
@@ -54,7 +53,6 @@ class MockupComponent(ATimeComponent):
         self._callbacks = callbacks
         self._step = step
         self._time = datetime(2000, 1, 1)
-        self.status = ComponentStatus.CREATED
 
     def _initialize(self):
         for key, _ in self._callbacks.items():
@@ -86,7 +84,6 @@ class MockupDependentComponent(ATimeComponent):
         super().__init__()
         self._step = step
         self._time = datetime(2000, 1, 1)
-        self.status = ComponentStatus.CREATED
 
     def _initialize(self):
         self.inputs.add(name="Input")
@@ -111,7 +108,6 @@ class MockupCircularComponent(ATimeComponent):
         super().__init__()
         self._step = step
         self._time = datetime(2000, 1, 1)
-        self.status = ComponentStatus.CREATED
 
         self.pulled_data = None
 

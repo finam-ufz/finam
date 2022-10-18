@@ -2,8 +2,8 @@
 
 from datetime import datetime, timedelta
 
-from .. import ATimeComponent, ComponentStatus
-from ..tools import LogError
+from ..core.sdk import ATimeComponent
+from ..tools.log_helper import LogError
 
 
 class CallbackComponent(ATimeComponent):
@@ -37,7 +37,6 @@ class CallbackComponent(ATimeComponent):
         self._callback = callback
         self._step = step
         self._time = start
-        self.status = ComponentStatus.CREATED
 
     def _initialize(self):
         for name, info in self._input_infos.items():

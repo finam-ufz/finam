@@ -2,7 +2,8 @@
 
 from datetime import datetime
 
-from ... import AComponent, CallbackInput, ComponentStatus
+from ...core.interfaces import ComponentStatus
+from ...core.sdk import AComponent, CallbackInput
 
 
 class ScheduleView(AComponent):
@@ -36,8 +37,6 @@ class ScheduleView(AComponent):
         self._input_names = inputs
         for inp in inputs:
             self.inputs.add(CallbackInput(self.data_changed, name=inp, grid=None))
-
-        self.status = ComponentStatus.CREATED
 
     def _initialize(self):
         """Initialize the component.

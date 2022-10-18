@@ -2,8 +2,8 @@
 
 from datetime import datetime, timedelta
 
-from .. import ATimeComponent, ComponentStatus
-from ..tools import LogError
+from ..core.sdk import ATimeComponent
+from ..tools.log_helper import LogError
 
 
 class DebugConsumer(ATimeComponent):
@@ -26,8 +26,7 @@ class DebugConsumer(ATimeComponent):
         self._input_infos = inputs
         self._step = step
         self._time = start
-        self.data = None
-        self.status = ComponentStatus.CREATED
+        self.data = {}
 
     def _initialize(self):
         for name, info in self._input_infos.items():
@@ -42,6 +41,7 @@ class DebugConsumer(ATimeComponent):
         for name, data in self.connector.in_data.items():
             if data is not None:
                 self.logger.debug("Pulled input data for %s", name)
+                self.data[name] = data
 
     def _validate(self):
         pass

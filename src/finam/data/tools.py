@@ -244,6 +244,19 @@ def strip_time(xdata):
     return xdata
 
 
+def strip_data(xdata):
+    """Unwraps the xarray data, with the time dimension squeezed if there is only a single entry.
+
+    Equivalent to ``get_data(strip_time(xdata))``
+
+    Raises
+    ------
+    pint.Quantity
+        Quantified data.
+    """
+    return get_data(strip_time(xdata))
+
+
 def get_units(xdata):
     """
     Get units of the data.

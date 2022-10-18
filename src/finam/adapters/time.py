@@ -3,9 +3,10 @@ Adapters that deal with time, like temporal interpolation and integration.
 """
 from datetime import datetime
 
-from .. import AAdapter, FinamNoDataError, FinamTimeError, NoBranchAdapter
-from .. import data as fmdata
-from ..tools import LogError
+from ..core.interfaces import FinamNoDataError, FinamTimeError, NoBranchAdapter
+from ..core.sdk import AAdapter
+from ..data import tools as dtools
+from ..tools.log_helper import LogError
 
 
 class NextValue(AAdapter):
@@ -119,7 +120,7 @@ class LinearInterpolation(AAdapter):
         _check_time(self.logger, time)
 
         self.old_data = self.new_data
-        self.new_data = (time, fmdata.strip_time(self.pull_data(time)))
+        self.new_data = (time, dtools.strip_data(self.pull_data(time)))
 
     def _get_data(self, time):
         """Get the output's data-set for the given time.
@@ -144,7 +145,7 @@ class LinearInterpolation(AAdapter):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         if self.old_data is None:
-            return fmdata.get_data(self.new_data[1])
+            return self.new_data[1]
 
         dt = (time - self.old_data[0]) / (self.new_data[0] - self.old_data[0])
 
@@ -177,7 +178,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         """
         _check_time(self.logger, time)
 
-        data = fmdata.strip_time(self.pull_data(time))
+        data = dtools.strip_data(self.pull_data(time))
         self.data.append((time, data))
 
         if self.prev_time is None:
@@ -202,10 +203,10 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         if len(self.data) == 1:
-            return fmdata.get_data(self.data[0][1])
+            return self.data[0][1]
 
         if time <= self.data[0][0]:
-            return fmdata.get_data(self.data[0][1])
+            return self.data[0][1]
 
         sum_value = None
 
@@ -258,9 +259,7 @@ def _interpolate(old_value, new_value, dt):
     array_like
         Interpolated value.
     """
-    return fmdata.get_data(old_value) + dt * (
-        fmdata.get_data(new_value) - fmdata.get_data(old_value)
-    )
+    return old_value + dt * (new_value - old_value)
 
 
 def _check_time(logger, time, time_range=(None, None)):

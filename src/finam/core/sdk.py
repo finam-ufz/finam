@@ -33,7 +33,7 @@ class AComponent(IComponent, Loggable, ABC):
     """Abstract component implementation."""
 
     def __init__(self):
-        self._status = None
+        self._status = ComponentStatus.CREATED
         self._inputs = IOList("INPUT")
         self._outputs = IOList("OUTPUT")
         self.base_logger_name = None

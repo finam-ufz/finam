@@ -33,7 +33,6 @@ class Ogs(ATimeComponent):
         self._time = start
         self._step = step
         self.head = 0 * UNITS.Unit("mm")
-        self.status = ComponentStatus.CREATED
 
     def _initialize(self):
 
