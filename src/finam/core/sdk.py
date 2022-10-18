@@ -727,7 +727,8 @@ class AAdapter(IAdapter, Input, Output, ABC):
     """Abstract adapter implementation."""
 
     def __init__(self):
-        super().__init__(name=self.__class__.__name__)
+        Input.__init__(self, name=self.__class__.__name__)
+        Output.__init__(self, name=self.__class__.__name__)
         self.source = None
         self.targets = []
 

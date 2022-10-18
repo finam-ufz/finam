@@ -26,8 +26,7 @@ class NextValue(AAdapter):
         """
         _check_time(self.logger, time)
 
-        data = self.pull_data(time)
-        self.data = data
+        self.data = self.pull_data(time)
         self.time = time
 
     def _get_data(self, time):

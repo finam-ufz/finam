@@ -231,6 +231,8 @@ class TestAdapter(unittest.TestCase):
         with self.assertRaises(FinamLogError):
             adapter.set_source(0)
 
+        self.assertEqual(adapter.info, None)
+
 
 class TestIOFails(unittest.TestCase):
     def test_input_output_fail(self):
