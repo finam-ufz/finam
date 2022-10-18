@@ -159,6 +159,14 @@ class TestDataTools(unittest.TestCase):
         with self.assertRaises(finam.FinamDataError):
             stripped_ = finam.data.strip_time(data)
 
+    def test_strip_data(self):
+        xdata = finam.data.to_xarray(1.0, "data", finam.Info(grid=finam.NoGrid()))
+        self.assertEqual(xdata.shape, ())
+        stripped = finam.data.strip_data(xdata)
+        self.assertEqual(xdata.shape, stripped.shape)
+        self.assertTrue(isinstance(stripped, pint.Quantity))
+        self.assertFalse(isinstance(stripped, xr.DataArray))
+
     def test_to_xarray(self):
         with self.assertRaises(finam.FinamDataError):
             finam.data.to_xarray(
