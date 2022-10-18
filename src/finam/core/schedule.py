@@ -121,6 +121,12 @@ class Composition(Loggable):
 
         self.logger.debug("running composition")
         while True:
+            if len(time_modules) == 0:
+                self.logger.warning(
+                    "No ITimeComponent in composition. Nothing to update."
+                )
+                break
+
             to_update = min(time_modules, key=lambda m: m.time)
             to_update.update()
             self._check_status(
