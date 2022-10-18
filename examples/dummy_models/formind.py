@@ -41,8 +41,6 @@ class Formind(ATimeComponent):
         self.info = Info(grid)
         self.lai = None
 
-        self.status = ComponentStatus.CREATED
-
     def _initialize(self):
         self.lai = tools.full(1.0, "LAI", self.info, self.time)
 

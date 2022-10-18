@@ -2,7 +2,6 @@
 
 from datetime import datetime, timedelta
 
-from ...core.interfaces import ComponentStatus
 from ...core.sdk import ATimeComponent
 from ...data import tools as dtools
 from ...data.grid_spec import NoGrid
@@ -60,8 +59,6 @@ class TimeSeriesView(ATimeComponent):
         self._input_names = inputs
         for inp in inputs:
             self.inputs.add(name=inp)
-
-        self.status = ComponentStatus.CREATED
 
     def _initialize(self):
         """Initialize the component.

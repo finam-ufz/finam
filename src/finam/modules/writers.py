@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from ..core.interfaces import ComponentStatus
 from ..core.sdk import ATimeComponent
 from ..data import tools as dtools
 from ..data.grid_spec import NoGrid
@@ -53,8 +52,6 @@ class CsvWriter(ATimeComponent):
         self._input_names = inputs
 
         self._rows = []
-
-        self.status = ComponentStatus.CREATED
 
     def _initialize(self):
         """Initialize the component.

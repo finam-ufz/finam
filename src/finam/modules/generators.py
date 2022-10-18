@@ -40,7 +40,6 @@ class CallbackGenerator(ATimeComponent):
         self._step = step
         self._time = start
         self._initial_data = None
-        self.status = ComponentStatus.CREATED
 
     def _initialize(self):
         """Initialize the component.

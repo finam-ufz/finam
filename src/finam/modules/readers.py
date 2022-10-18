@@ -45,8 +45,6 @@ class CsvReader(ATimeComponent):
 
         self._output_names = outputs
 
-        self.status = ComponentStatus.CREATED
-
     def _initialize(self):
         """Initialize the component.
 

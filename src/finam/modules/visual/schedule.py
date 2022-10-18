@@ -38,8 +38,6 @@ class ScheduleView(AComponent):
         for inp in inputs:
             self.inputs.add(CallbackInput(self.data_changed, name=inp, grid=None))
 
-        self.status = ComponentStatus.CREATED
-
     def _initialize(self):
         """Initialize the component.
 

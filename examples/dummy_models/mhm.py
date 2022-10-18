@@ -49,8 +49,6 @@ class Mhm(ATimeComponent):
         self.grid = grid
         self.soil_water = None
 
-        self.status = ComponentStatus.CREATED
-
     def _initialize(self):
         self.soil_water = tools.full(1.0, "soil_water", Info(grid=self.grid), self.time)
 
