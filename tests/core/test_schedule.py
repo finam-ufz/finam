@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 
 from finam import (
     AAdapter,
+    AComponent,
     ATimeComponent,
     ComponentStatus,
     Composition,
@@ -20,6 +21,27 @@ from finam import (
 from finam import data as tools
 from finam.adapters.base import Scale
 from finam.modules import debug
+
+
+class NoTimeComponent(AComponent):
+    def __init__(self):
+        super().__init__()
+        self.status = ComponentStatus.CREATED
+
+    def _initialize(self):
+        self.create_connector()
+
+    def _connect(self):
+        self.try_connect()
+
+    def _validate(self):
+        pass
+
+    def _update(self):
+        pass
+
+    def _finalize(self):
+        pass
 
 
 class MockupComponent(ATimeComponent):
@@ -286,6 +308,14 @@ class TestComposition(unittest.TestCase):
 
         with self.assertRaises(FinamStatusError):
             composition.run(t_max=datetime(2000, 1, 31))
+
+    def test_no_time_comp(self):
+        module = NoTimeComponent()
+
+        composition = Composition([module])
+        composition.initialize()
+
+        composition.run(t_max=datetime(2000, 1, 31))
 
 
 if __name__ == "__main__":
