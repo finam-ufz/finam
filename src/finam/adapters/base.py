@@ -64,7 +64,7 @@ class Scale(AAdapter):
             data-set for the requested time.
         """
         d = self.pull_data(time)
-        return fmdata.get_data(fmdata.strip_time(d)) * self.scale
+        return d * self.scale
 
 
 class ValueToGrid(AAdapter):

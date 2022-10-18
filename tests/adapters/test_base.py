@@ -25,9 +25,7 @@ class TestCallback(unittest.TestCase):
             step=timedelta(1.0),
         )
 
-        self.adapter = Callback(
-            callback=lambda v, t: fmdata.get_magnitude(fmdata.strip_time(v)) * 2
-        )
+        self.adapter = Callback(callback=lambda v, t: v * 2)
 
         self.source.initialize()
 
@@ -38,15 +36,12 @@ class TestCallback(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-        print(self.adapter.info)
-
     def test_callback_adapter(self):
-        t = datetime(2000, 1, 1)
-        self.assertEqual(self.adapter.get_data(t), 0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1)), 0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(t), 2)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2)), 2)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(t), 4)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3)), 4)
 
 
 class TestScale(unittest.TestCase):
@@ -69,12 +64,12 @@ class TestScale(unittest.TestCase):
         self.source.validate()
 
     def test_callback_adapter(self):
-        t = datetime(2000, 1, 1)
-        self.assertEqual(self.adapter.get_data(t), 0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1)), 0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(t), 2)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2)), 2)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 2)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(t), 4)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3)), 4)
 
 
 class TestGridToValue(unittest.TestCase):

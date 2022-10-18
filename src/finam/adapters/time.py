@@ -27,7 +27,7 @@ class NextValue(AAdapter):
         _check_time(self.logger, time)
 
         data = self.pull_data(time)
-        self.data = fmdata.strip_time(data)
+        self.data = data
         self.time = time
 
     def _get_data(self, time):
@@ -48,7 +48,7 @@ class NextValue(AAdapter):
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        return fmdata.get_data(self.data)
+        return self.data
 
 
 class PreviousValue(AAdapter):
@@ -69,7 +69,7 @@ class PreviousValue(AAdapter):
         """
         _check_time(self.logger, time)
 
-        data = fmdata.strip_time(self.pull_data(time))
+        data = self.pull_data(time)
         if self.new_data is None:
             self.old_data = (time, data)
         else:
@@ -96,9 +96,9 @@ class PreviousValue(AAdapter):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         if time < self.new_data[0]:
-            return fmdata.get_data(self.old_data[1])
+            return self.old_data[1]
 
-        return fmdata.get_data(self.new_data[1])
+        return self.new_data[1]
 
 
 class LinearInterpolation(AAdapter):

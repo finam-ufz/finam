@@ -2,7 +2,6 @@
 Adapters for direct probing from link connections.
 """
 from .. import AAdapter
-from .. import data as fmdata
 
 
 class CallbackProbe(AAdapter):
@@ -31,6 +30,6 @@ class CallbackProbe(AAdapter):
         array_like
             data-set for the requested time.
         """
-        data = fmdata.get_data(fmdata.strip_time(self.pull_data(time)))
+        data = self.pull_data(time)
         self.callback(data, time)
         return data

@@ -70,7 +70,7 @@ def _gen_dims(ndim, info, time=None):
     return dims
 
 
-def to_xarray(data, name, info, time=None):
+def to_xarray(data, name, info, time=None, no_time_check=False):
     """
     Convert data to a xarray.DataArray.
 
@@ -84,6 +84,8 @@ def to_xarray(data, name, info, time=None):
         Info associated with the data.
     time : datetime.datatime or None, optional
         Timestamp for the data, by default None
+    no_time_check : bool
+        Skips the time check for xarray input data. Used internally in adapter outputs.
 
     Returns
     -------
@@ -96,7 +98,7 @@ def to_xarray(data, name, info, time=None):
         If the data doesn't match its info.
     """
     if isinstance(data, xr.DataArray):
-        check(data, name, info, time)
+        check(data, name, info, time, overwrite_name=True, ignore_time=no_time_check)
         return data
 
     units = None
@@ -344,7 +346,7 @@ def full(value, name, info, time=None):
     return to_xarray(np.full(shape, value), name, info, time)
 
 
-def check(xdata, name, info, time=None, ignore_time=False):
+def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False):
     """
     Check if data matches given info.
 
@@ -360,6 +362,8 @@ def check(xdata, name, info, time=None, ignore_time=False):
         Timestamp for the data, by default None
     ignore_time : bool
         Allows to ignore the time value; still checks presence of time
+    overwrite_name : bool
+        Overwrites the name in the data instead of comparing both names
 
     Raises
     ------
@@ -370,9 +374,12 @@ def check(xdata, name, info, time=None, ignore_time=False):
         raise FinamDataError("check: given data is not a xarray.DataArray.")
     check_quantified(xdata, "check")
     if name != xdata.name:
-        raise FinamDataError(
-            f"check: given data has wrong name. Got {xdata.name}, expected {name}"
-        )
+        if overwrite_name:
+            xdata.name = name
+        else:
+            raise FinamDataError(
+                f"check: given data has wrong name. Got {xdata.name}, expected {name}"
+            )
     if time is not None:
         if not has_time(xdata):
             raise FinamDataError("check: given data should hold a time.")
@@ -390,7 +397,9 @@ def check(xdata, name, info, time=None, ignore_time=False):
 
     dims = _gen_dims(len(xdata.dims) - (1 if time else 0), info, time)
     if dims != list(xdata.dims):
-        raise FinamDataError("check: given data has wrong dimensions.")
+        raise FinamDataError(
+            f"check: given data has wrong dimensions. Got {list(xdata.dims)}, expected {dims}."
+        )
     # pint_xarray will remove the "units" entry in the data attributes
     meta = copy.copy(info.meta)
     meta.pop("units", None)

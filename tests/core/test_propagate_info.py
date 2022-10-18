@@ -78,7 +78,7 @@ class SpecAdapter(AAdapter):
         super().__init__()
 
     def _get_data(self, time):
-        return tools.get_data(tools.strip_time(self.pull_data(time)))
+        return self.pull_data(time)
 
     def _get_info(self, info):
         in_info = self.exchange_info(info)
