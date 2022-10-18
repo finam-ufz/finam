@@ -5,6 +5,11 @@
 ### Data and metadata rework
 
 * Add conversion between CRS to regridding adapters, using `pyproj`
+* Added more data tool functions: `quantify(xdata)` and `check_axes_uniformity(axes)`
+
+### Other  
+
+* Components are allowed to be in state VALIDATED at the end of a run (i.e. not updated)
 
 ## [v0.4.0-rc.1]
 
