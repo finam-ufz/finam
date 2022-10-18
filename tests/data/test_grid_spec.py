@@ -87,6 +87,26 @@ class TestGridSpec(unittest.TestCase):
                 mesh_type="unstructured",
             )
 
+        grid = UniformGrid(
+            (3, 2), spacing=(1.0, 2.0), origin=(2.0, 1.0), data_location="POINTS"
+        )
+
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "test"
+            grid.export_vtk(
+                path=path, data={"data": np.zeros(grid.data_shape)}, mesh_type="uniform"
+            )
+            grid.export_vtk(
+                path=path,
+                data={"data": np.zeros(grid.data_shape)},
+                mesh_type="structured",
+            )
+            grid.export_vtk(
+                path=path,
+                data={"data": np.zeros(grid.data_shape)},
+                mesh_type="unstructured",
+            )
+
     def test_rectilinear(self):
         grid = RectilinearGrid([np.asarray([2.0, 3.0, 4.0]), np.asarray([1.0, 3.0])])
 

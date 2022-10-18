@@ -1,6 +1,7 @@
 """Grid tools for FINAM."""
 from abc import ABC, abstractmethod
 from enum import Enum, IntEnum
+from math import isclose, nan
 from pathlib import Path
 
 import numpy as np
@@ -252,6 +253,47 @@ def check_axes_monotonicity(axes):
         else:
             raise ValueError(f"Grid: axes[{i}] not strictly monotonic.")
     return axes_increase
+
+
+def check_axes_uniformity(axes):
+    """
+    Check axes to be uniform.
+
+    Parameters
+    ----------
+    axes : list of np.ndarray
+        Axes defining the coordinates in each direction (xyz order).
+
+    Returns
+    -------
+    is_uniform : list of float
+        Spacing or NaN for each axis. NaN indicates non-uniformity
+    """
+    return [check_uniformity(ax) for ax in axes]
+
+
+def check_uniformity(values):
+    """Checks for uniform spacing of values
+
+    Parameters
+    ----------
+    values : np.ndarray
+        Values to check.
+
+    Returns
+    -------
+    is_uniform : float
+        Average spacing, of NaN if not uniform.
+    """
+    delta = None
+    for i in range(len(values) - 1):
+        d = values[i + 1] - values[i]
+        if delta is None:
+            delta = d
+        elif not isclose(delta, d):
+            return nan
+
+    return (values[-1] - values[0]) / (len(values) - 1)
 
 
 def prepare_vtk_kwargs(data_location, data, cell_data, point_data, field_data):

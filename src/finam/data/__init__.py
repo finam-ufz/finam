@@ -1,7 +1,12 @@
 """
 Specialized data types for exchanges between models/modules.
 """
-from .grid_tools import canonical_data
+from .grid_tools import (
+    canonical_data,
+    check_axes_monotonicity,
+    check_axes_uniformity,
+    check_uniformity,
+)
 from .tools import (
     assert_type,
     check,
@@ -15,12 +20,18 @@ from .tools import (
     get_units,
     has_time,
     is_quantified,
+    quantify,
     strip_time,
     to_units,
     to_xarray,
 )
 
-__all__ = ["canonical_data"]
+__all__ = [
+    "canonical_data",
+    "check_axes_monotonicity",
+    "check_axes_uniformity",
+    "check_uniformity",
+]
 __all__ += [
     "assert_type",
     "check",
@@ -33,6 +44,7 @@ __all__ += [
     "get_time",
     "get_units",
     "has_time",
+    "quantify",
     "is_quantified",
     "strip_time",
     "to_units",
