@@ -2,8 +2,9 @@
 
 from datetime import datetime, timedelta
 
-from .. import ATimeComponent, ComponentStatus
-from ..tools import LogError
+from ..core.interfaces import ComponentStatus
+from ..core.sdk import ATimeComponent
+from ..tools.log_helper import LogError
 
 
 class DebugConsumer(ATimeComponent):

@@ -3,8 +3,9 @@ Basic data transformation adapters.
 """
 import numpy as np
 
-from .. import AAdapter, NoGrid
-from .. import data as fmdata
+from ..core.sdk import AAdapter
+from ..data.grid_spec import NoGrid
+from ..data.tools import get_magnitude, get_units
 
 
 class Callback(AAdapter):
@@ -96,8 +97,8 @@ class ValueToGrid(AAdapter):
         """
         value = self.pull_data(time)
         return np.full(
-            self.grid.data_shape, fmdata.get_magnitude(value), dtype=value.dtype
-        ) * fmdata.get_units(value)
+            self.grid.data_shape, get_magnitude(value), dtype=value.dtype
+        ) * get_units(value)
 
     def _get_info(self, info):
         in_info = self.exchange_info(info)
@@ -135,7 +136,7 @@ class GridToValue(AAdapter):
         """
         grid = self.pull_data(time)
 
-        func_result = self.func(fmdata.get_magnitude(grid)) * fmdata.get_units(grid)
+        func_result = self.func(get_magnitude(grid)) * get_units(grid)
 
         return func_result
 
