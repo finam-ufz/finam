@@ -224,3 +224,12 @@ class TestDataTools(unittest.TestCase):
 
         with self.assertRaises(finam.FinamDataError):
             finam.data.tools._check_shape(xdata, finam.NoGrid(dim=1), with_time=True)
+
+    def test_quantify(self):
+        xdata = xr.DataArray(1.0, attrs={"units": "m"})
+        xdata = finam.data.quantify(xdata)
+        self.assertEqual(finam.data.get_units(xdata), finam.UNITS.meter)
+
+        xdata = xr.DataArray(1.0)
+        xdata = finam.data.quantify(xdata)
+        self.assertEqual(finam.data.get_units(xdata), finam.UNITS.dimensionless)

@@ -448,7 +448,11 @@ def quantify(xdata):
     DataArray
         The quantified array.
     """
-    return xdata.pint.quantify(unit_registry=UNITS)
+    return (
+        xdata.pint.quantify(unit_registry=UNITS)
+        if "units" in xdata.attrs
+        else xdata.pint.quantify("", unit_registry=UNITS)
+    )
 
 
 def check_quantified(xdata, routine="check_quantified"):
