@@ -27,7 +27,7 @@ class DebugConsumer(ATimeComponent):
         self._input_infos = inputs
         self._step = step
         self._time = start
-        self.data = None
+        self.data = {}
         self.status = ComponentStatus.CREATED
 
     def _initialize(self):
@@ -43,6 +43,7 @@ class DebugConsumer(ATimeComponent):
         for name, data in self.connector.in_data.items():
             if data is not None:
                 self.logger.debug("Pulled input data for %s", name)
+                self.data[name] = data
 
     def _validate(self):
         pass
