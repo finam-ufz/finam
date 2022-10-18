@@ -238,6 +238,27 @@ class TestComposition(unittest.TestCase):
         with self.assertRaises(ValueError):
             composition.run(t_max=100)
 
+    def test_fail_double_initialize(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+        )
+        composition = Composition([module1])
+        composition.initialize()
+
+        with self.assertRaises(FinamStatusError):
+            composition.initialize()
+
+    def test_fail_double_connect(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+        )
+        composition = Composition([module1])
+        composition.initialize()
+        composition.connect()
+
+        with self.assertRaises(FinamStatusError):
+            composition.connect()
+
     def test_base_logger(self):
         composition = Composition([])
         self.assertFalse(composition.uses_base_logger_name)
