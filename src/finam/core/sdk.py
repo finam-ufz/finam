@@ -727,7 +727,8 @@ class AAdapter(IAdapter, Input, Output, ABC):
     """Abstract adapter implementation."""
 
     def __init__(self):
-        super().__init__(name=self.__class__.__name__)
+        Input.__init__(self, name=self.__class__.__name__)
+        Output.__init__(self, name=self.__class__.__name__)
         self.source = None
         self.targets = []
 
@@ -794,7 +795,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
 
         data = self._get_data(time)
         name = self.get_source().name + "_" + self.name
-        return tools.to_xarray(data, name, self._output_info, time)
+        return tools.to_xarray(data, name, self._output_info, time, no_time_check=True)
 
     def _get_data(self, time):
         """Asks the adapter for the transformed data.

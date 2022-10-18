@@ -4,47 +4,49 @@
 
 ### Data and metadata rework
 
-* Add conversion between CRS to regridding adapters, using `pyproj`
-* Added more data tool functions: `quantify(xdata)` and `check_axes_uniformity(axes)`
+* Add conversion between CRS to regridding adapters, using `pyproj` (!95)
+* Added more data tool functions: `quantify(xdata)` and `check_axes_uniformity(axes)` (!96)
+* In outputs, the name of the data is overwritten instead of failing the check (!98)
+* Adapters can pass through data with time, even if it does not match the pull time (which is quite common) (!98)
 
 ### Other  
 
-* Components are allowed to be in state VALIDATED at the end of a run (i.e. not updated)
+* Components are allowed to be in state VALIDATED at the end of a run (i.e. not updated) (!97)
 
 ## [v0.4.0-rc.1]
 
 ### Data and metadata rework
 
-* Grid specifications for structured and unstructured grids:  
+* Grid specifications for structured and unstructured grids (!74):  
   `RectilinearGrid`, `UniformGrid`, `EsriGrid`, `UnstructuredGrid` and `UnstructuredPoints`
-* Use of `xarray.DataArray` for all exchanged data
-* All exchanged data must have `pint` units (can be "dimensionless")
-* Metadata about grid specification, units and other metadata is exchanged before the first data exchange
-* Metadata exchange is iterative and bi-directional  
+* Use of `xarray.DataArray` for all exchanged data (!74)
+* All exchanged data must have `pint` units (can be "dimensionless") (!74)
+* Metadata about grid specification, units and other metadata is exchanged before the first data exchange (!77)
+* Metadata exchange is iterative and bi-directional (!77)  
   Components can depend on metadata from source or target components
-* Inputs check compatibility of incoming metadata with own requirements
-* Inputs and outputs check compatibility of incoming data with metadata
-* Automatic conversion of array-like and scalars to `xarray.DataArray` in outputs, with metadata check
+* Inputs check compatibility of incoming metadata with own requirements (!77)
+* Inputs and outputs check compatibility of incoming data with metadata (!77)
+* Automatic conversion of array-like and scalars to `xarray.DataArray` in outputs, with metadata check (!74, !77)
 
 ### Adapters
 
-* New adapters for linear and nearest-neighbour regridding from and to all available grid types
-* Removed adapter `GridCellCallback`
+* New adapters for linear and nearest-neighbour regridding from and to all available grid types (!77, !87)
+* Removed adapter `GridCellCallback` (!79)
 
 ### Components
 
-* Removed `GridView` component (new implementation in [finam-plot](https://git.ufz.de/FINAM/finam-plot))
+* Removed `GridView` component (new implementation in [finam-plot](https://git.ufz.de/FINAM/finam-plot)) (!79)
 
 ### Usability
 
-* The finam package has a flatter module hierarchy now, so the most important classes are now exported at the top level
-* Component developers do not overwrite interface methods like `update()` anymore, but internal methods like `_update()` instead
+* The finam package has a flatter module hierarchy now, so the most important classes are now exported at the top level (!92)
+* Component developers do not overwrite interface methods like `update()` anymore, but internal methods like `_update()` instead (!85)
 
 ### Other
 
-* More ergonomic input and output creation in components
-* Input and output mappings are immutable after initialization
-* Brought up test coverage to 98%
+* More ergonomic input and output creation in components (!80, !82)
+* Input and output mappings are immutable after initialization (!82)
+* Brought up test coverage to 98% (!93)
 
 ## [v0.3.0]
 
