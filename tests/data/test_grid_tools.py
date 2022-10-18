@@ -7,6 +7,7 @@ from finam import CellType, EsriGrid, NoGrid, UniformGrid, UnstructuredGrid
 from finam.data.grid_tools import (
     canonical_data,
     check_axes_monotonicity,
+    check_axes_uniformity,
     flatten_cells,
     gen_axes,
     gen_cells,
@@ -169,4 +170,10 @@ class TestGridTools(unittest.TestCase):
         assert_array_equal(
             flatten_cells(np.asarray([[0, 1, 2, 3], [4, 5, 6, 7]])),
             [0, 1, 2, 3, 4, 5, 6, 7],
+        )
+
+    def test_axes_uniformity(self):
+        assert_array_equal(
+            check_axes_uniformity([np.asarray([0, 1, 2, 3]), np.asarray([0, 2, 3])]),
+            [1, float("nan")],
         )
