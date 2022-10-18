@@ -74,6 +74,8 @@ class Composition(Loggable):
                         "Composition: modules need to be instances of 'IComponent'."
                     )
         self.modules = modules
+        self.is_initialized = False
+        self.is_connected = False
         self.mpi_rank = mpi_rank
 
     def initialize(self):
@@ -82,6 +84,9 @@ class Composition(Loggable):
         After the call, module inputs and outputs are available for linking.
         """
         self.logger.debug("init composition")
+        if self.is_initialized:
+            raise FinamStatusError("Composition was already initialized.")
+
         for mod in self.modules:
             self._check_status(mod, [ComponentStatus.CREATED])
 
@@ -96,19 +101,14 @@ class Composition(Loggable):
 
             self._check_status(mod, [ComponentStatus.INITIALIZED])
 
-    def run(self, t_max):
-        """Run this composition using the loop-based update strategy.
+        self.is_initialized = True
 
-        Parameters
-        ----------
-        t_max : datetime.datatime
-            Simulation time up to which to simulate.
-        """
+    def connect(self):
+        """Performs the connect and validate phases of the composition"""
+        if self.is_connected:
+            raise FinamStatusError("Composition was already connected.")
+
         self._validate()
-
-        if not isinstance(t_max, datetime):
-            with LogError(self.logger):
-                raise ValueError("t_max must be of type datetime")
 
         self._connect()
 
@@ -116,6 +116,25 @@ class Composition(Loggable):
         for mod in self.modules:
             mod.validate()
             self._check_status(mod, [ComponentStatus.VALIDATED])
+
+        self.is_connected = True
+
+    def run(self, t_max):
+        """Run this composition using the loop-based update strategy.
+
+        Performs the connect phase if it ``connect()`` was not already called.
+
+        Parameters
+        ----------
+        t_max : datetime.datatime
+            Simulation time up to which to simulate.
+        """
+        if not isinstance(t_max, datetime):
+            with LogError(self.logger):
+                raise ValueError("t_max must be of type datetime")
+
+        if not self.is_connected:
+            self.connect()
 
         time_modules = [m for m in self.modules if isinstance(m, ITimeComponent)]
 
