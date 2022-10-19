@@ -14,7 +14,7 @@ class TestConnectHelper(unittest.TestCase):
 
         inputs = IOList("INPUT")
         inputs.add(name="In1")
-        inputs.add(name="In2")
+        inputs.add(name="In2", grid=NoGrid())
         outputs = IOList("OUTPUT")
         outputs.add(name="Out1")
         outputs.add(name="Out2")
@@ -40,6 +40,7 @@ class TestConnectHelper(unittest.TestCase):
             required_in_data=list(inputs.keys()),
             required_out_infos=list(outputs.keys()),
         )
+        self.assertEqual(connector.uses_base_logger_name, True)
 
         self.assertEqual(connector.infos_pushed, {"Out1": False, "Out2": False})
         self.assertEqual(connector.data_pushed, {"Out1": False, "Out2": False})
@@ -51,6 +52,8 @@ class TestConnectHelper(unittest.TestCase):
         status = connector.connect(time)
 
         self.assertEqual(status, ComponentStatus.CONNECTING_IDLE)
+
+        status = connector.connect(time, exchange_infos={"In1": info.copy()})
 
         sources[0].push_info(info.copy())
 
@@ -104,3 +107,30 @@ class TestConnectHelper(unittest.TestCase):
         self.assertEqual(connector.in_data, {"In1": 1, "In2": 2})
         self.assertEqual(connector.in_infos, {"In1": info, "In2": info})
         self.assertEqual(connector.out_infos, {"Out1": info, "Out2": info})
+
+    def test_connect_fail(self):
+        inputs = IOList("INPUT")
+        inputs.add(name="In1")
+        inputs.add(name="In2")
+        outputs = IOList("OUTPUT")
+        outputs.add(name="Out1")
+        outputs.add(name="Out2")
+
+        with self.assertRaises(ValueError):
+            _connector = ConnectHelper(
+                "TestLogger", inputs, outputs, required_in_data=["In3"]
+            )
+
+        with self.assertRaises(ValueError):
+            _connector = ConnectHelper(
+                "TestLogger", inputs, outputs, required_out_infos=["Out3"]
+            )
+
+        connector = ConnectHelper("TestLogger", inputs, outputs)
+
+        with self.assertRaises(ValueError):
+            connector.connect(time=None, exchange_infos={"In3": Info(NoGrid())})
+        with self.assertRaises(ValueError):
+            connector.connect(time=None, push_infos={"Out3": Info(NoGrid())})
+        with self.assertRaises(ValueError):
+            connector.connect(time=None, push_data={"Out3": 0.0})

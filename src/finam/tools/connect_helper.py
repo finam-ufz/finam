@@ -2,6 +2,7 @@
 import logging
 
 from ..core.interfaces import ComponentStatus, FinamNoDataError, Loggable
+from ..tools.log_helper import LogError
 
 
 class ConnectHelper(Loggable):
@@ -34,6 +35,18 @@ class ConnectHelper(Loggable):
         self.base_logger_name = logger_name
         self._inputs = inputs
         self._outputs = outputs
+
+        with LogError(self.logger):
+            for name in required_in_data or []:
+                if name not in self._inputs:
+                    raise ValueError(
+                        f"No input named '{name}' available to get info for."
+                    )
+            for name in required_out_infos or []:
+                if name not in self._outputs:
+                    raise ValueError(
+                        f"No output named '{name}' available to get data from."
+                    )
 
         self._exchanged_in_infos = {name: None for name in self.inputs.keys()}
         self._exchanged_out_infos = {name: None for name in required_out_infos or []}
@@ -121,6 +134,9 @@ class ConnectHelper(Loggable):
         push_infos = push_infos or {}
         push_data = push_data or {}
 
+        with LogError(self.logger):
+            self._check_names(exchange_infos, push_infos, push_data)
+
         any_done = self._push(time, push_infos, push_data)
         any_done |= self._exchange_in_infos(exchange_infos)
 
@@ -155,6 +171,19 @@ class ConnectHelper(Loggable):
             return ComponentStatus.CONNECTING
 
         return ComponentStatus.CONNECTING_IDLE
+
+    def _check_names(self, exchange_infos, push_infos, push_data):
+        for name in exchange_infos:
+            if name not in self._inputs:
+                raise ValueError(
+                    f"No input named '{name}' available to exchange info for."
+                )
+        for name in push_infos:
+            if name not in self._outputs:
+                raise ValueError(f"No output named '{name}' available to push info.")
+        for name in push_data:
+            if name not in self._outputs:
+                raise ValueError(f"No output named '{name}' available to push data.")
 
     def _exchange_in_infos(self, exchange_infos):
         any_done = False
