@@ -5,9 +5,13 @@
 ### Data and metadata rework
 
 * Add conversion between CRS to regridding adapters, using `pyproj` (!95)
-* Added more data tool functions: `quantify(xdata)` and `check_axes_uniformity(axes)` (!96)
+* Add more data tool functions: `quantify(xdata)` and `check_axes_uniformity(axes)` (!96)
 * In outputs, the name of the data is overwritten instead of failing the check (!98)
 * Adapters can pass through data with time, even if it does not match the pull time (which is quite common) (!98)
+
+### Interface
+
+* Add `CallbackOutput` for implementing pull-based components 
 
 ### Other  
 

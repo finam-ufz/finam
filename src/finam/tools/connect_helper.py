@@ -54,9 +54,11 @@ class ConnectHelper(Loggable):
         self._pulled_data = {name: None for name in required_in_data or []}
 
         self._pushed_infos = {
-            name: outp.has_info() for name, outp in self.outputs.items()
+            name: out.has_info() for name, out in self.outputs.items()
         }
-        self._pushed_data = {name: False for name in self.outputs.keys()}
+        self._pushed_data = {
+            name: False for name, out in self.outputs.items() if out.is_push_based
+        }
 
     @property
     def logger(self):

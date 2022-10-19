@@ -9,6 +9,7 @@ from finam import (
     AAdapter,
     ATimeComponent,
     CallbackInput,
+    CallbackOutput,
     ComponentStatus,
     Composition,
     FinamLogError,
@@ -19,7 +20,8 @@ from finam import (
     Input,
     NoGrid,
 )
-from finam.core.sdk import IOList, Output
+from finam.core.sdk import Output
+from finam.core.sdk.component import IOList
 
 
 class MockupAdapter(AAdapter):
@@ -132,6 +134,20 @@ class TestOutput(unittest.TestCase):
         self.assertEqual(counter, 1)
 
 
+class TestInput(unittest.TestCase):
+    def test_fail_set_source(self):
+        inp = Input(name="In", grid=NoGrid())
+        outp = Output(name="Out", grid=NoGrid())
+
+        with self.assertRaises(ValueError):
+            inp.set_source(0)
+
+        inp.set_source(outp)
+
+        with self.assertRaises(ValueError):
+            inp.set_source(outp)
+
+
 class TestCallbackInput(unittest.TestCase):
     def test_callback_input(self):
         caller = None
@@ -150,6 +166,45 @@ class TestCallbackInput(unittest.TestCase):
 
         self.assertEqual(caller, inp)
         self.assertEqual(counter, 1)
+
+
+class TestCallbackOutput(unittest.TestCase):
+    def test_callback_output(self):
+        caller = None
+        counter = 0
+        t = datetime(2000, 1, 1)
+
+        def callback(clr, _time):
+            nonlocal caller
+            nonlocal counter
+            caller = clr
+            counter += 1
+            return 42 if counter == 1 else None
+
+        out = CallbackOutput(callback=callback, name="callback")
+        out._connected_inputs = 1
+
+        with self.assertRaises(NotImplementedError):
+            _data = out.push_data(0, t)
+
+        with self.assertRaises(ValueError):
+            _data = out.get_data(0)
+
+        with self.assertRaises(FinamNoDataError):
+            _data = out.get_data(t)
+        out._output_info = Info(grid=NoGrid())
+        with self.assertRaises(FinamNoDataError):
+            _data = out.get_data(t)
+        out._out_infos_exchanged = 1
+
+        data = out.get_data(t)
+
+        self.assertEqual(data, 42)
+        self.assertEqual(caller, out)
+        self.assertEqual(counter, 1)
+
+        with self.assertRaises(FinamNoDataError):
+            _data = out.get_data(t)
 
 
 class TestIOList(unittest.TestCase):

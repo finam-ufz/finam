@@ -334,6 +334,17 @@ class TestComposition(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 31))
 
+    def test_no_update(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: 1.0}, step=timedelta(days=1)
+        )
+        module2 = MockupComponent(
+            callbacks={"Output": lambda t: 1.0}, step=timedelta(days=31)
+        )
+        composition = Composition([module1, module2])
+        composition.initialize()
+        composition.run(t_max=datetime(2000, 1, 1))
+
 
 if __name__ == "__main__":
     unittest.main()

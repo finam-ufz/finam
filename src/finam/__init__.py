@@ -14,7 +14,15 @@ from .core.interfaces import (
     NoBranchAdapter,
 )
 from .core.schedule import Composition
-from .core.sdk import AAdapter, AComponent, ATimeComponent, CallbackInput, Input, Output
+from .core.sdk import (
+    AAdapter,
+    AComponent,
+    ATimeComponent,
+    CallbackInput,
+    CallbackOutput,
+    Input,
+    Output,
+)
 from .data.grid_spec import (
     EsriGrid,
     NoGrid,
@@ -51,6 +59,7 @@ __all__ += [
     "AComponent",
     "ATimeComponent",
     "CallbackInput",
+    "CallbackOutput",
     "Input",
     "Output",
 ]
