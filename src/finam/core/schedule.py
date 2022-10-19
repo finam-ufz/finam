@@ -170,6 +170,13 @@ class Composition(Loggable):
                     ComponentStatus.FINISHED,
                 ],
             )
+            if (
+                isinstance(mod, ITimeComponent)
+                and mod.status == ComponentStatus.VALIDATED
+            ):
+                self.logger.warning(
+                    "Time component %s was not updated during this run", mod.name
+                )
             mod.finalize()
             self._check_status(mod, [ComponentStatus.FINALIZED])
 
