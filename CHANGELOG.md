@@ -2,20 +2,27 @@
 
 ## [unpublished]
 
+None
+
+## [v0.4.0-rc.2]
+
 ### Data and metadata rework
 
 * Add conversion between CRS to regridding adapters, using `pyproj` (!95)
-* Add more data tool functions: `quantify(xdata)` and `check_axes_uniformity(axes)` (!96)
+* Add more data tool functions: `quantify(xdata)`, `check_axes_uniformity(axes)` and `strip_data(xdata)` (!96, !100)
 * In outputs, the name of the data is overwritten instead of failing the check (!98)
 * Adapters can pass through data with time, even if it does not match the pull time (which is quite common) (!98)
 
 ### Interface
 
-* Add `CallbackOutput` for implementing pull-based components 
+* Add `CallbackOutput` for implementing pull-based components (!102)
+* Connect phase of scheduler can be called separately from run (!99)
+* No need to set component status in constructor anymore (!100)
 
 ### Other  
 
 * Components are allowed to be in state VALIDATED at the end of a run (i.e. not updated) (!97)
+* Component connector checks that inputs and outputs referenced in arguments actually exist (!101)
 
 ## [v0.4.0-rc.1]
 
