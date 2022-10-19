@@ -20,7 +20,8 @@ from finam import (
     Input,
     NoGrid,
 )
-from finam.core.sdk import IOList, Output
+from finam.core.sdk import Output
+from finam.core.sdk.component import IOList
 
 
 class MockupAdapter(AAdapter):

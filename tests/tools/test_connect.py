@@ -3,7 +3,7 @@ import unittest
 from datetime import datetime
 
 from finam import ComponentStatus, Info, Input, NoGrid, Output
-from finam.core.sdk import IOList
+from finam.core.sdk.component import IOList
 from finam.tools.connect_helper import ConnectHelper
 
 
