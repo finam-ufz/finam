@@ -219,6 +219,11 @@ class IOutput(ABC):
             Raises the error if infos were not yet exchanged
         """
 
+    @property
+    @abstractmethod
+    def is_push_based(self):
+        """Returns if the output is push-based, and requires push as startup."""
+
     @abstractmethod
     def has_info(self):
         """Returns if the output has a data info.

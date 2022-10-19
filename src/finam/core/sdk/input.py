@@ -180,7 +180,7 @@ class CallbackInput(Input):
     Parameters
     ----------
     callback : callable
-        A callback ``callback(data, time)``, returning the transformed data.
+        A callback ``callback(caller, time)``, returning the transformed data.
     """
 
     def __init__(self, callback, name, info=None, **info_kwargs):
