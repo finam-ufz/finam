@@ -134,6 +134,20 @@ class TestOutput(unittest.TestCase):
         self.assertEqual(counter, 1)
 
 
+class TestInput(unittest.TestCase):
+    def test_fail_set_source(self):
+        inp = Input(name="In", grid=NoGrid())
+        outp = Output(name="Out", grid=NoGrid())
+
+        with self.assertRaises(ValueError):
+            inp.set_source(0)
+
+        inp.set_source(outp)
+
+        with self.assertRaises(ValueError):
+            inp.set_source(outp)
+
+
 class TestCallbackInput(unittest.TestCase):
     def test_callback_input(self):
         caller = None
