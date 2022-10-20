@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta
 
-from ..core.sdk import ATimeComponent
+from ..sdk import ATimeComponent
 from ..tools.log_helper import LogError
 
 

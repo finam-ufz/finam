@@ -22,11 +22,10 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam import ATimeComponent, ComponentStatus, Info
-from finam import data as tools
+import finam as fm
 
 
-class Formind(ATimeComponent):
+class Formind(fm.ATimeComponent):
     def __init__(self, grid, start, step):
         super().__init__()
 
@@ -38,11 +37,11 @@ class Formind(ATimeComponent):
         self._time = start
         self._step = step
 
-        self.info = Info(grid)
+        self.info = fm.Info(grid)
         self.lai = None
 
     def _initialize(self):
-        self.lai = tools.full(1.0, "LAI", self.info, self.time)
+        self.lai = fm.data.full(1.0, "LAI", self.info, self.time)
 
         self.inputs.add(name="soil_water", info=self.info)
         self.outputs.add(name="LAI", info=self.info)

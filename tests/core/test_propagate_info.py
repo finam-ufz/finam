@@ -7,13 +7,11 @@ from datetime import datetime, timedelta
 from finam import (
     AAdapter,
     ATimeComponent,
-    ComponentStatus,
     Composition,
     FinamMetaDataError,
     Info,
     NoGrid,
 )
-from finam import data as tools
 from finam.modules.generators import CallbackGenerator
 
 
@@ -126,7 +124,7 @@ class TestPropagate(unittest.TestCase):
         )
 
         sink = MockupConsumer(
-            datetime(2000, 1, 1), Info(grid=NoGrid(), meta={"units": "m2"})
+            datetime(2000, 1, 1), Info(grid=NoGrid(), meta={"units": "m**2"})
         )
 
         composition = Composition([source, sink])

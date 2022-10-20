@@ -6,15 +6,12 @@ import unittest
 from datetime import datetime, timedelta
 
 import numpy as np
-import pint
 from numpy.testing import assert_allclose
 
-from finam import Info, NoGrid, UniformGrid
+from finam import UNITS, Info, NoGrid, UniformGrid
 from finam import data as fmdata
 from finam.adapters.base import Callback, GridToValue, Scale, ValueToGrid
 from finam.modules.generators import CallbackGenerator
-
-reg = pint.UnitRegistry(force_ndarray_like=True)
 
 
 class TestCallback(unittest.TestCase):
@@ -94,7 +91,7 @@ class TestGridToValue(unittest.TestCase):
         self.source.validate()
 
         result = self.adapter.get_data(datetime(2000, 1, 1))
-        self.assertEqual(result, 1.0 * reg.meter)
+        self.assertEqual(result, 1.0 * UNITS.meter)
 
     def test_grid_to_value_sum(self):
         self.adapter = GridToValue(func=np.ma.sum)
@@ -106,7 +103,7 @@ class TestGridToValue(unittest.TestCase):
         self.source.validate()
 
         result = self.adapter.get_data(datetime(2000, 1, 1))
-        self.assertEqual(result, 200.0 * reg.meter)
+        self.assertEqual(result, 200.0 * UNITS.meter)
 
 
 class TestValueToGrid(unittest.TestCase):
@@ -140,7 +137,7 @@ class TestValueToGrid(unittest.TestCase):
         out_data = self.adapter.get_data(datetime(2000, 1, 1))
 
         assert_allclose(fmdata.get_magnitude(out_data)[0, ...], reference_data)
-        self.assertEqual(str(fmdata.get_units(out_data)), "m")
+        self.assertEqual(fmdata.get_units(out_data), UNITS("m"))
 
 
 def create_grid(cols, rows, value):

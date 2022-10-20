@@ -3,9 +3,10 @@ Adapters that deal with time, like temporal interpolation and integration.
 """
 from datetime import datetime
 
-from ..core.interfaces import FinamNoDataError, FinamTimeError, NoBranchAdapter
-from ..core.sdk import AAdapter
+from finam.interfaces import FinamNoDataError, FinamTimeError, NoBranchAdapter
+
 from ..data import tools as dtools
+from ..sdk import AAdapter
 from ..tools.log_helper import LogError
 
 

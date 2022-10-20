@@ -4,10 +4,10 @@ Implementations of IOutput
 import logging
 from datetime import datetime
 
-from ...data import tools
-from ...data.tools import Info
-from ...tools.log_helper import LogError
+from ..data import tools
+from ..data.tools import Info
 from ..interfaces import FinamMetaDataError, FinamNoDataError, IInput, IOutput, Loggable
+from ..tools.log_helper import LogError
 
 
 class Output(IOutput, Loggable):

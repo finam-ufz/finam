@@ -9,7 +9,11 @@
 
 ### Components
 
-* Add `merger.WeightedSum` for aggregation of multiple inputs
+* Add `merger.WeightedSum` for aggregation of multiple inputs (!105)
+
+### Other
+
+* Remove module `core`, subpackages now under `finam` (!106)
 
 ## [v0.4.0-rc.2]
 

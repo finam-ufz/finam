@@ -2,8 +2,9 @@
 
 from datetime import datetime, timedelta
 
-from ..core.interfaces import ComponentStatus
-from ..core.sdk import ATimeComponent
+from finam.interfaces import ComponentStatus
+
+from ..sdk import ATimeComponent
 from ..tools.log_helper import LogError
 
 

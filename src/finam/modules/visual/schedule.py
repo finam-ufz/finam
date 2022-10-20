@@ -2,8 +2,9 @@
 
 from datetime import datetime
 
-from ...core.interfaces import ComponentStatus
-from ...core.sdk import AComponent, CallbackInput
+from finam.interfaces import ComponentStatus
+
+from ...sdk import AComponent, CallbackInput
 
 
 class ScheduleView(AComponent):

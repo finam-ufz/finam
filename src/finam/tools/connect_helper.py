@@ -1,7 +1,8 @@
 """Iterative connection helpers."""
 import logging
 
-from ..core.interfaces import ComponentStatus, FinamNoDataError, Loggable
+from finam.interfaces import ComponentStatus, FinamNoDataError, Loggable
+
 from ..tools.log_helper import LogError
 
 

@@ -7,7 +7,6 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from ..tools.log_helper import LogError, loggable
 from .interfaces import (
     ComponentStatus,
     FinamStatusError,
@@ -17,6 +16,7 @@ from .interfaces import (
     Loggable,
     NoBranchAdapter,
 )
+from .tools.log_helper import LogError, loggable
 
 
 class Composition(Loggable):

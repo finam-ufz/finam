@@ -1,6 +1,7 @@
 """
 Specialized data types for exchanges between models/modules.
 """
+from . import grid_spec, grid_tools, tools
 from .grid_tools import (
     canonical_data,
     check_axes_monotonicity,
@@ -27,7 +28,8 @@ from .tools import (
     to_xarray,
 )
 
-__all__ = [
+__all__ = ["grid_spec", "grid_tools", "tools"]
+__all__ += [
     "canonical_data",
     "check_axes_monotonicity",
     "check_axes_uniformity",

@@ -17,11 +17,10 @@ Calculations in each model step are as follows:
 """
 from datetime import datetime, timedelta
 
-from finam import UNITS, ATimeComponent, ComponentStatus, NoGrid
-from finam import data as tools
+import finam as fm
 
 
-class Ogs(ATimeComponent):
+class Ogs(fm.ATimeComponent):
     def __init__(self, start, step):
         super().__init__()
 
@@ -32,12 +31,12 @@ class Ogs(ATimeComponent):
 
         self._time = start
         self._step = step
-        self.head = 0 * UNITS.Unit("mm")
+        self.head = 0 * fm.UNITS.Unit("mm")
 
     def _initialize(self):
 
-        self.inputs.add(name="GW_recharge", grid=NoGrid(), units="mm")
-        self.outputs.add(name="head", grid=NoGrid(), units="mm")
+        self.inputs.add(name="GW_recharge", grid=fm.NoGrid(), units="mm")
+        self.outputs.add(name="head", grid=fm.NoGrid(), units="mm")
 
         self.create_connector()
 
@@ -49,10 +48,10 @@ class Ogs(ATimeComponent):
 
     def _update(self):
         # Retrieve inputs
-        recharge = tools.strip_time(self.inputs["GW_recharge"].pull_data(self.time))
+        recharge = fm.data.strip_time(self.inputs["GW_recharge"].pull_data(self.time))
 
         # Run the model step here
-        self.head = (self.head + tools.get_data(recharge)) * 0.9
+        self.head = (self.head + fm.data.get_data(recharge)) * 0.9
 
         # Increment model time
         self._time += self.step

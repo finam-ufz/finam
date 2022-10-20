@@ -2,10 +2,10 @@
 
 from datetime import datetime, timedelta
 
-from ...core.sdk import ATimeComponent
 from ...data import tools as dtools
 from ...data.grid_spec import NoGrid
 from ...data.tools import Info
+from ...sdk import ATimeComponent
 from ...tools.log_helper import LogError
 
 
