@@ -2,7 +2,9 @@
 
 ## [unpublished]
 
-None
+### Data and metadata rework
+
+* Outputs check compatibility between metadata of inputs if there is more than one target input (!104)
 
 ## [v0.4.0-rc.2]
 

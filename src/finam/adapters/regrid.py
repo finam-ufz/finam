@@ -35,7 +35,7 @@ class ARegridding(AAdapter, ABC):
 
         request = (
             info.copy_with(grid=self.input_grid)
-            if info.grid is None and self.input_grid is not None
+            if self.input_grid is not None
             else info
         )
         in_info = self.exchange_info(request)
