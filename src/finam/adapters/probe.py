@@ -1,10 +1,10 @@
 """
 Adapters for direct probing from link connections.
 """
-from ..sdk import AAdapter
+from ..sdk import Adapter
 
 
-class CallbackProbe(AAdapter):
+class CallbackProbe(Adapter):
     """Probe data by calling a callback. Simply forwards the data unchanged.
 
     Parameters

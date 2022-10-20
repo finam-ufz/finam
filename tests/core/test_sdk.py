@@ -6,8 +6,7 @@ import unittest
 from datetime import datetime
 
 from finam import (
-    AAdapter,
-    ATimeComponent,
+    Adapter,
     CallbackInput,
     CallbackOutput,
     ComponentStatus,
@@ -20,11 +19,12 @@ from finam import (
     Input,
     NoGrid,
     Output,
+    TimeComponent,
 )
 from finam.sdk.component import IOList
 
 
-class MockupAdapter(AAdapter):
+class MockupAdapter(Adapter):
     def __init__(self):
         super().__init__()
 
@@ -32,7 +32,7 @@ class MockupAdapter(AAdapter):
         return time
 
 
-class MockupComponent(ATimeComponent):
+class MockupComponent(TimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
@@ -41,7 +41,7 @@ class MockupComponent(ATimeComponent):
         self.status = ComponentStatus.FAILED
 
 
-class MockupComponentIO(ATimeComponent):
+class MockupComponentIO(TimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
@@ -162,7 +162,7 @@ class TestCallbackInput(unittest.TestCase):
 
         inp = CallbackInput(callback=callback, name="callback")
 
-        inp.source_changed(t)
+        inp.source_updated(t)
 
         self.assertEqual(caller, inp)
         self.assertEqual(counter, 1)
@@ -273,7 +273,7 @@ class TestAdapter(unittest.TestCase):
             adapter.push_data(1, 0)
 
         with self.assertRaises(ValueError):
-            adapter.source_changed(0)
+            adapter.source_updated(0)
 
         with self.assertRaises(FinamMetaDataError):
             adapter.exchange_info(None)
@@ -371,16 +371,16 @@ class TestIOFails(unittest.TestCase):
         inp = CallbackInput(callback=lambda t: t, name="In")
 
         with self.assertRaises(ValueError):
-            inp.source_changed(0)
+            inp.source_updated(0)
 
 
-class NotImplComponent(ATimeComponent):
+class NotImplComponent(TimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
 
 
-class NotImplAdapter(AAdapter):
+class NotImplAdapter(Adapter):
     def __init__(self):
         super().__init__()
 

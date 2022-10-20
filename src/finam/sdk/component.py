@@ -20,12 +20,12 @@ from ..interfaces import (
 )
 from ..tools.connect_helper import ConnectHelper
 from ..tools.enum_helper import get_enum_value
-from ..tools.log_helper import LogError, loggable
+from ..tools.log_helper import ErrorLogger, loggable
 from .input import Input
 from .output import Output
 
 
-class AComponent(IComponent, Loggable, ABC):
+class Component(IComponent, Loggable, ABC):
     """Abstract component implementation."""
 
     def __init__(self):
@@ -174,7 +174,7 @@ class AComponent(IComponent, Loggable, ABC):
     @status.setter
     def status(self, status):
         """The component's current status."""
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             self._status = get_enum_value(status, ComponentStatus, FinamStatusError)
 
     @property
@@ -258,7 +258,7 @@ class AComponent(IComponent, Loggable, ABC):
         self.logger.debug("try_connect status is %s", self.status)
 
 
-class ATimeComponent(ITimeComponent, AComponent, ABC):
+class TimeComponent(ITimeComponent, Component, ABC):
     """Abstract component with time step implementation."""
 
     def __init__(self):
@@ -269,14 +269,14 @@ class ATimeComponent(ITimeComponent, AComponent, ABC):
     def time(self):
         """The component's current simulation time."""
         if not isinstance(self._time, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
         return self._time
 
     @time.setter
     def time(self, time):
         if not isinstance(time, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
         self._time = time
 

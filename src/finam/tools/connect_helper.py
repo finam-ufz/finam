@@ -3,7 +3,7 @@ import logging
 
 from finam.interfaces import ComponentStatus, FinamNoDataError, Loggable
 
-from ..tools.log_helper import LogError
+from ..tools.log_helper import ErrorLogger
 
 
 class ConnectHelper(Loggable):
@@ -37,7 +37,7 @@ class ConnectHelper(Loggable):
         self._inputs = inputs
         self._outputs = outputs
 
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             for name in required_in_data or []:
                 if name not in self._inputs:
                     raise ValueError(
@@ -137,7 +137,7 @@ class ConnectHelper(Loggable):
         push_infos = push_infos or {}
         push_data = push_data or {}
 
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             self._check_names(exchange_infos, push_infos, push_data)
 
         any_done = self._push(time, push_infos, push_data)

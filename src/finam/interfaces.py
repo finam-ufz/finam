@@ -158,7 +158,7 @@ class IInput(ABC):
         """
 
     @abstractmethod
-    def source_changed(self, time):
+    def source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -281,7 +281,7 @@ class IOutput(ABC):
 
     @abstractmethod
     def notify_targets(self, time):
-        """Notify all targets by calling their ``source_changed(time)`` method.
+        """Notify all targets by calling their ``source_updated(time)`` method.
 
         Parameters
         ----------

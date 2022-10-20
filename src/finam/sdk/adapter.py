@@ -15,12 +15,12 @@ from ..interfaces import (
     IAdapter,
     IOutput,
 )
-from ..tools.log_helper import LogError, loggable
+from ..tools.log_helper import ErrorLogger, loggable
 from .input import Input
 from .output import Output
 
 
-class AAdapter(IAdapter, Input, Output, ABC):
+class Adapter(IAdapter, Input, Output, ABC):
     """Abstract adapter implementation."""
 
     def __init__(self):
@@ -49,13 +49,13 @@ class AAdapter(IAdapter, Input, Output, ABC):
         """
         self.logger.debug("push data")
         if not isinstance(time, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
         self.notify_targets(time)
 
     @final
-    def source_changed(self, time):
+    def source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -65,14 +65,14 @@ class AAdapter(IAdapter, Input, Output, ABC):
         """
         self.logger.debug("source changed")
         if not isinstance(time, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        self._source_changed(time)
+        self._source_updated(time)
 
         self.notify_targets(time)
 
-    def _source_changed(self, time):
+    def _source_updated(self, time):
         """Informs the input that a new output is available.
 
         Adapters can overwrite this method to handle incoming data.
@@ -87,7 +87,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
     def get_data(self, time):
         self.logger.debug("get data")
         if not isinstance(time, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise FinamTimeError("Time must be of type datetime")
 
         data = self._get_data(time)
@@ -162,7 +162,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
             delivered parameters
         """
         self.logger.debug("exchanging info")
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             if info is None:
                 raise FinamMetaDataError("No metadata provided")
             if not isinstance(info, Info):
@@ -185,14 +185,14 @@ class AAdapter(IAdapter, Input, Output, ABC):
         self.logger.debug("set source")
         # fix to set base-logger for adapters derived from Input source logger
         if self.uses_base_logger_name and not loggable(source):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise FinamLogError(
                     f"Adapter '{self.name}' can't get base logger from its source."
                 )
         else:
             self.base_logger_name = source.logger_name
 
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             if self.source is not None:
                 raise ValueError(
                     "Source of input is already set! "

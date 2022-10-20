@@ -6,11 +6,11 @@ from datetime import datetime
 from finam.interfaces import FinamNoDataError, FinamTimeError, NoBranchAdapter
 
 from ..data import tools as dtools
-from ..sdk import AAdapter
-from ..tools.log_helper import LogError
+from ..sdk import Adapter
+from ..tools.log_helper import ErrorLogger
 
 
-class NextValue(AAdapter):
+class NextValue(Adapter):
     """Time interpolation providing the next future value."""
 
     def __init__(self):
@@ -18,7 +18,7 @@ class NextValue(AAdapter):
         self.data = None
         self.time = None
 
-    def _source_changed(self, time):
+    def _source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -52,7 +52,7 @@ class NextValue(AAdapter):
         return self.data
 
 
-class PreviousValue(AAdapter):
+class PreviousValue(Adapter):
     """Time interpolation providing the newest past value."""
 
     def __init__(self):
@@ -60,7 +60,7 @@ class PreviousValue(AAdapter):
         self.old_data = None
         self.new_data = None
 
-    def _source_changed(self, time):
+    def _source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -102,7 +102,7 @@ class PreviousValue(AAdapter):
         return self.new_data[1]
 
 
-class LinearInterpolation(AAdapter):
+class LinearInterpolation(Adapter):
     """Linear time interpolation."""
 
     def __init__(self):
@@ -110,7 +110,7 @@ class LinearInterpolation(AAdapter):
         self.old_data = None
         self.new_data = None
 
-    def _source_changed(self, time):
+    def _source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -158,7 +158,7 @@ class LinearInterpolation(AAdapter):
         return result
 
 
-class LinearIntegration(AAdapter, NoBranchAdapter):
+class LinearIntegration(Adapter, NoBranchAdapter):
     """Time integration over the last time step of the requester.
 
     Calculates the temporal average.
@@ -169,7 +169,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         self.data = []
         self.prev_time = None
 
-    def _source_changed(self, time):
+    def _source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -284,7 +284,7 @@ def _check_time(logger, time, time_range=(None, None)):
     FinamTimeError
         if any of the checks fails
     """
-    with LogError(logger):
+    with ErrorLogger(logger):
         if not isinstance(time, datetime):
             raise FinamTimeError("Time must be of type datetime")
 

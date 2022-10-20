@@ -6,7 +6,7 @@ import finam as fm
 from finam.modules.debug import DebugConsumer
 
 
-class PullComponent(fm.AComponent):
+class PullComponent(fm.Component):
     def __init__(self):
         super().__init__()
 

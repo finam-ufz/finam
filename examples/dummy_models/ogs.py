@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 import finam as fm
 
 
-class Ogs(fm.ATimeComponent):
+class Ogs(fm.TimeComponent):
     def __init__(self, start, step):
         super().__init__()
 

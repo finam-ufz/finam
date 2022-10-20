@@ -24,13 +24,13 @@ from .interfaces import (
 )
 from .schedule import Composition
 from .sdk import (
-    AAdapter,
-    AComponent,
-    ATimeComponent,
+    Adapter,
     CallbackInput,
     CallbackOutput,
+    Component,
     Input,
     Output,
+    TimeComponent,
 )
 
 try:
@@ -54,9 +54,9 @@ __all__ += [
 ]
 __all__ += ["Composition"]
 __all__ += [
-    "AAdapter",
-    "AComponent",
-    "ATimeComponent",
+    "Adapter",
+    "Component",
+    "TimeComponent",
     "CallbackInput",
     "CallbackOutput",
     "Input",

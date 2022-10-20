@@ -7,11 +7,11 @@ import numpy as np
 
 from ..data import tools as dtools
 from ..data.grid_spec import NoGrid
-from ..sdk import ATimeComponent
-from ..tools.log_helper import LogError
+from ..sdk import TimeComponent
+from ..tools.log_helper import ErrorLogger
 
 
-class CsvWriter(ATimeComponent):
+class CsvWriter(TimeComponent):
     """Writes CSV time series with one row per time step, from multiple inputs.
 
     Expects all inputs to be scalar values.
@@ -38,7 +38,7 @@ class CsvWriter(ATimeComponent):
 
     def __init__(self, path, start, step, inputs, separator=";"):
         super().__init__()
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             if not isinstance(start, datetime):
                 raise ValueError("Start must be of type datetime")
             if not isinstance(step, timedelta):
@@ -89,7 +89,7 @@ class CsvWriter(ATimeComponent):
             )
             for inp in self._input_names
         ]
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             for (value, name) in zip(values, self._input_names):
                 dtools.assert_type(self, name, value.item(), [int, float])
 
