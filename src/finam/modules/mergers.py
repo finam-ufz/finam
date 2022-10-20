@@ -2,11 +2,11 @@
 from finam.interfaces import ComponentStatus, FinamMetaDataError
 
 from ..data.tools import check_units, strip_data
-from ..sdk import AComponent, CallbackOutput
+from ..sdk import CallbackOutput, Component
 from ..tools.log_helper import ErrorLogger
 
 
-class WeightedSum(AComponent):
+class WeightedSum(Component):
     """Merges inputs by weighted sum
 
     Parameters

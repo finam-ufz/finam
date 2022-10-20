@@ -25,7 +25,7 @@ from .input import Input
 from .output import Output
 
 
-class AComponent(IComponent, Loggable, ABC):
+class Component(IComponent, Loggable, ABC):
     """Abstract component implementation."""
 
     def __init__(self):
@@ -258,7 +258,7 @@ class AComponent(IComponent, Loggable, ABC):
         self.logger.debug("try_connect status is %s", self.status)
 
 
-class ATimeComponent(ITimeComponent, AComponent, ABC):
+class TimeComponent(ITimeComponent, Component, ABC):
     """Abstract component with time step implementation."""
 
     def __init__(self):

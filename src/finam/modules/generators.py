@@ -4,11 +4,11 @@ from datetime import datetime, timedelta
 
 from finam.interfaces import ComponentStatus
 
-from ..sdk import ATimeComponent
+from ..sdk import TimeComponent
 from ..tools.log_helper import ErrorLogger
 
 
-class CallbackGenerator(ATimeComponent):
+class CallbackGenerator(TimeComponent):
     """Component to generate data in fixed time intervals from multiple callbacks.
 
     .. code-block:: text

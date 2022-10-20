@@ -1,15 +1,15 @@
 """
 Implementations of FINAM interfaces for component and adapter development.
 """
-from .adapter import AAdapter
-from .component import AComponent, ATimeComponent
+from .adapter import Adapter
+from .component import Component, TimeComponent
 from .input import CallbackInput, Input
 from .output import CallbackOutput, Output
 
 __all__ = [
-    "AAdapter",
-    "AComponent",
-    "ATimeComponent",
+    "Adapter",
+    "Component",
+    "TimeComponent",
     "CallbackInput",
     "CallbackOutput",
     "Input",

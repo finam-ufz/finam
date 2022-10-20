@@ -4,10 +4,10 @@ from datetime import datetime
 
 from finam.interfaces import ComponentStatus
 
-from ...sdk import AComponent, CallbackInput
+from ...sdk import CallbackInput, Component
 
 
-class ScheduleView(AComponent):
+class ScheduleView(Component):
     """Live visualization of module update schedule.
 
     Takes inputs of arbitrary types and simply plots the time of notifications of each input.

@@ -6,11 +6,11 @@ from datetime import datetime
 from finam.interfaces import FinamNoDataError, FinamTimeError, NoBranchAdapter
 
 from ..data import tools as dtools
-from ..sdk import AAdapter
+from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
 
 
-class NextValue(AAdapter):
+class NextValue(Adapter):
     """Time interpolation providing the next future value."""
 
     def __init__(self):
@@ -52,7 +52,7 @@ class NextValue(AAdapter):
         return self.data
 
 
-class PreviousValue(AAdapter):
+class PreviousValue(Adapter):
     """Time interpolation providing the newest past value."""
 
     def __init__(self):
@@ -102,7 +102,7 @@ class PreviousValue(AAdapter):
         return self.new_data[1]
 
 
-class LinearInterpolation(AAdapter):
+class LinearInterpolation(Adapter):
     """Linear time interpolation."""
 
     def __init__(self):
@@ -158,7 +158,7 @@ class LinearInterpolation(AAdapter):
         return result
 
 
-class LinearIntegration(AAdapter, NoBranchAdapter):
+class LinearIntegration(Adapter, NoBranchAdapter):
     """Time integration over the last time step of the requester.
 
     Calculates the temporal average.

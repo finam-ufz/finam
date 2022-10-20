@@ -4,18 +4,11 @@ Unit tests for data info propagation.
 import unittest
 from datetime import datetime, timedelta
 
-from finam import (
-    AAdapter,
-    ATimeComponent,
-    Composition,
-    FinamMetaDataError,
-    Info,
-    NoGrid,
-)
+from finam import Adapter, Composition, FinamMetaDataError, Info, NoGrid, TimeComponent
 from finam.modules.generators import CallbackGenerator
 
 
-class MockupConsumer(ATimeComponent):
+class MockupConsumer(TimeComponent):
     def __init__(self, time, info):
         super().__init__()
         self.time = time
@@ -41,7 +34,7 @@ class MockupConsumer(ATimeComponent):
         pass
 
 
-class MockupProducer(ATimeComponent):
+class MockupProducer(TimeComponent):
     def __init__(self, time, info):
         super().__init__()
         self.time = time
@@ -69,7 +62,7 @@ class MockupProducer(ATimeComponent):
         pass
 
 
-class SpecAdapter(AAdapter):
+class SpecAdapter(Adapter):
     def __init__(self):
         super().__init__()
 

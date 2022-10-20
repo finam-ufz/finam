@@ -25,7 +25,7 @@ import numpy as np
 import finam as fm
 
 
-class Formind(fm.ATimeComponent):
+class Formind(fm.TimeComponent):
     def __init__(self, grid, start, step):
         super().__init__()
 

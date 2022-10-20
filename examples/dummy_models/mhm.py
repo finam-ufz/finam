@@ -33,7 +33,7 @@ import numpy as np
 import finam as fm
 
 
-class Mhm(fm.ATimeComponent):
+class Mhm(fm.TimeComponent):
     def __init__(self, grid, start, step):
         super().__init__()
 

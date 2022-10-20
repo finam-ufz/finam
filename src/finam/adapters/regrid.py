@@ -12,11 +12,11 @@ from finam.interfaces import FinamMetaDataError
 
 from ..data import tools as dtools
 from ..data.grid_spec import StructuredGrid
-from ..sdk import AAdapter
+from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
 
 
-class ARegridding(AAdapter, ABC):
+class ARegridding(Adapter, ABC):
     """Abstract regridding class for handling data info"""
 
     def __init__(self, in_grid=None, out_grid=None):

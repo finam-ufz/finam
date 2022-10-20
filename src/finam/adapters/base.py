@@ -5,10 +5,10 @@ import numpy as np
 
 from ..data.grid_spec import NoGrid
 from ..data.tools import get_magnitude, get_units
-from ..sdk import AAdapter
+from ..sdk import Adapter
 
 
-class Callback(AAdapter):
+class Callback(Adapter):
     """Transform data using a callback.
 
     Parameters
@@ -38,7 +38,7 @@ class Callback(AAdapter):
         return self.callback(d, time)
 
 
-class Scale(AAdapter):
+class Scale(Adapter):
     """Scales the input.
 
     Parameters
@@ -68,7 +68,7 @@ class Scale(AAdapter):
         return d * self.scale
 
 
-class ValueToGrid(AAdapter):
+class ValueToGrid(Adapter):
     """Convert a scalar value to a Matrix filled with that value.
 
     Parameters
@@ -108,7 +108,7 @@ class ValueToGrid(AAdapter):
         return out_info
 
 
-class GridToValue(AAdapter):
+class GridToValue(Adapter):
     """Convert a matrix to a scalar value using an aggregation function, e.g. ``numpy.ma.mean``.
 
     Parameters

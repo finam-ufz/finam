@@ -3,8 +3,8 @@ from . import connect_helper
 from .cwd_helper import execute_in_cwd, set_directory
 from .enum_helper import get_enum_value
 from .log_helper import (
-    LogCStdOutStdErr,
     ErrorLogger,
+    LogCStdOutStdErr,
     Loggable,
     LogStdOutStdErr,
     LogWriter,

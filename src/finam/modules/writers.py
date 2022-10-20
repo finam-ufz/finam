@@ -7,11 +7,11 @@ import numpy as np
 
 from ..data import tools as dtools
 from ..data.grid_spec import NoGrid
-from ..sdk import ATimeComponent
+from ..sdk import TimeComponent
 from ..tools.log_helper import ErrorLogger
 
 
-class CsvWriter(ATimeComponent):
+class CsvWriter(TimeComponent):
     """Writes CSV time series with one row per time step, from multiple inputs.
 
     Expects all inputs to be scalar values.

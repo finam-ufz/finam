@@ -20,7 +20,7 @@ from .input import Input
 from .output import Output
 
 
-class AAdapter(IAdapter, Input, Output, ABC):
+class Adapter(IAdapter, Input, Output, ABC):
     """Abstract adapter implementation."""
 
     def __init__(self):

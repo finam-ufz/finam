@@ -7,10 +7,10 @@ from datetime import datetime
 from finam.interfaces import ComponentStatus
 
 from ..data.grid_spec import NoGrid
-from ..sdk import ATimeComponent
+from ..sdk import TimeComponent
 
 
-class CsvReader(ATimeComponent):
+class CsvReader(TimeComponent):
     """Reads CSV time series with one row per time step, and emits values based on a time column.
 
     .. code-block:: text

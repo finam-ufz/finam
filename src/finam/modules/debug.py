@@ -2,11 +2,11 @@
 
 from datetime import datetime, timedelta
 
-from ..sdk import ATimeComponent
+from ..sdk import TimeComponent
 from ..tools.log_helper import ErrorLogger
 
 
-class DebugConsumer(ATimeComponent):
+class DebugConsumer(TimeComponent):
     """Generic component with arbitrary inputs and extensive debug logging.
 
     Parameters

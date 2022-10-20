@@ -8,22 +8,22 @@ from datetime import datetime, timedelta
 from tempfile import TemporaryDirectory
 
 from finam import (
-    AAdapter,
-    AComponent,
-    ATimeComponent,
+    Adapter,
+    Component,
     ComponentStatus,
     Composition,
     FinamStatusError,
     Info,
     NoBranchAdapter,
     NoGrid,
+    TimeComponent,
 )
 from finam import data as tools
 from finam.adapters.base import Scale
 from finam.modules import debug
 
 
-class NoTimeComponent(AComponent):
+class NoTimeComponent(Component):
     def __init__(self):
         super().__init__()
 
@@ -43,7 +43,7 @@ class NoTimeComponent(AComponent):
         pass
 
 
-class MockupComponent(ATimeComponent):
+class MockupComponent(TimeComponent):
     def __init__(self, callbacks, step):
         super().__init__()
 
@@ -79,7 +79,7 @@ class MockupComponent(ATimeComponent):
         pass
 
 
-class MockupDependentComponent(ATimeComponent):
+class MockupDependentComponent(TimeComponent):
     def __init__(self, step):
         super().__init__()
         self._step = step
@@ -103,7 +103,7 @@ class MockupDependentComponent(ATimeComponent):
         pass
 
 
-class MockupCircularComponent(ATimeComponent):
+class MockupCircularComponent(TimeComponent):
     def __init__(self, step):
         super().__init__()
         self._step = step
@@ -142,7 +142,7 @@ class MockupCircularComponent(ATimeComponent):
         pass
 
 
-class CallbackAdapter(AAdapter):
+class CallbackAdapter(Adapter):
     def __init__(self, callback):
         super().__init__()
         self.callback = callback
@@ -151,7 +151,7 @@ class CallbackAdapter(AAdapter):
         return self.callback(self.pull_data(time), time)
 
 
-class NbAdapter(AAdapter, NoBranchAdapter):
+class NbAdapter(Adapter, NoBranchAdapter):
     def _get_data(self, time):
         return self.pull_data(time)
 

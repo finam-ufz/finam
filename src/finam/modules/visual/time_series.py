@@ -5,11 +5,11 @@ from datetime import datetime, timedelta
 from ...data import tools as dtools
 from ...data.grid_spec import NoGrid
 from ...data.tools import Info
-from ...sdk import ATimeComponent
+from ...sdk import TimeComponent
 from ...tools.log_helper import ErrorLogger
 
 
-class TimeSeriesView(ATimeComponent):
+class TimeSeriesView(TimeComponent):
     """Live time series viewer.
 
     Expects all inputs to be scalar values.

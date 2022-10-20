@@ -2,11 +2,11 @@
 
 from datetime import datetime, timedelta
 
-from ..sdk import ATimeComponent
+from ..sdk import TimeComponent
 from ..tools.log_helper import ErrorLogger
 
 
-class CallbackComponent(ATimeComponent):
+class CallbackComponent(TimeComponent):
     """Component to generate, transform or consume data in fixed time intervals using a callback.
 
     Parameters

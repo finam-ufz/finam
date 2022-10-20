@@ -8,19 +8,19 @@ import numpy as np
 
 from finam import (
     UNITS,
-    ATimeComponent,
     ComponentStatus,
     Composition,
     FinamMetaDataError,
     Info,
     Location,
+    TimeComponent,
     UniformGrid,
 )
 from finam import data as tools
 from finam.modules.generators import CallbackGenerator
 
 
-class MockupConsumer(ATimeComponent):
+class MockupConsumer(TimeComponent):
     def __init__(self, time, units):
         super().__init__()
         self.time = time

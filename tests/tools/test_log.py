@@ -2,7 +2,7 @@ import logging
 import sys
 import unittest
 
-from finam.tools.log_helper import LogCStdOutStdErr, ErrorLogger, LogStdOutStdErr
+from finam.tools.log_helper import ErrorLogger, LogCStdOutStdErr, LogStdOutStdErr
 from finam.tools.wurlitzer import libc
 
 

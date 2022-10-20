@@ -6,8 +6,7 @@ import unittest
 from datetime import datetime
 
 from finam import (
-    AAdapter,
-    ATimeComponent,
+    Adapter,
     CallbackInput,
     CallbackOutput,
     ComponentStatus,
@@ -20,11 +19,12 @@ from finam import (
     Input,
     NoGrid,
     Output,
+    TimeComponent,
 )
 from finam.sdk.component import IOList
 
 
-class MockupAdapter(AAdapter):
+class MockupAdapter(Adapter):
     def __init__(self):
         super().__init__()
 
@@ -32,7 +32,7 @@ class MockupAdapter(AAdapter):
         return time
 
 
-class MockupComponent(ATimeComponent):
+class MockupComponent(TimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
@@ -41,7 +41,7 @@ class MockupComponent(ATimeComponent):
         self.status = ComponentStatus.FAILED
 
 
-class MockupComponentIO(ATimeComponent):
+class MockupComponentIO(TimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
@@ -374,13 +374,13 @@ class TestIOFails(unittest.TestCase):
             inp.source_updated(0)
 
 
-class NotImplComponent(ATimeComponent):
+class NotImplComponent(TimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
 
 
-class NotImplAdapter(AAdapter):
+class NotImplAdapter(Adapter):
     def __init__(self):
         super().__init__()
 
