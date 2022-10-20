@@ -21,7 +21,7 @@ from .grid_tools import Grid, GridBase
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here
-pint_xarray.unit_registry.default_format = "~cf"
+pint_xarray.unit_registry.default_format = "cf"
 UNITS = pint_xarray.unit_registry
 
 
