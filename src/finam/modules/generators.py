@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from finam.interfaces import ComponentStatus
 
 from ..sdk import ATimeComponent
-from ..tools.log_helper import LogError
+from ..tools.log_helper import ErrorLogger
 
 
 class CallbackGenerator(ATimeComponent):
@@ -31,7 +31,7 @@ class CallbackGenerator(ATimeComponent):
 
     def __init__(self, callbacks, start, step):
         super().__init__()
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             if not isinstance(start, datetime):
                 raise ValueError("Start must be of type datetime")
             if not isinstance(step, timedelta):

@@ -7,7 +7,7 @@ from finam.interfaces import FinamNoDataError, FinamTimeError, NoBranchAdapter
 
 from ..data import tools as dtools
 from ..sdk import AAdapter
-from ..tools.log_helper import LogError
+from ..tools.log_helper import ErrorLogger
 
 
 class NextValue(AAdapter):
@@ -284,7 +284,7 @@ def _check_time(logger, time, time_range=(None, None)):
     FinamTimeError
         if any of the checks fails
     """
-    with LogError(logger):
+    with ErrorLogger(logger):
         if not isinstance(time, datetime):
             raise FinamTimeError("Time must be of type datetime")
 

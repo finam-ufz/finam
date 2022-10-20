@@ -7,7 +7,7 @@ from datetime import datetime
 from ..data import tools
 from ..data.tools import Info
 from ..interfaces import FinamMetaDataError, IInput, IOutput, Loggable
-from ..tools.log_helper import LogError
+from ..tools.log_helper import ErrorLogger
 
 
 class Input(IInput, Loggable):
@@ -41,7 +41,7 @@ class Input(IInput, Loggable):
         """
         self.logger.debug("set source")
 
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             if self.source is not None:
                 raise ValueError(
                     "Source of input is already set! "
@@ -87,7 +87,7 @@ class Input(IInput, Loggable):
         """
         self.logger.debug("pull data")
         if not isinstance(time, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
         data = self.source.get_data(time)
@@ -95,7 +95,7 @@ class Input(IInput, Loggable):
         if "units" in self._input_info.meta:
             data = tools.to_units(data, self._input_info.units)
 
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             tools.check(data, data.name, self._input_info, time, ignore_time=True)
 
         return data
@@ -122,7 +122,7 @@ class Input(IInput, Loggable):
         """
         self.logger.debug("exchanging info")
 
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             if self._in_info_exchanged:
                 raise FinamMetaDataError("Input info was already exchanged.")
             if self._input_info is not None and info is not None:
@@ -137,7 +137,7 @@ class Input(IInput, Loggable):
 
         in_info = self.source.get_info(info)
 
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             fail_info = {}
             if not info.accepts(in_info, fail_info):
                 fail_info = "\n".join(
@@ -199,7 +199,7 @@ class CallbackInput(Input):
         """
         self.logger.debug("source changed")
         if not isinstance(time, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
         self.callback(self, time)

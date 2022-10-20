@@ -3,7 +3,7 @@ from finam.interfaces import ComponentStatus, FinamMetaDataError
 
 from ..data.tools import check_units, strip_data
 from ..sdk import AComponent, CallbackOutput
-from ..tools.log_helper import LogError
+from ..tools.log_helper import ErrorLogger
 
 
 class WeightedSum(AComponent):
@@ -75,7 +75,7 @@ class WeightedSum(AComponent):
             self._grid = info.grid
         else:
             if self._grid != info.grid:
-                with LogError(self.logger):
+                with ErrorLogger(self.logger):
                     raise FinamMetaDataError("All inputs must have the same grid.")
 
     def _check_units(self, info):
@@ -84,7 +84,7 @@ class WeightedSum(AComponent):
                 self._units = info.units
             else:
                 if not check_units(self._units, info.units):
-                    with LogError(self.logger):
+                    with ErrorLogger(self.logger):
                         raise FinamMetaDataError(
                             "All value inputs must have the same dimensions."
                         )

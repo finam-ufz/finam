@@ -6,7 +6,7 @@ from ...data import tools as dtools
 from ...data.grid_spec import NoGrid
 from ...data.tools import Info
 from ...sdk import ATimeComponent
-from ...tools.log_helper import LogError
+from ...tools.log_helper import ErrorLogger
 
 
 class TimeSeriesView(ATimeComponent):
@@ -39,7 +39,7 @@ class TimeSeriesView(ATimeComponent):
 
     def __init__(self, inputs, start, step, intervals=None, update_interval=1):
         super().__init__()
-        with LogError(self.logger):
+        with ErrorLogger(self.logger):
             if not isinstance(start, datetime):
                 raise ValueError("Start must be of type datetime")
             if not isinstance(step, timedelta):

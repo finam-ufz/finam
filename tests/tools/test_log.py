@@ -2,12 +2,12 @@ import logging
 import sys
 import unittest
 
-from finam.tools.log_helper import LogCStdOutStdErr, LogError, LogStdOutStdErr
+from finam.tools.log_helper import LogCStdOutStdErr, ErrorLogger, LogStdOutStdErr
 from finam.tools.wurlitzer import libc
 
 
 def raise_and_log(do_log):
-    with LogError(logging.getLogger(None), do_log=do_log):
+    with ErrorLogger(logging.getLogger(None), do_log=do_log):
         raise ValueError("This is an Error!")
 
 

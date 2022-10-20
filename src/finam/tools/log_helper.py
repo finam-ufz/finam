@@ -127,7 +127,7 @@ class LogCStdOutStdErr(AbstractContextManager):
             logger.log(self.level_stderr, line)
 
 
-class LogError(AbstractContextManager):
+class ErrorLogger(AbstractContextManager):
     """
     Context manager to log Exceptions.
 

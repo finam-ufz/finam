@@ -13,7 +13,7 @@ from finam.interfaces import FinamMetaDataError
 from ..data import tools as dtools
 from ..data.grid_spec import StructuredGrid
 from ..sdk import AAdapter
-from ..tools.log_helper import LogError
+from ..tools.log_helper import ErrorLogger
 
 
 class ARegridding(AAdapter, ABC):
@@ -42,10 +42,10 @@ class ARegridding(AAdapter, ABC):
         in_info = self.exchange_info(request)
 
         if self.output_grid is None and info.grid is None:
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Missing target grid specification")
         if self.input_grid is None and in_info.grid is None:
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Missing source grid specification")
 
         if (
@@ -53,7 +53,7 @@ class ARegridding(AAdapter, ABC):
             and info.grid is not None
             and self.output_grid != info.grid
         ):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise FinamMetaDataError(
                     "Target grid specification is already set, new specs differ"
                 )

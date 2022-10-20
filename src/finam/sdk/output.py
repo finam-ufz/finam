@@ -7,7 +7,7 @@ from datetime import datetime
 from ..data import tools
 from ..data.tools import Info
 from ..interfaces import FinamMetaDataError, FinamNoDataError, IInput, IOutput, Loggable
-from ..tools.log_helper import LogError
+from ..tools.log_helper import ErrorLogger
 
 
 class Output(IOutput, Loggable):
@@ -64,7 +64,7 @@ class Output(IOutput, Loggable):
         """
         self.logger.debug("add target")
         if not isinstance(target, IInput):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("Only IInput can added as target for IOutput")
 
         self.targets.append(target)
@@ -102,7 +102,7 @@ class Output(IOutput, Loggable):
             return
 
         if not isinstance(time, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
         if self.has_targets and self._out_infos_exchanged < self._connected_inputs:
@@ -121,7 +121,7 @@ class Output(IOutput, Loggable):
         """
         self.logger.debug("push info")
         if not isinstance(info, Info):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Metadata must be of type Info")
         self._output_info = info
 
@@ -135,7 +135,7 @@ class Output(IOutput, Loggable):
         """
         self.logger.debug("notify targets")
         if not isinstance(time, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
         for target in self.targets:
@@ -157,7 +157,7 @@ class Output(IOutput, Loggable):
         """
         self.logger.debug("get data")
         if not isinstance(time, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
         if self._output_info is None:
@@ -203,7 +203,7 @@ class Output(IOutput, Loggable):
                         for name, (got, exp) in fail_info.items()
                     ]
                 )
-                with LogError(self.logger):
+                with ErrorLogger(self.logger):
                     raise FinamMetaDataError(
                         f"Can't accept multiple conflicting data infos. Failed entries:\n{fail_info}"
                     )
@@ -298,7 +298,7 @@ class CallbackOutput(Output):
         """
         self.logger.debug("source changed")
         if not isinstance(time, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
         if self._output_info is None:

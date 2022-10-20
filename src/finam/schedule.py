@@ -16,7 +16,7 @@ from .interfaces import (
     Loggable,
     NoBranchAdapter,
 )
-from .tools.log_helper import LogError, loggable
+from .tools.log_helper import ErrorLogger, loggable
 
 
 class Composition(Loggable):
@@ -69,7 +69,7 @@ class Composition(Loggable):
 
         for module in modules:
             if not isinstance(module, IComponent):
-                with LogError(self.logger):
+                with ErrorLogger(self.logger):
                     raise ValueError(
                         "Composition: modules need to be instances of 'IComponent'."
                     )
@@ -95,7 +95,7 @@ class Composition(Loggable):
                 mod.base_logger_name = self.logger_name
             mod.initialize()
             # set logger
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 mod.inputs.set_logger(mod)
                 mod.outputs.set_logger(mod)
 
@@ -130,7 +130,7 @@ class Composition(Loggable):
             Simulation time up to which to simulate.
         """
         if not isinstance(t_max, datetime):
-            with LogError(self.logger):
+            with ErrorLogger(self.logger):
                 raise ValueError("t_max must be of type datetime")
 
         if not self.is_connected:
@@ -190,7 +190,7 @@ class Composition(Loggable):
                 par_inp = inp.get_source()
                 while True:
                     if par_inp is None:
-                        with LogError(self.logger):
+                        with ErrorLogger(self.logger):
                             raise ValueError(
                                 f"Unconnected input '{name}' for module {mod.name}"
                             )
@@ -210,7 +210,7 @@ class Composition(Loggable):
                     curr_targets = target.get_targets()
 
                     if no_branch and len(curr_targets) > 1:
-                        with LogError(self.logger):
+                        with ErrorLogger(self.logger):
                             raise ValueError(
                                 f"Disallowed branching of output '{name}' for "
                                 f"module {mod.name} ({target.__class__.__name__})"
@@ -254,7 +254,7 @@ class Composition(Loggable):
                     for m in self.modules
                     if m.status != ComponentStatus.CONNECTED
                 ]
-                with LogError(self.logger):
+                with ErrorLogger(self.logger):
                     raise FinamStatusError(
                         f"Circular dependency during initial connect. "
                         f"Unconnected components: [{', '.join(unconn)}]"
@@ -280,7 +280,7 @@ class Composition(Loggable):
 
     def _check_status(self, module, desired_list):
         if module.status not in desired_list:
-            with LogError(module.logger if loggable(module) else self.logger):
+            with ErrorLogger(module.logger if loggable(module) else self.logger):
                 raise FinamStatusError(
                     f"Unexpected model state {module.status} in {module.name}. "
                     f"Expecting one of [{', '.join(map(str, desired_list))}]"
