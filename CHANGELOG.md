@@ -14,6 +14,12 @@
 ### Other
 
 * Remove module `core`, subpackages now under `finam` (!106)
+* Rename `IOutput.source_changed()` to `source_updated` (!107)
+* Rename `LogError` to `ErrorLogger` (!107)
+* Rename abstract SDK classes: (!107)
+  * `AAdapter` is now `Adapter`
+  * `AComponent` is now `Component`
+  * `ATimeComponent` is now `TimeComponent`
 
 ## [v0.4.0-rc.2]
 
