@@ -589,7 +589,8 @@ class Grid(GridBase):
             and self.crs == other.crs
             and self.order == other.order
             and self.data_location == other.data_location
-            and np.array_equal(self.data_points, other.data_points)
+            and self.data_shape == other.data_shape
+            and np.allclose(self.data_points, other.data_points)
         )
 
     def export_vtk(
@@ -762,6 +763,9 @@ class StructuredGrid(Grid):
         return tuple(
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
         )
+
+    def __repr__(self):
+        return f"{self.__class__.__name__} {self.data_shape}"
 
     def export_vtk(
         self,
