@@ -21,9 +21,8 @@ from .grid_tools import Grid, GridBase
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here
-pint_xarray.unit_registry.default_format = "~cf"
-
 UNITS = pint_xarray.unit_registry
+UNITS.default_format = "cf"
 
 
 class FinamDataError(Exception):
@@ -422,7 +421,10 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
         )
     # check units
     if "units" in info.meta and UNITS.Unit(info.units) != get_units(xdata):
-        raise FinamDataError("check: given data has wrong units.")
+        raise FinamDataError(
+            f"check: given data has wrong units. "
+            f"Got {get_units(xdata)}, expected {UNITS.Unit(info.units)}."
+        )
 
 
 def _check_shape(xdata, grid, with_time):
