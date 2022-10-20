@@ -479,6 +479,11 @@ def quantify(xdata):
     )
 
 
+def check_units(lhs, rhs):
+    """checks if two units are compatible/convertible"""
+    return UNITS.Unit(lhs).is_compatible_with(rhs)
+
+
 def check_quantified(xdata, routine="check_quantified"):
     """
     Check if data is a quantified DataArray.
@@ -587,7 +592,7 @@ class Info:
         for k, v in self.meta.items():
             if v is not None and k in incoming.meta:
                 if k == "units":
-                    if not UNITS.Unit(v).is_compatible_with(incoming.meta[k]):
+                    if not check_units(v, incoming.meta[k]):
                         fail_info["meta." + k] = (incoming.meta[k], v)
                         success = False
                 else:

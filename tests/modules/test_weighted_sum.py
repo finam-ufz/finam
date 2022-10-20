@@ -16,6 +16,58 @@ def generate_grid(grid):
 
 
 class TestWeightedSum(unittest.TestCase):
+    def test_weighted_sum_simple(self):
+        start = datetime(2000, 1, 1)
+
+        generator1 = CallbackGenerator(
+            callbacks={
+                "Value": (
+                    lambda t: 1.0,
+                    fm.Info(grid=fm.NoGrid(), units="mm"),
+                ),
+                "Weight": (lambda t: 0.25, fm.Info(grid=fm.NoGrid())),
+            },
+            start=start,
+            step=timedelta(days=1),
+        )
+        generator2 = CallbackGenerator(
+            callbacks={
+                "Value": (
+                    lambda t: 2.0,
+                    fm.Info(grid=fm.NoGrid(), units="mm"),
+                ),
+                "Weight": (lambda t: 0.75, fm.Info(grid=fm.NoGrid())),
+            },
+            start=start,
+            step=timedelta(days=5),
+        )
+
+        merger = WeightedSum(inputs=["In1", "In2"], start=start)
+
+        consumer = DebugConsumer(
+            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
+            start=start,
+            step=timedelta(days=1),
+        )
+
+        composition = fm.Composition([generator1, generator2, merger, consumer])
+        composition.initialize()
+
+        generator1.outputs["Value"] >> merger.inputs["In1"]
+        generator1.outputs["Weight"] >> merger.inputs["In1_weight"]
+
+        generator2.outputs["Value"] >> merger.inputs["In2"]
+        generator2.outputs["Weight"] >> merger.inputs["In2_weight"]
+
+        merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
+
+        composition.run(t_max=start + timedelta(days=30))
+
+        self.assertEqual(consumer.data["WeightedSum"], 1.75 * fm.UNITS.millimeter)
+        self.assertEqual(
+            fm.data.get_units(consumer.data["WeightedSum"]), fm.UNITS("mm")
+        )
+
     def test_weighted_sum(self):
         start = datetime(2000, 1, 1)
         source_grid = fm.UniformGrid((20, 15))
@@ -46,7 +98,7 @@ class TestWeightedSum(unittest.TestCase):
         merger = WeightedSum(inputs=["In1", "In2"], start=start)
 
         consumer = DebugConsumer(
-            inputs={"WeightedSum": fm.Info(grid=source_grid, units=None)},
+            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
             start=start,
             step=timedelta(days=1),
         )
@@ -63,3 +115,214 @@ class TestWeightedSum(unittest.TestCase):
         merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
 
         composition.run(t_max=start + timedelta(days=30))
+
+        self.assertEqual(
+            fm.data.get_units(consumer.data["WeightedSum"]), fm.UNITS("mm")
+        )
+
+    def test_weighted_sum_fail_grid(self):
+        start = datetime(2000, 1, 1)
+        source_grid = fm.UniformGrid((20, 15))
+        source_grid_2 = fm.UniformGrid((20, 10))
+
+        generator1 = CallbackGenerator(
+            callbacks={
+                "Value": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(grid=source_grid, units="mm"),
+                ),
+                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+            },
+            start=start,
+            step=timedelta(days=1),
+        )
+        generator2 = CallbackGenerator(
+            callbacks={
+                "Value": (
+                    lambda t: generate_grid(source_grid_2),
+                    fm.Info(grid=source_grid_2, units="mm"),
+                ),
+                "Weight": (
+                    lambda t: generate_grid(source_grid_2),
+                    fm.Info(source_grid_2),
+                ),
+            },
+            start=start,
+            step=timedelta(days=5),
+        )
+
+        merger = WeightedSum(inputs=["In1", "In2"], start=start)
+
+        consumer = DebugConsumer(
+            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
+            start=start,
+            step=timedelta(days=1),
+        )
+
+        composition = fm.Composition([generator1, generator2, merger, consumer])
+        composition.initialize()
+
+        generator1.outputs["Value"] >> merger.inputs["In1"]
+        generator1.outputs["Weight"] >> merger.inputs["In1_weight"]
+
+        generator2.outputs["Value"] >> merger.inputs["In2"]
+        generator2.outputs["Weight"] >> merger.inputs["In2_weight"]
+
+        merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
+
+        with self.assertRaises(fm.FinamMetaDataError):
+            composition.run(t_max=start + timedelta(days=30))
+
+    def test_weighted_sum_fail_grid_weights(self):
+        start = datetime(2000, 1, 1)
+        source_grid = fm.UniformGrid((20, 15))
+        source_grid_2 = fm.UniformGrid((20, 10))
+
+        generator1 = CallbackGenerator(
+            callbacks={
+                "Value": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(grid=source_grid, units="mm"),
+                ),
+                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+            },
+            start=start,
+            step=timedelta(days=1),
+        )
+        generator2 = CallbackGenerator(
+            callbacks={
+                "Value": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(grid=source_grid, units="mm"),
+                ),
+                "Weight": (
+                    lambda t: generate_grid(source_grid_2),
+                    fm.Info(source_grid_2),
+                ),
+            },
+            start=start,
+            step=timedelta(days=5),
+        )
+
+        merger = WeightedSum(inputs=["In1", "In2"], start=start)
+
+        consumer = DebugConsumer(
+            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
+            start=start,
+            step=timedelta(days=1),
+        )
+
+        composition = fm.Composition([generator1, generator2, merger, consumer])
+        composition.initialize()
+
+        generator1.outputs["Value"] >> merger.inputs["In1"]
+        generator1.outputs["Weight"] >> merger.inputs["In1_weight"]
+
+        generator2.outputs["Value"] >> merger.inputs["In2"]
+        generator2.outputs["Weight"] >> merger.inputs["In2_weight"]
+
+        merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
+
+        with self.assertRaises(fm.FinamMetaDataError):
+            composition.run(t_max=start + timedelta(days=30))
+
+    def test_weighted_sum_fail_units(self):
+        start = datetime(2000, 1, 1)
+        source_grid = fm.UniformGrid((20, 15))
+
+        generator1 = CallbackGenerator(
+            callbacks={
+                "Value": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(grid=source_grid, units="mm"),
+                ),
+                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+            },
+            start=start,
+            step=timedelta(days=1),
+        )
+        generator2 = CallbackGenerator(
+            callbacks={
+                "Value": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(grid=source_grid, units="s"),
+                ),
+                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+            },
+            start=start,
+            step=timedelta(days=5),
+        )
+
+        merger = WeightedSum(inputs=["In1", "In2"], start=start)
+
+        consumer = DebugConsumer(
+            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
+            start=start,
+            step=timedelta(days=1),
+        )
+
+        composition = fm.Composition([generator1, generator2, merger, consumer])
+        composition.initialize()
+
+        generator1.outputs["Value"] >> merger.inputs["In1"]
+        generator1.outputs["Weight"] >> merger.inputs["In1_weight"]
+
+        generator2.outputs["Value"] >> merger.inputs["In2"]
+        generator2.outputs["Weight"] >> merger.inputs["In2_weight"]
+
+        merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
+
+        with self.assertRaises(fm.FinamMetaDataError):
+            composition.run(t_max=start + timedelta(days=30))
+
+    def test_weighted_sum_fail_units_weights(self):
+        start = datetime(2000, 1, 1)
+        source_grid = fm.UniformGrid((20, 15))
+
+        generator1 = CallbackGenerator(
+            callbacks={
+                "Value": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(grid=source_grid, units="mm"),
+                ),
+                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+            },
+            start=start,
+            step=timedelta(days=1),
+        )
+        generator2 = CallbackGenerator(
+            callbacks={
+                "Value": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(grid=source_grid, units="mm"),
+                ),
+                "Weight": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(source_grid, units="mm"),
+                ),
+            },
+            start=start,
+            step=timedelta(days=5),
+        )
+
+        merger = WeightedSum(inputs=["In1", "In2"], start=start)
+
+        consumer = DebugConsumer(
+            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
+            start=start,
+            step=timedelta(days=1),
+        )
+
+        composition = fm.Composition([generator1, generator2, merger, consumer])
+        composition.initialize()
+
+        generator1.outputs["Value"] >> merger.inputs["In1"]
+        generator1.outputs["Weight"] >> merger.inputs["In1_weight"]
+
+        generator2.outputs["Value"] >> merger.inputs["In2"]
+        generator2.outputs["Weight"] >> merger.inputs["In2_weight"]
+
+        merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
+
+        with self.assertRaises(fm.FinamMetaDataError):
+            composition.run(t_max=start + timedelta(days=30))
