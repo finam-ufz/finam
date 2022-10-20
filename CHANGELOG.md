@@ -5,6 +5,11 @@
 ### Data and metadata rework
 
 * Outputs check compatibility between metadata of inputs if there is more than one target input (!104)
+* Add data tools function `check_units(lhs, rhs)` to check for convertibility (!105)
+
+### Components
+
+* Add `merger.WeightedSum` for aggregation of multiple inputs
 
 ## [v0.4.0-rc.2]
 

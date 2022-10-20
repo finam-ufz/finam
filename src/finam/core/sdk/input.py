@@ -135,7 +135,9 @@ class Input(IInput, Loggable):
             if not isinstance(info, Info):
                 raise FinamMetaDataError("Metadata must be of type Info")
 
-            in_info = self.source.get_info(info)
+        in_info = self.source.get_info(info)
+
+        with LogError(self.logger):
             fail_info = {}
             if not info.accepts(in_info, fail_info):
                 fail_info = "\n".join(
