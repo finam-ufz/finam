@@ -4,7 +4,8 @@ import logging
 import sys
 from contextlib import AbstractContextManager
 
-from ..core.interfaces import Loggable
+from finam.interfaces import Loggable
+
 from . import wurlitzer
 
 

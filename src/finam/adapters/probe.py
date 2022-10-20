@@ -1,7 +1,7 @@
 """
 Adapters for direct probing from link connections.
 """
-from ..core.sdk import AAdapter
+from ..sdk import AAdapter
 
 
 class CallbackProbe(AAdapter):

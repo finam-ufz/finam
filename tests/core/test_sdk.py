@@ -19,9 +19,9 @@ from finam import (
     Info,
     Input,
     NoGrid,
+    Output,
 )
-from finam.core.sdk import Output
-from finam.core.sdk.component import IOList
+from finam.sdk.component import IOList
 
 
 class MockupAdapter(AAdapter):

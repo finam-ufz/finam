@@ -33,7 +33,7 @@ from datetime import datetime, timedelta
 import numpy as np
 from dummy_models import formind, mhm, ogs
 
-from finam import UNITS, Composition, Info, NoGrid, UniformGrid
+import finam as fm
 from finam.adapters import base, regrid, time
 from finam.modules import generators, writers
 from finam.modules.visual import schedule
@@ -50,15 +50,15 @@ if __name__ == "__main__":
     def precip(t):
         tt = (t - start_date).days
         p = 0.1 * (1 + int(tt / (5 * 365)) % 2)
-        return (1.0 if random.uniform(0, 1) < p else 0.0) * UNITS.Unit("mm")
+        return (1.0 if random.uniform(0, 1) < p else 0.0) * fm.UNITS.Unit("mm")
 
     precipitation = generators.CallbackGenerator(
-        {"precipitation": (precip, Info(grid=NoGrid(), units="mm"))},
+        {"precipitation": (precip, fm.Info(grid=fm.NoGrid(), units="mm"))},
         start=start_date,
         step=timedelta(days=1),
     )
     mhm = mhm.Mhm(
-        grid=UniformGrid(
+        grid=fm.UniformGrid(
             (21, 11), spacing=(1000.0, 1000.0, 1000.0), data_location="POINTS"
         ),
         start=start_date,
@@ -66,7 +66,7 @@ if __name__ == "__main__":
     )
     ogs = ogs.Ogs(start=start_date, step=timedelta(days=30))
     formind = formind.Formind(
-        grid=UniformGrid(
+        grid=fm.UniformGrid(
             (11, 7), spacing=(2000.0, 2000.0, 2000.0), data_location="POINTS"
         ),
         start=start_date,
@@ -100,12 +100,17 @@ if __name__ == "__main__":
         )
 
         sleep_mod = generators.CallbackGenerator(
-            {"time": (lambda t: sys_time.sleep(sleep_seconds), Info(grid=NoGrid()))},
+            {
+                "time": (
+                    lambda t: sys_time.sleep(sleep_seconds),
+                    fm.Info(grid=fm.NoGrid()),
+                )
+            },
             start=start_date,
             step=timedelta(days=1),
         )
 
-    composition = Composition(
+    composition = fm.Composition(
         [precipitation, mhm, ogs, formind]
         + ([mhm_csv, ogs_csv, formind_csv] if write_files else [])
         + ([schedule_view, sleep_mod] if schedule_view else []),

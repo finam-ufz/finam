@@ -5,9 +5,9 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from ..core.sdk import ATimeComponent
 from ..data import tools as dtools
 from ..data.grid_spec import NoGrid
+from ..sdk import ATimeComponent
 from ..tools.log_helper import LogError
 
 

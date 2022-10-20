@@ -4,10 +4,10 @@ Implementations of IInput
 import logging
 from datetime import datetime
 
-from ...data import tools
-from ...data.tools import Info
-from ...tools.log_helper import LogError
+from ..data import tools
+from ..data.tools import Info
 from ..interfaces import FinamMetaDataError, IInput, IOutput, Loggable
+from ..tools.log_helper import LogError
 
 
 class Input(IInput, Loggable):

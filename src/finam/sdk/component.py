@@ -8,9 +8,6 @@ from datetime import datetime
 from enum import IntEnum
 from typing import final
 
-from ...tools.connect_helper import ConnectHelper
-from ...tools.enum_helper import get_enum_value
-from ...tools.log_helper import LogError, loggable
 from ..interfaces import (
     ComponentStatus,
     FinamLogError,
@@ -21,6 +18,9 @@ from ..interfaces import (
     ITimeComponent,
     Loggable,
 )
+from ..tools.connect_helper import ConnectHelper
+from ..tools.enum_helper import get_enum_value
+from ..tools.log_helper import LogError, loggable
 from .input import Input
 from .output import Output
 

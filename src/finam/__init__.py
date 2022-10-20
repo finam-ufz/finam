@@ -1,28 +1,7 @@
 """
 The FINAM model coupling framework.
 """
-
-from . import adapters, core, data, modules, tools
-from .core.interfaces import (
-    ComponentStatus,
-    FinamLogError,
-    FinamMetaDataError,
-    FinamNoDataError,
-    FinamStatusError,
-    FinamTimeError,
-    Loggable,
-    NoBranchAdapter,
-)
-from .core.schedule import Composition
-from .core.sdk import (
-    AAdapter,
-    AComponent,
-    ATimeComponent,
-    CallbackInput,
-    CallbackOutput,
-    Input,
-    Output,
-)
+from . import adapters, data, interfaces, modules, schedule, sdk, tools
 from .data.grid_spec import (
     EsriGrid,
     NoGrid,
@@ -33,6 +12,26 @@ from .data.grid_spec import (
 )
 from .data.grid_tools import CellType, Location
 from .data.tools import UNITS, FinamDataError, Info
+from .interfaces import (
+    ComponentStatus,
+    FinamLogError,
+    FinamMetaDataError,
+    FinamNoDataError,
+    FinamStatusError,
+    FinamTimeError,
+    Loggable,
+    NoBranchAdapter,
+)
+from .schedule import Composition
+from .sdk import (
+    AAdapter,
+    AComponent,
+    ATimeComponent,
+    CallbackInput,
+    CallbackOutput,
+    Input,
+    Output,
+)
 
 try:
     from ._version import __version__
@@ -42,7 +41,7 @@ except ModuleNotFoundError:  # pragma: no cover
 
 
 __all__ = ["__version__"]
-__all__ += ["adapters", "core", "data", "modules", "tools"]
+__all__ += ["adapters", "data", "interfaces", "modules", "schedule", "sdk", "tools"]
 __all__ += [
     "ComponentStatus",
     "FinamLogError",

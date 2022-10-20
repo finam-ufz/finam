@@ -30,11 +30,10 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam import UNITS, ATimeComponent, ComponentStatus, Info, NoGrid
-from finam import data as tools
+import finam as fm
 
 
-class Mhm(ATimeComponent):
+class Mhm(fm.ATimeComponent):
     def __init__(self, grid, start, step):
         super().__init__()
 
@@ -50,12 +49,14 @@ class Mhm(ATimeComponent):
         self.soil_water = None
 
     def _initialize(self):
-        self.soil_water = tools.full(1.0, "soil_water", Info(grid=self.grid), self.time)
+        self.soil_water = fm.data.full(
+            1.0, "soil_water", fm.Info(grid=self.grid), self.time
+        )
 
-        self.inputs.add(name="precipitation", grid=NoGrid(), units="mm")
+        self.inputs.add(name="precipitation", grid=fm.NoGrid(), units="mm")
         self.inputs.add(name="LAI", grid=self.grid)
-        self.outputs.add(name="ETP", grid=NoGrid(), units="mm")
-        self.outputs.add(name="GW_recharge", grid=NoGrid(), units="mm")
+        self.outputs.add(name="ETP", grid=fm.NoGrid(), units="mm")
+        self.outputs.add(name="GW_recharge", grid=fm.NoGrid(), units="mm")
         self.outputs.add(name="soil_water", grid=self.grid)
 
         self.create_connector()
@@ -73,20 +74,20 @@ class Mhm(ATimeComponent):
 
     def _update(self):
         # Retrieve inputs
-        precipitation = tools.strip_time(
+        precipitation = fm.data.strip_time(
             self.inputs["precipitation"].pull_data(self.time)
         )
-        lai = tools.strip_time(self.inputs["LAI"].pull_data(self.time))
+        lai = fm.data.strip_time(self.inputs["LAI"].pull_data(self.time))
 
         # Run the model step here
         base_flow = 0.0
-        mm = UNITS.Unit("mm")
+        mm = fm.UNITS.Unit("mm")
         total_recharge = 0.0 * mm
         mean_evaporation = 0.0 * mm
         for x in range(self.soil_water.shape[1]):
             for y in range(self.soil_water.shape[2]):
                 sm = self.soil_water[0, x, y]
-                sm += tools.get_magnitude(precipitation)
+                sm += fm.data.get_magnitude(precipitation)
                 recharge = 0.1 * sm
                 evaporation = 0.5 * sm * (1.0 - np.exp(-0.05 * lai[x, y]))
                 sm -= recharge + evaporation
@@ -100,12 +101,13 @@ class Mhm(ATimeComponent):
         # Increment model time
         self._time += self._step
         # Push model state to outputs
-        self.outputs["soil_water"].push_data(tools.get_data(self.soil_water), self.time)
-        self.outputs["GW_recharge"].push_data(tools.get_data(total_recharge), self.time)
-        self.outputs["ETP"].push_data(tools.get_data(mean_evaporation), self.time)
-
-        # Update component status
-        self.status = ComponentStatus.UPDATED
+        self.outputs["soil_water"].push_data(
+            fm.data.get_data(self.soil_water), self.time
+        )
+        self.outputs["GW_recharge"].push_data(
+            fm.data.get_data(total_recharge), self.time
+        )
+        self.outputs["ETP"].push_data(fm.data.get_data(mean_evaporation), self.time)
 
     def _finalize(self):
         pass

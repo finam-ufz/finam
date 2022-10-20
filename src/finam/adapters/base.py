@@ -3,9 +3,9 @@ Basic data transformation adapters.
 """
 import numpy as np
 
-from ..core.sdk import AAdapter
 from ..data.grid_spec import NoGrid
 from ..data.tools import get_magnitude, get_units
+from ..sdk import AAdapter
 
 
 class Callback(AAdapter):

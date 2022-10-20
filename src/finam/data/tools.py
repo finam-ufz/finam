@@ -9,13 +9,13 @@ import xarray as xr
 
 # to be able to read unit attributes following the CF conventions
 # pylint: disable-next=W0611
-import cf_xarray.units  # must be imported before pint_xarray
 import pint_xarray
 import pint
 
 # isort: on
 
-from ..core.interfaces import FinamMetaDataError
+from finam.interfaces import FinamMetaDataError
+
 from .grid_spec import NoGrid
 from .grid_tools import Grid, GridBase
 
