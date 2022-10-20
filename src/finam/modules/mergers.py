@@ -6,7 +6,17 @@ from ..tools.log_helper import LogError
 
 
 class WeightedSum(AComponent):
-    """Merges inputs by weighted sum"""
+    """Merges inputs by weighted sum
+
+    Parameters
+    ----------
+    inputs : list(str)
+        Base input names; will create two inputs for each entry: "<name>" and "<name>_weight"
+    start : datetime.datetime
+        Starting time, for initial data exchange
+    grid : GridBase or None
+        Expected input grid specification; tries to obtain grid specs from inputs if set to None
+    """
 
     def __init__(self, inputs, start, grid=None):
         super().__init__()
