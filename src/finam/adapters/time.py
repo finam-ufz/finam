@@ -18,7 +18,7 @@ class NextValue(AAdapter):
         self.data = None
         self.time = None
 
-    def _source_changed(self, time):
+    def _source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -60,7 +60,7 @@ class PreviousValue(AAdapter):
         self.old_data = None
         self.new_data = None
 
-    def _source_changed(self, time):
+    def _source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -110,7 +110,7 @@ class LinearInterpolation(AAdapter):
         self.old_data = None
         self.new_data = None
 
-    def _source_changed(self, time):
+    def _source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -169,7 +169,7 @@ class LinearIntegration(AAdapter, NoBranchAdapter):
         self.data = []
         self.prev_time = None
 
-    def _source_changed(self, time):
+    def _source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters

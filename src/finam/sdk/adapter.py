@@ -55,7 +55,7 @@ class AAdapter(IAdapter, Input, Output, ABC):
         self.notify_targets(time)
 
     @final
-    def source_changed(self, time):
+    def source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -68,11 +68,11 @@ class AAdapter(IAdapter, Input, Output, ABC):
             with LogError(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        self._source_changed(time)
+        self._source_updated(time)
 
         self.notify_targets(time)
 
-    def _source_changed(self, time):
+    def _source_updated(self, time):
         """Informs the input that a new output is available.
 
         Adapters can overwrite this method to handle incoming data.

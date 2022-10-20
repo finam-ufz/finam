@@ -126,7 +126,7 @@ class Output(IOutput, Loggable):
         self._output_info = info
 
     def notify_targets(self, time):
-        """Notify all targets by calling their ``source_changed(time)`` method.
+        """Notify all targets by calling their ``source_updated(time)`` method.
 
         Parameters
         ----------
@@ -139,7 +139,7 @@ class Output(IOutput, Loggable):
                 raise ValueError("Time must be of type datetime")
 
         for target in self.targets:
-            target.source_changed(time)
+            target.source_updated(time)
 
     def get_data(self, time):
         """Get the output's data-set for the given time.

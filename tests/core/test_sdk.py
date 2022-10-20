@@ -162,7 +162,7 @@ class TestCallbackInput(unittest.TestCase):
 
         inp = CallbackInput(callback=callback, name="callback")
 
-        inp.source_changed(t)
+        inp.source_updated(t)
 
         self.assertEqual(caller, inp)
         self.assertEqual(counter, 1)
@@ -273,7 +273,7 @@ class TestAdapter(unittest.TestCase):
             adapter.push_data(1, 0)
 
         with self.assertRaises(ValueError):
-            adapter.source_changed(0)
+            adapter.source_updated(0)
 
         with self.assertRaises(FinamMetaDataError):
             adapter.exchange_info(None)
@@ -371,7 +371,7 @@ class TestIOFails(unittest.TestCase):
         inp = CallbackInput(callback=lambda t: t, name="In")
 
         with self.assertRaises(ValueError):
-            inp.source_changed(0)
+            inp.source_updated(0)
 
 
 class NotImplComponent(ATimeComponent):

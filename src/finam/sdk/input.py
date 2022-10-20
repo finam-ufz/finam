@@ -62,7 +62,7 @@ class Input(IInput, Loggable):
         """
         return self.source
 
-    def source_changed(self, time):
+    def source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
@@ -189,7 +189,7 @@ class CallbackInput(Input):
         super().__init__(name=name, info=info, **info_kwargs)
         self.callback = callback
 
-    def source_changed(self, time):
+    def source_updated(self, time):
         """Informs the input that a new output is available.
 
         Parameters
