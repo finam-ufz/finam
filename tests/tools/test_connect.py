@@ -109,6 +109,8 @@ class TestConnectHelper(unittest.TestCase):
         self.assertEqual(connector.out_infos, {"Out1": info, "Out2": info})
 
     def test_connect_fail(self):
+        time = datetime(2020, 10, 6)
+
         inputs = IOList("INPUT")
         inputs.add(name="In1")
         inputs.add(name="In2")
@@ -129,8 +131,8 @@ class TestConnectHelper(unittest.TestCase):
         connector = ConnectHelper("TestLogger", inputs, outputs)
 
         with self.assertRaises(ValueError):
-            connector.connect(time=None, exchange_infos={"In3": Info(NoGrid())})
+            connector.connect(time=None, exchange_infos={"In3": Info(time, NoGrid())})
         with self.assertRaises(ValueError):
-            connector.connect(time=None, push_infos={"Out3": Info(NoGrid())})
+            connector.connect(time=None, push_infos={"Out3": Info(time, NoGrid())})
         with self.assertRaises(ValueError):
             connector.connect(time=None, push_data={"Out3": 0.0})
