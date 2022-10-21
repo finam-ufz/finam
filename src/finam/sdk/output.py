@@ -42,6 +42,16 @@ class Output(IOutput, Loggable):
 
         return self._output_info
 
+    @property
+    def needs_pull(self):
+        """bool: if the output needs pull."""
+        return False
+
+    @property
+    def needs_push(self):
+        """bool: if the output needs push."""
+        return True
+
     def has_info(self):
         """Returns if the output has a data info.
 
@@ -287,6 +297,16 @@ class CallbackOutput(Output):
     def __init__(self, callback, name, info=None, **info_kwargs):
         super().__init__(name=name, info=info, **info_kwargs)
         self.callback = callback
+
+    @property
+    def needs_push(self):
+        """bool: if the output needs push."""
+        return False
+
+    @property
+    def needs_pull(self):
+        """bool: if the output needs pull."""
+        return True
 
     @property
     def is_push_based(self):

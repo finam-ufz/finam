@@ -34,6 +34,16 @@ class Adapter(IAdapter, Input, Output, ABC):
     def info(self):
         return self._output_info
 
+    @property
+    def needs_pull(self):
+        """bool: if the adapter needs pull."""
+        return False
+
+    @property
+    def needs_push(self):
+        """bool: if the adapter needs push."""
+        return False
+
     @final
     def push_data(self, data, time):
         """Push data into the output.

@@ -18,6 +18,10 @@ class NextValue(Adapter):
         self.data = None
         self.time = None
 
+    @property
+    def needs_push(self):
+        return True
+
     def _source_updated(self, time):
         """Informs the input that a new output is available.
 
@@ -59,6 +63,10 @@ class PreviousValue(Adapter):
         super().__init__()
         self.old_data = None
         self.new_data = None
+
+    @property
+    def needs_push(self):
+        return True
 
     def _source_updated(self, time):
         """Informs the input that a new output is available.
@@ -109,6 +117,10 @@ class LinearInterpolation(Adapter):
         super().__init__()
         self.old_data = None
         self.new_data = None
+
+    @property
+    def needs_push(self):
+        return True
 
     def _source_updated(self, time):
         """Informs the input that a new output is available.
@@ -168,6 +180,10 @@ class LinearIntegration(Adapter, NoBranchAdapter):
         super().__init__()
         self.data = []
         self.prev_time = None
+
+    @property
+    def needs_push(self):
+        return True
 
     def _source_updated(self, time):
         """Informs the input that a new output is available.

@@ -137,6 +137,16 @@ class IInput(ABC):
     def info(self):
         """Info: The input's data info."""
 
+    @property
+    @abstractmethod
+    def needs_pull(self):
+        """bool: if the input needs pull."""
+
+    @property
+    @abstractmethod
+    def needs_push(self):
+        """bool: if the input needs push."""
+
     @abstractmethod
     def set_source(self, source):
         """Set the input's source output or adapter
@@ -218,6 +228,16 @@ class IOutput(ABC):
         FinamNoDataError
             Raises the error if infos were not yet exchanged
         """
+
+    @property
+    @abstractmethod
+    def needs_pull(self):
+        """bool: if the output needs pull."""
+
+    @property
+    @abstractmethod
+    def needs_push(self):
+        """bool: if the output needs push."""
 
     @property
     @abstractmethod
