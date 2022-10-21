@@ -3,7 +3,6 @@ API reference
 =============
 
 .. automodule:: finam
-   :noindex:
 
 .. raw:: latex
 
