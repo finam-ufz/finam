@@ -1,5 +1,93 @@
 """
 The FINAM model coupling framework.
+
+Subpackages
+===========
+
+.. autosummary::
+
+    adapters
+    data
+    modules
+    sdk
+    tools
+    interfaces
+    schedule
+
+Schedule
+========
+
+.. currentmodule:: finam.schedule
+
+.. autosummary::
+
+    Composition
+
+Interfaces
+==========
+
+.. currentmodule:: finam.interfaces
+
+.. autosummary::
+
+    ComponentStatus
+    FinamLogError
+    FinamMetaDataError
+    FinamNoDataError
+    FinamStatusError
+    FinamTimeError
+    Loggable
+    NoBranchAdapter
+
+Software development kit
+========================
+
+.. currentmodule:: finam.sdk
+
+.. autosummary::
+
+    Adapter
+    CallbackInput
+    CallbackOutput
+    Component
+    Input
+    Output
+    TimeComponent
+
+Grids
+=====
+
+.. currentmodule:: finam.data
+
+.. autosummary::
+
+    EsriGrid
+    NoGrid
+    RectilinearGrid
+    UniformGrid
+    UnstructuredGrid
+    UnstructuredPoints
+
+Grid tools
+==========
+
+.. currentmodule:: finam.data
+
+.. autosummary::
+
+    CellType
+    Location
+
+Data tools
+==========
+
+.. currentmodule:: finam.data
+
+.. autosummary::
+
+    UNITS
+    FinamDataError
+    Info
 """
 from . import adapters, data, interfaces, modules, schedule, sdk, tools
 from .data.grid_spec import (
