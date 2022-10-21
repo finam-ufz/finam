@@ -30,7 +30,7 @@ class MockupConsumer(TimeComponent):
 
     def _initialize(self):
         self.inputs.add(name="Input", time=self.time, grid=None, units=self.units)
-        self.create_connector(required_in_data=["Input"])
+        self.create_connector(pull_data=["Input"])
 
     def _connect(self):
         self.try_connect(self.time)

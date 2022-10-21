@@ -32,7 +32,7 @@ class DebugConsumer(TimeComponent):
         for name, info in self._input_infos.items():
             info.time = self.time
             self.inputs.add(name=name, info=info)
-        self.create_connector(required_in_data=list(self._input_infos.keys()))
+        self.create_connector(pull_data=list(self._input_infos.keys()))
 
     def _connect(self):
         self.try_connect(self._time)

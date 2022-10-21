@@ -199,23 +199,21 @@ class Component(IComponent, Loggable, ABC):
         """The component's ConnectHelper"""
         return self._connector
 
-    def create_connector(self, required_in_data=None):
+    def create_connector(self, pull_data=None):
         """
         Create the component's ConnectHelper
 
         Parameters
         ----------
-        required_in_data : arraylike
+        pull_data : arraylike
             Names of the inputs that are to be pulled
-        required_out_infos : arraylike
-            Names of the outputs that need exchanged info
         """
         self.logger.debug("create connector")
         self._connector = ConnectHelper(
             self.logger_name,
             self.inputs,
             self.outputs,
-            required_in_data=required_in_data,
+            pull_data=pull_data,
         )
         self.inputs.frozen = True
         self.outputs.frozen = True

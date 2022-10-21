@@ -87,7 +87,7 @@ class MockupDependentComponent(TimeComponent):
 
     def _initialize(self):
         self.inputs.add(name="Input")
-        self.create_connector(required_in_data=["Input"])
+        self.create_connector(pull_data=["Input"])
 
     def _connect(self):
         self.try_connect(
@@ -116,7 +116,7 @@ class MockupCircularComponent(TimeComponent):
     def _initialize(self):
         self.inputs.add(name="Input")
         self.outputs.add(name="Output", time=self.time, grid=NoGrid())
-        self.create_connector(required_in_data=["Input"])
+        self.create_connector(pull_data=["Input"])
 
     def _connect(self):
         push_data = {}

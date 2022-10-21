@@ -37,7 +37,7 @@ class TestConnectHelper(unittest.TestCase):
             "TestLogger",
             inputs,
             outputs,
-            required_in_data=list(inputs.keys()),
+            pull_data=list(inputs.keys()),
         )
         self.assertEqual(connector.uses_base_logger_name, True)
 
@@ -118,9 +118,7 @@ class TestConnectHelper(unittest.TestCase):
         outputs.add(name="Out2")
 
         with self.assertRaises(ValueError):
-            _connector = ConnectHelper(
-                "TestLogger", inputs, outputs, required_in_data=["In3"]
-            )
+            _connector = ConnectHelper("TestLogger", inputs, outputs, pull_data=["In3"])
 
         connector = ConnectHelper("TestLogger", inputs, outputs)
 
