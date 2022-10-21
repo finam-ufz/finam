@@ -18,10 +18,8 @@ class ConnectHelper(Loggable):
         All inputs of the component.
     outputs : dict
         All outputs of the component.
-    required_in_data : arraylike
+    pull_data : arraylike
         Names of the inputs that are to be pulled
-    required_out_infos : arraylike
-        Names of the outputs that need exchanged info
     """
 
     def __init__(
@@ -29,8 +27,7 @@ class ConnectHelper(Loggable):
         logger_name,
         inputs,
         outputs,
-        required_in_data=None,
-        required_out_infos=None,
+        pull_data=None,
     ):
 
         self.base_logger_name = logger_name
@@ -38,21 +35,16 @@ class ConnectHelper(Loggable):
         self._outputs = outputs
 
         with ErrorLogger(self.logger):
-            for name in required_in_data or []:
+            for name in pull_data or []:
                 if name not in self._inputs:
                     raise ValueError(
                         f"No input named '{name}' available to get info for."
                     )
-            for name in required_out_infos or []:
-                if name not in self._outputs:
-                    raise ValueError(
-                        f"No output named '{name}' available to get data from."
-                    )
 
         self._exchanged_in_infos = {name: None for name in self.inputs.keys()}
-        self._exchanged_out_infos = {name: None for name in required_out_infos or []}
+        self._exchanged_out_infos = {name: None for name in self.outputs.keys()}
 
-        self._pulled_data = {name: None for name in required_in_data or []}
+        self._pulled_data = {name: None for name in pull_data or []}
 
         self._pushed_infos = {
             name: out.has_info() for name, out in self.outputs.items()
@@ -140,8 +132,7 @@ class ConnectHelper(Loggable):
         with ErrorLogger(self.logger):
             self._check_names(exchange_infos, push_infos, push_data)
 
-        any_done = self._push(time, push_infos, push_data)
-        any_done |= self._exchange_in_infos(exchange_infos)
+        any_done = self._exchange_in_infos(exchange_infos)
 
         for name, info in self.out_infos.items():
             if info is None:
@@ -152,14 +143,20 @@ class ConnectHelper(Loggable):
                 except FinamNoDataError:
                     self.logger.debug("Failed to pull output info for %s", name)
 
+        any_done += self._push(time, push_infos, push_data)
+
         for name, data in self.in_data.items():
             if data is None:
-                try:
-                    self.in_data[name] = self.inputs[name].pull_data(time)
-                    any_done = True
-                    self.logger.debug("Successfully pulled input data for %s", name)
-                except FinamNoDataError:
-                    self.logger.debug("Failed to pull input data for %s", name)
+                info = self.in_infos[name]
+                if info is not None:
+                    try:
+                        self.in_data[name] = self.inputs[name].pull_data(
+                            time or info.time
+                        )
+                        any_done = True
+                        self.logger.debug("Successfully pulled input data for %s", name)
+                    except FinamNoDataError:
+                        self.logger.debug("Failed to pull input data for %s", name)
 
         if (
             all(v is not None for v in self.in_infos.values())
@@ -225,12 +222,16 @@ class ConnectHelper(Loggable):
 
         for name, data in push_data.items():
             if not self.data_pushed[name] and self.infos_pushed[name]:
-                try:
-                    self.outputs[name].push_data(data, time)
-                    self.data_pushed[name] = True
-                    any_done = True
-                    self.logger.debug("Successfully pushed output data for %s", name)
-                except FinamNoDataError:
-                    self.logger.debug("Failed to push output data for %s", name)
+                info = self.out_infos[name]
+                if info is not None:
+                    try:
+                        self.outputs[name].push_data(data, time or info.time)
+                        self.data_pushed[name] = True
+                        any_done = True
+                        self.logger.debug(
+                            "Successfully pushed output data for %s", name
+                        )
+                    except FinamNoDataError:
+                        self.logger.debug("Failed to push output data for %s", name)
 
         return any_done

@@ -13,7 +13,10 @@ class PullComponent(fm.Component):
     def _initialize(self):
         self.outputs.add(
             fm.CallbackOutput(
-                callback=partial(self._get_data, "Out"), name="Out", grid=fm.NoGrid()
+                callback=partial(self._get_data, "Out"),
+                name="Out",
+                time=None,
+                grid=fm.NoGrid(),
             )
         )
         self.create_connector()
@@ -40,7 +43,9 @@ class TestPullBasedComponent(unittest.TestCase):
 
         pull_comp = PullComponent()
         consumer = DebugConsumer(
-            inputs={"In": fm.Info(grid=fm.NoGrid())}, start=time, step=timedelta(days=1)
+            inputs={"In": fm.Info(time=time, grid=fm.NoGrid())},
+            start=time,
+            step=timedelta(days=1),
         )
 
         composition = fm.Composition([pull_comp, consumer], log_level="DEBUG")

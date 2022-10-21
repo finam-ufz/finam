@@ -20,9 +20,9 @@ class TestCsvWriter(unittest.TestCase):
 
             generator = CallbackGenerator(
                 callbacks={
-                    "A": (lambda t: 0, Info(grid=NoGrid())),
-                    "B": (lambda t: (t - start).days, Info(grid=NoGrid())),
-                    "C": (lambda t: (t - start).days * 2, Info(grid=NoGrid())),
+                    "A": (lambda t: 0, Info(None, grid=NoGrid())),
+                    "B": (lambda t: (t - start).days, Info(None, grid=NoGrid())),
+                    "C": (lambda t: (t - start).days * 2, Info(None, grid=NoGrid())),
                 },
                 start=start,
                 step=timedelta(days=1),

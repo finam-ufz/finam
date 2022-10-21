@@ -17,7 +17,7 @@ from finam.modules.generators import CallbackGenerator
 class TestCallback(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid()))},
+            callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -28,7 +28,7 @@ class TestCallback(unittest.TestCase):
 
         self.source.outputs["Step"] >> self.adapter
 
-        self.adapter.get_info(Info(grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid()))
         self.source.connect()
         self.source.connect()
         self.source.validate()
@@ -44,7 +44,7 @@ class TestCallback(unittest.TestCase):
 class TestScale(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid()))},
+            callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -55,7 +55,7 @@ class TestScale(unittest.TestCase):
 
         self.source.outputs["Step"] >> self.adapter
 
-        self.adapter.get_info(Info(grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid()))
         self.source.connect()
         self.source.connect()
         self.source.validate()
@@ -74,7 +74,7 @@ class TestGridToValue(unittest.TestCase):
         grid, data = create_grid(20, 10, 1.0)
 
         self.source = CallbackGenerator(
-            callbacks={"Grid": (lambda t: data, Info(grid=grid, units="m"))},
+            callbacks={"Grid": (lambda t: data, Info(None, grid=grid, units="m"))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -85,7 +85,7 @@ class TestGridToValue(unittest.TestCase):
         self.adapter = GridToValue(func=np.ma.mean)
         self.source.outputs["Grid"] >> self.adapter
 
-        self.adapter.get_info(Info(grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid()))
         self.source.connect()
         self.source.connect()
         self.source.validate()
@@ -97,7 +97,7 @@ class TestGridToValue(unittest.TestCase):
         self.adapter = GridToValue(func=np.ma.sum)
         self.source.outputs["Grid"] >> self.adapter
 
-        self.adapter.get_info(Info(grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid()))
         self.source.connect()
         self.source.connect()
         self.source.validate()
@@ -113,7 +113,7 @@ class TestValueToGrid(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: 1.0,
-                    Info(grid=NoGrid(), units="m"),
+                    Info(None, grid=NoGrid(), units="m"),
                 )
             },
             start=datetime(2000, 1, 1),
@@ -128,7 +128,7 @@ class TestValueToGrid(unittest.TestCase):
         self.adapter = ValueToGrid(grid)
         self.source.outputs["Value"] >> self.adapter
 
-        self.adapter.get_info(Info(grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid()))
         self.source.connect()
         self.source.connect()
         self.source.validate()

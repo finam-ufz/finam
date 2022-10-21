@@ -216,6 +216,14 @@ class Output(IOutput, Loggable):
 
             self._output_info.grid = info.grid
 
+        if self._output_info.time is None:
+            if info.time is None:
+                raise FinamMetaDataError(
+                    "Can't set property `time` from target info, as it is not provided"
+                )
+
+            self._output_info.time = info.time
+
         for k, v in self._output_info.meta.items():
             if v is None:
                 if k not in info.meta or info.meta[k] is None:

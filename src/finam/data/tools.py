@@ -1,5 +1,6 @@
 """Data tools for FINAM."""
 import copy
+import datetime
 
 import numpy as np
 import pandas as pd
@@ -413,8 +414,10 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
             f"check: given data has wrong dimensions. Got {list(xdata.dims)}, expected {dims}."
         )
     # pint_xarray will remove the "units" entry in the data attributes
+    # time should not be checked, as it is for the connect phase only
     meta = copy.copy(info.meta)
     meta.pop("units", None)
+    meta.pop("time", None)
     if meta != xdata.attrs:
         raise FinamDataError(
             f"check: given data has wrong meta data.\nData: {xdata.attrs}\nMeta: {meta}"
@@ -519,7 +522,7 @@ def assert_type(cls, slot, obj, types):
 class Info:
     """Data info containing grid specification and metadata"""
 
-    def __init__(self, grid, meta=None, **meta_kwargs):
+    def __init__(self, time, grid, meta=None, **meta_kwargs):
         """Creates a data info object.
 
         Parameters
@@ -531,11 +534,14 @@ class Info:
         **meta_kwargs
             additional metadata by name, will overwrite entries in ``meta``
         """
+        if time is not None and not isinstance(time, datetime.datetime):
+            raise FinamMetaDataError("Time in Info must be either None or a datetime")
         if grid is not None and not isinstance(grid, GridBase):
             raise FinamMetaDataError(
                 "Grid in Info must be either None or of a sub-class of GridBase"
             )
 
+        self.time = time
         self.grid = grid
         self.meta = meta or {}
         self.meta.update(meta_kwargs)
@@ -554,9 +560,12 @@ class Info:
         **kwargs
             key values pairs for properties to change
         """
-        other = Info(grid=self.grid, meta=copy.copy(self.meta))
+        other = Info(time=self.time, grid=self.grid, meta=copy.copy(self.meta))
         for k, v in kwargs.items():
-            if k == "grid":
+            if k == "time":
+                if v is not None or use_none:
+                    other.time = v
+            elif k == "grid":
                 if v is not None or use_none:
                     other.grid = v
             else:
@@ -604,10 +613,13 @@ class Info:
 
     def __copy__(self):
         """Shallow copy of the info"""
-        return Info(grid=self.grid, meta=self.meta)
+        return Info(time=self.time, grid=self.grid, meta=self.meta)
 
     def __eq__(self, other):
-        """Equality check for two infos"""
+        """Equality check for two infos
+
+        Ignores time.
+        """
         if not isinstance(other, Info):
             return False
         return self.grid == other.grid and self.meta == other.meta

@@ -47,11 +47,11 @@ class TestCsvReader(unittest.TestCase):
             reader.connect()
             reader.connect()
 
-            sink1.exchange_info(Info(grid=NoGrid()))
-            sink2.exchange_info(Info(grid=NoGrid()))
+            sink1.exchange_info(Info(None, grid=NoGrid()))
+            sink2.exchange_info(Info(None, grid=NoGrid()))
 
-            reader.outputs["X"].get_info(Info(grid=NoGrid()))
-            reader.outputs["Y"].get_info(Info(grid=NoGrid()))
+            reader.outputs["X"].get_info(Info(None, grid=NoGrid()))
+            reader.outputs["Y"].get_info(Info(None, grid=NoGrid()))
 
             reader.connect()
             reader.validate()
@@ -59,6 +59,9 @@ class TestCsvReader(unittest.TestCase):
             self.assertEqual(reader.time, datetime(2000, 1, 1))
             self.assertEqual(reader.outputs["X"].get_data(datetime(2000, 1, 1)), 1)
             self.assertEqual(reader.outputs["Y"].get_data(datetime(2000, 1, 1)), 7)
+
+            self.assertEqual(sink1.info.time, datetime(2000, 1, 1))
+            self.assertEqual(sink2.info.time, datetime(2000, 1, 1))
 
             reader.update()
 

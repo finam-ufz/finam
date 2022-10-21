@@ -56,7 +56,7 @@ class MockupComponent(TimeComponent):
 
     def _initialize(self):
         for key, _ in self._callbacks.items():
-            self.outputs.add(name=key, grid=NoGrid())
+            self.outputs.add(name=key, time=self.time, grid=NoGrid())
         self.create_connector()
 
     def _connect(self):
@@ -64,7 +64,7 @@ class MockupComponent(TimeComponent):
         for key, callback in self._callbacks.items():
             push_data[key] = callback(self._time)
 
-        self.try_connect(self.time, push_data=push_data)
+        self.try_connect(push_data=push_data)
 
     def _validate(self):
         pass
@@ -87,10 +87,12 @@ class MockupDependentComponent(TimeComponent):
 
     def _initialize(self):
         self.inputs.add(name="Input")
-        self.create_connector(required_in_data=["Input"])
+        self.create_connector(pull_data=["Input"])
 
     def _connect(self):
-        self.try_connect(self.time, exchange_infos={"Input": Info(grid=NoGrid())})
+        self.try_connect(
+            self.time, exchange_infos={"Input": Info(time=self.time, grid=NoGrid())}
+        )
 
     def _validate(self):
         pass
@@ -113,8 +115,8 @@ class MockupCircularComponent(TimeComponent):
 
     def _initialize(self):
         self.inputs.add(name="Input")
-        self.outputs.add(name="Output", grid=NoGrid())
-        self.create_connector(required_in_data=["Input"])
+        self.outputs.add(name="Output", time=self.time, grid=NoGrid())
+        self.create_connector(pull_data=["Input"])
 
     def _connect(self):
         push_data = {}
@@ -123,8 +125,7 @@ class MockupCircularComponent(TimeComponent):
             push_data["Output"] = tools.get_data(tools.strip_time(pulled_data))
 
         self.try_connect(
-            self.time,
-            exchange_infos={"Input": Info(grid=NoGrid())},
+            exchange_infos={"Input": Info(time=self.time, grid=NoGrid())},
             push_data=push_data,
         )
 
@@ -189,8 +190,9 @@ class TestComposition(unittest.TestCase):
         self.assertTrue("Disallowed branching" in str(context.exception))
 
     def test_validate_inputs(self):
+        time = datetime(2000, 1, 1)
         module = debug.DebugConsumer(
-            {"Input": Info(grid=None)},
+            {"Input": Info(time=time, grid=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )

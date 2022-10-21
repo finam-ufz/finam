@@ -60,7 +60,7 @@ class CsvWriter(TimeComponent):
         and the component should have status INITIALIZED.
         """
         for inp in self._input_names:
-            self.inputs.add(name=inp, grid=NoGrid(), units=None)
+            self.inputs.add(name=inp, time=None, grid=NoGrid(), units=None)
 
         self.create_connector()
 

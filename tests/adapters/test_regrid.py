@@ -24,7 +24,10 @@ from finam.modules import debug, generators
 
 class TestRegrid(unittest.TestCase):
     def test_regrid_nearest(self):
+        time = datetime(2000, 1, 1)
+
         in_info = Info(
+            time=time,
             grid=UniformGrid(
                 dims=(5, 10), spacing=(3.0, 3.0, 3.0), data_location=Location.POINTS
             ),
@@ -48,7 +51,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(grid=out_spec)},
+            {"Input": Info(None, grid=out_spec)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -70,7 +73,9 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink.data["Input"][0, 2, 2], 0.0 * UNITS.meter)
 
     def test_regrid_nearest_crs(self):
+        time = datetime(2000, 1, 1)
         in_info = Info(
+            time=time,
             grid=UniformGrid(
                 dims=(5, 10),
                 spacing=(3.0, 3.0, 3.0),
@@ -99,7 +104,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(grid=out_spec)},
+            {"Input": Info(None, grid=out_spec)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -121,7 +126,9 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink.data["Input"][0, 2, 2], 0.0 * UNITS.meter)
 
     def test_regrid_linear(self):
+        time = datetime(2000, 1, 1)
         in_info = Info(
+            time=time,
             grid=UniformGrid(
                 dims=(5, 10),
                 spacing=(2.0, 2.0, 2.0),
@@ -141,7 +148,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(grid=out_spec)},
+            {"Input": Info(None, grid=out_spec)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -160,7 +167,9 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink.data["Input"][0, 1, 1], 0.25 * UNITS.meter)
 
     def test_regrid_linear_crs(self):
+        time = datetime(2000, 1, 1)
         in_info = Info(
+            time=time,
             grid=UniformGrid(
                 dims=(5, 10),
                 spacing=(2.0, 2.0, 2.0),
@@ -183,7 +192,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(grid=out_spec)},
+            {"Input": Info(None, grid=out_spec)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -206,7 +215,9 @@ class TestRegrid(unittest.TestCase):
         self.assertAlmostEqual(fdata.get_magnitude(sink.data["Input"])[0, 1, 1], 0.25)
 
     def test_regrid_linear_custom(self):
+        time = datetime(2000, 1, 1)
         in_info = Info(
+            time=time,
             grid=UniformGrid(
                 dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
             ),
@@ -218,13 +229,15 @@ class TestRegrid(unittest.TestCase):
         in_data.data[0, 0] = 1.0
 
         source = generators.CallbackGenerator(
-            callbacks={"Output": (lambda t: in_data, Info(grid=None, units="m"))},
+            callbacks={
+                "Output": (lambda t: in_data, Info(time=None, grid=None, units="m"))
+            },
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(grid=None)},
+            {"Input": Info(None, grid=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -247,8 +260,10 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink.data["Input"][0, 1, 1], 0.25 * UNITS.meter)
 
     def test_regrid_linear_rev(self):
+        time = datetime(2000, 1, 1)
         in_info = Info(
-            RectilinearGrid(
+            time=time,
+            grid=RectilinearGrid(
                 axes=[np.linspace(8, 0, 5), np.linspace(0, 18, 10)],
                 data_location=Location.POINTS,
             ),
@@ -266,7 +281,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(grid=out_spec)},
+            {"Input": Info(None, grid=out_spec)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -285,8 +300,10 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink.data["Input"][0, 1, 1], 0.25 * UNITS.meter)
 
     def test_regrid_multi(self):
+        time = datetime(2000, 1, 1)
         in_info = Info(
-            UniformGrid(
+            time=time,
+            grid=UniformGrid(
                 dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
             ),
             units="m",
@@ -304,12 +321,12 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink_1 = debug.DebugConsumer(
-            {"Input": Info(grid=out_spec_1)},
+            {"Input": Info(None, grid=out_spec_1)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
         sink_2 = debug.DebugConsumer(
-            {"Input": Info(grid=out_spec_2)},
+            {"Input": Info(None, grid=out_spec_2)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -338,8 +355,10 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink_2.data["Input"][0, 1, 1], 0.25 * UNITS.meter)
 
     def test_regrid_multi_fail(self):
+        time = datetime(2000, 1, 1)
         in_info = Info(
-            UniformGrid(
+            time=time,
+            grid=UniformGrid(
                 dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
             ),
             units="m",
@@ -357,12 +376,12 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink_1 = debug.DebugConsumer(
-            {"Input": Info(grid=out_spec_1)},
+            {"Input": Info(None, grid=out_spec_1)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
         sink_2 = debug.DebugConsumer(
-            {"Input": Info(grid=out_spec_2)},
+            {"Input": Info(None, grid=out_spec_2)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -380,6 +399,7 @@ class TestRegrid(unittest.TestCase):
             composition.run(t_max=datetime(2000, 1, 2))
 
     def test_regrid_linear_unstructured(self):
+        time = datetime(2000, 1, 1)
         g1 = UniformGrid(
             dims=(5, 10),
             spacing=(2.0, 2.0, 2.0),
@@ -388,6 +408,7 @@ class TestRegrid(unittest.TestCase):
         g2 = UniformGrid(dims=(9, 19), data_location=Location.POINTS)
 
         in_info = Info(
+            time=time,
             grid=UnstructuredGrid(
                 points=g1.data_points,
                 cells=g1.cells,
@@ -413,7 +434,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(grid=out_spec)},
+            {"Input": Info(None, grid=out_spec)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )

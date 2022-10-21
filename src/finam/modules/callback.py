@@ -42,9 +42,11 @@ class CallbackComponent(TimeComponent):
 
     def _initialize(self):
         for name, info in self._input_infos.items():
+            info.time = self.time
             self.inputs.add(name=name, info=info)
 
         for name, info in self._output_infos.items():
+            info.time = self.time
             self.outputs.add(name=name, info=info)
 
         self.create_connector()

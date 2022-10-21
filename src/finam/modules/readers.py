@@ -7,6 +7,7 @@ from datetime import datetime
 from finam.interfaces import ComponentStatus
 
 from ..data.grid_spec import NoGrid
+from ..data.tools import Info
 from ..sdk import TimeComponent
 
 
@@ -56,7 +57,7 @@ class CsvReader(TimeComponent):
 
         self._data = pandas.read_csv(self._path, sep=self._separator)
         for name in self._output_names:
-            self.outputs.add(name=name, grid=NoGrid())
+            self.outputs.add(name=name)
 
         self.create_connector()
 
@@ -71,13 +72,17 @@ class CsvReader(TimeComponent):
             self._row_index = 1
             self._first_connect = False
 
-        if self._date_format is None:
-            self._time = datetime.fromisoformat(row[self._time_column])
-        else:
-            self._time = datetime.strptime(row[self._time_column], self._date_format)
+            if self._date_format is None:
+                self._time = datetime.fromisoformat(row[self._time_column])
+            else:
+                self._time = datetime.strptime(
+                    row[self._time_column], self._date_format
+                )
 
         self.try_connect(
-            time=self._time, push_data={name: row[name] for name in self.outputs}
+            time=self._time,
+            push_infos={name: Info(self.time, grid=NoGrid()) for name in self.outputs},
+            push_data={name: row[name] for name in self.outputs},
         )
 
     def _validate(self):

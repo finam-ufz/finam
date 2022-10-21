@@ -19,10 +19,9 @@ class WeightedSum(Component):
         Expected input grid specification; tries to obtain grid specs from inputs if set to None
     """
 
-    def __init__(self, inputs, start, grid=None):
+    def __init__(self, inputs, grid=None):
         super().__init__()
         self._input_names = inputs
-        self._start = start
         self._grid = grid
         self._units = None
         self._in_data = None
@@ -31,20 +30,17 @@ class WeightedSum(Component):
 
     def _initialize(self):
         for name in self._input_names:
-            self.inputs.add(name=name, grid=self._grid, units=None)
-            self.inputs.add(name=name + "_weight", grid=self._grid, units="")
+            self.inputs.add(name=name, time=None, grid=self._grid, units=None)
+            self.inputs.add(name=name + "_weight", time=None, grid=self._grid, units="")
 
         self._grid = None
 
         self.outputs.add(CallbackOutput(callback=self._get_data, name="WeightedSum"))
-        self.create_connector(
-            required_in_data=list(self.inputs),
-            required_out_infos=["WeightedSum"],
-        )
+        self.create_connector(pull_data=list(self.inputs))
 
     def _connect(self):
         push_infos = self._check_infos()
-        self.try_connect(time=self._start, push_infos=push_infos)
+        self.try_connect(push_infos=push_infos)
 
         if self.status == ComponentStatus.CONNECTED:
             # just to check for all inputs equal
