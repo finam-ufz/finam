@@ -1,0 +1,26 @@
+=============
+API reference
+=============
+
+.. automodule:: finam
+
+.. raw:: latex
+
+    \clearpage
+
+.. toctree::
+   :hidden:
+
+   self
+
+.. toctree::
+   :hidden:
+   :caption: Subpackages
+
+   adapters.rst
+   data.rst
+   modules.rst
+   sdk.rst
+   tools.rst
+   interfaces.rst
+   schedule.rst

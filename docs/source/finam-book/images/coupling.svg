@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="svg8" width="1146.6" height="356.48" version="1.1" viewBox="0 0 1146.6 356.48" xmlns="http://www.w3.org/2000/svg">
+  <g id="g886" transform="translate(314.72 7.4206)">
+    <g id="g10" transform="translate(-28,-36)" fill="#fff" stroke="#000" stroke-linecap="round" stroke-width="2">
+      <g id="g7" stroke-linejoin="round">
+        <path id="rect3484" d="m133 65h62v30h-62l15-15z" stop-color="#000000"/>
+        <path id="rect3484-9" d="m412.5 133h-48v30h48l15-15z" stop-color="#000000"/>
+        <path id="rect3484-9-6" d="m412.5 89h-48v30h48l15-15z" stop-color="#000000"/>
+        <path id="rect3484-5" d="m133 153h62v30h-62l15-15z" stop-color="#000000"/>
+      </g>
+      <rect id="rect7" x="181" y="45" width="198" height="158" rx="9.8683" ry="9.5592" stop-color="#000000"/>
+    </g>
+    <text id="text3558-2" x="251.0918" y="96.449219" font-family="Arial" font-size="24px" letter-spacing="0px" text-align="center" text-anchor="middle" word-spacing="0px" style="line-height:1.25" xml:space="preserve">Model A</text>
+  </g>
+  <g fill="#fff" stroke="#000" stroke-linecap="round">
+    <path id="rect3484-6-6" d="m699.22 60.42 15 15-15 15c75.035 0 117.87 91.745 192.54 92.795l-0.0234 0.0234h62v-30h-60.689c-75.467 0-118.36-92.818-193.83-92.818z" stroke-linejoin="round" stroke-width="2"/>
+    <path id="rect3484-5-1" d="m891.73 197.24h62v30h-62l15-15z" stop-color="#000000" stroke-linejoin="round" stroke-width="2"/>
+    <rect id="rect7-0" x="939.73" y="132.8" width="198" height="114.88" rx="9.8683" ry="9.5592" stop-color="#000000" stroke-width="1.7054"/>
+  </g>
+  <text id="text3558-2-1" x="1037.6444" y="196.44371" font-family="Arial" font-size="24px" letter-spacing="0px" text-align="center" text-anchor="middle" word-spacing="0px" style="line-height:1.25" xml:space="preserve">Post-processor</text>
+  <g id="g1072" transform="translate(294.53 -38.395)">
+    <g fill="#fff" stroke="#000" stroke-linecap="round">
+      <path id="rect3484-9-1" d="m404.68 328.45h-48v30h48l15-15z" stop-color="#000000" stroke-linejoin="round" stroke-width="2"/>
+      <path id="rect3484-6-2" d="m125.18 328.45h62v30h-62l15-15z" stop-color="#000000" stroke-linejoin="round" stroke-width="2"/>
+      <rect id="rect7-9" x="173.18" y="300.77" width="198" height="85.371" rx="9.8683" ry="9.5592" stop-color="#000000" stroke-width="1.4701"/>
+    </g>
+    <text id="text3558-2-3" x="271.931" y="351.90106" font-family="Arial" font-size="24px" letter-spacing="0px" text-align="center" text-anchor="middle" word-spacing="0px" style="line-height:1.25" xml:space="preserve">Model B</text>
+  </g>
+  <g id="g1072-3" transform="translate(-164.45 -292.03)">
+    <path id="rect3484-9-1-1" d="m404.68 328.45h-48v30h48l15-15z" fill="#fff" stop-color="#000000" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    <rect id="rect7-9-1" x="173.18" y="300.77" width="198" height="85.371" rx="9.8683" ry="9.5592" fill="#fff" stop-color="#000000" stroke="#000" stroke-linecap="round" stroke-width="1.4701"/>
+    <text id="text3558-2-3-0" x="271.09311" y="351.90106" font-family="Arial" font-size="24px" letter-spacing="0px" text-align="center" text-anchor="middle" word-spacing="0px" style="line-height:1.25" xml:space="preserve">Data reader</text>
+  </g>
+  <g id="g890" transform="translate(88.318 -36.579)">
+    <path id="rect3484-9-6-2" d="m241.66 73 15 15-15 15h89.741l15-15-15-15z" fill="#fff" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  </g>
+  <g id="g890-7-2" transform="matrix(1 0 0 -1 594.22 393.06)">
+    <path id="rect3484-9-6-2-4-3" d="m105 73 15 15-15 15c75.467 0 117.05 92.818 192.52 92.818l15-15-15-15c-75.467 0-117.05-92.818-192.52-92.818z" fill="#fff" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  </g>
+  <g id="g890-7-2-1" transform="matrix(1 0 0 -1 594.22 393.06)" fill="#fff" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+    <path id="rect3484-9-6-2-4-3-1" d="m105 73 15 15-15 15c98.31 6.4033-156.88 61.585-274.61 93.132-96.08 25.744-66.118 72.504-4.8856 72.504l15-15-15-15c-90.601-6.9855 167.7-49.94 292.1-94.36 58.435-20.865 61.067-71.276-12.602-71.276z"/>
+    <path id="rect3484-9-6-2-4-3-1-4" d="m105 288.64 15-15-15-15c112.86-11.06-157.46-77.51-275.2-109.06-96.08-25.744-65.535-76.578-4.3035-76.578l15 15-15 15c-90.601 6.9855 168.28 61.79 292.68 106.21 58.435 20.865 60.485 79.426-13.184 79.426z"/>
+  </g>
+  <path id="rect3484-9-6-2-0" d="m240.24 36.421 15 15-15 15h89.741l15-15-15-15z" fill="#fff" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+</svg>
