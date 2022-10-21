@@ -85,6 +85,8 @@ Subpackages
 ===========
 
 .. autosummary::
+   :toctree: generated
+   :caption: Subpackages
 
     adapters
     data

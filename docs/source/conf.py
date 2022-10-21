@@ -44,7 +44,6 @@ napoleon_use_param = False
 numpydoc_show_class_members = True
 # class members have no separate file, so they are not in a toctree
 numpydoc_class_members_toctree = False
-# for the covmodels alot of classmembers show up...
 # maybe switch off with:    :no-inherited-members:
 numpydoc_show_inherited_class_members = True
 
