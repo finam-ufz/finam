@@ -10,9 +10,9 @@ It aims at enabling bi-directional online couplings of models for different comp
 The framework is built in Python, with well-defined interfaces for data exchange.
 This approach allows for coupling of models irrespective of their internal structure, architecture or programming language.
 
-### Resources
+## Resources
 
 * FINAM [homepage](https://finam.pages.ufz.de)
-* FINAM [user and developer guide](https://finam.pages.ufz.de/finam-book/)
-* FINAM [source code](https://git.ufz.de/FINAM/finam) and [API docs](https://finam.pages.ufz.de/finam/)
+* FINAM [documentation](https://finam.pages.ufz.de/finam/)
+* FINAM [source code](https://git.ufz.de/FINAM/finam)
 * FINAM [GitLab group](https://git.ufz.de/FINAM), containing further related projects
