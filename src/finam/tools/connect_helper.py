@@ -154,12 +154,16 @@ class ConnectHelper(Loggable):
 
         for name, data in self.in_data.items():
             if data is None:
-                try:
-                    self.in_data[name] = self.inputs[name].pull_data(time)
-                    any_done = True
-                    self.logger.debug("Successfully pulled input data for %s", name)
-                except FinamNoDataError:
-                    self.logger.debug("Failed to pull input data for %s", name)
+                info = self.in_infos[name]
+                if info is not None:
+                    try:
+                        self.in_data[name] = self.inputs[name].pull_data(
+                            time or info.time
+                        )
+                        any_done = True
+                        self.logger.debug("Successfully pulled input data for %s", name)
+                    except FinamNoDataError:
+                        self.logger.debug("Failed to pull input data for %s", name)
 
         if (
             all(v is not None for v in self.in_infos.values())
@@ -224,13 +228,17 @@ class ConnectHelper(Loggable):
                 self.logger.debug("Successfully pushed output info for %s", name)
 
         for name, data in push_data.items():
-            if not self.data_pushed[name] and self.infos_pushed[name]:
-                try:
-                    self.outputs[name].push_data(data, time)
-                    self.data_pushed[name] = True
-                    any_done = True
-                    self.logger.debug("Successfully pushed output data for %s", name)
-                except FinamNoDataError:
-                    self.logger.debug("Failed to push output data for %s", name)
+            if not self.data_pushed[name]:
+                info = self.out_infos[name]
+                if info is not None:
+                    try:
+                        self.outputs[name].push_data(data, time or info.time)
+                        self.data_pushed[name] = True
+                        any_done = True
+                        self.logger.debug(
+                            "Successfully pushed output data for %s", name
+                        )
+                    except FinamNoDataError:
+                        self.logger.debug("Failed to push output data for %s", name)
 
         return any_done
