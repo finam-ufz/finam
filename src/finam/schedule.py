@@ -12,6 +12,7 @@ from .interfaces import (
     FinamStatusError,
     IAdapter,
     IComponent,
+    IInput,
     ITimeComponent,
     Loggable,
     NoBranchAdapter,
@@ -200,25 +201,8 @@ class Composition(Loggable):
 
                     par_inp = par_inp.get_source()
 
-            for (name, out) in mod.outputs.items():
-                targets = [(out, False)]
-
-                while len(targets) > 0:
-                    target, no_branch = targets.pop()
-                    no_branch = no_branch or isinstance(target, NoBranchAdapter)
-
-                    curr_targets = target.get_targets()
-
-                    if no_branch and len(curr_targets) > 1:
-                        with ErrorLogger(self.logger):
-                            raise ValueError(
-                                f"Disallowed branching of output '{name}' for "
-                                f"module {mod.name} ({target.__class__.__name__})"
-                            )
-
-                    for target in curr_targets:
-                        if isinstance(target, IAdapter):
-                            targets.append((target, no_branch))
+            self._check_branching(mod)
+            self._check_dead_links(mod)
 
     def _connect(self):
         self.logger.debug("connect components")
@@ -277,6 +261,55 @@ class Composition(Loggable):
     def uses_base_logger_name(self):
         """Whether this class has a 'base_logger_name' attribute."""
         return False
+
+    def _check_branching(self, module):
+        for (name, out) in module.outputs.items():
+            targets = [(out, False)]
+
+            while len(targets) > 0:
+                target, no_branch = targets.pop()
+                no_branch = no_branch or isinstance(target, NoBranchAdapter)
+
+                curr_targets = target.get_targets()
+
+                if no_branch and len(curr_targets) > 1:
+                    with ErrorLogger(self.logger):
+                        raise ValueError(
+                            f"Disallowed branching of output '{name}' for "
+                            f"module {module.name} ({target.__class__.__name__})"
+                        )
+
+                for target in curr_targets:
+                    if isinstance(target, IAdapter):
+                        targets.append((target, no_branch))
+
+    def _check_dead_links(self, module):
+        for inp in module.inputs.values():
+            chain = [inp]
+            while isinstance(inp, IInput):
+                inp = inp.get_source()
+                chain.append(inp)
+
+            any_pos = False
+            for item in chain:
+                if any_pos and item.needs_pull:
+                    self._log_dead_link(module, chain)
+                if item.needs_push:
+                    any_pos = True
+
+            any_pos = False
+            for item in reversed(chain):
+                if any_pos and item.needs_push:
+                    self._log_dead_link(module, chain)
+                if item.needs_pull:
+                    any_pos = True
+
+    def _log_dead_link(self, module, chain):
+        with ErrorLogger(module.logger if loggable(module) else self.logger):
+            raise ValueError(
+                f"Dead link detected between "
+                f"{chain[0].name} and {module.name}->{chain[-1].name}."
+            )
 
     def _check_status(self, module, desired_list):
         if module.status not in desired_list:
