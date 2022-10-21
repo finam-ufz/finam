@@ -414,8 +414,10 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
             f"check: given data has wrong dimensions. Got {list(xdata.dims)}, expected {dims}."
         )
     # pint_xarray will remove the "units" entry in the data attributes
+    # time should not be checked, as it is for the connect phase only
     meta = copy.copy(info.meta)
     meta.pop("units", None)
+    meta.pop("time", None)
     if meta != xdata.attrs:
         raise FinamDataError(
             f"check: given data has wrong meta data.\nData: {xdata.attrs}\nMeta: {meta}"

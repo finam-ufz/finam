@@ -140,8 +140,7 @@ class ConnectHelper(Loggable):
         with ErrorLogger(self.logger):
             self._check_names(exchange_infos, push_infos, push_data)
 
-        any_done = self._push(time, push_infos, push_data)
-        any_done |= self._exchange_in_infos(exchange_infos)
+        any_done = self._exchange_in_infos(exchange_infos)
 
         for name, info in self.out_infos.items():
             if info is None:
@@ -151,6 +150,8 @@ class ConnectHelper(Loggable):
                     self.logger.debug("Successfully pulled output info for %s", name)
                 except FinamNoDataError:
                     self.logger.debug("Failed to pull output info for %s", name)
+
+        any_done += self._push(time, push_infos, push_data)
 
         for name, data in self.in_data.items():
             if data is None:
@@ -228,7 +229,7 @@ class ConnectHelper(Loggable):
                 self.logger.debug("Successfully pushed output info for %s", name)
 
         for name, data in push_data.items():
-            if not self.data_pushed[name]:
+            if not self.data_pushed[name] and self.infos_pushed[name]:
                 info = self.out_infos[name]
                 if info is not None:
                     try:
