@@ -1,6 +1,86 @@
 """
 The FINAM model coupling framework.
 
+.. toctree::
+   :hidden:
+
+   self
+
+Schedule
+========
+
+.. autosummary::
+   :toctree: generated
+   :caption: Schedule
+
+    Composition
+
+Software development kit
+========================
+
+.. autosummary::
+   :toctree: generated
+   :caption: Software development kit
+
+    Adapter
+    CallbackInput
+    CallbackOutput
+    Component
+    Input
+    Output
+    TimeComponent
+
+Grids
+=====
+
+.. autosummary::
+   :toctree: generated
+   :caption: Grids
+
+    EsriGrid
+    NoGrid
+    RectilinearGrid
+    UniformGrid
+    UnstructuredGrid
+    UnstructuredPoints
+
+Grid tools
+==========
+
+.. autosummary::
+   :toctree: generated
+   :caption: Grid tools
+
+    CellType
+    Location
+
+Data tools
+==========
+
+.. autosummary::
+   :toctree: generated
+   :caption: Data tools
+
+    UNITS
+    FinamDataError
+    Info
+
+Interfaces
+==========
+
+.. autosummary::
+   :toctree: generated
+   :caption: Interfaces
+
+    ComponentStatus
+    FinamLogError
+    FinamMetaDataError
+    FinamNoDataError
+    FinamStatusError
+    FinamTimeError
+    Loggable
+    NoBranchAdapter
+
 Subpackages
 ===========
 
@@ -14,80 +94,6 @@ Subpackages
     interfaces
     schedule
 
-Schedule
-========
-
-.. currentmodule:: finam.schedule
-
-.. autosummary::
-
-    Composition
-
-Interfaces
-==========
-
-.. currentmodule:: finam.interfaces
-
-.. autosummary::
-
-    ComponentStatus
-    FinamLogError
-    FinamMetaDataError
-    FinamNoDataError
-    FinamStatusError
-    FinamTimeError
-    Loggable
-    NoBranchAdapter
-
-Software development kit
-========================
-
-.. currentmodule:: finam.sdk
-
-.. autosummary::
-
-    Adapter
-    CallbackInput
-    CallbackOutput
-    Component
-    Input
-    Output
-    TimeComponent
-
-Grids
-=====
-
-.. currentmodule:: finam.data
-
-.. autosummary::
-
-    EsriGrid
-    NoGrid
-    RectilinearGrid
-    UniformGrid
-    UnstructuredGrid
-    UnstructuredPoints
-
-Grid tools
-==========
-
-.. currentmodule:: finam.data
-
-.. autosummary::
-
-    CellType
-    Location
-
-Data tools
-==========
-
-.. currentmodule:: finam.data
-
-.. autosummary::
-
-    UNITS
-    FinamDataError
-    Info
 """
 from . import adapters, data, interfaces, modules, schedule, sdk, tools
 from .data.grid_spec import (

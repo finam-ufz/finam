@@ -3,15 +3,11 @@ API reference
 =============
 
 .. automodule:: finam
+   :noindex:
 
 .. raw:: latex
 
     \clearpage
-
-.. toctree::
-   :hidden:
-
-   self
 
 .. toctree::
    :hidden:
