@@ -23,7 +23,7 @@ reg = pint.UnitRegistry(force_ndarray_like=True)
 class TestNextValue(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid()))},
+            callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -34,7 +34,7 @@ class TestNextValue(unittest.TestCase):
 
         self.source.outputs["Step"] >> self.adapter
 
-        self.adapter.get_info(Info(grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid()))
 
         self.source.connect()
         self.source.connect()
@@ -59,7 +59,7 @@ class TestNextValue(unittest.TestCase):
 class TestPreviousValue(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid()))},
+            callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -69,7 +69,7 @@ class TestPreviousValue(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Step"] >> self.adapter
-        self.adapter.get_info(Info(grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid()))
 
         self.source.connect()
         self.source.connect()
@@ -97,7 +97,7 @@ class TestPreviousValue(unittest.TestCase):
 class TestLinearInterpolation(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid()))},
+            callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -106,7 +106,7 @@ class TestLinearInterpolation(unittest.TestCase):
 
         self.source.initialize()
         self.source.outputs["Step"] >> self.adapter
-        self.adapter.get_info(Info(grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid()))
 
         self.source.connect()
         self.source.connect()
@@ -136,7 +136,10 @@ class TestLinearGridInterpolation(unittest.TestCase):
         grid, _ = create_grid(10, 15, 0)
         self.source = CallbackGenerator(
             callbacks={
-                "Grid": (lambda t: create_grid(10, 15, t.day - 1)[1], Info(grid=grid))
+                "Grid": (
+                    lambda t: create_grid(10, 15, t.day - 1)[1],
+                    Info(None, grid=grid),
+                )
             },
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
@@ -146,7 +149,7 @@ class TestLinearGridInterpolation(unittest.TestCase):
 
         self.source.initialize()
         self.source.outputs["Grid"] >> self.adapter
-        self.adapter.get_info(Info(grid=grid))
+        self.adapter.get_info(Info(None, grid=grid))
 
         self.source.connect()
         self.source.connect()
@@ -199,7 +202,9 @@ class TestLinearGridInterpolation(unittest.TestCase):
 class TestLinearIntegration(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
-            callbacks={"Step": (lambda t: t.day - 1, Info(grid=NoGrid(), units="m"))},
+            callbacks={
+                "Step": (lambda t: t.day - 1, Info(None, grid=NoGrid(), units="m"))
+            },
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -209,7 +214,7 @@ class TestLinearIntegration(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Step"] >> self.adapter
-        self.adapter.get_info(Info(grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid()))
 
         self.source.connect()
         self.source.connect()
@@ -244,7 +249,10 @@ class TestLinearGridIntegration(unittest.TestCase):
         grid, _ = create_grid(10, 15, 0)
         self.source = CallbackGenerator(
             callbacks={
-                "Grid": (lambda t: create_grid(10, 15, t.day - 1)[1], Info(grid=grid))
+                "Grid": (
+                    lambda t: create_grid(10, 15, t.day - 1)[1],
+                    Info(None, grid=grid),
+                )
             },
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
@@ -255,7 +263,7 @@ class TestLinearGridIntegration(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Grid"] >> self.adapter
-        self.adapter.get_info(Info(grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid()))
 
         self.source.connect()
         self.source.connect()

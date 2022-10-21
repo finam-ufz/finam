@@ -6,8 +6,8 @@ from datetime import datetime
 
 from finam.interfaces import ComponentStatus
 
-from ..data.tools import Info
 from ..data.grid_spec import NoGrid
+from ..data.tools import Info
 from ..sdk import TimeComponent
 
 
