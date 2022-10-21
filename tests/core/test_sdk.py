@@ -1,7 +1,7 @@
 """
 Unit tests for the sdk implementations.
 """
-
+import logging
 import unittest
 from datetime import datetime
 
@@ -111,6 +111,7 @@ class TestOutput(unittest.TestCase):
         counter = 0
         t = datetime(2000, 1, 1)
         info = Info(time=t, grid=NoGrid(), meta={"test": 0})
+        wrong_info = Info(time=t, grid=NoGrid(), meta={"test": 5})
 
         def callback(_clr, _time):
             nonlocal counter
@@ -121,8 +122,28 @@ class TestOutput(unittest.TestCase):
 
         out >> inp
 
+        with self.assertRaises(FinamNoDataError):
+            out.get_data(t)
+
         out.push_info(info)
+        out._connected_inputs = 1
+
+        with self.assertRaises(FinamNoDataError):
+            out.push_data(100, t)
+
+        self._out_infos_exchanged = 1
+
         out.get_info(info)
+
+        with self.assertRaises(FinamMetaDataError):
+            out.get_info(wrong_info)
+
+        out._output_info.time = None
+        with self.assertRaises(FinamMetaDataError):
+            out.get_info(Info(time=None, grid=NoGrid()))
+
+        out._output_info.time = t
+
         out.push_data(100, t)
 
         self.assertTrue(inp.has_source)
@@ -183,7 +204,10 @@ class TestCallbackOutput(unittest.TestCase):
             return 42 if counter == 1 else None
 
         out = CallbackOutput(callback=callback, name="callback")
-        out._connected_inputs = 1
+        inp = Input(name="input", time=t, grid=NoGrid())
+
+        out >> inp
+        inp.ping()
 
         with self.assertRaises(NotImplementedError):
             _data = out.push_data(0, t)
@@ -193,9 +217,12 @@ class TestCallbackOutput(unittest.TestCase):
 
         with self.assertRaises(FinamNoDataError):
             _data = out.get_data(t)
+
         out._output_info = Info(time=t, grid=NoGrid())
+
         with self.assertRaises(FinamNoDataError):
             _data = out.get_data(t)
+
         out._out_infos_exchanged = 1
 
         data = out.get_data(t)
