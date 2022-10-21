@@ -3,6 +3,8 @@ Adapters for direct probing from link connections.
 """
 from ..sdk import Adapter
 
+__all__ = ["CallbackProbe"]
+
 
 class CallbackProbe(Adapter):
     """Probe data by calling a callback. Simply forwards the data unchanged.
