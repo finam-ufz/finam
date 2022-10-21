@@ -297,13 +297,6 @@ class Composition(Loggable):
                 if item.needs_push:
                     any_pos = True
 
-            any_pos = False
-            for item in reversed(chain):
-                if any_pos and item.needs_push:
-                    self._log_dead_link(module, chain)
-                if item.needs_pull:
-                    any_pos = True
-
     def _log_dead_link(self, module, chain):
         with ErrorLogger(module.logger if loggable(module) else self.logger):
             raise ValueError(
