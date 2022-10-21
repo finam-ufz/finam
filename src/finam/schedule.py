@@ -301,16 +301,25 @@ def _check_dead_links(module, inp):
         inp = inp.get_source()
         chain.append(inp)
 
-    any_pos = False
-    for item in chain:
-        if any_pos and item.needs_pull:
-            raise _dead_link_error(module, chain)
-        if item.needs_push:
-            any_pos = True
+    first_index = -1
+    for i, item in enumerate(reversed(chain)):
+        if first_index >= 0 and item.needs_push:
+            raise _dead_link_error(module, chain, first_index, i)
+        if item.needs_pull:
+            first_index = i
 
 
-def _dead_link_error(module, chain):
+def _dead_link_error(module, chain, first_index, last_index):
+    link_message = ""
+    for i, item in enumerate(reversed(chain)):
+        link_message += item.name
+        if i < len(chain) - 1:
+            link_message += (
+                " >/> " if i == first_index or i + 1 == last_index else " >> "
+            )
+
     return ValueError(
         f"Dead link detected between "
-        f"{chain[0].name} and {str(module)}->{chain[-1].name}."
+        f"{chain[0].name} and {str(module)}->{chain[-1].name}:\n"
+        f"{link_message}"
     )

@@ -236,6 +236,22 @@ class TestComposition(unittest.TestCase):
         with self.assertRaises(ValueError):
             _check_dead_links(0, inp)
 
+    def test_check_dead_links_error(self):
+        info = Info(time=None, grid=NoGrid())
+        out = CallbackOutput(name="out", callback=None, info=info)
+        ada1 = Scale(2.0)
+        ada2 = Scale(2.0)
+        inp = CallbackInput(name="in", callback=None, info=info)
+        out >> ada1 >> ada2 >> inp
+
+        print("TEST")
+
+        with self.assertRaises(ValueError) as context:
+            _check_dead_links(0, inp)
+
+        message = str(context.exception)
+        self.assertTrue("out >/> Scale >> Scale >/> in" in message)
+
     def test_validate_inputs(self):
         time = datetime(2000, 1, 1)
         module = debug.DebugConsumer(
