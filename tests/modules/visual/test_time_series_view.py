@@ -11,12 +11,12 @@ class TestTimeSeries(unittest.TestCase):
         start = datetime(2000, 1, 1)
 
         gen1 = CallbackGenerator(
-            callbacks={"Out": (lambda t: 0, Info(grid=NoGrid()))},
+            callbacks={"Out": (lambda t: 0, Info(None, grid=NoGrid()))},
             start=start,
             step=timedelta(days=1),
         )
         gen2 = CallbackGenerator(
-            callbacks={"Out": (lambda t: (t - start).days, Info(grid=NoGrid()))},
+            callbacks={"Out": (lambda t: (t - start).days, Info(None, grid=NoGrid()))},
             start=start,
             step=timedelta(days=3),
         )

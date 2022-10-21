@@ -6,6 +6,7 @@
 
 * Outputs check compatibility between metadata of inputs if there is more than one target input (!104)
 * Add data tools function `check_units(lhs, rhs)` to check for convertibility (!105)
+* Components can exchange their starting time through the `Info` object (!111)
 
 ### Components
 
@@ -20,6 +21,10 @@
   * `AAdapter` is now `Adapter`
   * `AComponent` is now `Component`
   * `ATimeComponent` is now `TimeComponent`
+* Changed arguments for `create_connector()`
+  * Removed `required_out_infos` 
+  * Renamed `required_in_data` to `pull_data`
+* `Info` now requires time in constructor (can be `None`) (!111)
 
 ## [v0.4.0-rc.2]
 

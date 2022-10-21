@@ -151,7 +151,7 @@ class Input(IInput, Loggable):
                 )
 
         self._input_info = in_info.copy_with(
-            use_none=False, grid=info.grid, **info.meta
+            use_none=False, time=info.time, grid=info.grid, **info.meta
         )
         self._in_info_exchanged = True
         return in_info

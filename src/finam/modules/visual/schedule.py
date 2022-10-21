@@ -36,8 +36,6 @@ class ScheduleView(Component):
         self._x = [[] for _ in inputs]
 
         self._input_names = inputs
-        for inp in inputs:
-            self.inputs.add(CallbackInput(self.data_changed, name=inp, grid=None))
 
     def _initialize(self):
         """Initialize the component.
@@ -45,6 +43,11 @@ class ScheduleView(Component):
         After the method call, the component's inputs and outputs must be available,
         and the component should have status INITIALIZED.
         """
+        for inp in self._input_names:
+            self.inputs.add(
+                CallbackInput(self.data_changed, name=inp, time=None, grid=None)
+            )
+
         import matplotlib.dates as mdates
         import matplotlib.pyplot as plt
 

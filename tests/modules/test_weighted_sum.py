@@ -23,9 +23,9 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: 1.0,
-                    fm.Info(grid=fm.NoGrid(), units="mm"),
+                    fm.Info(None, grid=fm.NoGrid(), units="mm"),
                 ),
-                "Weight": (lambda t: 0.25, fm.Info(grid=fm.NoGrid())),
+                "Weight": (lambda t: 0.25, fm.Info(None, grid=fm.NoGrid())),
             },
             start=start,
             step=timedelta(days=1),
@@ -34,18 +34,18 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: 2.0,
-                    fm.Info(grid=fm.NoGrid(), units="mm"),
+                    fm.Info(None, grid=fm.NoGrid(), units="mm"),
                 ),
-                "Weight": (lambda t: 0.75, fm.Info(grid=fm.NoGrid())),
+                "Weight": (lambda t: 0.75, fm.Info(None, grid=fm.NoGrid())),
             },
             start=start,
             step=timedelta(days=5),
         )
 
-        merger = WeightedSum(inputs=["In1", "In2"], start=start)
+        merger = WeightedSum(inputs=["In1", "In2"])
 
         consumer = DebugConsumer(
-            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
+            inputs={"WeightedSum": fm.Info(None, grid=None, units=None)},
             start=start,
             step=timedelta(days=1),
         )
@@ -76,9 +76,12 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: generate_grid(source_grid),
-                    fm.Info(grid=source_grid, units="mm"),
+                    fm.Info(None, grid=source_grid, units="mm"),
                 ),
-                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+                "Weight": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(None, source_grid),
+                ),
             },
             start=start,
             step=timedelta(days=1),
@@ -87,18 +90,21 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: generate_grid(source_grid),
-                    fm.Info(grid=source_grid, units="mm"),
+                    fm.Info(None, grid=source_grid, units="mm"),
                 ),
-                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+                "Weight": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(None, source_grid),
+                ),
             },
             start=start,
             step=timedelta(days=5),
         )
 
-        merger = WeightedSum(inputs=["In1", "In2"], start=start)
+        merger = WeightedSum(inputs=["In1", "In2"])
 
         consumer = DebugConsumer(
-            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
+            inputs={"WeightedSum": fm.Info(None, grid=None, units=None)},
             start=start,
             step=timedelta(days=1),
         )
@@ -129,9 +135,12 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: generate_grid(source_grid),
-                    fm.Info(grid=source_grid, units="mm"),
+                    fm.Info(None, grid=source_grid, units="mm"),
                 ),
-                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+                "Weight": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(None, source_grid),
+                ),
             },
             start=start,
             step=timedelta(days=1),
@@ -140,21 +149,21 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: generate_grid(source_grid_2),
-                    fm.Info(grid=source_grid_2, units="mm"),
+                    fm.Info(None, grid=source_grid_2, units="mm"),
                 ),
                 "Weight": (
                     lambda t: generate_grid(source_grid_2),
-                    fm.Info(source_grid_2),
+                    fm.Info(None, source_grid_2),
                 ),
             },
             start=start,
             step=timedelta(days=5),
         )
 
-        merger = WeightedSum(inputs=["In1", "In2"], start=start)
+        merger = WeightedSum(inputs=["In1", "In2"])
 
         consumer = DebugConsumer(
-            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
+            inputs={"WeightedSum": fm.Info(None, grid=None, units=None)},
             start=start,
             step=timedelta(days=1),
         )
@@ -182,9 +191,12 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: generate_grid(source_grid),
-                    fm.Info(grid=source_grid, units="mm"),
+                    fm.Info(None, grid=source_grid, units="mm"),
                 ),
-                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+                "Weight": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(None, source_grid),
+                ),
             },
             start=start,
             step=timedelta(days=1),
@@ -193,21 +205,21 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: generate_grid(source_grid),
-                    fm.Info(grid=source_grid, units="mm"),
+                    fm.Info(None, grid=source_grid, units="mm"),
                 ),
                 "Weight": (
                     lambda t: generate_grid(source_grid_2),
-                    fm.Info(source_grid_2),
+                    fm.Info(None, source_grid_2),
                 ),
             },
             start=start,
             step=timedelta(days=5),
         )
 
-        merger = WeightedSum(inputs=["In1", "In2"], start=start)
+        merger = WeightedSum(inputs=["In1", "In2"])
 
         consumer = DebugConsumer(
-            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
+            inputs={"WeightedSum": fm.Info(None, grid=None, units=None)},
             start=start,
             step=timedelta(days=1),
         )
@@ -234,9 +246,12 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: generate_grid(source_grid),
-                    fm.Info(grid=source_grid, units="mm"),
+                    fm.Info(None, grid=source_grid, units="mm"),
                 ),
-                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+                "Weight": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(None, source_grid),
+                ),
             },
             start=start,
             step=timedelta(days=1),
@@ -245,18 +260,21 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: generate_grid(source_grid),
-                    fm.Info(grid=source_grid, units="s"),
+                    fm.Info(None, grid=source_grid, units="s"),
                 ),
-                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+                "Weight": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(None, source_grid),
+                ),
             },
             start=start,
             step=timedelta(days=5),
         )
 
-        merger = WeightedSum(inputs=["In1", "In2"], start=start)
+        merger = WeightedSum(inputs=["In1", "In2"])
 
         consumer = DebugConsumer(
-            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
+            inputs={"WeightedSum": fm.Info(None, grid=None, units=None)},
             start=start,
             step=timedelta(days=1),
         )
@@ -283,9 +301,12 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: generate_grid(source_grid),
-                    fm.Info(grid=source_grid, units="mm"),
+                    fm.Info(None, grid=source_grid, units="mm"),
                 ),
-                "Weight": (lambda t: generate_grid(source_grid), fm.Info(source_grid)),
+                "Weight": (
+                    lambda t: generate_grid(source_grid),
+                    fm.Info(None, source_grid),
+                ),
             },
             start=start,
             step=timedelta(days=1),
@@ -294,21 +315,21 @@ class TestWeightedSum(unittest.TestCase):
             callbacks={
                 "Value": (
                     lambda t: generate_grid(source_grid),
-                    fm.Info(grid=source_grid, units="mm"),
+                    fm.Info(None, grid=source_grid, units="mm"),
                 ),
                 "Weight": (
                     lambda t: generate_grid(source_grid),
-                    fm.Info(source_grid, units="mm"),
+                    fm.Info(None, source_grid, units="mm"),
                 ),
             },
             start=start,
             step=timedelta(days=5),
         )
 
-        merger = WeightedSum(inputs=["In1", "In2"], start=start)
+        merger = WeightedSum(inputs=["In1", "In2"])
 
         consumer = DebugConsumer(
-            inputs={"WeightedSum": fm.Info(grid=None, units=None)},
+            inputs={"WeightedSum": fm.Info(None, grid=None, units=None)},
             start=start,
             step=timedelta(days=1),
         )

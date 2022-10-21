@@ -49,6 +49,7 @@ class CallbackGenerator(TimeComponent):
         and the component should have status INITIALIZED.
         """
         for key, (_, info) in self._callbacks.items():
+            info.time = self.time
             self.outputs.add(name=key, info=info)
 
         self.create_connector()
