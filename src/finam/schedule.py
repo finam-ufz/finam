@@ -187,26 +187,13 @@ class Composition(Loggable):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
         self.logger.debug("validate composition")
         for mod in self.modules:
-            for (name, inp) in mod.inputs.items():
-                par_inp = inp.get_source()
-                while True:
-                    if par_inp is None:
-                        with ErrorLogger(self.logger):
-                            raise ValueError(
-                                f"Unconnected input '{name}' for module {mod.name}"
-                            )
-
-                    if not isinstance(par_inp, IAdapter):
-                        break
-
-                    par_inp = par_inp.get_source()
-
             with ErrorLogger(mod.logger if loggable(mod) else self.logger):
+                for inp in mod.inputs.values():
+                    _check_input_connected(mod, inp)
+                    _check_dead_links(mod, inp)
+
                 for out in mod.outputs.values():
                     _check_branching(mod, out)
-
-                for inp in mod.inputs.values():
-                    _check_dead_links(mod, inp)
 
     def _connect(self):
         self.logger.debug("connect components")
@@ -293,6 +280,13 @@ def _check_branching(module, out):
         for target in curr_targets:
             if isinstance(target, IAdapter):
                 targets.append((target, no_branch))
+
+
+def _check_input_connected(module, inp):
+    while isinstance(inp, IInput):
+        if inp.get_source() is None:
+            raise ValueError(f"Unconnected input '{inp.name}' for module {module.name}")
+        inp = inp.get_source()
 
 
 def _check_dead_links(module, inp):
