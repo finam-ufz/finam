@@ -110,7 +110,7 @@ class TestOutput(unittest.TestCase):
     def test_push_notify(self):
         counter = 0
         t = datetime(2000, 1, 1)
-        info = Info(grid=NoGrid(), meta={"test": 0})
+        info = Info(time=t, grid=NoGrid(), meta={"test": 0})
 
         def callback(_clr, _time):
             nonlocal counter
@@ -136,8 +136,9 @@ class TestOutput(unittest.TestCase):
 
 class TestInput(unittest.TestCase):
     def test_fail_set_source(self):
-        inp = Input(name="In", grid=NoGrid())
-        outp = Output(name="Out", grid=NoGrid())
+        time = datetime(2000, 1, 1)
+        inp = Input(name="In", time=time, grid=NoGrid())
+        outp = Output(name="Out", time=time, grid=NoGrid())
 
         with self.assertRaises(ValueError):
             inp.set_source(0)
@@ -192,7 +193,7 @@ class TestCallbackOutput(unittest.TestCase):
 
         with self.assertRaises(FinamNoDataError):
             _data = out.get_data(t)
-        out._output_info = Info(grid=NoGrid())
+        out._output_info = Info(time=t, grid=NoGrid())
         with self.assertRaises(FinamNoDataError):
             _data = out.get_data(t)
         out._out_infos_exchanged = 1
@@ -289,48 +290,50 @@ class TestAdapter(unittest.TestCase):
 
 class TestIOFails(unittest.TestCase):
     def test_input_output_fail(self):
+        t = datetime(2000, 1, 1)
+
         with self.assertRaises(ValueError):
             _in = Input(name=None)
         with self.assertRaises(ValueError):
-            _in = Input(name="In", info=Info(grid=NoGrid()), units="m")
+            _in = Input(name="In", info=Info(time=t, grid=NoGrid()), units="m")
 
         with self.assertRaises(ValueError):
             _in = Output(name=None)
         with self.assertRaises(ValueError):
-            _in = Output(name="In", info=Info(grid=NoGrid()), units="m")
+            _in = Output(name="In", info=Info(time=t, grid=NoGrid()), units="m")
 
-        inp = Input(name="In", grid=NoGrid())
-        out = Output(name="Out", grid=NoGrid())
+        inp = Input(name="In", time=t, grid=NoGrid())
+        out = Output(name="Out", time=t, grid=NoGrid())
         out >> inp
         with self.assertRaises(ValueError):
             inp.pull_data(0)
 
-        inp = Input(name="In", grid=NoGrid())
-        out = Output(name="Out", grid=NoGrid())
+        inp = Input(name="In", time=t, grid=NoGrid())
+        out = Output(name="Out", time=t, grid=NoGrid())
         out >> inp
         inp._in_info_exchanged = True
         with self.assertRaises(FinamMetaDataError):
-            inp.exchange_info(info=Info(grid=NoGrid()))
+            inp.exchange_info(info=Info(time=t, grid=NoGrid()))
 
         inp = Input(name="In")
-        out = Output(name="Out", grid=NoGrid())
+        out = Output(name="Out", time=t, grid=NoGrid())
         out >> inp
         with self.assertRaises(FinamMetaDataError):
             inp.exchange_info(info=None)
 
-        inp = Input(name="In", grid=NoGrid())
-        out = Output(name="Out", grid=NoGrid())
+        inp = Input(name="In", time=t, grid=NoGrid())
+        out = Output(name="Out", time=t, grid=NoGrid())
         out >> inp
         with self.assertRaises(FinamMetaDataError):
-            inp.exchange_info(info=Info(grid=NoGrid()))
+            inp.exchange_info(info=Info(time=t, grid=NoGrid()))
 
         inp = Input(name="In")
-        out = Output(name="Out", grid=NoGrid())
+        out = Output(name="Out", time=t, grid=NoGrid())
         out >> inp
         with self.assertRaises(FinamMetaDataError):
             inp.exchange_info(info=100)
 
-        out = Output(name="Out", grid=NoGrid())
+        out = Output(name="Out", time=t, grid=NoGrid())
         with self.assertRaises(ValueError):
             out.add_target(0)
 
@@ -355,17 +358,17 @@ class TestIOFails(unittest.TestCase):
             out.push_info(0)
 
         with self.assertRaises(FinamNoDataError):
-            out.get_info(Info(grid=NoGrid()))
+            out.get_info(Info(time=t, grid=NoGrid()))
 
-        out.push_info(Info(grid=None, units=None))
+        out.push_info(Info(time=t, grid=None, units=None))
         with self.assertRaises(FinamMetaDataError):
-            out.get_info(Info(grid=None))
-
-        with self.assertRaises(FinamMetaDataError):
-            out.get_info(Info(grid=NoGrid()))
+            out.get_info(Info(time=t, grid=None))
 
         with self.assertRaises(FinamMetaDataError):
-            out.get_info(Info(grid=NoGrid(), units=None))
+            out.get_info(Info(time=t, grid=NoGrid()))
+
+        with self.assertRaises(FinamMetaDataError):
+            out.get_info(Info(time=t, grid=NoGrid(), units=None))
 
     def test_callback_input_fail(self):
         inp = CallbackInput(callback=lambda t: t, name="In")

@@ -29,7 +29,7 @@ class MockupConsumer(TimeComponent):
         self.data = None
 
     def _initialize(self):
-        self.inputs.add(name="Input", grid=None, units=self.units)
+        self.inputs.add(name="Input", time=self.time, grid=None, units=self.units)
         self.create_connector(required_in_data=["Input"])
 
     def _connect(self):
@@ -52,7 +52,10 @@ class MockupConsumer(TimeComponent):
 
 class TestUnits(unittest.TestCase):
     def test_units(self):
+        time = datetime(2000, 1, 1)
+
         in_info = Info(
+            time=time,
             grid=UniformGrid(
                 dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
             ),
@@ -82,7 +85,10 @@ class TestUnits(unittest.TestCase):
         self.assertEqual(tools.get_magnitude(sink.data)[0, 0, 0], 0.001)
 
     def test_units_fail(self):
+        time = datetime(2000, 1, 1)
+
         in_info = Info(
+            time=time,
             grid=UniformGrid(
                 dims=(5, 10), spacing=(2.0, 2.0, 2.0), data_location=Location.POINTS
             ),
