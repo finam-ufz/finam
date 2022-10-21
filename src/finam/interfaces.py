@@ -1,5 +1,20 @@
 """
 Interface definitions for the coupling framework.
+
+Interfaces
+==========
+
+.. autosummary::
+   :toctree: generated
+
+    ComponentStatus
+    FinamLogError
+    FinamMetaDataError
+    FinamNoDataError
+    FinamStatusError
+    FinamTimeError
+    Loggable
+    NoBranchAdapter
 """
 import logging
 from abc import ABC, abstractmethod
