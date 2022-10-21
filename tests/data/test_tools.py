@@ -11,11 +11,13 @@ import finam
 
 class TestDataTools(unittest.TestCase):
     def test_check(self):
+        time = dt(2000, 1, 1)
+
         grid = finam.EsriGrid(2, 3)
         gri0 = finam.EsriGrid(2, 3, axes_names=["lat", "lon"])
         gri1 = finam.EsriGrid(3, 2)
 
-        info = finam.Info(grid, units="m", foo="bar")
+        info = finam.Info(time, grid, units="m", foo="bar")
         inf0 = info.copy_with(units="meter")
         inf1 = info.copy_with(foo="spam")
         inf2 = info.copy_with(units="s")
@@ -104,9 +106,11 @@ class TestDataTools(unittest.TestCase):
         finam.data.check(dar3, "data", info, time)
 
     def test_other_grids(self):
+        time = dt(2000, 1, 1)
+
         gri0 = finam.NoGrid(dim=1)
         gri1 = finam.UnstructuredPoints(points=[[0, 0], [0, 2], [2, 2]])
-        info = finam.Info(gri0, units="s")
+        info = finam.Info(time, gri0, units="s")
         data = np.arange(3)
         dar0 = finam.data.to_xarray(data, "data", info)
         dar1 = finam.data.to_xarray(data, "data", info.copy_with(grid=gri1))
@@ -115,7 +119,9 @@ class TestDataTools(unittest.TestCase):
         self.assertTrue("id" in dar1.dims)
 
     def test_strip_time(self):
-        xdata = finam.data.to_xarray(1.0, "data", finam.Info(grid=finam.NoGrid()))
+        time = dt(2000, 1, 1)
+
+        xdata = finam.data.to_xarray(1.0, "data", finam.Info(time, grid=finam.NoGrid()))
         self.assertEqual(xdata.shape, ())
         stripped = finam.data.strip_time(xdata)
         self.assertEqual(xdata.shape, stripped.shape)
@@ -123,7 +129,7 @@ class TestDataTools(unittest.TestCase):
         xdata = finam.data.to_xarray(
             1.0,
             "data",
-            finam.Info(grid=finam.NoGrid()),
+            finam.Info(time, grid=finam.NoGrid()),
             datetime.datetime(2000, 1, 1),
         )
         self.assertEqual(xdata.shape, (1,))
@@ -133,7 +139,7 @@ class TestDataTools(unittest.TestCase):
         xdata = finam.data.to_xarray(
             [1.0, 2.0, 3.0],
             "data",
-            finam.Info(grid=finam.NoGrid(dim=1)),
+            finam.Info(time, grid=finam.NoGrid(dim=1)),
             datetime.datetime(2000, 1, 1),
         )
         self.assertEqual(xdata.shape, (1, 3))
@@ -146,13 +152,13 @@ class TestDataTools(unittest.TestCase):
         arr1 = finam.data.to_xarray(
             1.0,
             "A",
-            finam.Info(grid=finam.NoGrid()),
+            finam.Info(time, grid=finam.NoGrid()),
             time=datetime.datetime(2000, 1, 1),
         )
         arr2 = finam.data.to_xarray(
             1.0,
             "A",
-            finam.Info(grid=finam.NoGrid()),
+            finam.Info(time, grid=finam.NoGrid()),
             time=datetime.datetime(2000, 1, 2),
         )
         data = xr.concat([arr1, arr2], dim="time")
@@ -160,7 +166,8 @@ class TestDataTools(unittest.TestCase):
             stripped_ = finam.data.strip_time(data)
 
     def test_strip_data(self):
-        xdata = finam.data.to_xarray(1.0, "data", finam.Info(grid=finam.NoGrid()))
+        time = dt(2000, 1, 1)
+        xdata = finam.data.to_xarray(1.0, "data", finam.Info(time, grid=finam.NoGrid()))
         self.assertEqual(xdata.shape, ())
         stripped = finam.data.strip_data(xdata)
         self.assertEqual(xdata.shape, stripped.shape)
@@ -168,21 +175,22 @@ class TestDataTools(unittest.TestCase):
         self.assertFalse(isinstance(stripped, xr.DataArray))
 
     def test_to_xarray(self):
+        time = dt(2000, 1, 1)
         with self.assertRaises(finam.FinamDataError):
             finam.data.to_xarray(
-                np.asarray([1, 2]), "A", finam.Info(grid=finam.NoGrid())
+                np.asarray([1, 2]), "A", finam.Info(time, grid=finam.NoGrid())
             )
 
         with self.assertRaises(finam.FinamDataError):
             finam.data.to_xarray(
-                1.0 * finam.UNITS.meter, "A", finam.Info(grid=finam.NoGrid())
+                1.0 * finam.UNITS.meter, "A", finam.Info(time, grid=finam.NoGrid())
             )
 
         with self.assertRaises(finam.FinamDataError):
             finam.data.to_xarray(
                 1.0 * finam.UNITS.meter,
                 "A",
-                finam.Info(grid=finam.NoGrid(), units="km"),
+                finam.Info(time, grid=finam.NoGrid(), units="km"),
             )
 
     def test_assert_type(self):
@@ -192,23 +200,35 @@ class TestDataTools(unittest.TestCase):
             finam.data.assert_type(self, "A", "1", [int, float])
 
     def test_info(self):
-        _info = finam.Info(grid=finam.NoGrid())
+        time = dt(2000, 1, 1)
+        _info = finam.Info(time, grid=finam.NoGrid())
 
         with self.assertRaises(finam.FinamMetaDataError):
-            _info = finam.Info(grid=finam.NoGrid)
+            _info = finam.Info(time=1, grid=finam.NoGrid())
 
-        info = finam.Info(grid=finam.NoGrid(), units="m", foo="bar")
+        with self.assertRaises(finam.FinamMetaDataError):
+            _info = finam.Info(time, grid=finam.NoGrid)
+
+        info = finam.Info(time, grid=finam.NoGrid(), units="m", foo="bar")
         self.assertEqual(info, info.copy_with())
 
         self.assertFalse(info.accepts(0, {}))
-        self.assertFalse(info.accepts(finam.Info(grid=None), {}))
+        self.assertFalse(info.accepts(finam.Info(time=None, grid=None), {}))
 
-        self.assertTrue(info.accepts(finam.Info(grid=finam.NoGrid(), units="m"), {}))
-        self.assertTrue(info.accepts(finam.Info(grid=finam.NoGrid(), units="km"), {}))
-        self.assertFalse(info.accepts(finam.Info(grid=finam.NoGrid(), units="s"), {}))
+        self.assertTrue(
+            info.accepts(finam.Info(time, grid=finam.NoGrid(), units="m"), {})
+        )
+        self.assertTrue(
+            info.accepts(finam.Info(time, grid=finam.NoGrid(), units="km"), {})
+        )
+        self.assertFalse(
+            info.accepts(finam.Info(time, grid=finam.NoGrid(), units="s"), {})
+        )
 
         self.assertFalse(
-            info.accepts(finam.Info(grid=finam.NoGrid(), units="m", foo="baz"), {})
+            info.accepts(
+                finam.Info(time, grid=finam.NoGrid(), units="m", foo="baz"), {}
+            )
         )
 
         self.assertEqual(info, info.copy())
@@ -221,10 +241,11 @@ class TestDataTools(unittest.TestCase):
         self.assertEqual(info.bar, "baz")
 
     def test_check_shape(self):
+        time = dt(2000, 1, 1)
         xdata = finam.data.to_xarray(
             1.0,
             "data",
-            finam.Info(grid=finam.NoGrid()),
+            finam.Info(time, grid=finam.NoGrid()),
             datetime.datetime(2000, 1, 1),
         )
 
