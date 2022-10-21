@@ -30,6 +30,7 @@ class DebugConsumer(TimeComponent):
 
     def _initialize(self):
         for name, info in self._input_infos.items():
+            info.time = self.time
             self.inputs.add(name=name, info=info)
         self.create_connector(required_in_data=list(self._input_infos.keys()))
 

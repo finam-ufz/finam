@@ -57,8 +57,6 @@ class TimeSeriesView(TimeComponent):
         self._lines = None
 
         self._input_names = inputs
-        for inp in inputs:
-            self.inputs.add(name=inp)
 
     def _initialize(self):
         """Initialize the component.
@@ -66,6 +64,9 @@ class TimeSeriesView(TimeComponent):
         After the method call, the component's inputs and outputs must be available,
         and the component should have status INITIALIZED.
         """
+        for inp in self._input_names:
+            self.inputs.add(name=inp)
+
         import matplotlib.dates as mdates
         import matplotlib.pyplot as plt
 

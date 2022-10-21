@@ -20,21 +20,23 @@ def consume(_inputs, _time):
 class TestCallback(unittest.TestCase):
     def test_callback(self):
         source = CallbackGenerator(
-            callbacks={"Out1": (lambda t: np.random.random(1)[0], Info(grid=NoGrid()))},
+            callbacks={
+                "Out1": (lambda t: np.random.random(1)[0], Info(None, grid=NoGrid()))
+            },
             start=datetime(2000, 1, 1),
             step=timedelta(days=7),
         )
 
         trans = CallbackComponent(
-            inputs={"In1": Info(grid=NoGrid())},
-            outputs={"Out1": Info(grid=NoGrid())},
+            inputs={"In1": Info(None, grid=NoGrid())},
+            outputs={"Out1": Info(None, grid=NoGrid())},
             callback=transform,
             start=datetime(2000, 1, 1),
             step=timedelta(days=7),
         )
 
         consumer = CallbackComponent(
-            inputs={"In1": Info(grid=NoGrid())},
+            inputs={"In1": Info(None, grid=NoGrid())},
             outputs={},
             callback=consume,
             start=datetime(2000, 1, 1),
