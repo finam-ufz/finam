@@ -20,8 +20,6 @@ class ConnectHelper(Loggable):
         All outputs of the component.
     required_in_data : arraylike
         Names of the inputs that are to be pulled
-    required_out_infos : arraylike
-        Names of the outputs that need exchanged info
     """
 
     def __init__(
@@ -30,7 +28,6 @@ class ConnectHelper(Loggable):
         inputs,
         outputs,
         required_in_data=None,
-        required_out_infos=None,
     ):
 
         self.base_logger_name = logger_name
@@ -43,14 +40,9 @@ class ConnectHelper(Loggable):
                     raise ValueError(
                         f"No input named '{name}' available to get info for."
                     )
-            for name in required_out_infos or []:
-                if name not in self._outputs:
-                    raise ValueError(
-                        f"No output named '{name}' available to get data from."
-                    )
 
         self._exchanged_in_infos = {name: None for name in self.inputs.keys()}
-        self._exchanged_out_infos = {name: None for name in required_out_infos or []}
+        self._exchanged_out_infos = {name: None for name in self.outputs.keys()}
 
         self._pulled_data = {name: None for name in required_in_data or []}
 

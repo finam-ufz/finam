@@ -37,10 +37,7 @@ class WeightedSum(Component):
         self._grid = None
 
         self.outputs.add(CallbackOutput(callback=self._get_data, name="WeightedSum"))
-        self.create_connector(
-            required_in_data=list(self.inputs),
-            required_out_infos=["WeightedSum"],
-        )
+        self.create_connector(required_in_data=list(self.inputs))
 
     def _connect(self):
         push_infos = self._check_infos()

@@ -565,7 +565,7 @@ class Info:
             if k == "time":
                 if v is not None or use_none:
                     other.time = v
-            if k == "grid":
+            elif k == "grid":
                 if v is not None or use_none:
                     other.grid = v
             else:
@@ -616,14 +616,13 @@ class Info:
         return Info(time=self.time, grid=self.grid, meta=self.meta)
 
     def __eq__(self, other):
-        """Equality check for two infos"""
+        """Equality check for two infos
+
+        Ignores time.
+        """
         if not isinstance(other, Info):
             return False
-        return (
-            self.time == other.time
-            and self.grid == other.grid
-            and self.meta == other.meta
-        )
+        return self.grid == other.grid and self.meta == other.meta
 
     def __getattr__(self, name):
         # only called if attribute is not present in class

@@ -199,7 +199,7 @@ class Component(IComponent, Loggable, ABC):
         """The component's ConnectHelper"""
         return self._connector
 
-    def create_connector(self, required_in_data=None, required_out_infos=None):
+    def create_connector(self, required_in_data=None):
         """
         Create the component's ConnectHelper
 
@@ -216,7 +216,6 @@ class Component(IComponent, Loggable, ABC):
             self.inputs,
             self.outputs,
             required_in_data=required_in_data,
-            required_out_infos=required_out_infos,
         )
         self.inputs.frozen = True
         self.outputs.frozen = True
