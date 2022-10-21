@@ -312,5 +312,5 @@ def _check_dead_links(module, inp):
 def _dead_link_error(module, chain):
     return ValueError(
         f"Dead link detected between "
-        f"{chain[0].name} and {module.name}->{chain[-1].name}."
+        f"{chain[0].name} and {str(module)}->{chain[-1].name}."
     )
