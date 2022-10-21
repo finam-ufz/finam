@@ -84,7 +84,9 @@ class TimeSeriesView(TimeComponent):
         After the method call, the component should have status CONNECTED.
         """
         self.try_connect(
-            exchange_infos={name: Info(grid=NoGrid()) for name in self.inputs}
+            exchange_infos={
+                name: Info(time=self.time, grid=NoGrid()) for name in self.inputs
+            }
         )
 
     def _validate(self):
