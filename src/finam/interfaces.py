@@ -1,5 +1,25 @@
 """
 Interface definitions for the coupling framework.
+
+Interfaces
+==========
+
+.. autosummary::
+   :toctree: generated
+
+    :noindex: IComponent
+    :noindex: ITimeComponent
+    :noindex: IAdapter
+    :noindex: IInput
+    :noindex: IOutput
+    :noindex: ComponentStatus
+    :noindex: FinamLogError
+    :noindex: FinamMetaDataError
+    :noindex: FinamNoDataError
+    :noindex: FinamStatusError
+    :noindex: FinamTimeError
+    :noindex: Loggable
+    :noindex: NoBranchAdapter
 """
 import logging
 from abc import ABC, abstractmethod

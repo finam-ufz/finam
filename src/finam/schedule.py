@@ -1,5 +1,13 @@
 """
 Driver/scheduler for executing a coupled model composition.
+
+Composition
+===========
+
+.. autosummary::
+   :toctree: generated
+
+    :noindex: Composition
 """
 import logging
 import sys

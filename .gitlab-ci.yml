@@ -19,20 +19,21 @@ test:
   stage: test
   script:
     - pip3 install --editable .[test]
-    - python -m pytest --cov finam --cov-report term-missing --cov-report xml:cov.xml -v tests/
+    - python -m pytest --cov finam --cov-report html:cov --cov-report term-missing --cov-report xml:cov.xml -v tests/
   coverage: '/(?i)total.*? (100(?:\.0+)?\%|[1-9]?\d(?:\.\d+)?\%)$/'
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
         path: cov.xml
+    paths:
+      - cov
 
 documentation:
   stage: build
   script:
     - pip3 install --editable .[doc]
-    - sphinx-apidoc --separate -o docs src/finam
-    - sphinx-build -b html docs docs/build
+    - sphinx-build docs/source docs/build
     - mv docs/build public/
   artifacts:
     paths:

@@ -9,6 +9,13 @@ from ..data import tools as dtools
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
 
+__all__ = [
+    "NextValue",
+    "PreviousValue",
+    "LinearInterpolation",
+    "LinearIntegration",
+]
+
 
 class NextValue(Adapter):
     """Time interpolation providing the next future value."""

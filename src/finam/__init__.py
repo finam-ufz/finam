@@ -1,5 +1,103 @@
 """
 The FINAM model coupling framework.
+
+.. toctree::
+   :hidden:
+
+   self
+
+Schedule
+========
+
+.. autosummary::
+   :toctree: generated
+   :caption: Schedule
+
+    Composition
+
+Software development kit
+========================
+
+.. autosummary::
+   :toctree: generated
+   :caption: Software development kit
+
+    Adapter
+    CallbackInput
+    CallbackOutput
+    Component
+    Input
+    Output
+    TimeComponent
+
+Grids
+=====
+
+.. autosummary::
+   :toctree: generated
+   :caption: Grids
+
+    EsriGrid
+    NoGrid
+    RectilinearGrid
+    UniformGrid
+    UnstructuredGrid
+    UnstructuredPoints
+
+Grid tools
+==========
+
+.. autosummary::
+   :toctree: generated
+   :caption: Grid tools
+
+    CellType
+    Location
+
+Data tools
+==========
+
+.. autosummary::
+   :toctree: generated
+   :caption: Data tools
+
+    UNITS
+    FinamDataError
+    Info
+
+Interfaces
+==========
+
+.. autosummary::
+   :toctree: generated
+   :caption: Interfaces
+
+    ComponentStatus
+    FinamLogError
+    FinamMetaDataError
+    FinamNoDataError
+    FinamStatusError
+    FinamTimeError
+    Loggable
+    IComponent
+    ITimeComponent
+    IAdapter
+    IInput
+    IOutput
+    NoBranchAdapter
+
+Subpackages
+===========
+
+.. autosummary::
+   :toctree: generated
+   :caption: Subpackages
+
+    adapters
+    data
+    modules
+    tools
+
 """
 from . import adapters, data, interfaces, modules, schedule, sdk, tools
 from .data.grid_spec import (
@@ -19,6 +117,11 @@ from .interfaces import (
     FinamNoDataError,
     FinamStatusError,
     FinamTimeError,
+    IAdapter,
+    IComponent,
+    IInput,
+    IOutput,
+    ITimeComponent,
     Loggable,
     NoBranchAdapter,
 )
@@ -43,6 +146,11 @@ except ModuleNotFoundError:  # pragma: no cover
 __all__ = ["__version__"]
 __all__ += ["adapters", "data", "interfaces", "modules", "schedule", "sdk", "tools"]
 __all__ += [
+    "IComponent",
+    "ITimeComponent",
+    "IAdapter",
+    "IInput",
+    "IOutput",
     "ComponentStatus",
     "FinamLogError",
     "FinamMetaDataError",
