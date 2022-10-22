@@ -27,6 +27,7 @@
 * Changed arguments for `create_connector()`
   * Removed `required_out_infos` 
   * Renamed `required_in_data` to `pull_data`
+* All error types are in module `errors` now, and re-exported at top level 
 
 ## [v0.4.0-rc.2]
 

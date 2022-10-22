@@ -1,7 +1,8 @@
 """Pull-based for merging multiple inputs into a single output"""
-from finam.interfaces import ComponentStatus, FinamMetaDataError
+from finam.interfaces import ComponentStatus
 
 from ..data.tools import check_units, strip_data
+from ..errors import FinamMetaDataError
 from ..sdk import CallbackOutput, Component
 from ..tools.log_helper import ErrorLogger
 

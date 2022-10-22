@@ -194,7 +194,7 @@ the input will internally do the conversion to kilometers.
 FINAM uses the [`pint`](https://pint.readthedocs.io) library for units handling,
 and follows the [CF Conventions](https://cfconventions.org/).
 
-For direct to `pint` units, the central units registry is exposed by `finam.UNITS`.
+For direct access to `pint` units, the central units registry is exposed by `finam.UNITS`.
 
 ## Metadata flow
 

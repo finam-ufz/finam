@@ -8,10 +8,9 @@ from pyproj import Transformer, crs
 from scipy.interpolate import LinearNDInterpolator, RegularGridInterpolator
 from scipy.spatial import KDTree
 
-from finam.interfaces import FinamMetaDataError
-
 from ..data import tools as dtools
 from ..data.grid_spec import StructuredGrid
+from ..errors import FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
 

@@ -13,37 +13,12 @@ Interfaces
     :noindex: IInput
     :noindex: IOutput
     :noindex: ComponentStatus
-    :noindex: FinamLogError
-    :noindex: FinamMetaDataError
-    :noindex: FinamNoDataError
-    :noindex: FinamStatusError
-    :noindex: FinamTimeError
     :noindex: Loggable
     :noindex: NoBranchAdapter
 """
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-
-
-class FinamStatusError(Exception):
-    """Error for wrong status in Component."""
-
-
-class FinamTimeError(Exception):
-    """Error for request time not matching available data timestamps."""
-
-
-class FinamLogError(Exception):
-    """Error for wrong logging configuration."""
-
-
-class FinamNoDataError(Exception):
-    """Error for data not yet being available."""
-
-
-class FinamMetaDataError(Exception):
-    """Error for missing but required metadata."""
 
 
 class ComponentStatus(Enum):

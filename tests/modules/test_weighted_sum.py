@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import numpy as np
 
 import finam as fm
+import finam.errors
 from finam.modules.debug import DebugConsumer
 from finam.modules.generators import CallbackGenerator
 from finam.modules.mergers import WeightedSum
@@ -179,7 +180,7 @@ class TestWeightedSum(unittest.TestCase):
 
         merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
 
-        with self.assertRaises(fm.FinamMetaDataError):
+        with self.assertRaises(finam.errors.FinamMetaDataError):
             composition.run(t_max=start + timedelta(days=30))
 
     def test_weighted_sum_fail_grid_weights(self):
@@ -235,7 +236,7 @@ class TestWeightedSum(unittest.TestCase):
 
         merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
 
-        with self.assertRaises(fm.FinamMetaDataError):
+        with self.assertRaises(finam.errors.FinamMetaDataError):
             composition.run(t_max=start + timedelta(days=30))
 
     def test_weighted_sum_fail_units(self):
@@ -290,7 +291,7 @@ class TestWeightedSum(unittest.TestCase):
 
         merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
 
-        with self.assertRaises(fm.FinamMetaDataError):
+        with self.assertRaises(finam.errors.FinamMetaDataError):
             composition.run(t_max=start + timedelta(days=30))
 
     def test_weighted_sum_fail_units_weights(self):
@@ -345,5 +346,5 @@ class TestWeightedSum(unittest.TestCase):
 
         merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
 
-        with self.assertRaises(fm.FinamMetaDataError):
+        with self.assertRaises(finam.errors.FinamMetaDataError):
             composition.run(t_max=start + timedelta(days=30))

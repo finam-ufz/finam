@@ -7,6 +7,7 @@ import pint
 import xarray as xr
 
 import finam
+import finam.errors
 
 
 class TestDataTools(unittest.TestCase):
@@ -47,31 +48,31 @@ class TestDataTools(unittest.TestCase):
         finam.data.to_units(dar0, "km")
 
         # wrong shape
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.to_xarray(1, "data", info, time)
 
         # no DataArray
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(None, "data", info, time)
 
         # not qunatified
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(dar0.pint.dequantify(), "data", info, time)
 
         # wrong name
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(dar0, "wrong", info, time)
 
         # wrong time
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(dar0, "data", info, tim0)
 
         # no time to check
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(dar0, "data", info)
 
         # no time in xdata
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(dar1, "data", info, time)
 
         # should work for no-time data
@@ -81,21 +82,21 @@ class TestDataTools(unittest.TestCase):
         finam.data.check(dar0, "data", inf0, time)
 
         # wrong meta
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(dar0, "data", inf1, time)
 
         # wrong units
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(dar0, "data", inf2, time)
 
         # wrong dims
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(dar0, "data", inf3, time)
 
         # wrong shape
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(dar0, "data", inf4, time)
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(dar1, "data", inf4)
 
         # check full_like
@@ -146,7 +147,7 @@ class TestDataTools(unittest.TestCase):
         stripped = finam.data.strip_time(xdata)
         self.assertEqual(stripped.shape, (3,))
 
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             stripped_ = finam.data.strip_time(np.asarray([1.0, 2.0]))
 
         arr1 = finam.data.to_xarray(
@@ -162,7 +163,7 @@ class TestDataTools(unittest.TestCase):
             time=datetime.datetime(2000, 1, 2),
         )
         data = xr.concat([arr1, arr2], dim="time")
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             stripped_ = finam.data.strip_time(data)
 
     def test_strip_data(self):
@@ -176,17 +177,17 @@ class TestDataTools(unittest.TestCase):
 
     def test_to_xarray(self):
         time = dt(2000, 1, 1)
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.to_xarray(
                 np.asarray([1, 2]), "A", finam.Info(time, grid=finam.NoGrid())
             )
 
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.to_xarray(
                 1.0 * finam.UNITS.meter, "A", finam.Info(time, grid=finam.NoGrid())
             )
 
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.to_xarray(
                 1.0 * finam.UNITS.meter,
                 "A",
@@ -203,10 +204,10 @@ class TestDataTools(unittest.TestCase):
         time = dt(2000, 1, 1)
         _info = finam.Info(time, grid=finam.NoGrid())
 
-        with self.assertRaises(finam.FinamMetaDataError):
+        with self.assertRaises(finam.errors.FinamMetaDataError):
             _info = finam.Info(time=1, grid=finam.NoGrid())
 
-        with self.assertRaises(finam.FinamMetaDataError):
+        with self.assertRaises(finam.errors.FinamMetaDataError):
             _info = finam.Info(time, grid=finam.NoGrid)
 
         info = finam.Info(time, grid=finam.NoGrid(), units="m", foo="bar")
@@ -251,7 +252,7 @@ class TestDataTools(unittest.TestCase):
 
         finam.data.tools._check_shape(xdata, finam.NoGrid(), with_time=True)
 
-        with self.assertRaises(finam.FinamDataError):
+        with self.assertRaises(finam.errors.FinamDataError):
             finam.data.tools._check_shape(xdata, finam.NoGrid(dim=1), with_time=True)
 
     def test_quantify(self):
