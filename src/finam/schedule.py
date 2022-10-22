@@ -12,6 +12,7 @@ from .interfaces import (
     FinamStatusError,
     IAdapter,
     IComponent,
+    IInput,
     ITimeComponent,
     Loggable,
     NoBranchAdapter,
@@ -186,39 +187,13 @@ class Composition(Loggable):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
         self.logger.debug("validate composition")
         for mod in self.modules:
-            for (name, inp) in mod.inputs.items():
-                par_inp = inp.get_source()
-                while True:
-                    if par_inp is None:
-                        with ErrorLogger(self.logger):
-                            raise ValueError(
-                                f"Unconnected input '{name}' for module {mod.name}"
-                            )
+            with ErrorLogger(mod.logger if loggable(mod) else self.logger):
+                for inp in mod.inputs.values():
+                    _check_input_connected(mod, inp)
+                    _check_dead_links(mod, inp)
 
-                    if not isinstance(par_inp, IAdapter):
-                        break
-
-                    par_inp = par_inp.get_source()
-
-            for (name, out) in mod.outputs.items():
-                targets = [(out, False)]
-
-                while len(targets) > 0:
-                    target, no_branch = targets.pop()
-                    no_branch = no_branch or isinstance(target, NoBranchAdapter)
-
-                    curr_targets = target.get_targets()
-
-                    if no_branch and len(curr_targets) > 1:
-                        with ErrorLogger(self.logger):
-                            raise ValueError(
-                                f"Disallowed branching of output '{name}' for "
-                                f"module {mod.name} ({target.__class__.__name__})"
-                            )
-
-                    for target in curr_targets:
-                        if isinstance(target, IAdapter):
-                            targets.append((target, no_branch))
+                for out in mod.outputs.values():
+                    _check_branching(mod, out)
 
     def _connect(self):
         self.logger.debug("connect components")
@@ -285,3 +260,60 @@ class Composition(Loggable):
                     f"Unexpected model state {module.status} in {module.name}. "
                     f"Expecting one of [{', '.join(map(str, desired_list))}]"
                 )
+
+
+def _check_branching(module, out):
+    targets = [(out, False)]
+
+    while len(targets) > 0:
+        target, no_branch = targets.pop()
+        no_branch = no_branch or isinstance(target, NoBranchAdapter)
+
+        curr_targets = target.get_targets()
+
+        if no_branch and len(curr_targets) > 1:
+            raise ValueError(
+                f"Disallowed branching of output '{out.name}' for "
+                f"module {module.name} ({target.__class__.__name__})"
+            )
+
+        for target in curr_targets:
+            if isinstance(target, IAdapter):
+                targets.append((target, no_branch))
+
+
+def _check_input_connected(module, inp):
+    while isinstance(inp, IInput):
+        if inp.get_source() is None:
+            raise ValueError(f"Unconnected input '{inp.name}' for module {module.name}")
+        inp = inp.get_source()
+
+
+def _check_dead_links(module, inp):
+    chain = [inp]
+    while isinstance(inp, IInput):
+        inp = inp.get_source()
+        chain.append(inp)
+
+    first_index = -1
+    for i, item in enumerate(reversed(chain)):
+        if first_index >= 0 and item.needs_push:
+            raise _dead_link_error(module, chain, first_index, i)
+        if item.needs_pull:
+            first_index = i
+
+
+def _dead_link_error(module, chain, first_index, last_index):
+    link_message = ""
+    for i, item in enumerate(reversed(chain)):
+        link_message += item.name
+        if i < len(chain) - 1:
+            link_message += (
+                " >/> " if i == first_index or i + 1 == last_index else " >> "
+            )
+
+    return ValueError(
+        f"Dead link detected between "
+        f"{chain[0].name} and {str(module)}->{chain[-1].name}:\n"
+        f"{link_message}"
+    )

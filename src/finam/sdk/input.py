@@ -31,6 +31,16 @@ class Input(IInput, Loggable):
         """Info: The input's data info."""
         return self._input_info
 
+    @property
+    def needs_pull(self):
+        """bool: if the input needs pull."""
+        return True
+
+    @property
+    def needs_push(self):
+        """bool: if the input needs push."""
+        return False
+
     def set_source(self, source):
         """Set the input's source output or adapter
 
@@ -188,6 +198,16 @@ class CallbackInput(Input):
     def __init__(self, callback, name, info=None, **info_kwargs):
         super().__init__(name=name, info=info, **info_kwargs)
         self.callback = callback
+
+    @property
+    def needs_pull(self):
+        """bool: if the input needs pull."""
+        return False
+
+    @property
+    def needs_push(self):
+        """bool: if the input needs push."""
+        return True
 
     def source_updated(self, time):
         """Informs the input that a new output is available.

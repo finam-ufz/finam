@@ -9,18 +9,24 @@ from tempfile import TemporaryDirectory
 
 from finam import (
     Adapter,
+    CallbackInput,
+    CallbackOutput,
     Component,
     ComponentStatus,
     Composition,
     FinamStatusError,
     Info,
+    Input,
     NoBranchAdapter,
     NoGrid,
+    Output,
     TimeComponent,
 )
 from finam import data as tools
 from finam.adapters.base import Scale
+from finam.adapters.time import NextValue
 from finam.modules import debug
+from finam.schedule import _check_dead_links
 
 
 class NoTimeComponent(Component):
@@ -188,6 +194,63 @@ class TestComposition(unittest.TestCase):
             composition._validate()
 
         self.assertTrue("Disallowed branching" in str(context.exception))
+
+    def test_check_dead_links(self):
+        info = Info(time=None, grid=NoGrid())
+
+        out = Output(name="out", info=info)
+        inp = Input(name="in", info=info)
+        out >> inp
+
+        self.assertTrue(inp.needs_pull)
+        self.assertFalse(inp.needs_push)
+        self.assertFalse(out.needs_pull)
+        self.assertTrue(out.needs_push)
+
+        _check_dead_links(0, inp)
+
+        out = CallbackOutput(name="out", callback=None, info=info)
+        inp = CallbackInput(name="in", callback=None, info=info)
+        out >> inp
+
+        self.assertFalse(inp.needs_pull)
+        self.assertTrue(inp.needs_push)
+        self.assertTrue(out.needs_pull)
+        self.assertFalse(out.needs_push)
+
+        with self.assertRaises(ValueError):
+            _check_dead_links(0, inp)
+
+        out = Output(name="out", info=info)
+        ada = NextValue()
+        inp = CallbackInput(name="in", callback=None, info=info)
+
+        out >> ada >> inp
+        _check_dead_links(0, inp)
+
+        out = CallbackOutput(name="out", callback=None, info=info)
+        ada = NextValue()
+        inp = Input(name="in", info=info)
+
+        out >> ada >> inp
+        with self.assertRaises(ValueError):
+            _check_dead_links(0, inp)
+
+    def test_check_dead_links_error(self):
+        info = Info(time=None, grid=NoGrid())
+        out = CallbackOutput(name="out", callback=None, info=info)
+        ada1 = Scale(2.0)
+        ada2 = Scale(2.0)
+        inp = CallbackInput(name="in", callback=None, info=info)
+        out >> ada1 >> ada2 >> inp
+
+        print("TEST")
+
+        with self.assertRaises(ValueError) as context:
+            _check_dead_links(0, inp)
+
+        message = str(context.exception)
+        self.assertTrue("out >/> Scale >> Scale >/> in" in message)
 
     def test_validate_inputs(self):
         time = datetime(2000, 1, 1)

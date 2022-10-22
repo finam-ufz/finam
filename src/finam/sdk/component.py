@@ -254,6 +254,9 @@ class Component(IComponent, Loggable, ABC):
         )
         self.logger.debug("try_connect status is %s", self.status)
 
+    def __repr__(self):
+        return self.name
+
 
 class TimeComponent(ITimeComponent, Component, ABC):
     """Abstract component with time step implementation."""
