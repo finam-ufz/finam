@@ -79,6 +79,11 @@ Interfaces
     FinamStatusError
     FinamTimeError
     Loggable
+    IComponent
+    ITimeComponent
+    IAdapter
+    IInput
+    IOutput
     NoBranchAdapter
 
 Subpackages
@@ -91,10 +96,7 @@ Subpackages
     adapters
     data
     modules
-    sdk
     tools
-    interfaces
-    schedule
 
 """
 from . import adapters, data, interfaces, modules, schedule, sdk, tools
@@ -115,6 +117,11 @@ from .interfaces import (
     FinamNoDataError,
     FinamStatusError,
     FinamTimeError,
+    IAdapter,
+    IComponent,
+    IInput,
+    IOutput,
+    ITimeComponent,
     Loggable,
     NoBranchAdapter,
 )
@@ -139,6 +146,11 @@ except ModuleNotFoundError:  # pragma: no cover
 __all__ = ["__version__"]
 __all__ += ["adapters", "data", "interfaces", "modules", "schedule", "sdk", "tools"]
 __all__ += [
+    "IComponent",
+    "ITimeComponent",
+    "IAdapter",
+    "IInput",
+    "IOutput",
     "ComponentStatus",
     "FinamLogError",
     "FinamMetaDataError",

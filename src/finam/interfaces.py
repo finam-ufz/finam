@@ -7,14 +7,19 @@ Interfaces
 .. autosummary::
    :toctree: generated
 
-    ComponentStatus
-    FinamLogError
-    FinamMetaDataError
-    FinamNoDataError
-    FinamStatusError
-    FinamTimeError
-    Loggable
-    NoBranchAdapter
+    :noindex: IComponent
+    :noindex: ITimeComponent
+    :noindex: IAdapter
+    :noindex: IInput
+    :noindex: IOutput
+    :noindex: ComponentStatus
+    :noindex: FinamLogError
+    :noindex: FinamMetaDataError
+    :noindex: FinamNoDataError
+    :noindex: FinamStatusError
+    :noindex: FinamTimeError
+    :noindex: Loggable
+    :noindex: NoBranchAdapter
 """
 import logging
 from abc import ABC, abstractmethod

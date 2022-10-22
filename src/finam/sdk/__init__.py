@@ -7,13 +7,13 @@ Software development kit
 .. autosummary::
    :toctree: generated
 
-    Adapter
-    Component
-    TimeComponent
-    CallbackInput
-    CallbackOutput
-    Input
-    Output
+    :noindex: Adapter
+    :noindex: Component
+    :noindex: TimeComponent
+    :noindex: CallbackInput
+    :noindex: CallbackOutput
+    :noindex: Input
+    :noindex: Output
 """
 from .adapter import Adapter
 from .component import Component, TimeComponent

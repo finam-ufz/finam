@@ -7,12 +7,12 @@ Grids
 .. autosummary::
    :toctree: generated
 
-    EsriGrid
-    NoGrid
-    RectilinearGrid
-    UniformGrid
-    UnstructuredGrid
-    UnstructuredPoints
+    :noindex: EsriGrid
+    :noindex: NoGrid
+    :noindex: RectilinearGrid
+    :noindex: UniformGrid
+    :noindex: UnstructuredGrid
+    :noindex: UnstructuredPoints
 
 
 Grid tools
@@ -25,8 +25,8 @@ Grid tools
     check_axes_monotonicity
     check_axes_uniformity
     check_uniformity
-    CellType
-    Location
+    :noindex: CellType
+    :noindex: Location
     GridBase
     Grid
     StructuredGrid
@@ -37,9 +37,9 @@ Data tools
 .. autosummary::
    :toctree: generated
 
-    UNITS
-    FinamDataError
-    Info
+    :noindex: UNITS
+    :noindex: FinamDataError
+    :noindex: Info
     assert_type
     check
     check_quantified

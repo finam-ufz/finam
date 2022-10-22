@@ -7,7 +7,7 @@ Composition
 .. autosummary::
    :toctree: generated
 
-    Composition
+    :noindex: Composition
 """
 import logging
 import sys
