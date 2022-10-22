@@ -6,7 +6,8 @@ from datetime import datetime
 
 from ..data import tools
 from ..data.tools import Info
-from ..interfaces import FinamMetaDataError, FinamNoDataError, IInput, IOutput, Loggable
+from ..errors import FinamMetaDataError, FinamNoDataError
+from ..interfaces import IInput, IOutput, Loggable
 from ..tools.log_helper import ErrorLogger
 
 

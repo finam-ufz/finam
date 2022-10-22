@@ -8,10 +8,9 @@ from datetime import datetime
 from enum import IntEnum
 from typing import final
 
+from ..errors import FinamLogError, FinamStatusError
 from ..interfaces import (
     ComponentStatus,
-    FinamLogError,
-    FinamStatusError,
     IComponent,
     IInput,
     IOutput,

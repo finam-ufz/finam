@@ -38,7 +38,6 @@ Data tools
    :toctree: generated
 
     :noindex: UNITS
-    :noindex: FinamDataError
     :noindex: Info
     assert_type
     check
@@ -59,6 +58,7 @@ Data tools
     to_xarray
 """
 
+from ..errors import FinamDataError
 from . import grid_spec, grid_tools, tools
 from .grid_spec import (
     EsriGrid,
@@ -81,7 +81,6 @@ from .grid_tools import (
 )
 from .tools import (
     UNITS,
-    FinamDataError,
     Info,
     assert_type,
     check,

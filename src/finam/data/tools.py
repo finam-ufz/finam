@@ -16,7 +16,7 @@ import pint
 
 # isort: on
 
-from ..interfaces import FinamMetaDataError
+from ..errors import FinamDataError, FinamMetaDataError
 from .grid_spec import NoGrid
 from .grid_tools import Grid, GridBase
 
@@ -24,10 +24,6 @@ from .grid_tools import Grid, GridBase
 # some problems with degree_Celsius and similar here
 pint_xarray.unit_registry.default_format = "cf"
 UNITS = pint_xarray.unit_registry
-
-
-class FinamDataError(Exception):
-    """Error for wrong data in FINAM."""
 
 
 def _extract_units(xdata):

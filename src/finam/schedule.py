@@ -15,9 +15,9 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from .errors import FinamStatusError
 from .interfaces import (
     ComponentStatus,
-    FinamStatusError,
     IAdapter,
     IComponent,
     IInput,

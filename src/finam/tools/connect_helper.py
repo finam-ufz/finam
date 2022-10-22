@@ -1,8 +1,9 @@
 """Iterative connection helpers."""
 import logging
 
-from finam.interfaces import ComponentStatus, FinamNoDataError, Loggable
+from finam.interfaces import ComponentStatus, Loggable
 
+from ..errors import FinamNoDataError
 from ..tools.log_helper import ErrorLogger
 
 

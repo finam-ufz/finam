@@ -61,9 +61,8 @@ Data tools
    :toctree: generated
    :caption: Data tools
 
-    UNITS
-    FinamDataError
     Info
+    UNITS
 
 Interfaces
 ==========
@@ -73,11 +72,6 @@ Interfaces
    :caption: Interfaces
 
     ComponentStatus
-    FinamLogError
-    FinamMetaDataError
-    FinamNoDataError
-    FinamStatusError
-    FinamTimeError
     Loggable
     IComponent
     ITimeComponent
@@ -85,6 +79,20 @@ Interfaces
     IInput
     IOutput
     NoBranchAdapter
+
+Errors
+======
+
+.. autosummary::
+   :toctree: generated
+   :caption: Errors
+
+    FinamDataError
+    FinamLogError
+    FinamMetaDataError
+    FinamNoDataError
+    FinamStatusError
+    FinamTimeError
 
 Subpackages
 ===========
@@ -109,14 +117,17 @@ from .data.grid_spec import (
     UnstructuredPoints,
 )
 from .data.grid_tools import CellType, Location
-from .data.tools import UNITS, FinamDataError, Info
-from .interfaces import (
-    ComponentStatus,
+from .data.tools import UNITS, Info
+from .errors import (
+    FinamDataError,
     FinamLogError,
     FinamMetaDataError,
     FinamNoDataError,
     FinamStatusError,
     FinamTimeError,
+)
+from .interfaces import (
+    ComponentStatus,
     IAdapter,
     IComponent,
     IInput,
@@ -152,11 +163,6 @@ __all__ += [
     "IInput",
     "IOutput",
     "ComponentStatus",
-    "FinamLogError",
-    "FinamMetaDataError",
-    "FinamNoDataError",
-    "FinamStatusError",
-    "FinamTimeError",
     "Loggable",
     "NoBranchAdapter",
 ]
@@ -179,4 +185,12 @@ __all__ += [
     "UnstructuredPoints",
 ]
 __all__ += ["CellType", "Location"]
-__all__ += ["UNITS", "FinamDataError", "Info"]
+__all__ += ["UNITS", "Info"]
+__all__ += [
+    "FinamDataError",
+    "FinamLogError",
+    "FinamMetaDataError",
+    "FinamNoDataError",
+    "FinamStatusError",
+    "FinamTimeError",
+]
