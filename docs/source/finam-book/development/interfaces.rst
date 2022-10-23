@@ -90,7 +90,7 @@ Another implementation is provided by :class:`.CallbackInput`, for use in push-b
 They can connect to :meth:`.IInput.source_updated` by providing a callback function.
 
 Other classes derived from :class:`.Input` can overwrite the private :meth:`.Input._source_updated` method,
-which is called by :meth:`.Input.source_updated(self, time)`.
+which is called by :meth:`.Input.source_updated`.
 
 :class:`.IOutput`
 ^^^^^^^^^^^^^^^^^
