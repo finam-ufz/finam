@@ -234,11 +234,6 @@ class IOutput(ABC):
     def needs_push(self):
         """bool: if the output needs push."""
 
-    @property
-    @abstractmethod
-    def is_push_based(self):
-        """Returns if the output is push-based, and requires push as startup."""
-
     @abstractmethod
     def has_info(self):
         """Returns if the output has a data info.
