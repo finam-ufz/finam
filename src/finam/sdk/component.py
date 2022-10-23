@@ -19,7 +19,7 @@ from ..interfaces import (
 )
 from ..tools.connect_helper import ConnectHelper
 from ..tools.enum_helper import get_enum_value
-from ..tools.log_helper import ErrorLogger, loggable
+from ..tools.log_helper import ErrorLogger, is_loggable
 from .input import Input
 from .output import Output
 
@@ -358,12 +358,16 @@ class IOList(collections.abc.Mapping):
             When item is loggable but not the base module.
         """
         for name, item in self.items():
-            if loggable(item) and item.uses_base_logger_name and not loggable(module):
+            if (
+                is_loggable(item)
+                and item.uses_base_logger_name
+                and not is_loggable(module)
+            ):
                 mname = getattr(module, "name", None)
                 raise FinamLogError(
                     f"IO: {self.name} '{name}' can't get logger from '{mname}'."
                 )
-            if loggable(item) and item.uses_base_logger_name:
+            if is_loggable(item) and item.uses_base_logger_name:
                 item.base_logger_name = module.logger_name
 
     def __iter__(self):

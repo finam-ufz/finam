@@ -25,7 +25,7 @@ from .interfaces import (
     Loggable,
     NoBranchAdapter,
 )
-from .tools.log_helper import ErrorLogger, loggable
+from .tools.log_helper import ErrorLogger, is_loggable
 
 
 class Composition(Loggable):
@@ -100,7 +100,7 @@ class Composition(Loggable):
             self._check_status(mod, [ComponentStatus.CREATED])
 
         for mod in self.modules:
-            if loggable(mod) and mod.uses_base_logger_name:
+            if is_loggable(mod) and mod.uses_base_logger_name:
                 mod.base_logger_name = self.logger_name
             mod.initialize()
             # set logger
@@ -195,7 +195,7 @@ class Composition(Loggable):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
         self.logger.debug("validate composition")
         for mod in self.modules:
-            with ErrorLogger(mod.logger if loggable(mod) else self.logger):
+            with ErrorLogger(mod.logger if is_loggable(mod) else self.logger):
                 for inp in mod.inputs.values():
                     _check_input_connected(mod, inp)
                     _check_dead_links(mod, inp)
@@ -263,7 +263,7 @@ class Composition(Loggable):
 
     def _check_status(self, module, desired_list):
         if module.status not in desired_list:
-            with ErrorLogger(module.logger if loggable(module) else self.logger):
+            with ErrorLogger(module.logger if is_loggable(module) else self.logger):
                 raise FinamStatusError(
                     f"Unexpected model state {module.status} in {module.name}. "
                     f"Expecting one of [{', '.join(map(str, desired_list))}]"

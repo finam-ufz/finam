@@ -12,7 +12,7 @@ Logging helper
     Loggable
     LogStdOutStdErr
     LogWriter
-    loggable
+    is_loggable
 
 CWD helper
 ==========
@@ -49,7 +49,7 @@ from .log_helper import (
     Loggable,
     LogStdOutStdErr,
     LogWriter,
-    loggable,
+    is_loggable,
 )
 
 __all__ = ["connect_helper"]
@@ -57,7 +57,7 @@ __all__ += ["execute_in_cwd", "set_directory"]
 __all__ += ["get_enum_value"]
 __all__ += [
     "ErrorLogger",
-    "loggable",
+    "is_loggable",
     "Loggable",
     "LogWriter",
     "LogStdOutStdErr",

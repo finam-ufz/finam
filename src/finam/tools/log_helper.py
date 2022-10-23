@@ -9,7 +9,7 @@ from finam.interfaces import Loggable
 from . import wurlitzer
 
 
-def loggable(obj):
+def is_loggable(obj):
     """
     Check if given object is loggable.
 

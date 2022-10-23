@@ -10,7 +10,7 @@ from ..data import tools
 from ..data.tools import Info
 from ..errors import FinamLogError, FinamMetaDataError, FinamTimeError
 from ..interfaces import IAdapter, IOutput
-from ..tools.log_helper import ErrorLogger, loggable
+from ..tools.log_helper import ErrorLogger, is_loggable
 from .input import Input
 from .output import Output
 
@@ -189,7 +189,7 @@ class Adapter(IAdapter, Input, Output, ABC):
         """
         self.logger.debug("set source")
         # fix to set base-logger for adapters derived from Input source logger
-        if self.uses_base_logger_name and not loggable(source):
+        if self.uses_base_logger_name and not is_loggable(source):
             with ErrorLogger(self.logger):
                 raise FinamLogError(
                     f"Adapter '{self.name}' can't get base logger from its source."
