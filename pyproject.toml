@@ -47,7 +47,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://git.ufz.de/FINAM/finam"
+Homepage = "https://FINAM.pages.ufz.de/"
 Documentation = "https://FINAM.pages.ufz.de/finam/"
 Source = "https://git.ufz.de/FINAM/finam"
 Tracker = "https://git.ufz.de/FINAM/finam/-/issues"
