@@ -27,7 +27,9 @@ from .output import Output
 class Component(IComponent, Loggable, ABC):
     """Abstract component implementation.
 
-    Extend this class for components without time step. See :doc:`/finam-book/development/special_components`. For components with a time step, use :class:`.TimeComponent`.
+    Extend this class for components without time step.
+    See :doc:`/finam-book/development/special_components`.
+    For components with a time step, use :class:`.TimeComponent`.
 
     Implementors overwrite these methods
 
@@ -278,7 +280,8 @@ class TimeComponent(ITimeComponent, Component, ABC):
     * :meth:`._connect`
     * :meth:`._validate`
     * :meth:`._update`
-    * :meth:`._finalize`"""
+    * :meth:`._finalize`
+    """
 
     def __init__(self):
         super().__init__()
