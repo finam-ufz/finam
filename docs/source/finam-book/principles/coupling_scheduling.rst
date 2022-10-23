@@ -1,4 +1,6 @@
-# Coupling and Scheduling
+=======================
+Coupling and Scheduling
+=======================
 
 ## Coupling
 

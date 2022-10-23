@@ -1,4 +1,6 @@
-# Model coupling scripts
+======================
+Model coupling scripts
+======================
 
 Coupling setups are created and executed using Python scripts.
 

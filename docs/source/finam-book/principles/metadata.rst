@@ -1,4 +1,6 @@
-# Metadata and time
+=================
+Metadata and time
+=================
 
 In FINAM, data has certain information associated.
 This is necessary to ensure valid coupling and is one of the foundations for the ease of use of FINAM.

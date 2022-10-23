@@ -1,4 +1,6 @@
-# Logging for components
+======================
+Logging for components
+======================
 
 This chapter provides information on how to use logging in components.
 

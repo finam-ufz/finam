@@ -1,4 +1,6 @@
-# Components without time step
+============================
+Components without time step
+============================
 
 So far, we mainly dealt with components that have an internal time step.
 In some cases, however, components without an internal time step can be useful.

@@ -1,4 +1,6 @@
-# Python bindings
+===============
+Python bindings
+===============
 
 FINAM requires Python bindings for coupling components or models written in a language other than Python, like C++, Fortran or Rust.
 

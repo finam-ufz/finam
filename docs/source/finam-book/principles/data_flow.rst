@@ -1,4 +1,6 @@
-# Data flow
+=========
+Data flow
+=========
 
 FINAM is based on a **hybrid push-pull information flow**. Components and adapters "push" data updates to their outputs.
 These default outputs (`Output`) store the data,

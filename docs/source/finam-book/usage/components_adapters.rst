@@ -1,4 +1,6 @@
-# Components and adapters
+=======================
+Components and adapters
+=======================
 
 This chapter lists known components and adapters for use in FINAM compositions.
 

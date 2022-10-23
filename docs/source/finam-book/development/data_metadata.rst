@@ -1,4 +1,6 @@
-# Data and metadata
+=================
+Data and metadata
+=================
 
 This chapter explains data and metadata in FINAM.
 

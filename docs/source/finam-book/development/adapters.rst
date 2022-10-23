@@ -1,4 +1,6 @@
-# Writing adapters
+================
+Writing adapters
+================
 
 This chapter provides a step-by-step guide to implement adapters in pure Python.
 For writing Python bindings for other languages, see [Python bindings](./py-bindings).

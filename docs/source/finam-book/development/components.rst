@@ -1,4 +1,6 @@
-# Writing components
+==================
+Writing components
+==================
 
 This chapter provides a step-by-step guide to implement a component with time (e.g. a model) in pure Python.
 For writing Python bindings for other languages, see [Python bindings](./py-bindings).

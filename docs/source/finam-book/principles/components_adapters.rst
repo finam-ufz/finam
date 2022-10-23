@@ -1,21 +1,25 @@
-# Components and Adapters
+=======================
+Components and Adapters
+=======================
 
-Models are wrapped according to the interfaces into independent *components*.
-Communication works over so-called *adapters* that are plugged between models or other components.
+Models are wrapped according to the interfaces into independent *Components*.
+Communication works over so-called *Adapters* that are plugged between models or other components.
 These adapters are responsible for transforming data between one model's output and the receiving model's expected input.
 Examples are spatio-temporal rescaling or coordinate transforms.
 
 FINAM enables setting up a consistent and flexible data stream workflow involving models and drivers, as well as data pre- and post-processing (e.g. visualization).
 
-## Components
+Components
+----------
 
 Components are the primary entities that are coupled in FINAM.
 
 A component can have multiple inputs and outputs to exchange data with other components.
 
-![Component](../images/component.svg)
-
-*Figure 1: A FINAM component*
+.. image:: ../images/component.svg
+    :alt: Component
+    :class: dark-light p-2
+    :caption: *Figure 1: A FINAM component*
 
 There are two principle types of components:
 

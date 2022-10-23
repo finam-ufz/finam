@@ -1,4 +1,6 @@
-# The Connect Phase &trade;
+=========================
+The Connect Phase &trade;
+=========================
 
 The "Connect Phase" between linking components and running the composition is a crucial foundation for the coupling principle of FINAM.
 
