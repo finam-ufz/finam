@@ -21,7 +21,7 @@ class Adapter(IAdapter, Input, Output, ABC):
     Extend this class for adapters.
     See :doc:`/finam-book/development/adapters`.
 
-    Basic implementors overwrite :meth:`._get_data`.
+    Simple derived classes overwrite :meth:`._get_data`.
 
     Adapters that alter the metadata can intercept it in :meth:`._get_info`
 

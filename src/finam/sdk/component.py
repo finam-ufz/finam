@@ -31,7 +31,7 @@ class Component(IComponent, Loggable, ABC):
     See :doc:`/finam-book/development/special_components`.
     For components with a time step, use :class:`.TimeComponent`.
 
-    Implementors overwrite these methods
+    Derived classes overwrite these methods
 
     * :meth:`._initialize`
     * :meth:`._connect`
@@ -286,7 +286,7 @@ class TimeComponent(ITimeComponent, Component, ABC):
     See :doc:`/finam-book/development/components`.
     For components without a time step, use :class:`.Component`.
 
-    Implementors overwrite these methods
+    Derived classes overwrite these methods
 
     * :meth:`._initialize`
     * :meth:`._connect`
