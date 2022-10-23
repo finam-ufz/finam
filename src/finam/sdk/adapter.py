@@ -16,7 +16,20 @@ from .output import Output
 
 
 class Adapter(IAdapter, Input, Output, ABC):
-    """Abstract adapter implementation."""
+    """Abstract adapter implementation.
+
+    Extend this class for adapters.
+    See :doc:`/finam-book/development/adapters`.
+
+    Basic implementors overwrite :meth:`._get_data`.
+
+    Adapters that alter the metadata can intercept it in :meth:`._get_info`
+
+    For time-dependent adapters with push-functionality, also overwrite the following:
+
+    * :meth:`._source_updated`
+    * :attr:`.needs_push`
+    """
 
     def __init__(self):
         Input.__init__(self, name=self.__class__.__name__)
@@ -81,6 +94,9 @@ class Adapter(IAdapter, Input, Output, ABC):
         """Informs the input that a new output is available.
 
         Adapters can overwrite this method to handle incoming data.
+
+        Adapters that make use of this method to accumulate data should also
+        overwrite :attr:`.needs_push` to return ``True``.
 
         Parameters
         ----------

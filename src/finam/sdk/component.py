@@ -52,7 +52,7 @@ class Component(IComponent, Loggable, ABC):
         """Initialize the component.
 
         After the method call, the component's inputs and outputs must be available,
-        and the component should have status INITIALIZED.
+        and the component should have :attr:`.status` :attr:`.ComponentStatus.INITIALIZED`.
         """
         self.logger.debug("init")
         self._initialize()
@@ -79,9 +79,9 @@ class Component(IComponent, Loggable, ABC):
 
         The method can be called multiple times if there are failed pull attempts.
 
-        After each method call, the component should have status CONNECTED if
-        connecting was completed, CONNECTING if some but not all required initial input(s)
-        could be pulled, and `CONNECTING_IDLE` if nothing could be pulled.
+        After each method call, the component should have :attr:`.status` :attr:`.ComponentStatus.CONNECTED` if
+        connecting was completed, :attr:`.ComponentStatus.CONNECTING` if some but not all required initial input(s)
+        could be pulled, and :attr:`.ComponentStatus.CONNECTING_IDLE` if nothing could be pulled.
         """
 
         if self.status == ComponentStatus.INITIALIZED:
@@ -106,7 +106,7 @@ class Component(IComponent, Loggable, ABC):
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
 
-        After the method call, the component should have status VALIDATED.
+        After the method call, the component should have :attr:`.status` :attr:`.ComponentStatus.VALIDATED`.
         """
         self.logger.debug("validate")
         self._validate()
@@ -127,7 +127,8 @@ class Component(IComponent, Loggable, ABC):
         """Update the component by one time step.
         Push new values to outputs.
 
-        After the method call, the component should have status UPDATED or FINISHED.
+        After the method call, the component should have :attr:`.status`
+        :attr:`.ComponentStatus.UPDATED` or :attr:`.ComponentStatus.FINISHED`.
         """
         self.logger.debug("update")
         if isinstance(self, ITimeComponent):
@@ -152,7 +153,7 @@ class Component(IComponent, Loggable, ABC):
     def finalize(self):
         """Finalize and clean up the component.
 
-        After the method call, the component should have status FINALIZED.
+        After the method call, the component should have :attr:`.status` :attr:`.ComponentStatus.FINALIZED`.
         """
         self.logger.debug("finalize")
         self._finalize()

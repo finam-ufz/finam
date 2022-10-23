@@ -72,12 +72,12 @@ Interfaces
    :caption: Interfaces
 
     ComponentStatus
-    Loggable
     IComponent
     ITimeComponent
     IAdapter
     IInput
     IOutput
+    Loggable
     NoBranchAdapter
 
 Errors
