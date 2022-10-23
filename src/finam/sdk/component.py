@@ -222,6 +222,8 @@ class Component(IComponent, Loggable, ABC):
     ):
         """Exchange the info and data with linked components.
 
+        Sets the component's :attr:`.status` according success of exchange.
+
         Parameters
         ----------
         time : datetime.datatime
@@ -232,11 +234,6 @@ class Component(IComponent, Loggable, ABC):
             currently available output data infos by output name
         push_data : dict
             currently available output data by output name
-
-        Returns
-        -------
-        ComponentStatus
-            the new component status
         """
         self.logger.debug("try connect")
 
