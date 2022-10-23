@@ -3,35 +3,49 @@ Data flow
 =========
 
 FINAM is based on a **hybrid push-pull information flow**. Components and adapters "push" data updates to their outputs.
-These default outputs (`Output`) store the data,
+These default outputs (:class:`.Output`) store the data,
 and notify all connected inputs and adapters (targets) that new data is available, but without passing the data itself.
 Adapters forward these notifications, until the input of another component is reached.
 For details, see Figures 1 and 2.
 
-![Component](../images/data-flow-simple.svg)
+.. figure:: ../images/data-flow-simple.svg
+    :alt: Simple data flow
+    :class: dark-light p-2
+    :width: 100%
 
-*Figure 1: Simple data flow. Solid: data, dashed: notifications/pulls.*
-> 1. Model A updates  
->    1a: component pushes data to outputs  
->    1b: outputs forwards notification (w/o effect)
-> 2. Model B updates  
->    2a: component pulls data from input  
->    2b: input pulls from connected output  
->    2c: data is returned to component
+    Figure 1: Simple data flow. Solid: data, dashed: notifications/pulls.
+
+..
+
+    | 1. Model A updates
+    |    1a: component pushes data to outputs
+    |    1b: outputs forwards notification (w/o effect)
+    | 2. Model B updates
+    |    2a: component pulls data from input
+    |    2b: input pulls from connected output
+    |    2c: data is returned to component
 
 ![Component](../images/data-flow-adapter.svg)
 
-*Figure 2: Simple data flow with adapter. Solid: data, dashed: notifications/pulls*
-> 1. Model A updates  
->    1a: component pushes data to outputs  
->    1b: outputs forwards notification  
->    1c: adapter forwards notification (w/o effect)
-> 2. Model B updates  
->    2a: component pulls data from input  
->    2b: input pulls from connected adapter  
->    2c: adapter pulls from connected output  
->    2d: adapter transforms data  
->    2e: transformed data is returned to component
+.. figure:: ../images/data-flow-adapter.svg
+    :alt: Simple data flow with adapter
+    :class: dark-light p-2
+    :width: 100%
+
+    Figure 2: Simple data flow with adapter. Solid: data, dashed: notifications/pulls
+
+..
+
+    | 1. Model A updates
+    |    1a: component pushes data to outputs
+    |    1b: outputs forwards notification
+    |    1c: adapter forwards notification (w/o effect)
+    | 2. Model B updates
+    |    2a: component pulls data from input
+    |    2b: input pulls from connected adapter
+    |    2c: adapter pulls from connected output
+    |    2d: adapter transforms data
+    |    2e: transformed data is returned to component
 
 Components with time steps are **updated by the driver**, while components without time steps **can update when notified**
 about new data. They are then free to pull data from their inputs.
@@ -51,17 +65,23 @@ When data is pulled from downstream of the adapter, it does its calculations
 (e.g. temporal interpolation for the requested point in time) and returns the result.
 For details, see Figure 3.
 
-![Component](../images/data-flow-adapter-push.svg)
+.. figure:: ../images/data-flow-adapter-push.svg
+    :alt: Push-based data flow with adapter
+    :class: dark-light p-2
+    :width: 100%
 
-*Figure 3: Push-based data flow with adapter. Solid: data, dashed: notifications/pulls.*
-> 1. Model A updates  
->    1a: component pushes data to outputs  
->    1b: outputs forwards notification  
->    1c: adapter pulls and accumulates (or aggregates) data   
->    1d: adapter forwards notification (w/o effect)
-> 2. Model B updates  
->    2a: component pulls data from input  
->    2b: input pulls from connected adapter  
->    2c: adapter aggregates and returns data
+    Figure 3: Push-based data flow with adapter. Solid: data, dashed: notifications/pulls
+
+..
+
+    | 1. Model A updates
+    |    1a: component pushes data to outputs
+    |    1b: outputs forwards notification
+    |    1c: adapter pulls and accumulates (or aggregates) data
+    |    1d: adapter forwards notification (w/o effect)
+    | 2. Model B updates
+    |    2a: component pulls data from input
+    |    2b: input pulls from connected adapter
+    |    2c: adapter aggregates and returns data
 
 Time-related adapters should still forward notifications, just as usual adapters do.

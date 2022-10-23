@@ -98,4 +98,6 @@ intersphinx_mapping = {
     "NumPy": ("http://docs.scipy.org/doc/numpy/", None),
     "SciPy": ("http://docs.scipy.org/doc/scipy/reference", None),
     "matplotlib": ("http://matplotlib.org", None),
+    'xarray': ('https://docs.xarray.dev/en/stable/', None),
+    'pint': ('https://pint.readthedocs.io/en/stable/', None),
 }

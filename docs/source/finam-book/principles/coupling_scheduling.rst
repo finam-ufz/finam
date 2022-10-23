@@ -2,23 +2,28 @@
 Coupling and Scheduling
 =======================
 
-## Coupling
+Coupling
+--------
 
 A coupling setup in FINAM is a (potentially cyclic) graph of connected components and adapters.
 Figure 3 shows an example.
 
-![Coupling](../images/coupling.svg)
+.. figure:: ../images/coupling.svg
+    :alt: FINAM coupling
+    :class: dark-light p-2
 
-*Figure 3: A FINAM coupling*
+    Figure 3: A FINAM coupling
 
-See chapter [Model coupling scripts](../usage/coupling_scripts) for how to set up coupled models.
+See chapter :doc:`../usage/coupling_scripts` for how to set up coupled models.
 
 The figure illustrates a few important aspects of coupling:
+
 * Cyclic/bi-directional linkage is possible
 * Adapters can be chained
 * Components can be linked directly when no adapter is required
 
-## Scheduling
+Scheduling
+----------
 
 The scheduling of components follows a simple algorithm that allows for arbitrary, and even variable, model/component time steps.
 
@@ -27,9 +32,12 @@ This way, it is guaranteed that all required input data is available in the outp
 
 The example in Figure 4 illustrates the approach.
 
-<img src="../images/scheduling.svg" alt="Finam scheduling" width="100%"/>
+.. figure:: ../images/coupling.svg
+    :alt: Finam scheduling
+    :class: dark-light p-2
+    :width: 100%
 
-*Figure 4: FINAM scheduling (see text)*
+    Figure 4: FINAM scheduling (see text)
 
 Figure 4 shows a snapshot of a simulation featuring three components A, B and C with different time steps.
 Solid lines and dots denote already simulated model steps, and the right-most solid dot of each component shows it's current simulation time.
@@ -50,14 +58,15 @@ Finally, the illustration shows that:
 * Time steps for a component do not need to be fixed
 * It is not necessary to know the next step size in advance; components only need to be able to report their current simulation time
 
-## Initialization
+Initialization
+--------------
 
 During the initialization process, components populate their inputs and outputs with metadata like expected units and grid specifications.
 Further, components must push initial values into all outputs.
 
 Due to an iterative initialization approach, components can already exchange data and metadata during that phase.
-However, after each connection attempt, components need to signal via their `status` whether they are done with pulling, pulled nothing, or pulled something but are not done yet.
+However, after each connection attempt, components need to signal via their :attr:`.IComponent.status` whether they are done with pulling, pulled nothing, or pulled something but are not done yet.
 
 Unresolvable circular dependencies are detected and reported by the scheduler.
 
-See chapter [The Connect Phase &trade;](../development/connect_phase) for details and examples.
+See chapter :doc:`../development/connect_phase` for details and examples.
