@@ -25,7 +25,20 @@ from .output import Output
 
 
 class Component(IComponent, Loggable, ABC):
-    """Abstract component implementation."""
+    """Abstract component implementation.
+
+    Extend this class for components without time step.
+    See :doc:`/finam-book/development/special_components`.
+    For components with a time step, use :class:`.TimeComponent`.
+
+    Implementors overwrite these methods
+
+    * :meth:`._initialize`
+    * :meth:`._connect`
+    * :meth:`._validate`
+    * :meth:`._update`
+    * :meth:`._finalize`
+    """
 
     def __init__(self):
         self._status = ComponentStatus.CREATED
@@ -222,6 +235,8 @@ class Component(IComponent, Loggable, ABC):
     ):
         """Exchange the info and data with linked components.
 
+        Sets the component's :attr:`.status` according success of exchange.
+
         Parameters
         ----------
         time : datetime.datatime
@@ -232,11 +247,6 @@ class Component(IComponent, Loggable, ABC):
             currently available output data infos by output name
         push_data : dict
             currently available output data by output name
-
-        Returns
-        -------
-        ComponentStatus
-            the new component status
         """
         self.logger.debug("try connect")
 
@@ -258,7 +268,20 @@ class Component(IComponent, Loggable, ABC):
 
 
 class TimeComponent(ITimeComponent, Component, ABC):
-    """Abstract component with time step implementation."""
+    """Abstract component with time step implementation.
+
+    Extend this class for components with time step.
+    See :doc:`/finam-book/development/components`.
+    For components without a time step, use :class:`.Component`.
+
+    Implementors overwrite these methods
+
+    * :meth:`._initialize`
+    * :meth:`._connect`
+    * :meth:`._validate`
+    * :meth:`._update`
+    * :meth:`._finalize`
+    """
 
     def __init__(self):
         super().__init__()

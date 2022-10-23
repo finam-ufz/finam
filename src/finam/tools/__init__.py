@@ -46,7 +46,6 @@ from .enum_helper import get_enum_value
 from .log_helper import (
     ErrorLogger,
     LogCStdOutStdErr,
-    Loggable,
     LogStdOutStdErr,
     LogWriter,
     is_loggable,
@@ -58,7 +57,6 @@ __all__ += ["get_enum_value"]
 __all__ += [
     "ErrorLogger",
     "is_loggable",
-    "Loggable",
     "LogWriter",
     "LogStdOutStdErr",
     "LogCStdOutStdErr",
