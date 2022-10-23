@@ -31,9 +31,28 @@ from .tools.log_helper import ErrorLogger, is_loggable
 class Composition(Loggable):
     """A composition of linked components.
 
+    Manages initialization, initial connection and update schedule of components.
+
+    Examples
+    --------
+
+    .. code-block:: Python
+
+        comp_a = SomeComponent(...)
+        comp_b = AnotherComponent(...)
+
+        composition = Composition([comp_a, comp_b])
+        composition.initialize()
+
+        comp_b >> SomeAdapter() >> comp_b
+
+        composition.run(t_max=...)
+
+    See :doc:`/finam-book/usage/coupling_scripts` for more examples.
+
     Parameters
     ----------
-    modules : Component
+    modules : list of IComponent
         Components in the composition.
     logger_name : str, optional
         Name for the base logger, by default "FINAM"
