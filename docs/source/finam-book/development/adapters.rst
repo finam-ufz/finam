@@ -5,163 +5,173 @@ Writing adapters
 This chapter provides a step-by-step guide to implement adapters in pure Python.
 For writing Python bindings for other languages, see [Python bindings](./py-bindings).
 
-Completing the chapter will result in two adapters called `Scale` and `TimeInterpolation`.
+Completing the chapter will result in two adapters called ``Scale`` and ``TimeInterpolation``.
 We will build up the adapters step by step, accompanied by some test code.
 
-It is assumed that you have FINAM [installed](../usage/installation), as well as [`pytest`](https://docs.pytest.org/en/6.2.x/).
+It is assumed that you have FINAM [installed](../usage/installation), as well as :mod:`pytest`.
 
-## Set up a Python project
+Set up a Python project
+-----------------------
 
 Create the following project structure:
 
-```
-- dummy_adapters/
-   +- src/
-```
+.. code-block::
 
-## Simple `Scale` adapter
+    - dummy_adapters/
+       +- src/
+
+Simple ``Scale`` adapter
+------------------------
 
 This is a simple, purely pull-based adapter.
 When output is requested, it should simply pull from its input, transform and forward it.
 
-We implement `Adapter` and only need to overwrite its method `get_data(self, time)`,
+We implement :class:`.IAdapter` by extending :class:`.Adapter`. We only need to overwrite its method :meth:`.Adapter._get_data`,
 which is called from downstream to request data.
 
-File `src/scale.py`:
+File ``src/scale.py``:
 
-```python
-import finam as fm
+.. code-block:: Python
+
+    import finam as fm
 
 
-class Scale(fm.Adapter):
-    def __init__(self, scale):
-        super().__init__()
-        self.scale = scale
+    class Scale(fm.Adapter):
+        def __init__(self, scale):
+            super().__init__()
+            self.scale = scale
 
-    def _get_data(self, time):
-        d = self.pull_data(time)
-        return d * self.scale
-```
+        def _get_data(self, time):
+            d = self.pull_data(time)
+            return d * self.scale
 
-In `_get_data(self, time)`, we:
+In :meth:`.Adapter._get_data`, we:
 
-1. Pull the input for the requested `time`
-1. Multiply the input by `scale` and return the result
+1. Pull the input for the requested ``time``
+1. Multiply the input by ``scale`` and return the result
 
-## Time-dependent `TimeInterpolation` adapter
+Time-dependent ``TimeInterpolation`` adapter
+--------------------------------------------
 
 The purpose of this adapter is to do temporal interpolation between upstream time steps.
 As an example, there could be a model with a weekly time step that passes data to another model with a daily time step.
 Assuming continuous transitions of the modelled data, temporal interpolation between the weekly time steps is required.
 
-```
-  ^                          V
-  |                        _.o----
-  |                    _.-´
-  |                _.-´|
-  |            _.-´    |
-  |      V _.-´        |
-  |  ----o´            |
-  +-------------------------------------> t
-                       ^
-```
+.. code-block::
+
+      ^                          V
+      |                        _.o----
+      |                    _.-´
+      |                _.-´|
+      |            _.-´    |
+      |      V _.-´        |
+      |  ----o´            |
+      +-------------------------------------> t
+                           ^
 
 Here, a simple pull-based mechanism is not sufficient.
 The adapter needs to store each new data entry that becomes available, and calculate the interpolated data when requested.
 
 Due to FINAM's scheduling algorithm, it is guaranteed that the time stamp of any request lies in the interval of the previous two time steps of any other component
-(see [Coubling and Scheduling](../principles/coupling_scheduling) for details).
+(see :doc:`../principles/coupling_scheduling` for details).
 Thus, it is not required to store data for more than two time stamps.
 
-Accordingly, this is the constructor (file `src/time_interpolation.py`):
+Accordingly, this is the constructor (file ``src/time_interpolation.py``):
 
-```python
-import finam as fm
+.. code-block:: Python
 
-class TimeInterpolation(fm.Adapter):
+    import finam as fm
 
-    def __init__(self):
-        super().__init__()
-        self.old_data = None
-        self.new_data = None
-```
+    class TimeInterpolation(fm.Adapter):
+
+        def __init__(self):
+            super().__init__()
+            self.old_data = None
+            self.new_data = None
 
 The adapter needs to react to downstream requests as well as to new data available upstream.
-This functionality is provided by `Adapter`'s methods `_get_data(self, time)` and `_source_updated(self, time)`, respectively.
+This functionality is provided by :class:`.Adapter`'s methods :meth:`.Adapter._get_data` and :meth:`.Adapter._source_updated`, respectively.
 
-```python
-import finam as fm
+.. code-block:: Python
 
-class TimeInterpolation(fm.Adapter):
+    import finam as fm
 
-    def __init__(self):
-        super().__init__()
-        self.old_data = None
-        self.new_data = None
+    class TimeInterpolation(fm.Adapter):
 
-    def _source_updated(self, time):
-        pass
+        def __init__(self):
+            super().__init__()
+            self.old_data = None
+            self.new_data = None
 
-    def _get_data(self, time):
-        pass
-```
+        @property
+        def needs_push(self):
+            return True
 
-In `_source_updated(...)`, we need to store incoming data:
+        def _source_updated(self, time):
+            pass
 
-```python
-import finam as fm
+        def _get_data(self, time):
+            pass
 
-class TimeInterpolation(fm.Adapter):
+Note
+  We need to overwrite :attr:`.Adapter.needs_push` here, as the scheduler needs to know that the adapter won't work in a purely pull-based setup.
 
-    def __init__(self):
-        super().__init__()
-        self.old_data = None
-        self.new_data = None
+In :meth:`.Adapter._source_updated`, we need to store incoming data:
 
-    def _source_updated(self, time):
-        self.old_data = self.new_data
-        self.new_data = (time, fm.data.strip_data(self.pull_data(time)))
+.. code-block:: Python
 
-    def _get_data(self, time):
-        pass
-```
+    import finam as fm
 
-We "move" the previous `new_data` to `old_data`, and replace `new_data` by the incoming data, as a `(time, data)` tuple.
-As the output time will differ from the input time, we need to strip the time off the data by calling `strip_data(data)`.
+    class TimeInterpolation(fm.Adapter):
 
-In `_get_data(...)`, we can now do the interpolation whenever data is requested from upstream.
+        def __init__(self):
+            super().__init__()
+            self.old_data = None
+            self.new_data = None
 
-```python
-import finam as fm
+        def _source_updated(self, time):
+            self.old_data = self.new_data
+            self.new_data = (time, fm.data.strip_data(self.pull_data(time)))
 
-class TimeInterpolation(fm.Adapter):
+        def _get_data(self, time):
+            pass
 
-    def __init__(self):
-        super().__init__()
-        self.old_data = None
-        self.new_data = None
+We "move" the previous ``new_data`` to ``old_data``, and replace ``new_data`` by the incoming data, as a ``(time, data)`` tuple.
+As the output time will differ from the input time, we need to strip the time off the data by calling :func:`.data.strip_data`.
 
-    def _source_updated(self, time):
-        self.old_data = self.new_data
-        self.new_data = (time, fm.data.strip_data(self.pull_data(time)))
+In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is requested from upstream.
 
-    def _get_data(self, time):
-        if self.old_data is None:
-            return self.new_data[1]
+.. code-block:: Python
 
-        dt = (time - self.old_data[0]) / (self.new_data[0] - self.old_data[0])
+    import finam as fm
 
-        o = self.old_data[1]
-        n = self.new_data[1]
+    class TimeInterpolation(fm.Adapter):
 
-        return o + dt * (n - o)
-```
+        def __init__(self):
+            super().__init__()
+            self.old_data = None
+            self.new_data = None
 
-In `_get_data(...)`, the following happens:
+        def _source_updated(self, time):
+            self.old_data = self.new_data
+            self.new_data = (time, fm.data.strip_data(self.pull_data(time)))
+
+        def _get_data(self, time):
+            if self.old_data is None:
+                return self.new_data[1]
+
+            dt = (time - self.old_data[0]) / (self.new_data[0] - self.old_data[0])
+
+            o = self.old_data[1]
+            n = self.new_data[1]
+
+            return o + dt * (n - o)
+
+In :meth:`.Adapter._get_data`, the following happens:
 
 1. If only one data entry was received so far, we can't interpolate and simply return the available data. Otherwise...
-1. Calculate `dt` as the relative position of `time` in the available data interval (in range [0, 1])
+1. Calculate ``dt`` as the relative position of ``time`` in the available data interval (in range [0, 1])
 1. Interpolate and return the data
 
-Note that, although we use `datetime` when calculating `dt`, we get a scalar output.
-Due to `dt` being relative, time units cancel out here.
+Note that, although we use :class:`datetime <datetime.datetime>` when calculating ``dt``, we get a scalar output.
+Due to ``dt`` being relative, time units cancel out here.

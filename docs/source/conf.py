@@ -100,4 +100,5 @@ intersphinx_mapping = {
     "matplotlib": ("http://matplotlib.org", None),
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "pint": ("https://pint.readthedocs.io/en/stable/", None),
+    "pytest": ("https://docs.pytest.org/en/7.1.x/", None)
 }
