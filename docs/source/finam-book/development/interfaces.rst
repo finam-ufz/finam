@@ -47,7 +47,7 @@ To access a component's input and output slots, there are the properties:
 * :attr:`.IComponent.status` returns the component's current :class:`.ComponentStatus` (``CREATED``, ``INITIALIZED``, ...)
 
 The abstract class :class:`.Component` provides a basic implementation for :class:`.IComponent`.
-Classes extending :class:`.Component` must override methods named of the first block, with underscore, like :meth:`.Component._initialize()`.
+Classes extending :class:`.Component` must override methods named of the first block, with underscore, like :meth:`.Component._initialize`.
 :attr:`.Component.inputs`, :attr:`.Component.outputs` and :attr:`.Component.status` are provided as basic implementations.
 
 :class:`.ITimeComponent`
