@@ -60,11 +60,6 @@ class Output(IOutput, Loggable):
         """
         return self._output_info is not None
 
-    @property
-    def is_push_based(self):
-        """Returns if the output is push-based, and requires push as startup."""
-        return True
-
     def add_target(self, target):
         """Add a target input or adapter for this output.
 
@@ -308,11 +303,6 @@ class CallbackOutput(Output):
     def needs_pull(self):
         """bool: if the output needs pull."""
         return True
-
-    @property
-    def is_push_based(self):
-        """Returns if the output is push-based, and requires push as startup."""
-        return False
 
     def push_data(self, data, time):
         raise NotImplementedError("CallbackInput does not support push of data")

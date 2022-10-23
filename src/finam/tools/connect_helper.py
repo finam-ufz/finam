@@ -51,7 +51,7 @@ class ConnectHelper(Loggable):
             name: out.has_info() for name, out in self.outputs.items()
         }
         self._pushed_data = {
-            name: False for name, out in self.outputs.items() if out.is_push_based
+            name: False for name, out in self.outputs.items() if out.needs_push
         }
 
     @property
