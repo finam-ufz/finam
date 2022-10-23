@@ -13,9 +13,11 @@ The following figure shows a diagram of FINAM's core interfaces and classes.
 Arrows indicate inheritance.
 The properties and methods are those typically used or implemented by developers.
 
-.. image:: ../images/class-diagram-core.svg
+.. figure:: ../images/class-diagram-core.svg
     :alt: FINAM interfaces class diagram
     :class: dark-light p-2
+
+    Figure 1: FINAM interfaces class diagram
 
 Components
 ----------
