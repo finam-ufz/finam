@@ -69,7 +69,7 @@ html_favicon = "_static/logo.svg"
 html_theme_options = {
     "page_sidebar_items": ["page-toc"],
     "footer_items": ["copyright"],
-    "show_nav_level": 1,
+    "show_nav_level": 2,
     "show_toc_level": 2,
     "icon_links": [
         {
