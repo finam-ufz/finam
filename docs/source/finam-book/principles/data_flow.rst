@@ -25,8 +25,6 @@ For details, see Figures 1 and 2.
     |    2b: input pulls from connected output
     |    2c: data is returned to component
 
-![Component](../images/data-flow-adapter.svg)
-
 .. figure:: ../images/data-flow-adapter.svg
     :alt: Simple data flow with adapter
     :class: dark-light p-2

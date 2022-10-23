@@ -19,6 +19,8 @@ Set up a Python project
 
 Create the following project structure:
 
+.. code-block::
+
     - dummy_model/
        +- src/
 
