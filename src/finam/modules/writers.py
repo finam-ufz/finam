@@ -24,19 +24,45 @@ class CsvWriter(TimeComponent):
         --> [......] |           |
                      +-----------+
 
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import datetime as dt
+        import finam as fm
+
+        writer = fm.modules.CsvWriter(
+            path="test.csv",
+            inputs=["A", "B", "C"],
+            time_column="T",
+            separator=",",
+            start=dt.datetime(2000, 1, 1),
+            step=dt.timedelta(days=1),
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        writer.initialize()
+
     Parameters
     ----------
     path : PathLike
         Path to the output file.
+    inputs : list of str
+        List of input names that will be written to file.
     start : datetime
         Starting time.
     step : timedelta
         Time step.
-    inputs : list of str
-        List of input names that will be written to file.
+    time_column : str
+        Time column name. Default "time"
+    separator : str
+        Column separator. Default ";"
     """
 
-    def __init__(self, path, start, step, inputs, separator=";"):
+    def __init__(self, path, start, step, inputs, time_column="time", separator=";"):
         super().__init__()
         with ErrorLogger(self.logger):
             if not isinstance(start, datetime):
@@ -47,6 +73,7 @@ class CsvWriter(TimeComponent):
         self._path = path
         self._step = step
         self._time = start
+        self._time_column = time_column
         self._separator = separator
 
         self._input_names = inputs
@@ -107,6 +134,6 @@ class CsvWriter(TimeComponent):
             self._rows,
             fmt="%s",
             delimiter=self._separator,
-            header=self._separator.join(["time"] + self._input_names),
+            header=self._separator.join([self._time_column] + self._input_names),
             comments="",
         )

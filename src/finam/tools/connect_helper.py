@@ -147,7 +147,9 @@ class ConnectHelper(Loggable):
         with ErrorLogger(self.logger):
             self._check_names(exchange_infos, push_infos, push_data)
 
-        exchange_infos = {k: v for k, v in exchange_infos.items() if self.in_infos[k] is None}
+        exchange_infos = {
+            k: v for k, v in exchange_infos.items() if self.in_infos[k] is None
+        }
         push_infos = {k: v for k, v in push_infos.items() if self.out_infos[k] is None}
         push_data = {k: v for k, v in push_data.items() if not self.data_pushed[k]}
 
