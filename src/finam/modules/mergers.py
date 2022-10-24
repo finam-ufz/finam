@@ -1,4 +1,4 @@
-"""Pull-based for merging multiple inputs into a single output"""
+"""Pull-based components for merging multiple inputs into a single output"""
 from finam.interfaces import ComponentStatus
 
 from ..data.tools import check_units, strip_data
