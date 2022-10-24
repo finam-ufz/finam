@@ -78,8 +78,8 @@ File ``src/scale.py``:
 
 In :meth:`.Adapter._get_data`, we:
 
-1. Pull the input for the requested ``time``
-1. Multiply the input by ``scale`` and return the result
+#. Pull the input for the requested ``time``
+#. Multiply the input by ``scale`` and return the result
 
 Time-dependent ``TimeInterpolation`` adapter
 --------------------------------------------
@@ -242,9 +242,9 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
 
 In :meth:`.Adapter._get_data`, the following happens:
 
-1. If only one data entry was received so far, we can't interpolate and simply return the available data. Otherwise...
-1. Calculate ``dt`` as the relative position of ``time`` in the available data interval (in range [0, 1])
-1. Interpolate and return the data
+#. If only one data entry was received so far, we can't interpolate and simply return the available data. Otherwise...
+#. Calculate ``dt`` as the relative position of ``time`` in the available data interval (in range [0, 1])
+#. Interpolate and return the data
 
 Note that, although we use :class:`datetime <datetime.datetime>` when calculating ``dt``, we get a scalar output.
 Due to ``dt`` being relative, time units cancel out here.

@@ -57,10 +57,10 @@ with a live plotting component (:class:`.modules.TimeSeriesView`).
 
 The typical steps in a script are:
 
-1. Instantiate components and adapters (see next example)
-2. Create a :class:`.Composition` and initialize it
-3. Connect outputs to inputs using the overloaded ``>>`` operator (:meth:`.IOutput.__rshift__`)
-4. Run the :class:`.Composition`
+#. Instantiate components and adapters (see next example)
+#. Create a :class:`.Composition` and initialize it
+#. Connect outputs to inputs using the overloaded ``>>`` operator (:meth:`.IOutput.__rshift__`)
+#. Run the :class:`.Composition`
 
 Inputs and outputs
 ------------------
@@ -143,8 +143,8 @@ As can be seen from the example, components and adapters can be chained using th
 
 This is achieved by:
 
-1. An adapter is an input, and at the same time an output
-2. The chained input is returned by `>>` and :meth:`.IOutput.chain`. In case the chained input is an adapter (and thus also an output), it can be immediately reused in a further chaining operation
+#. An adapter is an input, and at the same time an output
+#. The chained input is returned by `>>` and :meth:`.IOutput.chain`. In case the chained input is an adapter (and thus also an output), it can be immediately reused in a further chaining operation
 
 Logging
 -------
