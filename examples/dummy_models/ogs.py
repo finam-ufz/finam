@@ -35,8 +35,10 @@ class Ogs(fm.TimeComponent):
 
     def _initialize(self):
 
-        self.inputs.add(name="GW_recharge", grid=fm.NoGrid(), units="mm")
-        self.outputs.add(name="head", grid=fm.NoGrid(), units="mm")
+        self.inputs.add(
+            name="GW_recharge", time=self.time, grid=fm.NoGrid(), units="mm"
+        )
+        self.outputs.add(name="head", time=self.time, grid=fm.NoGrid(), units="mm")
 
         self.create_connector()
 

@@ -53,7 +53,7 @@ if __name__ == "__main__":
         return (1.0 if random.uniform(0, 1) < p else 0.0) * fm.UNITS.Unit("mm")
 
     precipitation = generators.CallbackGenerator(
-        {"precipitation": (precip, fm.Info(grid=fm.NoGrid(), units="mm"))},
+        {"precipitation": (precip, fm.Info(time=None, grid=fm.NoGrid(), units="mm"))},
         start=start_date,
         step=timedelta(days=1),
     )
@@ -103,7 +103,7 @@ if __name__ == "__main__":
             {
                 "time": (
                     lambda t: sys_time.sleep(sleep_seconds),
-                    fm.Info(grid=fm.NoGrid()),
+                    fm.Info(time=None, grid=fm.NoGrid()),
                 )
             },
             start=start_date,
@@ -122,28 +122,28 @@ if __name__ == "__main__":
 
     (  # RNG -> mHM (precipitation)
         precipitation.outputs["precipitation"]
-        >> time.LinearIntegration()
+        >> time.IntegrateTime()
         >> mhm.inputs["precipitation"]
     )
 
     (  # mHM -> Formind (soil moisture)
         mhm.outputs["soil_water"]
-        >> time.LinearIntegration()
-        >> regrid.Linear(fill_with_nearest=True)
+        >> time.IntegrateTime()
+        >> regrid.RegridLinear(fill_with_nearest=True)
         >> formind.inputs["soil_water"]
     )
 
     (  # Formind -> mHM (LAI)
         formind.outputs["LAI"]
-        >> time.NextValue()
-        >> regrid.Linear(fill_with_nearest=True)
+        >> time.NextTime()
+        >> regrid.RegridLinear(fill_with_nearest=True)
         >> mhm.inputs["LAI"]
     )
 
     (  # mHM -> OGS (base_flow)
         mhm.outputs["GW_recharge"]
         >> base.GridToValue(func=np.sum)
-        >> time.LinearIntegration()
+        >> time.IntegrateTime()
         >> base.Scale(ogs.step.days)
         >> ogs.inputs["GW_recharge"]
     )
@@ -153,7 +153,7 @@ if __name__ == "__main__":
 
         (  # RNG -> CSV (precipitation)
             precipitation.outputs["precipitation"]
-            >> time.LinearIntegration()
+            >> time.IntegrateTime()
             >> base.Scale(mhm_csv._step.days)
             >> mhm_csv.inputs["precip_in"]
         )
@@ -161,38 +161,38 @@ if __name__ == "__main__":
         (  # mHM/Formind -> CSV (LAI input)
             formind.outputs["LAI"]
             >> base.GridToValue(func=np.mean)
-            >> time.NextValue()
+            >> time.NextTime()
             >> mhm_csv.inputs["LAI_in"]
         )
 
         (  # mHM -> CSV (soil_water)
             mhm.outputs["soil_water"]
             >> base.GridToValue(func=np.mean)
-            >> time.LinearInterpolation()
+            >> time.LinearTime()
             >> mhm_csv.inputs["soil_water"]
         )
 
         (  # mHM -> CSV (base_flow)
             mhm.outputs["GW_recharge"]
             >> base.GridToValue(func=np.mean)
-            >> time.LinearInterpolation()
+            >> time.LinearTime()
             >> mhm_csv.inputs["GW_recharge"]
         )
 
         (  # mHM -> CSV (ETP)
             mhm.outputs["ETP"]
             >> base.GridToValue(func=np.mean)
-            >> time.LinearInterpolation()
+            >> time.LinearTime()
             >> mhm_csv.inputs["ETP"]
         )
 
         (  # OGS -> CSV (head)
-            ogs.outputs["head"] >> time.LinearInterpolation() >> ogs_csv.inputs["head"]
+            ogs.outputs["head"] >> time.LinearTime() >> ogs_csv.inputs["head"]
         )
 
         (  # OGS -> CSV (base_flow_in)
             mhm.outputs["GW_recharge"]
-            >> time.LinearIntegration()
+            >> time.IntegrateTime()
             >> base.GridToValue(func=np.mean)
             >> base.Scale(ogs_csv._step.days)
             >> ogs_csv.inputs["GW_recharge_in"]
@@ -201,14 +201,14 @@ if __name__ == "__main__":
         (  # formind -> CSV (LAI)
             formind.outputs["LAI"]
             >> base.GridToValue(func=np.mean)
-            >> time.LinearInterpolation()
+            >> time.LinearTime()
             >> formind_csv.inputs["LAI"]
         )
 
         (  # formind -> CSV (soil_water_in)
             mhm.outputs["soil_water"]
             >> base.GridToValue(func=np.mean)
-            >> time.LinearIntegration()
+            >> time.IntegrateTime()
             >> formind_csv.inputs["soil_water_in"]
         )
 

@@ -50,14 +50,18 @@ class Mhm(fm.TimeComponent):
 
     def _initialize(self):
         self.soil_water = fm.data.full(
-            1.0, "soil_water", fm.Info(grid=self.grid), self.time
+            1.0, "soil_water", fm.Info(time=self.time, grid=self.grid), self.time
         )
 
-        self.inputs.add(name="precipitation", grid=fm.NoGrid(), units="mm")
-        self.inputs.add(name="LAI", grid=self.grid)
-        self.outputs.add(name="ETP", grid=fm.NoGrid(), units="mm")
-        self.outputs.add(name="GW_recharge", grid=fm.NoGrid(), units="mm")
-        self.outputs.add(name="soil_water", grid=self.grid)
+        self.inputs.add(
+            name="precipitation", time=self.time, grid=fm.NoGrid(), units="mm"
+        )
+        self.inputs.add(name="LAI", time=self.time, grid=self.grid)
+        self.outputs.add(name="ETP", time=self.time, grid=fm.NoGrid(), units="mm")
+        self.outputs.add(
+            name="GW_recharge", time=self.time, grid=fm.NoGrid(), units="mm"
+        )
+        self.outputs.add(name="soil_water", time=self.time, grid=self.grid)
 
         self.create_connector()
 

@@ -37,7 +37,7 @@ class Formind(fm.TimeComponent):
         self._time = start
         self._step = step
 
-        self.info = fm.Info(grid)
+        self.info = fm.Info(time=start, grid=grid)
         self.lai = None
 
     def _initialize(self):

@@ -16,8 +16,8 @@ from ..tools.log_helper import ErrorLogger
 
 __all__ = [
     "ARegridding",
-    "Nearest",
-    "Linear",
+    "RegridNearest",
+    "RegridLinear",
 ]
 
 
@@ -87,7 +87,7 @@ class ARegridding(Adapter, ABC):
         return np.asarray(list(self.transformer.itransform(points)))
 
 
-class Nearest(ARegridding):
+class RegridNearest(ARegridding):
     """Regrid data between two grid specifications with nearest neighbor interpolation"""
 
     def __init__(self, in_grid=None, out_grid=None, tree_options=None):
@@ -114,7 +114,7 @@ class Nearest(ARegridding):
         return res
 
 
-class Linear(ARegridding):
+class RegridLinear(ARegridding):
     """
     Regrid data between two grid specifications with linear interpolation.
 

@@ -9,12 +9,7 @@ import pint
 
 from finam import FinamTimeError, Info, NoGrid, UniformGrid
 from finam import data as tools
-from finam.adapters.time import (
-    LinearIntegration,
-    LinearInterpolation,
-    NextValue,
-    PreviousValue,
-)
+from finam.adapters.time import IntegrateTime, LinearTime, NextTime, PreviousTime
 from finam.modules.generators import CallbackGenerator
 
 reg = pint.UnitRegistry(force_ndarray_like=True)
@@ -28,7 +23,7 @@ class TestNextValue(unittest.TestCase):
             step=timedelta(1.0),
         )
 
-        self.adapter = NextValue()
+        self.adapter = NextTime()
 
         self.source.initialize()
 
@@ -64,7 +59,7 @@ class TestPreviousValue(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        self.adapter = PreviousValue()
+        self.adapter = PreviousTime()
 
         self.source.initialize()
 
@@ -102,7 +97,7 @@ class TestLinearInterpolation(unittest.TestCase):
             step=timedelta(1.0),
         )
 
-        self.adapter = LinearInterpolation()
+        self.adapter = LinearTime()
 
         self.source.initialize()
         self.source.outputs["Step"] >> self.adapter
@@ -145,7 +140,7 @@ class TestLinearGridInterpolation(unittest.TestCase):
             step=timedelta(1.0),
         )
 
-        self.adapter = LinearInterpolation()
+        self.adapter = LinearTime()
 
         self.source.initialize()
         self.source.outputs["Grid"] >> self.adapter
@@ -209,7 +204,7 @@ class TestLinearIntegration(unittest.TestCase):
             step=timedelta(1.0),
         )
 
-        self.adapter = LinearIntegration()
+        self.adapter = IntegrateTime()
 
         self.source.initialize()
 
@@ -258,7 +253,7 @@ class TestLinearGridIntegration(unittest.TestCase):
             step=timedelta(1.0),
         )
 
-        self.adapter = LinearIntegration()
+        self.adapter = IntegrateTime()
 
         self.source.initialize()
 

@@ -22,7 +22,7 @@ if __name__ == "__main__":
         return (1.0 if random.uniform(0, 1) < p else 0.0) * fm.UNITS.Unit("mm")
 
     precipitation = generators.CallbackGenerator(
-        {"precipitation": (precip, fm.Info(grid=fm.NoGrid(), units="mm"))},
+        {"precipitation": (precip, fm.Info(time=None, grid=fm.NoGrid(), units="mm"))},
         start=start_date,
         step=timedelta(days=1),
     )
@@ -48,21 +48,21 @@ if __name__ == "__main__":
 
     (  # RNG -> mHM (precipitation)
         precipitation.outputs["precipitation"]
-        >> time.LinearIntegration()
+        >> time.IntegrateTime()
         >> mhm.inputs["precipitation"]
     )
 
     (  # mHM -> Formind (soil moisture)
         mhm.outputs["soil_water"]
-        >> time.LinearIntegration()
-        >> regrid.Linear(fill_with_nearest=True)
+        >> time.IntegrateTime()
+        >> regrid.RegridLinear(fill_with_nearest=True)
         >> formind.inputs["soil_water"]
     )
 
     (  # Formind -> mHM (LAI)
         formind.outputs["LAI"]
-        >> time.NextValue()
-        >> regrid.Linear(fill_with_nearest=True)
+        >> time.NextTime()
+        >> regrid.RegridLinear(fill_with_nearest=True)
         >> mhm.inputs["LAI"]
     )
 

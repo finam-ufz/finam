@@ -24,7 +24,7 @@ from finam import (
 )
 from finam import data as tools
 from finam.adapters.base import Scale
-from finam.adapters.time import NextValue
+from finam.adapters.time import NextTime
 from finam.modules import debug
 from finam.schedule import _check_dead_links
 
@@ -222,14 +222,14 @@ class TestComposition(unittest.TestCase):
             _check_dead_links(0, inp)
 
         out = Output(name="out", info=info)
-        ada = NextValue()
+        ada = NextTime()
         inp = CallbackInput(name="in", callback=None, info=info)
 
         out >> ada >> inp
         _check_dead_links(0, inp)
 
         out = CallbackOutput(name="out", callback=None, info=info)
-        ada = NextValue()
+        ada = NextTime()
         inp = Input(name="in", info=info)
 
         out >> ada >> inp
