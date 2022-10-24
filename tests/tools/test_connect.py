@@ -38,6 +38,7 @@ class TestConnectHelper(unittest.TestCase):
             inputs,
             outputs,
             pull_data=list(inputs.keys()),
+            cache=False,
         )
         self.assertEqual(connector.uses_base_logger_name, True)
 
@@ -128,3 +129,58 @@ class TestConnectHelper(unittest.TestCase):
             connector.connect(time=None, push_infos={"Out3": Info(time, NoGrid())})
         with self.assertRaises(ValueError):
             connector.connect(time=None, push_data={"Out3": 0.0})
+
+    def test_connect_caching(self):
+        time = datetime(2020, 10, 6)
+
+        info = Info(grid=NoGrid(), time=time)
+
+        inputs = IOList("INPUT")
+        inputs.add(name="In1")
+        inputs.add(name="In2")
+        outputs = IOList("OUTPUT")
+        outputs.add(name="Out1")
+        outputs.add(name="Out2")
+
+        sources = [Output("so1"), Output("so1")]
+        sinks = [Input("si1"), Input("si2")]
+
+        sources[0] >> inputs["In1"]
+        sources[1] >> inputs["In2"]
+
+        outputs["Out1"] >> sinks[0]
+        outputs["Out2"] >> sinks[1]
+
+        inputs["In1"].ping()
+        inputs["In2"].ping()
+        sinks[0].ping()
+        sinks[1].ping()
+
+        connector: ConnectHelper = ConnectHelper(
+            "TestLogger",
+            inputs,
+            outputs,
+            pull_data=list(inputs.keys()),
+            cache=True,
+        )
+        connector.connect(
+            time,
+            exchange_infos={"In1": info.copy(), "In2": info.copy()},
+            push_infos={"Out1": info.copy(), "Out2": info.copy()},
+            push_data={"Out1": 1, "Out2": 2},
+        )
+
+        sources[0].push_info(info.copy())
+        sources[1].push_info(info.copy())
+
+        sinks[0].exchange_info(info.copy())
+        sinks[1].exchange_info(info.copy())
+
+        connector.connect(time)
+
+        sources[0].push_data(1, time)
+        sources[1].push_data(2, time)
+
+        status = connector.connect(time)
+
+        self.assertEqual(status, ComponentStatus.CONNECTED)
