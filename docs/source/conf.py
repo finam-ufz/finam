@@ -24,6 +24,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",  # parameters look better than with numpydoc only
     "numpydoc",
+    "sphinxcontrib.mermaid",
 ]
 
 # autosummaries from source-files
@@ -49,6 +50,8 @@ numpydoc_show_class_members = True
 numpydoc_class_members_toctree = False
 # maybe switch off with:    :no-inherited-members:
 numpydoc_show_inherited_class_members = True
+# add refs to types also in parameter lists
+numpydoc_xref_param_type = True
 
 myst_enable_extensions = [
     "colon_fence",

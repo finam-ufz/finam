@@ -63,7 +63,7 @@ class IComponent(ABC):
         """Initialize the component.
 
         After the method call, the component's inputs and outputs must be available,
-        and the component should have status INITIALIZED.
+        and the component should have :attr:`.status` :attr:`.ComponentStatus.INITIALIZED`.
         """
 
     @abstractmethod
@@ -72,16 +72,16 @@ class IComponent(ABC):
 
         The method can be called multiple times if there are failed pull attempts.
 
-        After each method call, the component should have status CONNECTED if
-        connecting was completed, CONNECTING if some but not all required initial input(s)
-        could be pulled, and `CONNECTING_IDLE` if nothing could be pulled.
+        After each method call, the component should have :attr:`.status` :attr:`.ComponentStatus.CONNECTED` if
+        connecting was completed, :attr:`.ComponentStatus.CONNECTING` if some but not all required initial input(s)
+        could be pulled, and :attr:`.ComponentStatus.CONNECTING_IDLE` if nothing could be pulled.
         """
 
     @abstractmethod
     def validate(self):
         """Validate the correctness of the component's settings and coupling.
 
-        After the method call, the component should have status VALIDATED.
+        After the method call, the component should have :attr:`.status` :attr:`.ComponentStatus.VALIDATED`.
         """
 
     @abstractmethod
@@ -89,14 +89,15 @@ class IComponent(ABC):
         """Update the component by one time step.
         Push new values to outputs.
 
-        After the method call, the component should have status UPDATED or FINISHED.
+        After the method call, the component should have :attr:`.status`
+        :attr:`.ComponentStatus.UPDATED` or :attr:`.ComponentStatus.FINISHED`.
         """
 
     @abstractmethod
     def finalize(self):
         """Finalize and clean up the component.
 
-        After the method call, the component should have status FINALIZED.
+        After the method call, the component should have :attr:`.status` :attr:`.ComponentStatus.FINALIZED`.
         """
 
     @property

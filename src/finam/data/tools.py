@@ -85,7 +85,7 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
 
     Returns
     -------
-    DataArray
+    xarray.DataArray
         The converted data.
 
     Raises
@@ -149,7 +149,7 @@ def has_time(xdata):
 
     Parameters
     ----------
-    xdata : DataArray
+    xdata : xarray.DataArray
         The given data array.
 
     Returns
@@ -167,12 +167,12 @@ def get_time(xdata):
 
     Parameters
     ----------
-    xdata : DataArray
+    xdata : xarray.DataArray
         The given data array.
 
     Returns
     -------
-    list of datetime or None
+    list of datetime.datetime or None
         timestamps of the data array.
     """
     if has_time(xdata):
@@ -189,7 +189,7 @@ def get_magnitude(xdata):
 
     Parameters
     ----------
-    xdata : DataArray
+    xdata : xarray.DataArray
         The given data array.
 
     Returns
@@ -207,7 +207,7 @@ def get_data(xdata):
 
     Parameters
     ----------
-    xdata : DataArray
+    xdata : xarray.DataArray
         The given data array.
 
     Returns
@@ -221,6 +221,11 @@ def get_data(xdata):
 
 def strip_time(xdata):
     """Returns a view of the xarray data with the time dimension squeezed if there is only a single entry
+
+    Returns
+    -------
+    xarray.DataArray
+        Stripped data
 
     Raises
     ------
@@ -243,12 +248,12 @@ def strip_time(xdata):
 def strip_data(xdata):
     """Unwraps the xarray data, with the time dimension squeezed if there is only a single entry.
 
-    Equivalent to ``get_data(strip_time(xdata))``
+    Equivalent to calling :func:`.strip_time` and :func:`.get_data` on the data.
 
-    Raises
-    ------
-    pint.Quantity
-        Quantified data.
+    Returns
+    -------
+    numpy.ndarray
+        Stripped data
     """
     return get_data(strip_time(xdata))
 
@@ -277,7 +282,7 @@ def get_dimensionality(xdata):
 
     Parameters
     ----------
-    xdata : DataArray
+    xdata : xarray.DataArray
         The given data array.
 
     Returns
@@ -295,14 +300,14 @@ def to_units(xdata, units):
 
     Parameters
     ----------
-    xdata : DataArray
+    xdata : xarray.DataArray
         The given data array.
     units : str or pint.Unit
         Desired units.
 
     Returns
     -------
-    DataArray
+    xarray.DataArray
         Converted data.
     """
     check_quantified(xdata, "to_units")
@@ -315,14 +320,14 @@ def full_like(xdata, value):
 
     Parameters
     ----------
-    xdata : DataArray
+    xdata : xarray.DataArray
         The reference object in input.
     value : scalar
         Value to fill the new object with before returning it.
 
     Returns
     -------
-    DataArray
+    xarray.DataArray
         New object with the same shape and type as other,
         with the data filled with fill_value.
         Coords will be copied from other.
@@ -348,7 +353,7 @@ def full(value, name, info, time=None):
 
     Returns
     -------
-    DataArray
+    xarray.DataArray
         The converted data.
     """
     shape = info.grid.data_shape if isinstance(info.grid, Grid) else tuple()
@@ -361,7 +366,7 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
 
     Parameters
     ----------
-    xdata : DataArray
+    xdata : xarray.DataArray
         The given data array.
     name : str
         Name of the data.
@@ -446,7 +451,7 @@ def is_quantified(xdata):
 
     Parameters
     ----------
-    xdata : DataArray
+    xdata : xarray.DataArray
         The given data array.
 
     Returns
@@ -463,12 +468,12 @@ def quantify(xdata):
 
     Parameters
     ----------
-    xdata : DataArray
+    xdata : xarray.DataArray
         The given data array.
 
     Returns
     -------
-    DataArray
+    xarray.DataArray
         The quantified array.
     """
     return (
@@ -479,7 +484,13 @@ def quantify(xdata):
 
 
 def check_units(lhs, rhs):
-    """checks if two units are compatible/convertible"""
+    """Checks if two units are compatible/convertible
+
+    Returns
+    -------
+    bool
+        If the units are compatible.
+    """
     return UNITS.Unit(lhs).is_compatible_with(rhs)
 
 
@@ -489,7 +500,7 @@ def check_quantified(xdata, routine="check_quantified"):
 
     Parameters
     ----------
-    xdata : DataArray
+    xdata : xarray.DataArray
         The given data array.
     routine : str, optional
         Name of the routine to show in the Error, by default "check_quantified"
@@ -516,20 +527,27 @@ def assert_type(cls, slot, obj, types):
 
 
 class Info:
-    """Data info containing grid specification and metadata"""
+    """Data info containing grid specification and metadata
+
+    Parameters
+    ----------
+    grid : Grid or NoGrid or None
+        grid specification
+    meta : dict
+        dictionary of metadata
+    **meta_kwargs
+        additional metadata by name, will overwrite entries in ``meta``
+
+    Attributes
+    ----------
+    grid : Grid or NoGrid or None
+        grid specification
+    meta : dict
+        dictionary of metadata
+
+    """
 
     def __init__(self, time, grid, meta=None, **meta_kwargs):
-        """Creates a data info object.
-
-        Parameters
-        ----------
-        grid : Grid or NoGrid or None
-            grid specification
-        meta : dict
-            dictionary of metadata
-        **meta_kwargs
-            additional metadata by name, will overwrite entries in ``meta``
-        """
         if time is not None and not isinstance(time, datetime.datetime):
             raise FinamMetaDataError("Time in Info must be either None or a datetime")
         if grid is not None and not isinstance(grid, GridBase):

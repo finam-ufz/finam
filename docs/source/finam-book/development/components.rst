@@ -218,8 +218,8 @@ For the tests, we need to set up a real coupling from here on, as the component'
             # a component to produce inputs, details not important
             generator = fm.modules.generators.CallbackGenerator(
                 callbacks={
-                    "A": (lambda t: t.day, fm.Info(grid=fm.NoGrid())),
-                    "B": (lambda t: t.day * 2, fm.Info(grid=fm.NoGrid()))
+                    "A": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
+                    "B": (lambda t: t.day * 2, fm.Info(time=None, grid=fm.NoGrid()))
                 },
                 start=datetime(2000, 1, 1),
                 step=timedelta(days=7)
@@ -388,8 +388,8 @@ Here is the final code of the completed component.
             model = DummyModel(start=datetime(2000, 1, 1), step=timedelta(days=7))
             generator = fm.modules.generators.CallbackGenerator(
                 callbacks={
-                    "A": (lambda t: t.day, fm.Info(grid=fm.NoGrid())),
-                    "B": (lambda t: t.day * 2, fm.Info(grid=fm.NoGrid())),
+                    "A": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
+                    "B": (lambda t: t.day * 2, fm.Info(time=None, grid=fm.NoGrid())),
                 },
                 start=datetime(2000, 1, 1),
                 step=timedelta(days=7),

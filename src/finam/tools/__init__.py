@@ -9,7 +9,6 @@ Logging helper
 
     ErrorLogger
     LogCStdOutStdErr
-    Loggable
     LogStdOutStdErr
     LogWriter
     is_loggable
