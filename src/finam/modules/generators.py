@@ -19,13 +19,35 @@ class CallbackGenerator(TimeComponent):
         |                   | [......] -->
         +-------------------+
 
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import datetime as dt
+        import finam as fm
+
+        generator = fm.modules.CallbackGenerator(
+            callbacks={
+                "Out1": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
+                "Out2": (lambda t: t.month, fm.Info(time=None, grid=fm.NoGrid()))
+            },
+            start=dt.datetime(2000, 1, 1),
+            step=dt.timedelta(days=1)
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        generator.initialize()
+
     Parameters
     ----------
-    callbacks : dict of callable
-        Dict of tuples (callback, info). ``callback(data, time)`` per output name, returning the generated data.
+    callbacks : dict of (callable, Info)
+        Dict of tuples (callback, info). ``callback(time) -> data`` per output name, returning the generated data.
     start : datetime.datatime
         Starting time.
-    step : timedelta
+    step : datetime.timedelta
         Time step.
     """
 

@@ -11,6 +11,44 @@ __all__ = ["CallbackComponent"]
 class CallbackComponent(TimeComponent):
     """Component to generate, transform or consume data in fixed time intervals using a callback.
 
+    .. code-block:: text
+
+                   +-------------------+
+      --> [custom] |                   | [custom] -->
+      --> [custom] | CallbackComponent |
+      --> [......] |                   | [......] -->
+                   +-------------------+
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import datetime as dt
+        import finam as fm
+
+        component = fm.modules.CallbackComponent(
+            inputs={
+                "A": fm.Info(time=None, grid=fm.NoGrid()),
+                "B": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            outputs={
+                "Sum": fm.Info(time=None, grid=fm.NoGrid()),
+                "Diff": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            callback=lambda inp, _t: {
+                "Sum": inp["A"] + inp["B"],
+                "Diff": inp["A"] - inp["B"],
+            },
+            start=dt.datetime(2000, 1, 1),
+            step=dt.timedelta(days=7),
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        component.initialize()
+
     Parameters
     ----------
     inputs : dict[str, Info]
