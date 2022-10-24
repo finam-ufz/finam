@@ -416,5 +416,6 @@ Here is the final code of the completed component.
     TestDummy().test_dummy_model() #doctest: +ELLIPSIS
 
 .. testoutput::
+    :hide:
 
     ...

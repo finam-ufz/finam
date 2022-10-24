@@ -48,7 +48,33 @@ File ``src/scale.py``:
 .. testcode:: scale-adapter
     :hide:
 
+    from datetime import datetime, timedelta
+
+    generator = fm.modules.CallbackGenerator(
+        {"Value": (lambda _t: 1.0, fm.Info(time=None, grid=fm.NoGrid()))},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=1),
+    )
+    consumer = fm.modules.DebugConsumer(
+        {"Input": fm.Info(None, grid=fm.NoGrid())},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=1),
+    )
     adapter = Scale(0.5)
+
+    comp = fm.Composition([generator, consumer])
+    comp.initialize()
+
+    generator.outputs["Value"] >> adapter >> consumer.inputs["Input"]
+
+    comp.run(datetime(2000, 1, 2))
+
+    print(fm.data.strip_data(consumer.data["Input"]))
+
+.. testoutput:: scale-adapter
+    :hide:
+
+    0.5 dimensionless
 
 In :meth:`.Adapter._get_data`, we:
 
@@ -171,7 +197,10 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
 
         def _get_data(self, time):
             if self.old_data is None:
-                return self.new_data[1]
+                if self.new_data is None:
+                    return None
+                else:
+                    return self.new_data[1]
 
             dt = (time - self.old_data[0]) / (self.new_data[0] - self.old_data[0])
 
@@ -183,7 +212,33 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
 .. testcode:: time-adapter
     :hide:
 
+    from datetime import datetime, timedelta
+
+    generator = fm.modules.CallbackGenerator(
+        {"Value": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid()))},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=30),
+    )
+    consumer = fm.modules.DebugConsumer(
+        {"Input": fm.Info(None, grid=fm.NoGrid())},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=1),
+    )
     adapter = TimeInterpolation()
+
+    comp = fm.Composition([generator, consumer])
+    comp.initialize()
+
+    generator.outputs["Value"] >> adapter >> consumer.inputs["Input"]
+
+    comp.run(datetime(2000, 1, 15))
+
+    print(fm.data.strip_data(consumer.data["Input"]))
+
+.. testoutput:: time-adapter
+    :hide:
+
+    14.0 dimensionless
 
 In :meth:`.Adapter._get_data`, the following happens:
 
