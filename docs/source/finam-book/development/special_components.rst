@@ -25,7 +25,7 @@ Push-based components
 
 Push-based components can use :class:`.CallbackInput` to get informed about incoming data.
 
-.. code-block:: Python
+.. testcode:: push-component
 
     import finam as fm
 
@@ -37,7 +37,11 @@ Push-based components can use :class:`.CallbackInput` to get informed about inco
         def _initialize(self):
             self.inputs.add(
                 fm.CallbackInput(
-                    callback=self._data_changed, name="In", grid=fm.NoGrid()
+                    callback=self._data_changed,
+                    name="Input",
+                    time=None,
+                    grid=fm.NoGrid(),
+                    unit=None,
                 )
             )
             self.create_connector()
@@ -58,6 +62,29 @@ Push-based components can use :class:`.CallbackInput` to get informed about inco
         def _finalize(self):
             write_to_file(self.data)
 
+.. testcode:: push-component
+    :hide:
+
+    from datetime import datetime, timedelta
+
+    def write_to_file(data):
+        pass
+
+    generator = fm.modules.CallbackGenerator(
+        {"Value": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid()))},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=30),
+    )
+    push_comp = PushComponent()
+
+    comp = fm.Composition([generator, push_comp])
+    comp.initialize()
+
+    generator.outputs["Value"] >> push_comp.inputs["Input"]
+
+    comp.run(datetime(2000, 1, 15))
+
+
 In ``_initialize()``, a :class:`.CallbackInput` is added that calls ``_data_changed()`` when notified about new data.
 
 In ``_data_changed()``, the data from the calling input is pulled, and stored for later writing to file.
@@ -74,7 +101,7 @@ Pull-based components
 
 Push-based components can use :class:`.CallbackOutput` to intercept data pulls.
 
-.. code-block:: Python
+.. testcode:: pull-component
 
     import finam as fm
 
@@ -85,7 +112,10 @@ Push-based components can use :class:`.CallbackOutput` to intercept data pulls.
         def _initialize(self):
             self.outputs.add(
                 fm.CallbackOutput(
-                    callback=self._get_data, name="Out", grid=fm.NoGrid()
+                    callback=self._get_data,
+                    time=None,
+                    name="Output",
+                    grid=fm.NoGrid(),
                 )
             )
             self.create_connector()
@@ -104,6 +134,26 @@ Push-based components can use :class:`.CallbackOutput` to intercept data pulls.
 
         def _finalize(self):
             pass
+
+.. testcode:: pull-component
+    :hide:
+
+    from datetime import datetime, timedelta
+
+    pull_comp = PullComponent()
+
+    consumer = fm.modules.DebugConsumer(
+        {"Input": fm.Info(time=None, grid=fm.NoGrid())},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=1),
+    )
+
+    comp = fm.Composition([pull_comp, consumer])
+    comp.initialize()
+
+    pull_comp.outputs["Output"] >> consumer.inputs["Input"]
+
+    comp.run(datetime(2000, 1, 15))
 
 In ``_initialize()``, a :class:`.CallbackOutput` is added that calls ``_get_data()`` when pulled.
 ``_get_data()`` must return the data that would normally be pushed to the output.
