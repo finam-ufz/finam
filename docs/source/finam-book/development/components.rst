@@ -413,6 +413,12 @@ Here is the final code of the completed component.
 
             composition.run(t_max=datetime(2000, 12, 31))
 
+    if __name__ == "__main__":
+        unittest.main()
+
+.. testcode::
+    :hide:
+
     TestDummy().test_dummy_model() #doctest: +ELLIPSIS
 
 .. testoutput::
