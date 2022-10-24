@@ -22,7 +22,7 @@ class ConnectHelper(Loggable):
     pull_data : arraylike
         Names of the inputs that are to be pulled.
     cache : bool
-        Whether data and :class:`.Info` objects passed via :meth:`.try_connect`
+        Whether data and :class:`.Info` objects passed via :meth:`connect() <.ConnectHelper.connect>`
         are cached for later calls. Default ``True``.
     """
 
