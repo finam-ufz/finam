@@ -3,7 +3,7 @@ from datetime import datetime
 from os import path
 from tempfile import TemporaryDirectory
 
-from finam import ComponentStatus, Info, Input, NoGrid
+from finam import UNITS, ComponentStatus, Info, Input, NoGrid
 from finam.modules.readers import CsvReader
 
 
@@ -29,7 +29,10 @@ class TestCsvReader(unittest.TestCase):
             data.to_csv(file, sep=";", index=False)
 
             reader = CsvReader(
-                file, time_column="T", date_format=None, outputs=["X", "Y"]
+                file,
+                time_column="T",
+                outputs={"X": "", "Y": "meter"},
+                date_format=None,
             )
             sink1 = Input("In1")
             sink2 = Input("In2")
@@ -54,11 +57,14 @@ class TestCsvReader(unittest.TestCase):
             reader.outputs["Y"].get_info(Info(None, grid=NoGrid()))
 
             reader.connect()
+            reader.connect()
             reader.validate()
 
             self.assertEqual(reader.time, datetime(2000, 1, 1))
             self.assertEqual(reader.outputs["X"].get_data(datetime(2000, 1, 1)), 1)
-            self.assertEqual(reader.outputs["Y"].get_data(datetime(2000, 1, 1)), 7)
+            self.assertEqual(
+                reader.outputs["Y"].get_data(datetime(2000, 1, 1)), 7 * UNITS.meter
+            )
 
             self.assertEqual(sink1.info.time, datetime(2000, 1, 1))
             self.assertEqual(sink2.info.time, datetime(2000, 1, 1))
@@ -67,7 +73,9 @@ class TestCsvReader(unittest.TestCase):
 
             self.assertEqual(reader.time, datetime(2000, 1, 2))
             self.assertEqual(reader.outputs["X"].get_data(datetime(2000, 1, 2)), 2)
-            self.assertEqual(reader.outputs["Y"].get_data(datetime(2000, 1, 2)), 8)
+            self.assertEqual(
+                reader.outputs["Y"].get_data(datetime(2000, 1, 2)), 8 * UNITS.meter
+            )
 
             reader.update()
             self.assertEqual(reader.time, datetime(2000, 1, 3))

@@ -7,7 +7,7 @@ from datetime import datetime
 from finam.interfaces import ComponentStatus
 
 from ..data.grid_spec import NoGrid
-from ..data.tools import Info
+from ..data.tools import UNITS, Info
 from ..sdk import TimeComponent
 
 
@@ -22,16 +22,44 @@ class CsvReader(TimeComponent):
         |           | [......] -->
         +-----------+
 
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        reader = fm.modules.CsvReader(
+            path="test.csv",
+            time_column="T",
+            outputs={
+                "A": "meter",
+                "B": "",
+            },
+            date_format=None,
+            separator=",",
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        reader.initialize()
+
     Parameters
     ----------
     path : PathLike
         Path to the input file.
     time_column
-        Time column selector.
-    outputs : list of str
-        Output names.
+        Time column name.
+    outputs : dict(str, str)
+        Data column names and units. Names become output names.
+        Use ``""`` for dimensionless columns and ``None`` to get units from connected components.
     date_format : optional
         Format specifier for date.
+        See `datetime.strftime <https://docs.python.org/3/library/time.html#time.strftime>`_ for details.
+        Default is ISO format.
+    separator : str
+        Columns separator. Default ";"
     """
 
     def __init__(self, path, time_column, outputs, date_format=None, separator=";"):
@@ -43,9 +71,9 @@ class CsvReader(TimeComponent):
         self._separator = separator
         self._data = None
         self._row_index = 0
-        self._first_connect = True
+        self._data_generated = False
 
-        self._output_names = outputs
+        self._output_units = outputs
 
     def _initialize(self):
         """Initialize the component.
@@ -53,10 +81,7 @@ class CsvReader(TimeComponent):
         After the method call, the component's inputs and outputs must be available,
         and the component should have status INITIALIZED.
         """
-        import pandas
-
-        self._data = pandas.read_csv(self._path, sep=self._separator)
-        for name in self._output_names:
+        for name in self._output_units:
             self.outputs.add(name=name)
 
         self.create_connector()
@@ -66,23 +91,29 @@ class CsvReader(TimeComponent):
 
         After the method call, the component should have status CONNECTED.
         """
-        row = self._data.iloc[0]
-        if self._first_connect:
-            self._time = self._push_row(row, False)
-            self._row_index = 1
-            self._first_connect = False
+        import pandas
 
-            if self._date_format is None:
-                self._time = datetime.fromisoformat(row[self._time_column])
-            else:
-                self._time = datetime.strptime(
-                    row[self._time_column], self._date_format
-                )
+        push_data = {}
+        if not self._data_generated:
+            self._data = pandas.read_csv(self._path, sep=self._separator)
+            row = self._data.iloc[0]
+
+            self._time, out_data = self._push_row(row, False)
+            self._row_index = 1
+
+            if all(
+                info is not None for _name, info in self.connector.out_infos.items()
+            ):
+                push_data = out_data
+                self._data_generated = True
 
         self.try_connect(
             time=self._time,
-            push_infos={name: Info(self.time, grid=NoGrid()) for name in self.outputs},
-            push_data={name: row[name] for name in self.outputs},
+            push_infos={
+                name: Info(self.time, grid=NoGrid(), units=units)
+                for name, units in self._output_units.items()
+            },
+            push_data=push_data,
         )
 
     def _validate(self):
@@ -97,7 +128,7 @@ class CsvReader(TimeComponent):
 
         After the method call, the component should have status UPDATED or FINISHED.
         """
-        self._time = self._push_row(self._data.iloc[self._row_index], True)
+        self._time, _ = self._push_row(self._data.iloc[self._row_index], True)
         self._row_index += 1
 
         if self._row_index >= self._data.shape[0]:
@@ -115,8 +146,13 @@ class CsvReader(TimeComponent):
         else:
             time = datetime.strptime(row[self._time_column], self._date_format)
 
-        if push:
-            for o in self._output_names:
-                self.outputs[o].push_data(row[o], time)
+        out_data = {
+            name: row[name] * UNITS.Unit(units)
+            for name, units in self._output_units.items()
+        }
 
-        return time
+        if push:
+            for o in self._output_units:
+                self.outputs[o].push_data(out_data[o], time)
+
+        return time, out_data

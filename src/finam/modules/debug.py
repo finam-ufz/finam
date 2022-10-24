@@ -9,6 +9,38 @@ from ..tools.log_helper import ErrorLogger
 class DebugConsumer(TimeComponent):
     """Generic component with arbitrary inputs and extensive debug logging.
 
+    .. code-block:: text
+
+                   +---------------+
+      --> [custom] |               |
+      --> [custom] | DebugConsumer |
+      --> [......] |               |
+                   +---------------+
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import datetime as dt
+        import finam as fm
+
+        component = fm.modules.DebugConsumer(
+            inputs={
+                "A": fm.Info(time=None, grid=fm.NoGrid()),
+                "B": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            start=dt.datetime(2000, 1, 1),
+            step=dt.timedelta(days=7),
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        component.initialize()
+
+
+
     Parameters
     ----------
     inputs : dict[str, Info]
@@ -26,7 +58,12 @@ class DebugConsumer(TimeComponent):
         self._input_infos = inputs
         self._step = step
         self._time = start
-        self.data = {}
+        self._data = {}
+
+    @property
+    def data(self):
+        """dict[str, data] : The component's input data from the last time step"""
+        return self._data
 
     def _initialize(self):
         for name, info in self._input_infos.items():
@@ -42,13 +79,13 @@ class DebugConsumer(TimeComponent):
         for name, data in self.connector.in_data.items():
             if data is not None:
                 self.logger.debug("Pulled input data for %s", name)
-                self.data[name] = data
+                self._data[name] = data
 
     def _validate(self):
         pass
 
     def _update(self):
-        self.data = {
+        self._data = {
             n: self.inputs[n].pull_data(self.time) for n in self._input_infos.keys()
         }
         self._time += self._step

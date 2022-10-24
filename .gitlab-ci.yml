@@ -33,6 +33,9 @@ doctest:
   stage: test
   script:
     - pip3 install --editable .[doc]
+    # doctest does not detect tests in code files during the first run.
+    # add a dummy build to generate .rst files before the actual tests
+    - sphinx-build -b dummy docs/source docs/build
     - sphinx-build -b doctest docs/source docs/build
 
 documentation:

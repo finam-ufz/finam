@@ -8,13 +8,13 @@ Modules
    :toctree: generated
 
     CallbackComponent
-    DebugConsumer
     CallbackGenerator
-    WeightedSum
     CsvReader
+    CsvWriter
+    DebugConsumer
     ScheduleView
     TimeSeriesView
-    CsvWriter
+    WeightedSum
 """
 
 from . import callback, debug, generators, mergers, readers, visual, writers
@@ -29,11 +29,11 @@ from .writers import CsvWriter
 __all__ = ["callback", "debug", "generators", "mergers", "readers", "visual", "writers"]
 __all__ += [
     "CallbackComponent",
-    "DebugConsumer",
     "CallbackGenerator",
-    "WeightedSum",
     "CsvReader",
+    "CsvWriter",
+    "DebugConsumer",
     "ScheduleView",
     "TimeSeriesView",
-    "CsvWriter",
+    "WeightedSum",
 ]

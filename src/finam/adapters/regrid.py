@@ -84,7 +84,17 @@ class ARegridding(Adapter, ABC):
 
 
 class RegridNearest(ARegridding):
-    """Regrid data between two grid specifications with nearest neighbor interpolation"""
+    """Regrid data between two grid specifications with nearest neighbour interpolation.
+
+    Parameters
+    ----------
+    in_grid : Grid or None (optional)
+        Input grid specification. Will be taken from source component if not specified.
+    out_grid : Grid or None (optional)
+        Output grid specification. Will be taken from target component if not specified.
+    tree_options : dict
+        kwargs for :class:`scipy.spatial.KDTree`
+    """
 
     def __init__(self, in_grid=None, out_grid=None, tree_options=None):
         super().__init__(in_grid, out_grid)
@@ -114,10 +124,21 @@ class RegridLinear(ARegridding):
     """
     Regrid data between two grid specifications with linear interpolation.
 
-    Uses ``scipy.interpolate.RegularGridInterpolator`` for structured grids.
-    For unstructured grids, ``scipy.interpolate.LinearNDInterpolator`` is used,
+    Uses :class:`scipy.interpolate.RegularGridInterpolator` for structured grids.
+    For unstructured grids, :class:`scipy.interpolate.LinearNDInterpolator` is used,
     which performs triangulation internally.
     So the actual topology of the grid is not taken into account.
+
+    Parameters
+    ----------
+    in_grid : Grid or None (optional)
+        Input grid specification. Will be taken from source component if not specified.
+    out_grid : Grid or None (optional)
+        Output grid specification. Will be taken from target component if not specified.
+    fill_with_nearest : bool
+        Whether out of bounds points should be filled with the nearest value. Default ``False``.
+    tree_options : dict
+        kwargs for :class:`scipy.spatial.KDTree`
     """
 
     def __init__(
