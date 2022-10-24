@@ -8,7 +8,40 @@ from ..tools.log_helper import ErrorLogger
 
 
 class WeightedSum(Component):
-    """Merges inputs by weighted sum
+    """Pull-based component to merge inputs by weighted sum.
+
+    This component does not have an own time step.
+    Execution is triggered by downstream pulls.
+
+    .. code-block:: text
+
+                             +-------------------+
+      --> [<custom1>       ] |                   |
+      --> [<custom1>_weight] |                   |
+      --> [<custom2>       ] | CallbackComponent | [WeightedSum] -->
+      --> [<custom2>_weight] |                   |
+      --> [....            ] |                   |
+                             +-------------------+
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        component = fm.modules.WeightedSum(inputs=["A", "B", "C"])
+
+        # ... create and initialize composition
+
+        # comp_1.outputs["Value"] >> component.inputs["A"]
+        # comp_1.outputs["Weight"] >> component.inputs["A_weight"]
+        # ...
+
+    .. testcode:: constructor
+        :hide:
+
+        component.initialize()
 
     Parameters
     ----------
