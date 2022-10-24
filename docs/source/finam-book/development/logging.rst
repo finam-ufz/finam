@@ -21,7 +21,7 @@ That logger provides simple methods to log a certain message:
 
 Here is an example using the dummy model from the previous chapter:
 
-.. code-block:: Python
+.. testcode:: component-logging
 
     import finam as fm
 
@@ -29,16 +29,23 @@ Here is an example using the dummy model from the previous chapter:
     class DummyModel(fm.TimeComponent):
 
         def __init__(self, **config):
+            super().__init__()
             # your setup
 
         def _initialize(self):
             self.logger.debug("trying to initialize the dummy model")
 
-            self.inputs.add("A")
-            self.outputs.add("B")
+            self.inputs.add(name="A")
+            self.outputs.add(name="B")
             self.create_connector()
 
             self.logger.info("dummy model initialized")
+
+.. testcode:: component-logging
+    :hide:
+
+    comp = DummyModel()
+    comp._initialize()
 
 Using this dummy model in a composition would return something similar to this (with ``log_level=logging.DEBUG``):
 
@@ -60,7 +67,7 @@ Logging of raised errors
 Developers may implement checks in the components and want to raise Errors, if something is wrong.
 In order to show these errors in the logger, we provide a context manager :class:`.ErrorLogger`:
 
-.. code-block:: Python
+.. testcode:: error-logging
 
     import finam as fm
     from finam.tools import ErrorLogger
@@ -74,6 +81,15 @@ In order to show these errors in the logger, we provide a context manager :class
         def _initialize(self):
             with ErrorLogger(self.logger):
                 raise NotImplementedError("this is not implemented yet")
+
+.. testcode:: error-logging
+    :hide:
+
+    comp = DummyModel()
+    try:
+        comp._initialize()
+    except NotImplementedError:
+        pass
 
 This will log the error and raise it. Without the context manager, the error would be raised but not logged.
 
