@@ -22,6 +22,8 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.doctest",
+    "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",  # parameters look better than with numpydoc only
     "numpydoc",
     "sphinxcontrib.mermaid",
@@ -66,6 +68,10 @@ exclude_patterns = []
 
 html_theme = "pydata_sphinx_theme"
 html_static_path = ["_static", "finam-book/images"]
+html_css_files = [
+    "css/custom.css",
+]
+
 html_logo = "_static/logo_large.svg"
 html_favicon = "_static/logo.svg"
 

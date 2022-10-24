@@ -132,13 +132,16 @@ class Composition(Loggable):
         self.is_initialized = True
 
     def connect(self):
-        """Performs the connect and validate phases of the composition"""
+        """Performs the connect and validate phases of the composition
+
+        If this was not called by the user, it is called at the start of :meth:`.run`.
+        """
         if self.is_connected:
             raise FinamStatusError("Composition was already connected.")
 
-        self._validate()
+        self._validate_composition()
 
-        self._connect()
+        self._connect_components()
 
         self.logger.debug("validate components")
         for mod in self.modules:
@@ -189,28 +192,10 @@ class Composition(Loggable):
             if not any_running:
                 break
 
-        for mod in self.modules:
-            self._check_status(
-                mod,
-                [
-                    ComponentStatus.VALIDATED,
-                    ComponentStatus.UPDATED,
-                    ComponentStatus.FINISHED,
-                ],
-            )
-            if (
-                isinstance(mod, ITimeComponent)
-                and mod.status == ComponentStatus.VALIDATED
-            ):
-                self.logger.warning(
-                    "Time component %s was not updated during this run", mod.name
-                )
-            mod.finalize()
-            self._check_status(mod, [ComponentStatus.FINALIZED])
+        self._finalize_components()
+        self._finalize_composition()
 
-        self._finalize()
-
-    def _validate(self):
+    def _validate_composition(self):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
         self.logger.debug("validate composition")
         for mod in self.modules:
@@ -222,7 +207,7 @@ class Composition(Loggable):
                 for out in mod.outputs.values():
                     _check_branching(mod, out)
 
-    def _connect(self):
+    def _connect_components(self):
         self.logger.debug("connect components")
         counter = 0
         while True:
@@ -264,7 +249,29 @@ class Composition(Loggable):
 
             counter += 1
 
-    def _finalize(self):
+    def _finalize_components(self):
+        self.logger.debug("finalize components")
+        for mod in self.modules:
+            self._check_status(
+                mod,
+                [
+                    ComponentStatus.VALIDATED,
+                    ComponentStatus.UPDATED,
+                    ComponentStatus.FINISHED,
+                ],
+            )
+            if (
+                isinstance(mod, ITimeComponent)
+                and mod.status == ComponentStatus.VALIDATED
+            ):
+                self.logger.warning(
+                    "Time component %s was not updated during this run", mod.name
+                )
+            mod.finalize()
+            self._check_status(mod, [ComponentStatus.FINALIZED])
+
+    def _finalize_composition(self):
+        self.logger.debug("finalize composition")
         handlers = self.logger.handlers[:]
         for handler in handlers:
             self.logger.removeHandler(handler)

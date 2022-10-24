@@ -9,44 +9,42 @@ Simple example
 
 Here is a simple example coupling two components:
 
-.. code-block:: Python
+.. testcode:: simple-example
 
     # simple-coupling.py
-
     import random
     from datetime import datetime, timedelta
 
     import finam as fm
 
-    if __name__ == "__main__":
-      # Instantiate components, e.g. models
+    # Instantiate components, e.g. models
 
-      # Here, we use a simple component that outputs a random number each step
-      generator = fm.modules.CallbackGenerator(
+    # Here, we use a simple component that outputs a random number each step
+    generator = fm.modules.CallbackGenerator(
         {"Value": (lambda _t: random.uniform(0, 1), fm.Info(time=None, grid=fm.NoGrid()))},
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
-      )
+    )
 
-      # A live plotting component
-      plot = fm.modules.TimeSeriesView(
+    # A live plotting component
+    plot = fm.modules.TimeSeriesView(
         inputs=["Value"],
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
         intervals=[1],
-      )
+    )
 
-      # Create a `Composition` containing all components
-      composition = fm.Composition([generator, plot])
+    # Create a `Composition` containing all components
+    composition = fm.Composition([generator, plot])
 
-      # Initialize the `Composition`
-      composition.initialize()
+    # Initialize the `Composition`
+    composition.initialize()
 
-      # Couple inputs to outputs
-      generator.outputs["Value"] >> plot.inputs["Value"]
+    # Couple inputs to outputs
+    generator.outputs["Value"] >> plot.inputs["Value"]
 
-      # Run the composition until January 2001
-      composition.run(datetime(2001, 1, 1))
+    # Run the composition until June 2000
+    composition.run(datetime(2000, 6, 30))
 
 In the above example, we couple a simple generator component (:class:`.modules.CallbackGenerator`)
 with a live plotting component (:class:`.modules.TimeSeriesView`).
@@ -59,10 +57,10 @@ with a live plotting component (:class:`.modules.TimeSeriesView`).
 
 The typical steps in a script are:
 
-1. Instantiate components and adapters (see next example)
-2. Create a :class:`.Composition` and initialize it
-3. Connect outputs to inputs using the overloaded ``>>`` operator (:meth:`.IOutput.__rshift__`)
-4. Run the :class:`.Composition`
+#. Instantiate components and adapters (see next example)
+#. Create a :class:`.Composition` and initialize it
+#. Connect outputs to inputs using the overloaded ``>>`` operator (:meth:`.IOutput.__rshift__`)
+#. Run the :class:`.Composition`
 
 Inputs and outputs
 ------------------
@@ -91,55 +89,53 @@ or for temporal interpolation or aggregation.
 The following examples uses a similar setup like the previous one, but with differing
 time steps and two chained adapters:
 
-.. code-block:: Python
+.. testcode:: adapter-example
 
     # adapter-coupling.py
-
     import random
     from datetime import datetime, timedelta
 
     import finam as fm
 
-    if __name__ == "__main__":
-      # Instantiate components, e.g. models
+    # Instantiate components, e.g. models
 
-      # Here, we use a simple component that outputs a random number each step
-      generator = fm.modules.CallbackGenerator(
+    # Here, we use a simple component that outputs a random number each step
+    generator = fm.modules.CallbackGenerator(
         {"Value": (lambda _t: random.uniform(0, 1), fm.Info(time=None, grid=fm.NoGrid()))},
         start=datetime(2000, 1, 1),
         step=timedelta(days=10),
-      )
+    )
 
-      # A live plotting component
-      plot = fm.modules.TimeSeriesView(
+    # A live plotting component
+    plot = fm.modules.TimeSeriesView(
         inputs=["Value"],
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
         intervals=[1],
-      )
+    )
 
-      # Create two adapters for...
-      # temporal interpolation
-      time_interpolation_adapter = fm.adapters.LinearTime()
-      # data transformation
-      square_adapter = fm.adapters.Callback(lambda x, _time: x * x)
+    # Create two adapters for...
+    # temporal interpolation
+    time_interpolation_adapter = fm.adapters.LinearTime()
+    # data transformation
+    square_adapter = fm.adapters.Callback(lambda x, _time: x * x)
 
-      # Create a `Composition` containing all components
-      composition = fm.Composition([generator, plot])
+    # Create a `Composition` containing all components
+    composition = fm.Composition([generator, plot])
 
-      # Initialize the `Composition`
-      composition.initialize()
+    # Initialize the `Composition`
+    composition.initialize()
 
-      # Couple inputs to outputs, via multiple adapters
-      (
-              generator.outputs["Value"]
-              >> time_interpolation_adapter
-              >> square_adapter
-              >> plot.inputs["Value"]
-      )
+    # Couple inputs to outputs, via multiple adapters
+    (
+        generator.outputs["Value"]
+        >> time_interpolation_adapter
+        >> square_adapter
+        >> plot.inputs["Value"]
+    )
 
-      # Run the composition until January 2000
-      composition.run(datetime(2001, 1, 1))
+    # Run the composition until June 2000
+    composition.run(datetime(2000, 6, 30))
 
 ### Adapter chaining
 
@@ -147,8 +143,8 @@ As can be seen from the example, components and adapters can be chained using th
 
 This is achieved by:
 
-1. An adapter is an input, and at the same time an output
-2. The chained input is returned by `>>` and :meth:`.IOutput.chain`. In case the chained input is an adapter (and thus also an output), it can be immediately reused in a further chaining operation
+#. An adapter is an input, and at the same time an output
+#. The chained input is returned by `>>` and :meth:`.IOutput.chain`. In case the chained input is an adapter (and thus also an output), it can be immediately reused in a further chaining operation
 
 Logging
 -------
@@ -157,12 +153,13 @@ FINAM provides a comprehensive logging framework built on Pythons standard :mod:
 
 You can configure the base logger when creating the :class:`.Composition` as shown above:
 
-.. code-block:: Python
+.. testcode:: composition
 
+    import finam as fm
     import logging
 
-    comp = Composition(
-        modules,
+    comp = fm.Composition(
+        [],
         logger_name="FINAM",
         print_log=True,
         log_file=True,

@@ -70,20 +70,43 @@ It has the following properties:
 
 For convenience, entries in ``meta`` can be used like normal member variables:
 
-.. code-block:: Python
+.. testsetup:: create-info
 
-    info = Info(grid=NoGrid(), units="m", foo="bar")
+    from finam import Info, NoGrid
+    from datetime import datetime
+
+.. testcode:: create-info
+
+    info = Info(
+        time=datetime(2000, 1, 1),
+        grid=NoGrid(),
+        units="m",
+        foo="bar"
+    )
 
     print(info.units)
     print(info.foo)
 
+.. testoutput:: create-info
+
+    m
+    bar
+
 When creating inputs or outputs in components, the :class:`.Info` object does not need to be constructed explicitly.
 In component code, these two lines are equivalent:
 
-.. code-block:: Python
+.. testsetup:: create-inputs
 
-    self.inputs.add(name="A", grid=NoGrid(), units="m")
-    self.inputs.add(name="A", info=Info(grid=NoGrid(), units="m"))
+    from finam import Component, Info, NoGrid
+    from datetime import datetime
+
+    self = Component()
+
+.. testcode:: create-inputs
+
+    time = datetime(2000, 1, 1)
+    self.inputs.add(name="A", time=time, grid=NoGrid(), units="m")
+    self.inputs.add(name="B", info=Info(time=time, grid=NoGrid(), units="m"))
 
 Metadata from source or target
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -91,9 +114,9 @@ Metadata from source or target
 Any `Info` attributes initialized with `None` will be filled from the metadata on the other end of the coupling link.
 E.g. if the grid specification of an input is intended to be taken from the connected output, the input can be initialized like this:
 
-.. code-block:: Python
+.. testcode:: create-inputs
 
-    self.inputs.add(name="Input_A", grid=None, units="m")
+    self.inputs.add(name="Input_A", time=None, grid=None, units="m")
 
 This works in the same way for outputs to get metadata from connected inputs.
 

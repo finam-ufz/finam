@@ -145,9 +145,9 @@ It is called internally by the :meth:`.TimeComponent.initialize` method.
             # ...
 
         def _initialize(self):                                             # <--
-            self.inputs.add(name="A", grid=fm.NoGrid())                    # <--
-            self.inputs.add(name="B", grid=fm.NoGrid())                    # <--
-            self.outputs.add(name="Sum", grid=fm.NoGrid())                 # <--
+            self.inputs.add(name="A", time=self.time, grid=fm.NoGrid())    # <--
+            self.inputs.add(name="B", time=self.time, grid=fm.NoGrid())    # <--
+            self.outputs.add(name="Sum", time=self.time, grid=fm.NoGrid()) # <--
 
             self.create_connector()                                        # <--
 
@@ -196,7 +196,7 @@ After this connection phase, models can validate their state in :meth:`.TimeComp
             # ...
 
         def _connect(self):                                                      # <--
-            self.try_connect(time=self.time, push_data={"Sum": 0})               # <--
+            self.try_connect(push_data={"Sum": 0})                               # <--
 
         def _validate(self):                                                     # <--
             pass                                                                 # <--
@@ -227,7 +227,7 @@ For the tests, we need to set up a real coupling from here on, as the component'
 
             # a component to consume output, details not important
             consumer = fm.modules.debug.DebugConsumer(
-                inputs={"Sum": fm.Info(grid=fm.NoGrid())},
+                inputs={"Sum": fm.Info(time=None, grid=fm.NoGrid())},
                 start=datetime(2000, 1, 1),
                 step=timedelta(days=7)
             )
@@ -338,7 +338,7 @@ Final code
 
 Here is the final code of the completed component.
 
-.. code-block:: Python
+.. testcode::
 
     import unittest
     from datetime import datetime, timedelta
@@ -347,22 +347,22 @@ Here is the final code of the completed component.
 
 
     class DummyModel(fm.TimeComponent):
-        def __init__(self, start, step):  # <--
+        def __init__(self, start, step):
             super().__init__()
-            self._step = step  # <--
+            self._step = step
             self.time = start
 
-        def _initialize(self):  # <--
-            self.inputs.add(name="A", grid=fm.NoGrid())  # <--
-            self.inputs.add(name="B", grid=fm.NoGrid())  # <--
-            self.outputs.add(name="Sum", grid=fm.NoGrid())  # <--
+        def _initialize(self):
+            self.inputs.add(name="A", time=self.time, grid=fm.NoGrid())
+            self.inputs.add(name="B", time=self.time, grid=fm.NoGrid())
+            self.outputs.add(name="Sum", time=self.time, grid=fm.NoGrid())
 
-            self.create_connector()  # <--
+            self.create_connector()
 
-        def _connect(self):  # <--
-            self.try_connect(time=self.time, push_data={"Sum": 0})  # <--
+        def _connect(self):
+            self.try_connect(push_data={"Sum": 0})
 
-        def _validate(self):  # <--
+        def _validate(self):
             pass
 
         def _update(self):
@@ -395,7 +395,7 @@ Here is the final code of the completed component.
                 step=timedelta(days=7),
             )
             consumer = fm.modules.debug.DebugConsumer(
-                inputs={"Sum": fm.Info(grid=fm.NoGrid())},
+                inputs={"Sum": fm.Info(time=None, grid=fm.NoGrid())},
                 start=datetime(2000, 1, 1),
                 step=timedelta(days=7),
             )
@@ -412,3 +412,16 @@ Here is the final code of the completed component.
             self.assertEqual(consumer.data, {"Sum": 0})
 
             composition.run(t_max=datetime(2000, 12, 31))
+
+    if __name__ == "__main__":
+        unittest.main()
+
+.. testcode::
+    :hide:
+
+    TestDummy().test_dummy_model() #doctest: +ELLIPSIS
+
+.. testoutput::
+    :hide:
+
+    ...

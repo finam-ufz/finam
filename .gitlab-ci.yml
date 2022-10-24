@@ -29,6 +29,12 @@ test:
     paths:
       - cov
 
+doctest:
+  stage: test
+  script:
+    - pip3 install --editable .[doc]
+    - sphinx-build -b doctest docs/source docs/build
+
 documentation:
   stage: build
   script:

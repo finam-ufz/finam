@@ -31,7 +31,7 @@ which is called from downstream to request data.
 
 File ``src/scale.py``:
 
-.. code-block:: Python
+.. testcode:: scale-adapter
 
     import finam as fm
 
@@ -45,10 +45,41 @@ File ``src/scale.py``:
             d = self.pull_data(time)
             return d * self.scale
 
+.. testcode:: scale-adapter
+    :hide:
+
+    from datetime import datetime, timedelta
+
+    generator = fm.modules.CallbackGenerator(
+        {"Value": (lambda _t: 1.0, fm.Info(time=None, grid=fm.NoGrid()))},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=1),
+    )
+    consumer = fm.modules.DebugConsumer(
+        {"Input": fm.Info(None, grid=fm.NoGrid())},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=1),
+    )
+    adapter = Scale(0.5)
+
+    comp = fm.Composition([generator, consumer])
+    comp.initialize()
+
+    generator.outputs["Value"] >> adapter >> consumer.inputs["Input"]
+
+    comp.run(datetime(2000, 1, 2))
+
+    print(fm.data.strip_data(consumer.data["Input"]))
+
+.. testoutput:: scale-adapter
+    :hide:
+
+    0.5 dimensionless
+
 In :meth:`.Adapter._get_data`, we:
 
-1. Pull the input for the requested ``time``
-1. Multiply the input by ``scale`` and return the result
+#. Pull the input for the requested ``time``
+#. Multiply the input by ``scale`` and return the result
 
 Time-dependent ``TimeInterpolation`` adapter
 --------------------------------------------
@@ -129,6 +160,10 @@ In :meth:`.Adapter._source_updated`, we need to store incoming data:
             self.old_data = None
             self.new_data = None
 
+        @property
+        def needs_push(self):
+            return True
+
         def _source_updated(self, time):
             self.old_data = self.new_data
             self.new_data = (time, fm.data.strip_data(self.pull_data(time)))
@@ -141,7 +176,7 @@ As the output time will differ from the input time, we need to strip the time of
 
 In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is requested from upstream.
 
-.. code-block:: Python
+.. testcode:: time-adapter
 
     import finam as fm
 
@@ -152,13 +187,20 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
             self.old_data = None
             self.new_data = None
 
+        @property
+        def needs_push(self):
+            return True
+
         def _source_updated(self, time):
             self.old_data = self.new_data
             self.new_data = (time, fm.data.strip_data(self.pull_data(time)))
 
         def _get_data(self, time):
             if self.old_data is None:
-                return self.new_data[1]
+                if self.new_data is None:
+                    return None
+                else:
+                    return self.new_data[1]
 
             dt = (time - self.old_data[0]) / (self.new_data[0] - self.old_data[0])
 
@@ -167,11 +209,42 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
 
             return o + dt * (n - o)
 
+.. testcode:: time-adapter
+    :hide:
+
+    from datetime import datetime, timedelta
+
+    generator = fm.modules.CallbackGenerator(
+        {"Value": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid()))},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=30),
+    )
+    consumer = fm.modules.DebugConsumer(
+        {"Input": fm.Info(None, grid=fm.NoGrid())},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=1),
+    )
+    adapter = TimeInterpolation()
+
+    comp = fm.Composition([generator, consumer])
+    comp.initialize()
+
+    generator.outputs["Value"] >> adapter >> consumer.inputs["Input"]
+
+    comp.run(datetime(2000, 1, 15))
+
+    print(fm.data.strip_data(consumer.data["Input"]))
+
+.. testoutput:: time-adapter
+    :hide:
+
+    14.0 dimensionless
+
 In :meth:`.Adapter._get_data`, the following happens:
 
-1. If only one data entry was received so far, we can't interpolate and simply return the available data. Otherwise...
-1. Calculate ``dt`` as the relative position of ``time`` in the available data interval (in range [0, 1])
-1. Interpolate and return the data
+#. If only one data entry was received so far, we can't interpolate and simply return the available data. Otherwise...
+#. Calculate ``dt`` as the relative position of ``time`` in the available data interval (in range [0, 1])
+#. Interpolate and return the data
 
 Note that, although we use :class:`datetime <datetime.datetime>` when calculating ``dt``, we get a scalar output.
 Due to ``dt`` being relative, time units cancel out here.

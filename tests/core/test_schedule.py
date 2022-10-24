@@ -191,7 +191,7 @@ class TestComposition(unittest.TestCase):
         non_branching_adapter >> CallbackAdapter(callback=lambda data, time: data)
 
         with self.assertRaises(ValueError) as context:
-            composition._validate()
+            composition._validate_composition()
 
         self.assertTrue("Disallowed branching" in str(context.exception))
 
@@ -263,7 +263,7 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         with self.assertRaises(ValueError) as context:
-            composition._validate()
+            composition._validate_composition()
 
         self.assertTrue("Unconnected input" in str(context.exception))
 

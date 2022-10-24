@@ -32,7 +32,7 @@ This way, it is guaranteed that all required input data is available in the outp
 
 The example in Figure 4 illustrates the approach.
 
-.. figure:: ../images/coupling.svg
+.. figure:: ../images/scheduling.svg
     :alt: Finam scheduling
     :class: dark-light p-2
     :width: 100%
