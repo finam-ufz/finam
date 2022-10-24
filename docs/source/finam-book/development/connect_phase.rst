@@ -136,20 +136,62 @@ Simple case - no dependencies
 
 In the most simple case, all metadata is known in :meth:`.Component._initialze`, and data is pushed in :attr:`.Component._connect()`:
 
-.. code-block:: Python
+.. testcode:: simple-connect
 
-    class SimpleConnect(TimeComponent):
+    import finam as fm
+
+    class SimpleConnect(fm.TimeComponent):
+
+        def __init__(self, time):
+            super().__init__()
+            self.time = time
 
         def _initialize(self):
-            self.inputs.add(name="A", grid=NoGrid(), units="m")
-            self.inputs.add(name="B", grid=NoGrid(), units="m")
-            self.outputs.add(name="Area", grid=NoGrid(), units="m2")
+            self.inputs.add(name="A", time=self.time, grid=fm.NoGrid(), units="m")
+            self.inputs.add(name="B", time=self.time, grid=fm.NoGrid(), units="m")
+            self.outputs.add(name="Area", time=self.time, grid=fm.NoGrid(), units="m2")
 
             self.create_connector()
 
         def _connect(self):
             push_data = {"Area": 0}
-            self.try_connect(time=self.time, push_data=push_data)
+            self.try_connect(push_data=push_data)
+
+        def _validate(self):
+            pass
+
+        # etc...
+
+.. testcode:: simple-connect
+    :hide:
+
+    from datetime import datetime, timedelta
+
+    generator = fm.modules.CallbackGenerator(
+        {
+            "Output1": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
+            "Output2": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
+        },
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=30),
+    )
+
+    simple_conn = SimpleConnect(datetime(2000, 1, 1))
+
+    consumer = fm.modules.DebugConsumer(
+        {"Input": fm.Info(None, grid=fm.NoGrid())},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=1),
+    )
+
+    comp = fm.Composition([generator, simple_conn, consumer])
+    comp.initialize()
+
+    generator.outputs["Output1"] >> simple_conn.inputs["A"]
+    generator.outputs["Output2"] >> simple_conn.inputs["B"]
+    simple_conn.outputs["Area"] >> consumer.inputs["Input"]
+
+    comp.connect()
 
 In :meth:`.Component._initialize`, we create inputs and outputs with metadata (here ``grid`` and ``units``).
 Then, we create the connector with ``self.create_connector()``. No arguments required here, as there are no dependencies.
@@ -163,13 +205,19 @@ In this example, we want to get a grid specification from an input.
 This grid specification should then be used for the metadata of the output,
 and the initial data should be generated from it.
 
-.. code-block:: Python
+.. testcode:: complex-connect
 
-    class ComplexConnect(TimeComponent):
+    import finam as fm
+
+    class ComplexConnect(fm.TimeComponent):
+
+        def __init__(self, time):
+            super().__init__()
+            self.time = time
 
         def _initialize(self):
-            self.inputs.add(name="A", grid=None, units="m")
-            self.inputs.add(name="B", grid=NoGrid(), units="m")
+            self.inputs.add(name="A", time=self.time, grid=None, units="m")
+            self.inputs.add(name="B", time=self.time, grid=fm.NoGrid(), units="m")
             self.outputs.add(name="Area")
 
             self.create_connector()
@@ -187,6 +235,45 @@ and the initial data should be generated from it.
             self.try_connect(time=self.time,
                              push_infos=push_infos,
                              push_data=push_data)
+
+        def _validate(self):
+            pass
+
+        # etc...
+
+.. testcode:: complex-connect
+    :hide:
+
+    from datetime import datetime, timedelta
+
+    def _generate_data(info):
+        return 0
+
+    generator = fm.modules.CallbackGenerator(
+        {
+            "Output1": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
+            "Output2": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
+        },
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=30),
+    )
+
+    complex_conn = ComplexConnect(datetime(2000, 1, 1))
+
+    consumer = fm.modules.DebugConsumer(
+        {"Input": fm.Info(None, grid=fm.NoGrid())},
+        start=datetime(2000, 1, 1),
+        step=timedelta(days=1),
+    )
+
+    comp = fm.Composition([generator, complex_conn, consumer])
+    comp.initialize()
+
+    generator.outputs["Output1"] >> complex_conn.inputs["A"]
+    generator.outputs["Output2"] >> complex_conn.inputs["B"]
+    complex_conn.outputs["Area"] >> consumer.inputs["Input"]
+
+    comp.connect()
 
 In :meth:`.Component._initialize`, we set the ``grid`` of input ``"A"`` to ``None``.
 It will be filled from the connected output, and becomes available in
@@ -215,20 +302,27 @@ The process works in both directions.
 Any metadata field that is initialized with ``None`` will be filled with the value from the other end of the connection.
 This can happen in the initialization of inputs and outputs:
 
-.. code-block:: Python
+.. testsetup:: no-metadata
 
-    self.inputs.add(name="A", grid=None, units=None)
-    self.outputs.add(name="Area", grid=NoGrid(), units=None)
+    from finam import Component, Info, NoGrid
+    from datetime import datetime
 
-Here, ``grid`` and ``units`` of the input would be filled from a connected output.
-For the output, ``units`` would be filled from a connected input.
+    self = Component()
+
+.. testcode:: no-metadata
+
+    self.inputs.add(name="A", time=None, grid=None, units=None)
+    self.outputs.add(name="Area", time=None, grid=NoGrid(), units=None)
+
+Here, ``time``, ``grid`` and ``units`` of the input would be filled from a connected output.
+For the output, ``time`` and ``units`` would be filled from a connected input.
 
 The same mechanism can also be applied in :meth:`.Component._connect`:
 
 .. code-block:: Python
 
-    info = Info(grid=None, units="m")
-    self.try_connect(time=self.time, in_infos={"A": info})
+    info = Info(time=None, grid=None, units="m")
+    self.try_connect(exchange_infos={"A": info})
 
 Summary metadata initialization
 -------------------------------
