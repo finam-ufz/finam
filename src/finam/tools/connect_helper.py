@@ -118,16 +118,21 @@ class ConnectHelper(Loggable):
     def connect(self, time, exchange_infos=None, push_infos=None, push_data=None):
         """Exchange the info and data with linked components.
 
+        Values passed by the arguments are cached internally for later calls to the method
+        if constructed with ``cache=True`` (the default).
+        Thus, it is sufficient to provide only data and infos that became newly available.
+        Giving the same data or infos repeatedly overwrites the cache.
+
         Parameters
         ----------
         time : datetime.datatime
             time for data pulls
         exchange_infos : dict
-            currently available input data infos by input name
+            currently or newly available input data infos by input name
         push_infos : dict
-            currently available output data infos by output name
+            currently or newly available output data infos by output name
         push_data : dict
-            currently available output data by output name
+            currently or newly available output data by output name
 
         Returns
         -------

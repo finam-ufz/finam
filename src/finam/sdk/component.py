@@ -239,18 +239,25 @@ class Component(IComponent, Loggable, ABC):
     ):
         """Exchange the info and data with linked components.
 
-        Sets the component's :attr:`.status` according success of exchange.
+        Values passed by the arguments are cached internally for later calls to the method
+        if the connector was created with ``cache=True`` (the default).
+        Thus, it is sufficient to provide only data and infos that became newly available.
+        Giving the same data or infos repeatedly overwrites the cache.
+
+        Sets the component's :attr:`.status` according to success of exchange.
+
+        See :class:`.ConnectHelper` for more details.
 
         Parameters
         ----------
         time : datetime.datatime
             time for data pulls
         exchange_infos : dict
-            currently available input data infos by input name
+            currently or newly available input data infos by input name
         push_infos : dict
-            currently available output data infos by output name
+            currently or newly available output data infos by output name
         push_data : dict
-            currently available output data by output name
+            currently or newly available output data by output name
         """
         self.logger.debug("try connect")
 
