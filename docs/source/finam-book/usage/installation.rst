@@ -18,6 +18,6 @@ FINAM can be installed using ``pip``, from a local clone of the Git repository. 
     $ python
 
 >>> import finam
->>> print(finam.__version__)
+>>> print(finam.__version__) #doctest: +SKIP
 
 Congratulations! You can now start using FINAM.
