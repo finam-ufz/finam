@@ -2,6 +2,7 @@ image: python
 
 stages:
   - test
+  - doctest
   - build
   - deploy
 
@@ -28,6 +29,12 @@ test:
         path: cov.xml
     paths:
       - cov
+
+doctest:
+  stage: doctest
+  script:
+    - pip3 install --editable .[doc]
+    - sphinx-build -b doctest docs/source docs/build
 
 documentation:
   stage: build
