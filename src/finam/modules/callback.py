@@ -77,6 +77,7 @@ class CallbackComponent(TimeComponent):
         self._callback = callback
         self._step = step
         self._time = start
+        self._data_generated = False
 
     def _initialize(self):
         for name, info in self._input_infos.items():
@@ -87,13 +88,16 @@ class CallbackComponent(TimeComponent):
             info.time = self.time
             self.outputs.add(name=name, info=info)
 
-        self.create_connector()
+        self.create_connector(pull_data=list(self._input_infos))
 
     def _connect(self):
-        inp = {n: None for n in self._input_infos.keys()}
-        outp = self._callback(inp, self.time)
+        push_data = {}
+        if not self._data_generated:
+            if all((data is not None for name, data in self.connector.in_data.items())):
+                push_data = self._callback(self.connector.in_data, self.time)
+                self._data_generated = True
 
-        self.try_connect(self._time, push_data=outp)
+        self.try_connect(self._time, push_data=push_data)
 
     def _validate(self):
         pass
