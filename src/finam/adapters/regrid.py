@@ -39,11 +39,7 @@ class ARegridding(Adapter, ABC):
 
     def _get_info(self, info):
 
-        request = (
-            info.copy_with(grid=self.input_grid)
-            if self.input_grid is not None
-            else info
-        )
+        request = info.copy_with(grid=self.input_grid)
         in_info = self.exchange_info(request)
 
         if self.output_grid is None and info.grid is None:
