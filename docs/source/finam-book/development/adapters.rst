@@ -31,7 +31,7 @@ which is called from downstream to request data.
 
 File ``src/scale.py``:
 
-.. code-block:: Python
+.. testcode:: scale-adapter
 
     import finam as fm
 
@@ -44,6 +44,11 @@ File ``src/scale.py``:
         def _get_data(self, time):
             d = self.pull_data(time)
             return d * self.scale
+
+.. testcode:: scale-adapter
+    :hide:
+
+    adapter = Scale(0.5)
 
 In :meth:`.Adapter._get_data`, we:
 
@@ -129,6 +134,10 @@ In :meth:`.Adapter._source_updated`, we need to store incoming data:
             self.old_data = None
             self.new_data = None
 
+        @property
+        def needs_push(self):
+            return True
+
         def _source_updated(self, time):
             self.old_data = self.new_data
             self.new_data = (time, fm.data.strip_data(self.pull_data(time)))
@@ -141,7 +150,7 @@ As the output time will differ from the input time, we need to strip the time of
 
 In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is requested from upstream.
 
-.. code-block:: Python
+.. testcode:: time-adapter
 
     import finam as fm
 
@@ -151,6 +160,10 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
             super().__init__()
             self.old_data = None
             self.new_data = None
+
+        @property
+        def needs_push(self):
+            return True
 
         def _source_updated(self, time):
             self.old_data = self.new_data
@@ -166,6 +179,11 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
             n = self.new_data[1]
 
             return o + dt * (n - o)
+
+.. testcode:: time-adapter
+    :hide:
+
+    adapter = TimeInterpolation()
 
 In :meth:`.Adapter._get_data`, the following happens:
 

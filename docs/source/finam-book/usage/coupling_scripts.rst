@@ -153,12 +153,13 @@ FINAM provides a comprehensive logging framework built on Pythons standard :mod:
 
 You can configure the base logger when creating the :class:`.Composition` as shown above:
 
-.. code-block:: Python
+.. testcode:: composition
 
+    import finam as fm
     import logging
 
-    comp = Composition(
-        modules,
+    comp = fm.Composition(
+        [],
         logger_name="FINAM",
         print_log=True,
         log_file=True,
