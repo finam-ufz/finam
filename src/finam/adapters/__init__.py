@@ -26,8 +26,8 @@ Regridding adapters
 .. autosummary::
    :toctree: generated
 
-    Nearest
-    Linear
+    RegridNearest
+    RegridLinear
 
 Time adapters
 =============
@@ -35,17 +35,17 @@ Time adapters
 .. autosummary::
    :toctree: generated
 
-    NextValue
-    PreviousValue
-    LinearInterpolation
-    LinearIntegration
+    NextTime
+    PreviousTime
+    LinearTime
+    IntegrateTime
 """
 
 from . import base, probe, regrid, time
 from .base import Callback, GridToValue, Scale, ValueToGrid
 from .probe import CallbackProbe
-from .regrid import Linear, Nearest
-from .time import LinearIntegration, LinearInterpolation, NextValue, PreviousValue
+from .regrid import RegridLinear, RegridNearest
+from .time import IntegrateTime, LinearTime, NextTime, PreviousTime
 
 __all__ = ["base", "probe", "regrid", "time"]
 __all__ += [
@@ -56,12 +56,12 @@ __all__ += [
 ]
 __all__ += ["CallbackProbe"]
 __all__ += [
-    "Nearest",
-    "Linear",
+    "RegridNearest",
+    "RegridLinear",
 ]
 __all__ += [
-    "NextValue",
-    "PreviousValue",
-    "LinearInterpolation",
-    "LinearIntegration",
+    "NextTime",
+    "PreviousTime",
+    "LinearTime",
+    "IntegrateTime",
 ]

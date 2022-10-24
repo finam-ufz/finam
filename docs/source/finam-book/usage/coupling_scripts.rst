@@ -17,21 +17,19 @@ Here is a simple example coupling two components:
     from datetime import datetime, timedelta
 
     import finam as fm
-    from finam.modules.generators import CallbackGenerator
-    from finam.modules.visual.time_series import TimeSeriesView
 
     if __name__ == "__main__":
       # Instantiate components, e.g. models
 
       # Here, we use a simple component that outputs a random number each step
-      generator = CallbackGenerator(
-        {"Value": (lambda _t: random.uniform(0, 1), fm.Info(grid=fm.NoGrid()))},
+      generator = fm.modules.CallbackGenerator(
+        {"Value": (lambda _t: random.uniform(0, 1), fm.Info(time=None, grid=fm.NoGrid()))},
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
       )
 
       # A live plotting component
-      plot = TimeSeriesView(
+      plot = fm.modules.TimeSeriesView(
         inputs=["Value"],
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
@@ -101,21 +99,19 @@ time steps and two chained adapters:
     from datetime import datetime, timedelta
 
     import finam as fm
-    from finam.adapters import base, time
-    from finam.modules import generators, visual
 
     if __name__ == "__main__":
       # Instantiate components, e.g. models
 
       # Here, we use a simple component that outputs a random number each step
-      generator = generators.CallbackGenerator(
-        {"Value": (lambda _t: random.uniform(0, 1), fm.Info(grid=fm.NoGrid()))},
+      generator = fm.modules.CallbackGenerator(
+        {"Value": (lambda _t: random.uniform(0, 1), fm.Info(time=None, grid=fm.NoGrid()))},
         start=datetime(2000, 1, 1),
         step=timedelta(days=10),
       )
 
       # A live plotting component
-      plot = visual.time_series.TimeSeriesView(
+      plot = fm.modules.TimeSeriesView(
         inputs=["Value"],
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
@@ -124,9 +120,9 @@ time steps and two chained adapters:
 
       # Create two adapters for...
       # temporal interpolation
-      time_interpolation_adapter = time.LinearInterpolation()
+      time_interpolation_adapter = fm.adapters.LinearTime()
       # data transformation
-      square_adapter = base.Callback(lambda x, _time: x * x)
+      square_adapter = fm.adapters.Callback(lambda x, _time: x * x)
 
       # Create a `Composition` containing all components
       composition = fm.Composition([generator, plot])

@@ -18,7 +18,7 @@ from finam import (
     UnstructuredGrid,
 )
 from finam import data as fdata
-from finam.adapters.regrid import Linear, Nearest
+from finam.adapters.regrid import RegridLinear, RegridNearest
 from finam.modules import debug, generators
 
 
@@ -59,7 +59,7 @@ class TestRegrid(unittest.TestCase):
         composition = Composition([source, sink])
         composition.initialize()
 
-        (source.outputs["Output"] >> Nearest() >> sink.inputs["Input"])
+        (source.outputs["Output"] >> RegridNearest() >> sink.inputs["Input"])
 
         composition.run(t_max=datetime(2000, 1, 2))
 
@@ -112,7 +112,7 @@ class TestRegrid(unittest.TestCase):
         composition = Composition([source, sink])
         composition.initialize()
 
-        (source.outputs["Output"] >> Nearest() >> sink.inputs["Input"])
+        (source.outputs["Output"] >> RegridNearest() >> sink.inputs["Input"])
 
         composition.run(t_max=datetime(2000, 1, 2))
 
@@ -156,7 +156,7 @@ class TestRegrid(unittest.TestCase):
         composition = Composition([source, sink])
         composition.initialize()
 
-        (source.outputs["Output"] >> Linear() >> sink.inputs["Input"])
+        (source.outputs["Output"] >> RegridLinear() >> sink.inputs["Input"])
 
         composition.run(t_max=datetime(2000, 1, 2))
 
@@ -202,7 +202,7 @@ class TestRegrid(unittest.TestCase):
 
         (
             source.outputs["Output"]
-            >> Linear(fill_with_nearest=True)
+            >> RegridLinear(fill_with_nearest=True)
             >> sink.inputs["Input"]
         )
 
@@ -247,7 +247,7 @@ class TestRegrid(unittest.TestCase):
 
         (
             source.outputs["Output"]
-            >> Linear(in_grid=in_info.grid, out_grid=out_spec)
+            >> RegridLinear(in_grid=in_info.grid, out_grid=out_spec)
             >> sink.inputs["Input"]
         )
 
@@ -289,7 +289,7 @@ class TestRegrid(unittest.TestCase):
         composition = Composition([source, sink])
         composition.initialize()
 
-        (source.outputs["Output"] >> Linear() >> sink.inputs["Input"])
+        (source.outputs["Output"] >> RegridLinear() >> sink.inputs["Input"])
 
         composition.run(t_max=datetime(2000, 1, 2))
 
@@ -331,7 +331,7 @@ class TestRegrid(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        regrid = Linear()
+        regrid = RegridLinear()
 
         composition = Composition([source, sink_1, sink_2])
         composition.initialize()
@@ -386,7 +386,7 @@ class TestRegrid(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        regrid = Linear()
+        regrid = RegridLinear()
 
         composition = Composition([source, sink_1, sink_2])
         composition.initialize()
@@ -444,7 +444,7 @@ class TestRegrid(unittest.TestCase):
 
         (
             source.outputs["Output"]
-            >> Linear(fill_with_nearest=True)
+            >> RegridLinear(fill_with_nearest=True)
             >> sink.inputs["Input"]
         )
 

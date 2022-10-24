@@ -588,7 +588,7 @@ class Info:
 
         return other
 
-    def accepts(self, incoming, fail_info):
+    def accepts(self, incoming, fail_info, ignore_none=False):
         """Tests whether this info can accept/is compatible with an incoming info
 
         Parameters
@@ -597,6 +597,8 @@ class Info:
             Incoming/source info to check. This is the info from upstream.
         fail_info : dict
             Dictionary that will be filled with failed properties; name: (source, target).
+        ignore_none : bool
+            Ignores ``None`` values in the incoming info.
 
         Returns
         -------
@@ -609,18 +611,22 @@ class Info:
 
         success = True
         if self.grid is not None and self.grid != incoming.grid:
-            fail_info["grid"] = (incoming.grid, self.grid)
-            success = False
+            if not (ignore_none and incoming.grid is None):
+                fail_info["grid"] = (incoming.grid, self.grid)
+                success = False
 
         for k, v in self.meta.items():
             if v is not None and k in incoming.meta:
+                in_value = incoming.meta[k]
                 if k == "units":
-                    if not check_units(v, incoming.meta[k]):
-                        fail_info["meta." + k] = (incoming.meta[k], v)
+                    if not (ignore_none and in_value is None) and not check_units(
+                        v, in_value
+                    ):
+                        fail_info["meta." + k] = (in_value, v)
                         success = False
                 else:
-                    if incoming.meta[k] != v:
-                        fail_info["meta." + k] = (incoming.meta[k], v)
+                    if not (ignore_none and in_value is None) and in_value != v:
+                        fail_info["meta." + k] = (in_value, v)
                         success = False
 
         return success

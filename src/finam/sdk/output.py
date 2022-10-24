@@ -202,7 +202,7 @@ class Output(IOutput, Loggable):
 
         if self._out_infos_exchanged > 0:
             fail_info = {}
-            if not self._output_info.accepts(info, fail_info):
+            if not self._output_info.accepts(info, fail_info, ignore_none=True):
                 fail_info = "\n".join(
                     [
                         f"{name} - got {got}, expected {exp}"

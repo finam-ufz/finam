@@ -11,14 +11,14 @@ from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
 
 __all__ = [
-    "NextValue",
-    "PreviousValue",
-    "LinearInterpolation",
-    "LinearIntegration",
+    "NextTime",
+    "PreviousTime",
+    "LinearTime",
+    "IntegrateTime",
 ]
 
 
-class NextValue(Adapter):
+class NextTime(Adapter):
     """Time interpolation providing the next future value."""
 
     def __init__(self):
@@ -64,7 +64,7 @@ class NextValue(Adapter):
         return self.data
 
 
-class PreviousValue(Adapter):
+class PreviousTime(Adapter):
     """Time interpolation providing the newest past value."""
 
     def __init__(self):
@@ -118,7 +118,7 @@ class PreviousValue(Adapter):
         return self.new_data[1]
 
 
-class LinearInterpolation(Adapter):
+class LinearTime(Adapter):
     """Linear time interpolation."""
 
     def __init__(self):
@@ -178,7 +178,7 @@ class LinearInterpolation(Adapter):
         return result
 
 
-class LinearIntegration(Adapter, NoBranchAdapter):
+class IntegrateTime(Adapter, NoBranchAdapter):
     """Time integration over the last time step of the requester.
 
     Calculates the temporal average.

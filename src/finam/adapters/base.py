@@ -108,6 +108,7 @@ class ValueToGrid(Adapter):
         ) * get_units(value)
 
     def _get_info(self, info):
+        info = info.copy_with(grid=NoGrid())
         in_info = self.exchange_info(info)
         out_info = in_info.copy_with(grid=self.grid)
 
@@ -148,6 +149,7 @@ class GridToValue(Adapter):
         return func_result
 
     def _get_info(self, info):
+        info = info.copy_with(grid=None)
         in_info = self.exchange_info(info)
         out_info = in_info.copy_with(grid=NoGrid())
         return out_info
