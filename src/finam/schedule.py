@@ -33,6 +33,8 @@ class Composition(Loggable):
 
     Manages initialization, initial connection and update schedule of components.
 
+    See :doc:`/finam-book/usage/coupling_scripts` for usage details.
+
     Examples
     --------
 
@@ -47,8 +49,6 @@ class Composition(Loggable):
         comp_b >> SomeAdapter() >> comp_b
 
         composition.run(t_max=...)
-
-    See :doc:`/finam-book/usage/coupling_scripts` for more examples.
 
     Parameters
     ----------

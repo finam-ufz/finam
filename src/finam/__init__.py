@@ -1,6 +1,12 @@
 """
 The FINAM model coupling framework.
 
+See also these FINAM book chapters:
+
+* :doc:`/finam-book/usage/coupling_scripts` for writing FINAM coupling scripts.
+* :doc:`/finam-book/development/components` for writing FINAM components or model wrappers.
+* :doc:`/finam-book/development/adapters` for writing FINAM adapters.
+
 .. toctree::
    :hidden:
 
@@ -8,6 +14,8 @@ The FINAM model coupling framework.
 
 Schedule
 ========
+
+Driver/scheduler for creating and executing coupled model compositions.
 
 .. autosummary::
    :toctree: generated
@@ -17,6 +25,8 @@ Schedule
 
 Software development kit
 ========================
+
+Implementations of FINAM interfaces for component and adapter development.
 
 .. autosummary::
    :toctree: generated
@@ -33,6 +43,8 @@ Software development kit
 Grids
 =====
 
+Grid specifications for the exchange of spatial data in FINAM.
+
 .. autosummary::
    :toctree: generated
    :caption: Grids
@@ -47,6 +59,8 @@ Grids
 Grid tools
 ==========
 
+Utilities for grid specifications.
+
 .. autosummary::
    :toctree: generated
    :caption: Grid tools
@@ -57,6 +71,8 @@ Grid tools
 Data tools
 ==========
 
+Utilities for data and metadata handling.
+
 .. autosummary::
    :toctree: generated
    :caption: Data tools
@@ -66,6 +82,8 @@ Data tools
 
 Interfaces
 ==========
+
+Basic interfaces of the FINAM framework.
 
 .. autosummary::
    :toctree: generated
@@ -83,6 +101,8 @@ Interfaces
 Errors
 ======
 
+FINAM-specific error types.
+
 .. autosummary::
    :toctree: generated
    :caption: Errors
@@ -96,6 +116,8 @@ Errors
 
 Subpackages
 ===========
+
+Built-in components, adapters and tool functions.
 
 .. autosummary::
    :toctree: generated

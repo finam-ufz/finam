@@ -1,5 +1,5 @@
 """
-FINAM error types.
+FINAM-specific error types.
 
 Errors
 ======

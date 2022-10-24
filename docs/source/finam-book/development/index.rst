@@ -14,6 +14,6 @@ Besides preparation of models, implementation of adapters that mediate data betw
     adapters
     data_metadata
     connect_phase
-    logging
     special_components
+    logging
     py-bindings
