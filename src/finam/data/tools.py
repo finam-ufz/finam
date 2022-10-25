@@ -112,7 +112,14 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
                 f"Got {data.size}, expected {info.grid.data_size}"
             )
         # reshape flat arrays
-        data = data.reshape(info.grid.data_shape, order=info.grid.order)
+        if len(data.shape) == 1:
+            data = data.reshape(info.grid.data_shape, order=info.grid.order)
+        else:
+            if data.shape != info.grid.data_shape:
+                raise FinamDataError(
+                    f"to_xarray: data shape doesn't match grid shape. "
+                    f"Got {data.shape}, expected {info.grid.data_shape}"
+                )
     elif isinstance(info.grid, NoGrid):
         if len(data.shape) != info.grid.dim:
             raise FinamDataError(
