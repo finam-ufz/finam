@@ -26,7 +26,8 @@ Create the following project structure:
 
 We call ``dummy_model`` the project directory from here on.
 
-## Implement :class:`.TimeComponent`
+Implement :class:`.TimeComponent`
+---------------------------------
 
 The class :class:`.TimeComponent` provides an abstract implementation of the interface :class:`.ITimeComponent` to make implementation easier.
 Start by extending :class:`.TimeComponent` in a class we call ``DummyModel`` in ``src/dummy_model.py``.

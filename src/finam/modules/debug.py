@@ -2,8 +2,8 @@
 import logging
 from datetime import datetime, timedelta
 
+from ..data import tools
 from ..sdk import TimeComponent
-from ..data.tools import strip_data
 from ..tools.log_helper import ErrorLogger
 
 
@@ -104,8 +104,14 @@ class DebugConsumer(TimeComponent):
                 self.logger.debug("Pulled input data for %s", name)
 
                 if self._log_data is not None:
-                    pdata = strip_data(data) if self._strip_data else data
-                    self.logger.log(self._log_data, f"Received \"{name}\" - {self._time}: {pdata}")
+                    pdata = tools.strip_data(data) if self._strip_data else data
+                    self.logger.log(
+                        self._log_data,
+                        'Received "%s" - %s: %s',
+                        name,
+                        self._time,
+                        pdata,
+                    )
 
                 self._data[name] = data
 
@@ -118,8 +124,14 @@ class DebugConsumer(TimeComponent):
         }
         for name, data in self._data.items():
             if self._log_data is not None:
-                pdata = strip_data(data) if self._strip_data else data
-                self.logger.log(self._log_data, f"Received at {name} - {self._time}: {pdata}")
+                pdata = tools.strip_data(data) if self._strip_data else data
+                self.logger.log(
+                    self._log_data,
+                    'Received "%s" - %s: %s',
+                    name,
+                    self._time,
+                    pdata,
+                )
 
         self._time += self._step
 
