@@ -6,7 +6,7 @@ In FINAM, data has certain information associated.
 This is necessary to ensure valid coupling and is one of the foundations for the ease of use of FINAM.
 
 This chapter gives a brief overview of the most important aspects in this regard.
-For more details and usage by developers, see chapter [Data and metadata](../development/data_metadata).
+For more details and usage by developers, see chapter :doc:`../development/data_metadata`.
 
 Time
 ----
