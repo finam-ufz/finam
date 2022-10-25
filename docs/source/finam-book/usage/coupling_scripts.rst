@@ -79,7 +79,8 @@ An input can be connected to an output using either ``>>`` (as in the examples),
 Adapters
 --------
 
-In the above example, both coupled components match in terms of the exchanged data (numeric value) as well as their time step (1).
+In the above example, both coupled components match in terms of the exchanged data (numeric value)
+as well as their time step (1 day).
 
 This is not necessarily the case for all coupling setups.
 To mediate between components, FINAM uses adapters.
