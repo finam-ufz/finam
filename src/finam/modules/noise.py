@@ -23,6 +23,24 @@ class SimplexNoise(Component):
         |              |
         +--------------+
 
+    Parameters
+    ----------
+    info : Info, optional
+        Output metadata info. All values are taken from the target if not specified.
+    frequency : float
+        Spatial frequency of the noise, in map units. Default 1.0
+    time_frequency : float
+        Temporal frequency of the noise, in Hz. Default 1.0
+    octaves : int
+        Number of octaves. Default 1
+    persistence : float, optional
+        Persistence over octaves. Default 0.5
+    high : float, optional
+        Upper limit for values. Default 1.0
+    low : float, optional
+        Lower limit for values. Default -1.0
+    seed : int, optional
+        PRNG seed for noise generator. Default 0
     """
 
     def __init__(
@@ -37,6 +55,9 @@ class SimplexNoise(Component):
         seed=0,
     ):
         super().__init__()
+
+        if octaves < 1:
+            raise ValueError("At least one octave required for SimplexNoise")
 
         self._info = info or Info(time=None, grid=None, units=None)
         self._seed = seed

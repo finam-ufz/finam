@@ -1,3 +1,5 @@
+"""Components for controlling data flow"""
+
 from ..data.tools import strip_data
 from ..errors import FinamMetaDataError
 from ..sdk import TimeComponent
@@ -5,6 +7,31 @@ from ..tools.log_helper import ErrorLogger
 
 
 class TimeTrigger(TimeComponent):
+    """Component to forward data in regular time intervals.
+
+    Can be used to enable coupling of pull-based source and push-based target components,
+    that would not work due to the dead link otherwise.
+
+    .. code-block:: text
+
+                 +-------------+
+                 |             |
+        --> [In] | TimeTrigger | [Out] -->
+                 |             |
+                 +-------------+
+
+    Parameters
+    ----------
+    start : datetime.datetime
+        Starting time
+    start : datetime.timedelta
+        Time step
+    in_info : Info, optional
+        Input info, optional. However, one of ``in_info`` or ``out_info`` must be given
+    out_info : Info, optional
+        Output info, optional. However, one of ``in_info`` or ``out_info`` must be given
+    """
+
     def __init__(self, start, step, in_info=None, out_info=None):
         super().__init__()
 
