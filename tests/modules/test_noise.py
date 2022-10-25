@@ -7,6 +7,38 @@ import finam as fm
 
 
 class TestNoise(unittest.TestCase):
+    def test_noise_scalar_0d(self):
+        time = datetime(2000, 1, 1)
+        in_info = fm.Info(
+            time=None,
+            grid=fm.NoGrid(),
+            units="m",
+        )
+
+        source = fm.modules.SimplexNoise(info=in_info)
+        trigger = fm.modules.TimeTrigger(
+            in_info=fm.Info(time=None, grid=None, units=None),
+            start=time,
+            step=timedelta(days=1),
+        )
+        sink = fm.modules.DebugConsumer(
+            {"Input": fm.Info(None, grid=None)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+
+        composition = fm.Composition([source, trigger, sink])
+        composition.initialize()
+
+        source.outputs["Noise"] >> trigger.inputs["In"]
+        trigger.outputs["Out"] >> sink.inputs["Input"]
+
+        composition.connect()
+        composition.run(datetime(2000, 1, 2))
+
+        data = fm.data.strip_data(sink.data["Input"])
+        self.assertEqual(data.shape, ())
+
     def test_noise_uniform_1d(self):
         time = datetime(2000, 1, 1)
         in_info = fm.Info(
@@ -203,7 +235,7 @@ class TestNoise(unittest.TestCase):
         time = datetime(2000, 1, 1)
         in_info = fm.Info(
             time=None,
-            grid=fm.NoGrid(),
+            grid=fm.NoGrid(1),
             units="m",
         )
 

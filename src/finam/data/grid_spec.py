@@ -29,6 +29,9 @@ class NoGrid(GridBase):
         """int: Dimension of the grid or data."""
         return self._dim
 
+    def __repr__(self):
+        return f"{self.__class__.__name__} ({self.dim}D)"
+
     def __eq__(self, other):
         return isinstance(other, NoGrid) and self.dim == other.dim
 
