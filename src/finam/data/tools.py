@@ -111,15 +111,19 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
                 f"to_xarray: data size doesn't match grid size. "
                 f"Got {data.size}, expected {info.grid.data_size}"
             )
-        # reshape flat arrays
-        if len(data.shape) == 1:
-            data = data.reshape(info.grid.data_shape, order=info.grid.order)
-        else:
-            if data.shape != info.grid.data_shape:
+        # check shape of non-flat arrays
+        if len(data.shape) != 1:
+            if (
+                data.shape != info.grid.data_shape
+                and tuple(v for v in data.shape if v != 1) != info.grid.data_shape
+            ):
                 raise FinamDataError(
                     f"to_xarray: data shape doesn't match grid shape. "
                     f"Got {data.shape}, expected {info.grid.data_shape}"
                 )
+        # reshape arrays
+        data = data.reshape(info.grid.data_shape, order=info.grid.order)
+
     elif isinstance(info.grid, NoGrid):
         if len(data.shape) != info.grid.dim:
             raise FinamDataError(
