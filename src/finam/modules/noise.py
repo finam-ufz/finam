@@ -2,6 +2,7 @@
 import datetime as dt
 
 import numpy as np
+import opensimplex as ox
 
 from finam.data.grid_spec import NoGrid, UnstructuredGrid
 from finam.data.tools import Info
@@ -106,17 +107,15 @@ class SimplexNoise(Component):
         if not self._is_ready:
             return None
 
-        import opensimplex as ox
-
         ox.seed(self._seed)
 
         grid = self._info.grid
         t = (time - dt.datetime(1900, 1, 1)).total_seconds()
 
         if isinstance(grid, UnstructuredGrid):
-            func = self._generate_unstructured
+            func = _generate_unstructured
         else:
-            func = self._generate_structured
+            func = _generate_structured
 
         amp = 1.0
         max_amp = 0.0
@@ -125,9 +124,9 @@ class SimplexNoise(Component):
 
         for i in range(self._octaves):
             if i == 0:
-                data = func(grid, t * freq_t, freq, ox)
+                data = func(grid, t * freq_t, freq)
             else:
-                data += amp * func(grid, t * freq_t, freq, ox)
+                data += amp * func(grid, t * freq_t, freq)
             max_amp += amp
             amp *= self._persistence
             freq *= 2.0
@@ -138,36 +137,38 @@ class SimplexNoise(Component):
 
         return data
 
-    def _generate_structured(self, grid, t, freq, ox):
 
-        if grid.dim == 1:
-            data = ox.noise2array(grid.data_axes[0] * freq, np.asarray([t]))
-        if grid.dim == 2:
-            data = ox.noise3array(
-                grid.data_axes[0] * freq, grid.data_axes[1] * freq, np.asarray([t])
-            )
-        if grid.dim == 3:
-            data = ox.noise4array(
-                grid.data_axes[0] * freq,
-                grid.data_axes[1] * freq,
-                grid.data_axes[2] * freq,
-                np.asarray([t]),
-            )
-        return data[0, ...].T
+def _generate_structured(grid, t, freq):
 
-    def _generate_unstructured(self, grid, t, freq, ox):
+    if grid.dim == 1:
+        data = ox.noise2array(grid.data_axes[0] * freq, np.asarray([t]))
+    if grid.dim == 2:
+        data = ox.noise3array(
+            grid.data_axes[0] * freq, grid.data_axes[1] * freq, np.asarray([t])
+        )
+    if grid.dim == 3:
+        data = ox.noise4array(
+            grid.data_axes[0] * freq,
+            grid.data_axes[1] * freq,
+            grid.data_axes[2] * freq,
+            np.asarray([t]),
+        )
+    return data[0, ...].T
 
-        points = grid.data_points
-        data = np.full((grid.point_count,), 0.0, dtype=float)
 
-        if grid.dim == 1:
-            for i, p in enumerate(points):
-                data[i] = ox.noise2(p[0] * freq, t)
-        elif grid.dim == 2:
-            for i, p in enumerate(points):
-                data[i] = ox.noise3(p[0] * freq, p[1] * freq, t)
-        elif grid.dim == 3:
-            for i, p in enumerate(points):
-                data[i] = ox.noise4(p[0] * freq, p[1] * freq, p[2] * freq, t)
+def _generate_unstructured(grid, t, freq):
 
-        return data
+    points = grid.data_points
+    data = np.full((grid.point_count,), 0.0, dtype=float)
+
+    if grid.dim == 1:
+        for i, p in enumerate(points):
+            data[i] = ox.noise2(p[0] * freq, t)
+    elif grid.dim == 2:
+        for i, p in enumerate(points):
+            data[i] = ox.noise3(p[0] * freq, p[1] * freq, t)
+    elif grid.dim == 3:
+        for i, p in enumerate(points):
+            data[i] = ox.noise4(p[0] * freq, p[1] * freq, p[2] * freq, t)
+
+    return data
