@@ -13,9 +13,9 @@ Modules
     CsvWriter
     DebugConsumer
     ScheduleView
+    SimplexNoise
     TimeSeriesView
     TimeTrigger
-    SimplexNoise
     WeightedSum
 """
 

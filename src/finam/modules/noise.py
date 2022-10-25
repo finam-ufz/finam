@@ -106,14 +106,7 @@ class SimplexNoise(Component):
         if not self._is_ready:
             return None
 
-        with ErrorLogger(self.logger):
-            try:
-                import opensimplex as ox
-            except ModuleNotFoundError:
-                self.logger.error(
-                    "Package 'opensimplex' required. Try:\npip install opensimplex"
-                )
-                raise
+        import opensimplex as ox
 
         ox.seed(self._seed)
 
