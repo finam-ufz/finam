@@ -23,16 +23,26 @@ class TimeTrigger(TimeComponent):
     Parameters
     ----------
     start : datetime.datetime
-        Starting time
+        Starting time. Can be ``None`` to retrieve it from linked components.
+        See parameter ``start_from_input`` for details.
     start : datetime.timedelta
         Time step
     in_info : Info, optional
-        Input info, optional. However, one of ``in_info`` or ``out_info`` must be given
+        Input info, optional. However, one of ``in_info`` or ``out_info`` must be given.
+        ``time`` is ignored and can be set to ``None``.
     out_info : Info, optional
-        Output info, optional. However, one of ``in_info`` or ``out_info`` must be given
+        Output info, optional. However, one of ``in_info`` or ``out_info`` must be given.
+        ``time`` is ignored and can be set to ``None``.
+    start_from_input : bool, optional
+        Whether to get the starting time from the input, instead of the output. Default ``True``.
+
+        If ``start`` is ``None``, the component can try to retrieve the starting time either
+        from the input or from the output.
+        The respective linked component should have an internal time step.
+        If both linked components have no time step, ``start`` must be given.
     """
 
-    def __init__(self, start, step, in_info=None, out_info=None):
+    def __init__(self, start, step, in_info=None, out_info=None, start_from_input=True):
         super().__init__()
 
         self._ini_in_info = in_info
@@ -41,8 +51,12 @@ class TimeTrigger(TimeComponent):
         self._in_info = None
         self._out_info = None
 
-        self.time = start
+        self._start = start
+        if self._start is not None:
+            self.time = self._start
+
         self._step = step
+        self._start_from_input = start_from_input
 
     def _initialize(self):
         if self._ini_in_info is None and self._ini_out_info is None:
