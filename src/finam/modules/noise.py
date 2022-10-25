@@ -99,28 +99,25 @@ class SimplexNoise(Component):
         grid = self._info.grid
         t = (time - dt.datetime(1900, 1, 1)).total_seconds()
 
-        amp = 1.0
-        max_amp = 0.0
-        freq = self._frequency
-        freq_t = self._time_frequency
-
         if isinstance(grid, UnstructuredGrid):
             func = self._generate_unstructured
         else:
             func = self._generate_structured
 
-        data = func(grid, t * freq_t, freq, ox)
-        max_amp += amp
-        amp *= self._persistence
-        freq *= 0.5
-        freq_t *= 0.5
+        amp = 1.0
+        max_amp = 0.0
+        freq = self._frequency
+        freq_t = self._time_frequency
 
-        for i in range(self._octaves - 1):
-            data += amp * func(grid, t * freq_t, freq, ox)
+        for i in range(self._octaves):
+            if i == 0:
+                data = func(grid, t * freq_t, freq, ox)
+            else:
+                data += amp * func(grid, t * freq_t, freq, ox)
             max_amp += amp
             amp *= self._persistence
-            freq *= 0.5
-            freq_t *= 0.5
+            freq *= 2.0
+            freq_t *= 2.0
 
         data /= max_amp
         data = data * (self._high - self._low) / 2 + (self._high + self._low) / 2
