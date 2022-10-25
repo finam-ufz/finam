@@ -5,6 +5,7 @@ import numpy as np
 import opensimplex as ox
 
 from finam.data.grid_spec import NoGrid, UnstructuredGrid
+from finam.data.grid_tools import Grid
 from finam.data.tools import Info
 from finam.errors import FinamMetaDataError
 from finam.sdk import CallbackOutput, Component
@@ -85,10 +86,13 @@ class SimplexNoise(Component):
 
         info = self.connector.out_infos["Noise"]
         if info is not None:
-            if isinstance(info.grid, NoGrid):
+            failed = isinstance(info.grid, NoGrid) and info.grid.dim > 0
+            failed |= isinstance(info.grid, Grid) and not 1 <= info.grid.dim <= 3
+            if failed:
                 with ErrorLogger(self.logger):
                     raise FinamMetaDataError(
-                        "Can't generate simplex noise for 'NoGrid' data."
+                        f"Can generate simplex noise only for gridded 1D-3D data, or for 0D 'NoGrid' data. "
+                        f"Got {info.grid}"
                     )
 
             self._info = info
@@ -112,7 +116,9 @@ class SimplexNoise(Component):
         grid = self._info.grid
         t = (time - dt.datetime(1900, 1, 1)).total_seconds()
 
-        if isinstance(grid, UnstructuredGrid):
+        if isinstance(grid, NoGrid):
+            func = _generate_scalar
+        elif isinstance(grid, UnstructuredGrid):
             func = _generate_unstructured
         else:
             func = _generate_structured
@@ -138,8 +144,11 @@ class SimplexNoise(Component):
         return data
 
 
-def _generate_structured(grid, t, freq):
+def _generate_scalar(_grid, t, _freq):
+    return ox.noise2(0, t)
 
+
+def _generate_structured(grid, t, freq):
     if grid.dim == 1:
         data = ox.noise2array(grid.data_axes[0] * freq, np.asarray([t]))
     if grid.dim == 2:

@@ -576,6 +576,9 @@ class Grid(GridBase):
         """list of str: Axes names of the data."""
         return ["id"]
 
+    def __repr__(self):
+        return f"{self.__class__.__name__} ({self.dim}D) {self.data_shape}"
+
     def __eq__(self, other):
         if not isinstance(other, Grid):
             return False
@@ -763,9 +766,6 @@ class StructuredGrid(Grid):
         return tuple(
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
         )
-
-    def __repr__(self):
-        return f"{self.__class__.__name__} {self.data_shape}"
 
     def export_vtk(
         self,
