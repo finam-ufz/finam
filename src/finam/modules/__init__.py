@@ -1,5 +1,9 @@
 """
-Modules that are no simulation models. Like IO, visualization, pre- and post-processing, etc.
+Components that are no simulation models.
+Like IO, visualization, pre- and post-processing, etc.
+
+See also book chapter :doc:`/finam-book/usage/components_adapters` for a list of
+other components that are not included in the core package.
 
 Modules
 =======
@@ -17,16 +21,7 @@ Modules
     WeightedSum
 """
 
-from . import (
-    callback,
-    control,
-    debug,
-    generators,
-    mergers,
-    noise,
-    readers,
-    writers,
-)
+from . import callback, control, debug, generators, mergers, noise, readers, writers
 from .callback import CallbackComponent
 from .control import TimeTrigger
 from .debug import DebugConsumer
