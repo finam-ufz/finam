@@ -15,12 +15,12 @@ Included in FINAM core package
 Provided by FINAM developers
 ----------------------------
 
-* `finam-netcdf <https://git.ufz.de/FINAM/finam-netcdf>`_
-    Provides FINAM components for `NetCDF <https://www.unidata.ucar.edu/software/netcdf/>`_ file reading and writing.
-* `finam-plot <https://git.ufz.de/FINAM/finam-plot>`_
+* `finam-plot <https://finam.pages.ufz.de/finam-plot/>`_
     Provides FINAM components for live plotting using :mod:`matplotlib`.
 * `finam-graph <https://git.ufz.de/FINAM/finam-graph>`_
     A tool for visualizing FINAM coupling setups. Not a component or adapter.
+* `finam-netcdf <https://git.ufz.de/FINAM/finam-netcdf>`_
+    Provides FINAM components for `NetCDF <https://www.unidata.ucar.edu/software/netcdf/>`_ file reading and writing.
 
 Known 3rd party
 ---------------
