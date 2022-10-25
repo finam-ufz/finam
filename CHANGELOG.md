@@ -10,10 +10,13 @@
 * `Info` now requires time in constructor (can be `None`) (!111)
 * Scheduler checks for dead links that don't work in terms of push/pull combination (!112)
 * `IInput`, `IOutput` and `IAdapter` have new internally used properties `needs_push` and `needs_pull` (!112)
+* `to_xarray` now checks the data shape if the data is not flat (!130)
 
 ### Components
 
-* Add `merger.WeightedSum` for aggregation of multiple inputs (!105)
+* Add `modules.WeightedSum` for aggregation of multiple inputs (!105)
+* Add `modules.SimplexNoise` for generating spatio-temporal noise (!131)
+* Add `modules.TimeTrigger` to forward data from pull-based to push-based components (!131)
 
 ### Other
 

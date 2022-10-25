@@ -13,20 +13,44 @@ Modules
     CsvWriter
     DebugConsumer
     ScheduleView
+    SimplexNoise
     TimeSeriesView
+    TimeTrigger
     WeightedSum
 """
 
-from . import callback, debug, generators, mergers, readers, visual, writers
+from . import (
+    callback,
+    control,
+    debug,
+    generators,
+    mergers,
+    noise,
+    readers,
+    visual,
+    writers,
+)
 from .callback import CallbackComponent
+from .control import TimeTrigger
 from .debug import DebugConsumer
 from .generators import CallbackGenerator
 from .mergers import WeightedSum
+from .noise import SimplexNoise
 from .readers import CsvReader
 from .visual import ScheduleView, TimeSeriesView
 from .writers import CsvWriter
 
-__all__ = ["callback", "debug", "generators", "mergers", "readers", "visual", "writers"]
+__all__ = [
+    "callback",
+    "control",
+    "debug",
+    "generators",
+    "mergers",
+    "noise",
+    "readers",
+    "visual",
+    "writers",
+]
 __all__ += [
     "CallbackComponent",
     "CallbackGenerator",
@@ -34,6 +58,8 @@ __all__ += [
     "CsvWriter",
     "DebugConsumer",
     "ScheduleView",
+    "SimplexNoise",
     "TimeSeriesView",
+    "TimeTrigger",
     "WeightedSum",
 ]
