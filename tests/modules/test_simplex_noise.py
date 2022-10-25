@@ -8,9 +8,9 @@ import finam as fm
 
 class TestSimplexNoise(unittest.TestCase):
     def test_simplex_uniform(self):
-        grid = fm.UniformGrid((25, 15))
+        grid = fm.UniformGrid((25, 15), origin=(10.0, 5.0))
 
-        source = fm.modules.SimplexNoise()
+        source = fm.modules.SimplexNoise(octaves=3, frequency=0.01, seed=4)
 
         consumer = fm.modules.DebugConsumer(
             inputs={"Noise": fm.Info(None, grid=grid, units="")},
@@ -30,9 +30,9 @@ class TestSimplexNoise(unittest.TestCase):
         print(consumer.data["Noise"])
 
     def test_simplex_unstructured(self):
-        grid = fm.UnstructuredPoints(np.random.random((100, 2)))
+        grid = fm.UnstructuredPoints(np.random.random((100, 2)) * 100)
 
-        source = fm.modules.SimplexNoise()
+        source = fm.modules.SimplexNoise(octaves=3, frequency=0.01, seed=4)
 
         consumer = fm.modules.DebugConsumer(
             inputs={"Noise": fm.Info(None, grid=grid, units="")},
