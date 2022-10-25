@@ -8,8 +8,11 @@ from ..tools.log_helper import ErrorLogger
 
 
 class ConnectHelper(Loggable):
-    """
-    Helper for iterative connect
+    """Helper for iterative connect.
+
+    Warning:
+        This class is not intended for direct use!
+        Use :meth:`.Components.create_connector` and :meth:`.Components.try_connect` instead.
 
     Parameters
     ----------
