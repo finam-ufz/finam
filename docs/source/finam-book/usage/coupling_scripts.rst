@@ -20,28 +20,27 @@ Here is a simple example coupling two components:
     # Instantiate components, e.g. models
 
     # Here, we use a simple component that outputs a random number each step
-    generator = fm.modules.CallbackGenerator(
-        {"Value": (lambda _t: random.uniform(0, 1), fm.Info(time=None, grid=fm.NoGrid()))},
-        start=datetime(2000, 1, 1),
-        step=timedelta(days=1),
+    generator = fm.modules.SimplexNoise(
+        time_frequency=0.000001,
+        info=fm.Info(time=None, grid=fm.NoGrid()),
     )
 
-    # A live plotting component
-    plot = fm.modules.TimeSeriesView(
-        inputs=["Value"],
+    # A debug plotting component
+    consumer = fm.modules.DebugConsumer(
+        inputs={"Value": fm.Info(time=None, grid=fm.NoGrid())},
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
-        intervals=[1],
+        log_data="INFO",
     )
 
     # Create a `Composition` containing all components
-    composition = fm.Composition([generator, plot])
+    composition = fm.Composition([generator, consumer])
 
     # Initialize the `Composition`
     composition.initialize()
 
     # Couple inputs to outputs
-    generator.outputs["Value"] >> plot.inputs["Value"]
+    generator.outputs["Noise"] >> consumer.inputs["Value"]
 
     # Run the composition until June 2000
     composition.run(datetime(2000, 6, 30))
