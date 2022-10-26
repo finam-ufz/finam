@@ -178,12 +178,19 @@ Class diagram grids
 
 The following figure shows a diagram of grid classes inheritance hierarchy.
 
-.. figure:: ../images/class-diagram-grids.svg
-    :alt: FINAM interfaces class diagram
-    :class: dark-light p-2
-    :width: 400px
+.. image:: ../images/class-diagram-grids.svg
+    :alt: FINAM grids class diagram
+    :align: center
+    :class: only-light
 
-    Figure 1: FINAM grids class diagram
+.. image:: ../images/class-diagram-grids-dark.svg
+    :alt: FINAM grids class diagram
+    :align: center
+    :class: only-dark
+
+.. rst-class:: center
+
+*Figure 1: FINAM grids class diagram.*
 
 Common grid properties
 """"""""""""""""""""""
