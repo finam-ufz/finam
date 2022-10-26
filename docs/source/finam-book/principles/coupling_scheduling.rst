@@ -20,7 +20,7 @@ Figure 3 shows an example.
 
 .. rst-class:: center
 
-*Figure 4: A FINAM coupling*
+*Figure 1: A FINAM coupling*
 
 See chapter :doc:`../usage/coupling_scripts` for how to set up coupled models.
 
@@ -52,7 +52,7 @@ The example in Figure 4 illustrates the approach.
 
 .. rst-class:: center
 
-*Figure 4: FINAM scheduling (see text)*
+*Figure 2: FINAM scheduling (see text)*
 
 Figure 4 shows a snapshot of a simulation featuring three components A, B and C with different time steps.
 Solid lines and dots denote already simulated model steps, and the right-most solid dot of each component shows it's current simulation time.
