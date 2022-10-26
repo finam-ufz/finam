@@ -50,8 +50,8 @@ Here is a simple example coupling two components:
 
     ...
 
-In the above example, we couple a simple generator component (:class:`.modules.CallbackGenerator`)
-with a live plotting component (:class:`.modules.TimeSeriesView`).
+In the above example, we couple a simplex noise generator component (:class:`.modules.SimplexNoise`)
+with a consumer component for debug printing (:class:`.modules.DebugConsumer`).
 
 Note:
     with package :mod:`finam` installed, simply run the above scripts with:
@@ -78,7 +78,7 @@ An input can be connected to an output using either ``>>`` (as in the examples),
 .. code-block:: Python
 
     generator.outputs["Value"] >> plot.inputs["Value"]
-    generator.outputs["Value"].chain(plot.inputs["Value"])
+    generator.outputs["Value"].chain(consumer.inputs["Value"])
 
 
 Adapters
