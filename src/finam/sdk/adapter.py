@@ -113,7 +113,11 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         data = self._get_data(time)
         name = self.get_source().name + "_" + self.name
-        return tools.to_xarray(data, name, self._output_info, time, no_time_check=True)
+
+        with ErrorLogger(self.logger):
+            return tools.to_xarray(
+                data, name, self._output_info, time, no_time_check=True
+            )
 
     def _get_data(self, time):
         """Asks the adapter for the transformed data.

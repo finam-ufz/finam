@@ -244,7 +244,9 @@ def strip_time(xdata):
         If the data is not an xarray, or has multiple time entries.
     """
     if not isinstance(xdata, xr.DataArray):
-        raise FinamDataError("Can strip time of xarray DataArray only")
+        raise FinamDataError(
+            f"Can strip time of xarray DataArray only. Got {xdata.__class__.__name__}"
+        )
 
     if has_time(xdata):
         if xdata.shape[0] > 1:

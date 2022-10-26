@@ -114,7 +114,8 @@ class Output(IOutput, Loggable):
         if self.has_targets and self._out_infos_exchanged < self._connected_inputs:
             raise FinamNoDataError("Can't push data before output info was exchanged.")
 
-        self.data = tools.to_xarray(data, self.name, self.info, time)
+        with ErrorLogger(self.logger):
+            self.data = tools.to_xarray(data, self.name, self.info, time)
         self.notify_targets(time)
 
     def push_info(self, info):
@@ -331,4 +332,5 @@ class CallbackOutput(Output):
         if data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        return tools.to_xarray(data, self.name, self.info, time)
+        with ErrorLogger(self.logger):
+            return tools.to_xarray(data, self.name, self.info, time)
