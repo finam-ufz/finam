@@ -40,6 +40,7 @@ class TestCallback(unittest.TestCase):
             inputs={"In1": Info(None, grid=NoGrid())},
             start=datetime(2000, 1, 1),
             step=timedelta(days=7),
+            log_data="DEBUG",
         )
 
         composition = Composition([source, trans, consumer])
