@@ -134,7 +134,7 @@ and check progress:
 Simple case - no dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In the most simple case, all metadata is known in :meth:`.Component._initialze`, and data is pushed in :attr:`.Component._connect()`:
+In the most simple case, all metadata is known in :meth:`.Component._initialize`, and data is pushed in :attr:`.Component._connect()`:
 
 .. testcode:: simple-connect
 
@@ -194,9 +194,9 @@ In the most simple case, all metadata is known in :meth:`.Component._initialze`,
     comp.connect()
 
 In :meth:`.Component._initialize`, we create inputs and outputs with metadata (here ``grid`` and ``units``).
-Then, we create the connector with ``self.create_connector()``. No arguments required here, as there are no dependencies.
+Then, we create the connector with :meth:`.Component.create_connector`. No arguments required here, as there are no dependencies.
 
-In :meth:`.Component._connect`, we call ``self.try_connect()`` with a dictionary of all data to push as argument ``push_data``.
+In :meth:`.Component._connect`, we call :meth:`.Component.try_connect` with a dictionary of all data to push as argument ``push_data``.
 
 More complex - info from input to output
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -387,7 +387,7 @@ The default implementation looks like this:
         return in_info
 
 The ``info`` argument is the metadata :class:`.Info` requested from downstream.
-``self.exchange_info(info)`` is called to propagate the metadata further upstream.
+:meth:`.Adapter.exchange_info` is called to propagate the metadata further upstream.
 It returns the metadata received from upstream, and it is simply returned by :meth:`.Adapter._get_info`.
 
 For a unit conversion adapter, the method could look like this:
