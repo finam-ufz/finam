@@ -2,7 +2,7 @@
 <svg id="svg8" width="577.17" height="133.96" version="1.1" viewBox="0 0 577.17 133.96" xmlns="http://www.w3.org/2000/svg">
   <defs id="defs39">
     <marker id="Arrow2" overflow="visible" markerHeight="5.5999999" markerWidth="7.6999998" orient="auto-start-reverse" preserveAspectRatio="xMidYMid" refX="5" viewBox="0 0 7.7 5.6">
-      <path id="arrow2L" transform="scale(.7)" d="m-2-4 11 4-11 4c2-2.33 2-5.66 0-8z" fill="context-stroke" fill-rule="evenodd"/>
+      <path id="arrow2L" transform="scale(.7)" d="m-2-4 11 4-11 4c2-2.33 2-5.66 0-8z" fill="#fff" fill-rule="evenodd"/>
     </marker>
   </defs>
   <g>
