@@ -70,6 +70,7 @@ Particularly for components with large time steps, it is also possible to integr
 E.g., component C could use the weighted average of the several steps A would have performed when C updates the next time.
 
 Finally, the illustration shows that:
+
 * Time steps for a component do not need to be fixed
 * It is not necessary to know the next step size in advance; components only need to be able to report their current simulation time
 
