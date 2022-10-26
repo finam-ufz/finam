@@ -31,7 +31,7 @@ Typically, these components represent simulation models.
 They are executed each time new data becomes available to an input, or when a pull of their outputs is attempted, respectively.
 Typical examples are statistical models or file I/O components.
 
-For a list of available components, see chapter :doc:`../usage/components_adapters`.
+For a list of available components, see chapter :doc:`../usage/known_modules`.
 
 See chapter :doc:`../development/components` for how to implement components.
 
@@ -56,6 +56,6 @@ Adapters manage tasks like:
 * Temporal interpolation and integration
 * ...
 
-For a list of available adapters, see chapter :doc:`../usage/components_adapters`.
+For a list of available adapters, see chapter :doc:`../usage/known_modules`.
 
 See chapter :doc:`../development/adapters` for how to implement adapters.

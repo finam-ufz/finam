@@ -8,11 +8,11 @@ Chapter :doc:`installation` covers how to install the FINAM Python package.
 
 Chapter :doc:`coupling_scripts` covers how to write Python scripts that compose and run model coupling setups.
 
-Chapter :doc:`components_adapters` provides a list of known FINAM components and adapters for the use in coupling scripts.
+Chapter :doc:`known_modules` provides a list of known FINAM components and adapters for the use in coupling scripts.
 
 .. toctree::
     :hidden:
 
     installation
     coupling_scripts
-    components_adapters
+    known_modules

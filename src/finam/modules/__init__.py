@@ -2,7 +2,7 @@
 Components that are no simulation models.
 Like IO, visualization, pre- and post-processing, etc.
 
-See also book chapter :doc:`/finam-book/usage/components_adapters` for a list of
+See also book chapter :doc:`/finam-book/usage/known_modules` for a list of
 other components that are not included in the core package.
 
 Modules

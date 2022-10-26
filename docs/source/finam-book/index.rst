@@ -25,6 +25,7 @@ This approach allows for coupling of models irrespective of their internal struc
     :maxdepth: 1
 
     self
+    quickstart
 
 .. toctree::
     :hidden:
