@@ -1,5 +1,26 @@
 :root {
-    --pst-sidebar-secondary: 22rem;
+  --pst-sidebar-secondary: 22rem;
+}
+html[data-theme=dark] {
+  --pst-color-primary: rgb(0, 100, 176);
+  --pst-color-link: rgb(40, 134, 204);
+  --pst-color-secondary: rgb(255, 166, 0);
+}
+
+html[data-theme=light] {
+  --pst-color-primary: rgb(0, 90, 160);
+  --pst-color-secondary: rgb(255, 166, 0);
+}
+
+.navbar-nav li a:focus,
+.navbar-nav li a:hover,
+.navbar-nav li.current>a,
+nav.bd-links li>a:hover {
+  color: var(--pst-color-link);
+}
+
+.bd-page-width {
+  max-width: 95rem;
 }
 
 .bd-page-width {
