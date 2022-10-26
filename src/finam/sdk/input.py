@@ -103,10 +103,9 @@ class Input(IInput, Loggable):
 
         data = self.source.get_data(time)
 
-        if "units" in self._input_info.meta:
-            data = tools.to_units(data, self._input_info.units)
-
         with ErrorLogger(self.logger):
+            if "units" in self._input_info.meta:
+                data = tools.to_units(data, self._input_info.units)
             tools.check(data, data.name, self._input_info, time, ignore_time=True)
 
         return data

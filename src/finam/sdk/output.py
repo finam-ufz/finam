@@ -114,7 +114,8 @@ class Output(IOutput, Loggable):
         if self.has_targets and self._out_infos_exchanged < self._connected_inputs:
             raise FinamNoDataError("Can't push data before output info was exchanged.")
 
-        self.data = tools.to_xarray(data, self.name, self.info, time)
+        with ErrorLogger(self.logger):
+            self.data = tools.to_xarray(data, self.name, self.info, time)
         self.notify_targets(time)
 
     def push_info(self, info):
@@ -214,30 +215,31 @@ class Output(IOutput, Loggable):
                         f"Can't accept multiple conflicting data infos. Failed entries:\n{fail_info}"
                     )
 
-        if self._output_info.grid is None:
-            if info.grid is None:
-                raise FinamMetaDataError(
-                    "Can't set property `grid` from target info, as it is not provided"
-                )
-
-            self._output_info.grid = info.grid
-
-        if self._output_info.time is None:
-            if info.time is None:
-                raise FinamMetaDataError(
-                    "Can't set property `time` from target info, as it is not provided"
-                )
-
-            self._output_info.time = info.time
-
-        for k, v in self._output_info.meta.items():
-            if v is None:
-                if k not in info.meta or info.meta[k] is None:
+        with ErrorLogger(self.logger):
+            if self._output_info.grid is None:
+                if info.grid is None:
                     raise FinamMetaDataError(
-                        f"Can't set property `meta.{k}` from target info, as it is not provided"
+                        "Can't set property `grid` from target info, as it is not provided"
                     )
 
-                self._output_info.meta[k] = info.meta[k]
+                self._output_info.grid = info.grid
+
+            if self._output_info.time is None:
+                if info.time is None:
+                    raise FinamMetaDataError(
+                        "Can't set property `time` from target info, as it is not provided"
+                    )
+
+                self._output_info.time = info.time
+
+            for k, v in self._output_info.meta.items():
+                if v is None:
+                    if k not in info.meta or info.meta[k] is None:
+                        raise FinamMetaDataError(
+                            f"Can't set property `meta.{k}` from target info, as it is not provided"
+                        )
+
+                    self._output_info.meta[k] = info.meta[k]
 
         self._out_infos_exchanged += 1
 
@@ -330,4 +332,5 @@ class CallbackOutput(Output):
         if data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        return tools.to_xarray(data, self.name, self.info, time)
+        with ErrorLogger(self.logger):
+            return tools.to_xarray(data, self.name, self.info, time)
