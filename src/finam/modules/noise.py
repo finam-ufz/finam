@@ -25,6 +25,28 @@ class SimplexNoise(Component):
         |              |
         +--------------+
 
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        component = fm.modules.SimplexNoise(
+            info=fm.Info(time=None, grid=fm.UniformGrid((20, 15))),
+            frequency=0.1,
+            time_frequency=1 / (24 * 3600),
+            octaves=3,
+            persistence=0.75,
+            low=0.0, high=1.0,
+            seed=1234,
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        component.initialize()
+
     Parameters
     ----------
     info : Info, optional
@@ -37,10 +59,10 @@ class SimplexNoise(Component):
         Number of octaves. Default 1
     persistence : float, optional
         Persistence over octaves. Default 0.5
-    high : float, optional
-        Upper limit for values. Default 1.0
     low : float, optional
         Lower limit for values. Default -1.0
+    high : float, optional
+        Upper limit for values. Default 1.0
     seed : int, optional
         PRNG seed for noise generator. Default 0
     """
