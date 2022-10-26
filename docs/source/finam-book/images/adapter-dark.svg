@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="svg8" width="468" height="64" version="1.1" viewBox="0 0 468 64" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <text id="text3558" x="5.7617188" y="39.429077" fill="#ffffff" font-family="Arial" font-size="24px" letter-spacing="0px" word-spacing="0px" style="line-height:1.25" xml:space="preserve"><tspan id="tspan3556" x="5.7617188" y="39.429077" fill="#ffffff">Input</tspan></text>
+    <text id="text3558-6" x="384.06503" y="39.429077" fill="#ffffff" font-family="Arial" font-size="24px" letter-spacing="0px" word-spacing="0px" style="line-height:1.25" xml:space="preserve"><tspan id="tspan3556-4" x="384.06503" y="39.429077" fill="#ffffff">Output</tspan></text>
+    <path id="rect3484-9-6" d="m103.62 17 15 15-15 15h226.4l15-15-15-15z" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    <text id="text3558-2" x="224.17406" y="39.429077" fill="#ffffff" font-family="Arial" font-size="24px" letter-spacing="0px" text-align="center" text-anchor="middle" word-spacing="0px" style="line-height:1.25" xml:space="preserve">Adapter</text>
+  </g>
+</svg>

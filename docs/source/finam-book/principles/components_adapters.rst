@@ -16,11 +16,19 @@ Components are the primary entities that are coupled in FINAM.
 
 A component can have multiple inputs and outputs to exchange data with other components.
 
-.. figure:: ../images/component.svg
+.. image:: ../images/component.svg
     :alt: Component
-    :class: dark-light p-2
+    :align: center
+    :class: only-light
 
-    Figure 1: A FINAM component
+.. image:: ../images/component-dark.svg
+    :alt: Component
+    :align: center
+    :class: only-dark
+
+.. rst-class:: center
+
+*Figure 1: A FINAM component*
 
 There are two principle types of components:
 
@@ -43,11 +51,19 @@ Thus, components are not required to have their inputs and outputs in the same g
 
 An adapter has one input and one output.
 
-.. figure:: ../images/adapter.svg
+.. image:: ../images/adapter.svg
     :alt: Adapter
-    :class: dark-light p-2
+    :align: center
+    :class: only-light
 
-    Figure 2: A FINAM adapter
+.. image:: ../images/adapter-dark.svg
+    :alt: Adapter
+    :align: center
+    :class: only-dark
+
+.. rst-class:: center
+
+*Figure 2: A FINAM adapter*
 
 Adapters manage tasks like:
 

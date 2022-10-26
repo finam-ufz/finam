@@ -8,11 +8,19 @@ Coupling
 A coupling setup in FINAM is a (potentially cyclic) graph of connected components and adapters.
 Figure 3 shows an example.
 
-.. figure:: ../images/coupling.svg
-    :alt: FINAM coupling
-    :class: dark-light p-2
+.. image:: ../images/coupling.svg
+    :alt: Finam scheduling
+    :align: center
+    :class: only-light
 
-    Figure 3: A FINAM coupling
+.. image:: ../images/coupling-dark.svg
+    :alt: Finam scheduling
+    :align: center
+    :class: only-dark
+
+.. rst-class:: center
+
+*Figure 4: A FINAM coupling*
 
 See chapter :doc:`../usage/coupling_scripts` for how to set up coupled models.
 
@@ -32,12 +40,19 @@ This way, it is guaranteed that all required input data is available in the outp
 
 The example in Figure 4 illustrates the approach.
 
-.. figure:: ../images/scheduling.svg
+.. image:: ../images/scheduling.svg
     :alt: Finam scheduling
-    :class: dark-light p-2
-    :width: 100%
+    :align: center
+    :class: only-light
 
-    Figure 4: FINAM scheduling (see text)
+.. image:: ../images/scheduling-dark.svg
+    :alt: Finam scheduling
+    :align: center
+    :class: only-dark
+
+.. rst-class:: center
+
+*Figure 4: FINAM scheduling (see text)*
 
 Figure 4 shows a snapshot of a simulation featuring three components A, B and C with different time steps.
 Solid lines and dots denote already simulated model steps, and the right-most solid dot of each component shows it's current simulation time.
