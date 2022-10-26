@@ -36,14 +36,12 @@ from dummy_models import formind, mhm, ogs
 import finam as fm
 from finam.adapters import base, regrid, time
 from finam.modules import generators, writers
-from finam.modules.visual import schedule
 
 if __name__ == "__main__":
 
     start_date = datetime(2000, 1, 1)
     day = timedelta(days=1)
 
-    show_schedule = True
     write_files = True
     sleep_seconds = 0.0001
 
@@ -92,28 +90,9 @@ if __name__ == "__main__":
         inputs=["soil_water_in", "LAI"],
     )
 
-    schedule_view = None
-    sleep_mod = None
-    if show_schedule:
-        schedule_view = schedule.ScheduleView(
-            inputs=["mHM (7d)", "OGS (30d)", "Formind (365d)"]
-        )
-
-        sleep_mod = generators.CallbackGenerator(
-            {
-                "time": (
-                    lambda t: sys_time.sleep(sleep_seconds),
-                    fm.Info(time=None, grid=fm.NoGrid()),
-                )
-            },
-            start=start_date,
-            step=timedelta(days=1),
-        )
-
     composition = fm.Composition(
         [precipitation, mhm, ogs, formind]
-        + ([mhm_csv, ogs_csv, formind_csv] if write_files else [])
-        + ([schedule_view, sleep_mod] if schedule_view else []),
+        + ([mhm_csv, ogs_csv, formind_csv] if write_files else []),
         log_level=logging.DEBUG,
     )
     composition.initialize()
@@ -211,15 +190,5 @@ if __name__ == "__main__":
             >> time.IntegrateTime()
             >> formind_csv.inputs["soil_water_in"]
         )
-
-    # Observer coupling for schedule view
-    if schedule_view:
-        _ = (
-            mhm.outputs["soil_water"] >> schedule_view.inputs["mHM (7d)"]
-        )  # mHM -> schedule
-        _ = ogs.outputs["head"] >> schedule_view.inputs["OGS (30d)"]  # OGS -> schedule
-        _ = (
-            formind.outputs["LAI"] >> schedule_view.inputs["Formind (365d)"]
-        )  # Formind -> schedule
 
     composition.run(datetime(2001, 1, 1))

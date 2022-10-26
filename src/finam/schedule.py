@@ -60,7 +60,7 @@ class Composition(Loggable):
         Whether to print log to stdout, by default True
     log_file : str, None or bool, optional
         Whether to write a log file, by default None
-    log_level : int, optional
+    log_level : int or str, optional
         Logging level, by default logging.INFO
     mpi_rank : int, default 0
         MPI rank of the composition.

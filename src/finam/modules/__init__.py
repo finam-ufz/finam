@@ -1,5 +1,9 @@
 """
-Modules that are no simulation models. Like IO, visualization, pre- and post-processing, etc.
+Components that are no simulation models.
+Like IO, visualization, pre- and post-processing, etc.
+
+See also book chapter :doc:`/finam-book/usage/components_adapters` for a list of
+other components that are not included in the core package.
 
 Modules
 =======
@@ -12,24 +16,12 @@ Modules
     CsvReader
     CsvWriter
     DebugConsumer
-    ScheduleView
     SimplexNoise
-    TimeSeriesView
     TimeTrigger
     WeightedSum
 """
 
-from . import (
-    callback,
-    control,
-    debug,
-    generators,
-    mergers,
-    noise,
-    readers,
-    visual,
-    writers,
-)
+from . import callback, control, debug, generators, mergers, noise, readers, writers
 from .callback import CallbackComponent
 from .control import TimeTrigger
 from .debug import DebugConsumer
@@ -37,7 +29,6 @@ from .generators import CallbackGenerator
 from .mergers import WeightedSum
 from .noise import SimplexNoise
 from .readers import CsvReader
-from .visual import ScheduleView, TimeSeriesView
 from .writers import CsvWriter
 
 __all__ = [
@@ -48,7 +39,6 @@ __all__ = [
     "mergers",
     "noise",
     "readers",
-    "visual",
     "writers",
 ]
 __all__ += [
@@ -57,9 +47,7 @@ __all__ += [
     "CsvReader",
     "CsvWriter",
     "DebugConsumer",
-    "ScheduleView",
     "SimplexNoise",
-    "TimeSeriesView",
     "TimeTrigger",
     "WeightedSum",
 ]

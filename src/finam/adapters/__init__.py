@@ -1,6 +1,9 @@
 """
 Adapters to transform or interpolate data when passed between modules.
 
+See also book chapter :doc:`/finam-book/usage/components_adapters` for a list of
+other adapters that are not included in the core package.
+
 Base adapters
 =============
 
