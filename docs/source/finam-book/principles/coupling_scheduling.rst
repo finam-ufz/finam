@@ -6,7 +6,7 @@ Coupling
 --------
 
 A coupling setup in FINAM is a (potentially cyclic) graph of connected components and adapters.
-Figure 3 shows an example.
+Figure 1 shows an example.
 
 .. image:: ../images/coupling.svg
     :alt: Finam scheduling
@@ -38,7 +38,7 @@ The scheduling of components follows a simple algorithm that allows for arbitrar
 It is simply the component most back in time that is updated next.
 This way, it is guaranteed that all required input data is available in the outputs of the other components.
 
-The example in Figure 4 illustrates the approach.
+The example in Figure 2 illustrates the approach.
 
 .. image:: ../images/scheduling.svg
     :alt: Finam scheduling
@@ -54,7 +54,7 @@ The example in Figure 4 illustrates the approach.
 
 *Figure 2: FINAM scheduling (see text)*
 
-Figure 4 shows a snapshot of a simulation featuring three components A, B and C with different time steps.
+Figure 2 shows a snapshot of a simulation featuring three components A, B and C with different time steps.
 Solid lines and dots denote already simulated model steps, and the right-most solid dot of each component shows it's current simulation time.
 
 According to the above rule, component A is most back in time and needs to be updated.
