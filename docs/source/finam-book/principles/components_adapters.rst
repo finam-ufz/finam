@@ -1,5 +1,5 @@
 =======================
-Components and Adapters
+Components and adapters
 =======================
 
 Models are wrapped according to the interfaces into independent *Components*.

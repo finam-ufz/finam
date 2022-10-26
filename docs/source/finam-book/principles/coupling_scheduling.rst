@@ -1,5 +1,5 @@
 =======================
-Coupling and Scheduling
+Coupling and scheduling
 =======================
 
 Coupling
