@@ -8,12 +8,19 @@ and notify all connected inputs and adapters (targets) that new data is availabl
 Adapters forward these notifications, until the input of another component is reached.
 For details, see Figures 1 and 2.
 
-.. figure:: ../images/data-flow-simple.svg
+.. image:: ../images/data-flow-simple.svg
     :alt: Simple data flow
-    :class: dark-light p-2
-    :width: 100%
+    :align: center
+    :class: only-light
 
-    Figure 1: Simple data flow. Solid: data, dashed: notifications/pulls.
+.. image:: ../images/data-flow-simple-dark.svg
+    :alt: Simple data flow
+    :align: center
+    :class: only-dark
+
+.. rst-class:: center
+
+*Figure 1: Simple data flow. Solid: data, dashed: notifications/pulls.*
 
 ..
 
@@ -25,12 +32,19 @@ For details, see Figures 1 and 2.
     |    2b: input pulls from connected output
     |    2c: data is returned to component
 
-.. figure:: ../images/data-flow-adapter.svg
+.. image:: ../images/data-flow-adapter.svg
     :alt: Simple data flow with adapter
-    :class: dark-light p-2
-    :width: 100%
+    :align: center
+    :class: only-light
 
-    Figure 2: Simple data flow with adapter. Solid: data, dashed: notifications/pulls
+.. image:: ../images/data-flow-adapter-dark.svg
+    :alt: Simple data flow with adapter
+    :align: center
+    :class: only-dark
+
+.. rst-class:: center
+
+*Figure 2: Simple data flow with adapter. Solid: data, dashed: notifications/pulls.*
 
 ..
 
@@ -63,12 +77,19 @@ When data is pulled from downstream of the adapter, it does its calculations
 (e.g. temporal interpolation for the requested point in time) and returns the result.
 For details, see Figure 3.
 
-.. figure:: ../images/data-flow-adapter-push.svg
+.. image:: ../images/data-flow-adapter-push.svg
     :alt: Push-based data flow with adapter
-    :class: dark-light p-2
-    :width: 100%
+    :align: center
+    :class: only-light
 
-    Figure 3: Push-based data flow with adapter. Solid: data, dashed: notifications/pulls
+.. image:: ../images/data-flow-adapter-push-dark.svg
+    :alt: Push-based data flow with adapter
+    :align: center
+    :class: only-dark
+
+.. rst-class:: center
+
+*Figure 3: Push-based data flow with adapter. Solid: data, dashed: notifications/pulls.*
 
 ..
 

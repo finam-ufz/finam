@@ -1,26 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="svg8" width="710.47" height="133.96" style="background-color:white" version="1.1" viewBox="0 0 710.47 133.96" xmlns="http://www.w3.org/2000/svg">
+<svg id="svg8" width="710.47" height="133.96" version="1.1" viewBox="0 0 710.47 133.96" xmlns="http://www.w3.org/2000/svg">
   <defs id="defs39">
     <marker id="Arrow2Mend" overflow="visible" orient="auto">
-      <path id="path892" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175-6e-7 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+      <path id="path892" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
     </marker>
   </defs>
-  <g id="g1072" transform="translate(328.55 -279.38)">
-    <g id="g20" fill="#fff" stroke="#000" stroke-linecap="round">
-      <path id="rect3484-6-2" d="m85.918 328.45h101.26v30h-101.26l15-15z" stop-color="#000000" stroke-linejoin="round" stroke-width="2"/>
-      <rect id="rect7-9" x="173.18" y="300.77" width="198" height="85.371" rx="9.8683" ry="9.5592" stop-color="#000000" stroke-width="1.4701"/>
-    </g>
-    <text id="text3558-2-3" x="271.931" y="351.90106" font-family="Arial" font-size="24px" letter-spacing="0px" text-align="center" text-anchor="middle" word-spacing="0px" style="line-height:1.25" xml:space="preserve">Model B</text>
-  </g>
-  <g id="g1072-3" transform="translate(-162.44 -279.38)">
-    <path id="rect3484-9-1-1" d="m443.62 328.45h-86.935v30h86.935l15-15z" fill="#fff" stop-color="#000000" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
-    <rect id="rect7-9-1" x="173.18" y="300.77" width="198" height="85.371" rx="9.8683" ry="9.5592" fill="#fff" stop-color="#000000" stroke="#000" stroke-linecap="round" stroke-width="1.4701"/>
-    <text id="text3558-2-3-0" x="271.09311" y="351.90106" font-family="Arial" font-size="24px" letter-spacing="0px" text-align="center" text-anchor="middle" word-spacing="0px" style="line-height:1.25" xml:space="preserve">Model A</text>
-  </g>
-  <g id="g861" transform="translate(2.0051 12.654)">
-    <path id="rect3484-9-6-2-0" d="m279.17 36.42 15 15-15 15h133.3l15-15-15-15z" fill="#fff" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
-    <text id="text3558-2-3-8" x="351.75552" y="59.871063" font-family="Arial" font-size="24px" letter-spacing="0px" text-align="center" text-anchor="middle" word-spacing="0px" style="line-height:1.25" xml:space="preserve">Adapter</text>
-  </g>
+  <path id="rect3484-6-2" d="m414.47 49.07h101.26v30h-101.26l15-15z" fill="#fff" stop-color="#000000" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <rect id="rect7-9" x="501.73" y="21.39" width="198" height="85.371" rx="9.8683" ry="9.5592" fill="#fff" stop-color="#000000" stroke="#000" stroke-linecap="round" stroke-width="2"/>
+  <text id="text3558-2-3" x="600.48102" y="72.521065" font-family="Arial" font-size="24px" letter-spacing="0px" text-align="center" text-anchor="middle" word-spacing="0px" style="line-height:1.25" xml:space="preserve">Model B</text>
+  <path id="rect3484-9-1-1" d="m281.18 49.07h-86.935v30h86.935l15-15z" fill="#fff" stop-color="#000000" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <rect id="rect7-9-1" x="10.74" y="21.39" width="198" height="85.371" rx="9.8683" ry="9.5592" fill="#fff" stop-color="#000000" stroke="#000" stroke-linecap="round" stroke-width="2"/>
+  <text id="text3558-2-3-0" x="108.65311" y="72.521065" font-family="Arial" font-size="24px" letter-spacing="0px" text-align="center" text-anchor="middle" word-spacing="0px" style="line-height:1.25" xml:space="preserve">Model A</text>
+  <path id="rect3484-9-6-2-0" d="m281.18 49.074 15 15-15 15h133.3l15-15-15-15z" fill="#fff" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <text id="text3558-2-3-8" x="353.76062" y="72.525063" font-family="Arial" font-size="24px" letter-spacing="0px" text-align="center" text-anchor="middle" word-spacing="0px" style="line-height:1.25" xml:space="preserve">Adapter</text>
   <g fill="none" stroke="#000" stroke-width="1.5">
     <path id="path863" d="m210.46 29.89c25.779 0 30.535 1.7331 41.875 16.426" marker-end="url(#Arrow2Mend)"/>
     <g stroke-dasharray="3, 1.5">
@@ -41,9 +33,9 @@
     <text id="text3558-2-3-0-8-92-90" x="305.4574" y="123.74355" text-align="center" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:1.25" xml:space="preserve">1c</text>
     <text id="text3558-2-3-0-8-92-7" x="439.84515" y="123.74355" text-align="center" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:1.25" xml:space="preserve">2c</text>
   </g>
-  <g id="g976" transform="translate(0 4.1644)" fill="#fff" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5264">
-    <rect id="rect942" transform="matrix(1 0 -.7861 .6181 0 0)" x="480.31" y="159.58" width="18.081" height="14.32" stop-color="#000000"/>
-    <rect id="rect942-0" transform="matrix(1 0 -.7861 .6181 0 0)" x="474.72" y="152.48" width="18.081" height="14.32" stop-color="#000000"/>
-    <rect id="rect942-4" transform="matrix(1 0 -.7861 .6181 0 0)" x="468.69" y="144.81" width="18.081" height="14.32" stop-color="#000000"/>
+  <g fill="#fff" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5264">
+    <rect id="rect942" transform="matrix(1 0 -.7861 .6181 0 0)" x="485.61" y="166.32" width="18.081" height="14.32" stop-color="#000000"/>
+    <rect id="rect942-0" transform="matrix(1 0 -.7861 .6181 0 0)" x="480.02" y="159.22" width="18.081" height="14.32" stop-color="#000000"/>
+    <rect id="rect942-4" transform="matrix(1 0 -.7861 .6181 0 0)" x="473.99" y="151.55" width="18.081" height="14.32" stop-color="#000000"/>
   </g>
 </svg>
