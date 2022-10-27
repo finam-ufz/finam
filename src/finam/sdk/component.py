@@ -275,6 +275,22 @@ class Component(IComponent, Loggable, ABC):
         )
         self.logger.debug("try_connect status is %s", self.status)
 
+    def __getitem__(self, name):
+        if name in self.inputs:
+            if name in self.outputs:
+                raise ValueError(
+                    f"Name {name} exists in inputs as well as outputs of component {self.name}"
+                )
+
+            return self.inputs[name]
+
+        if name in self.outputs:
+            return self.outputs[name]
+
+        raise KeyError(
+            f"Name {name} does not exist in inputs or outputs of component {self.name}"
+        )
+
     def __repr__(self):
         return self.name
 

@@ -1,10 +1,10 @@
 """
 Unit tests for the sdk implementations.
 """
-import logging
 import unittest
 from datetime import datetime
 
+import finam as fm
 from finam import (
     Adapter,
     CallbackInput,
@@ -51,6 +51,16 @@ class MockupComponentIO(TimeComponent):
         self.outputs.add(name="Output")
 
 
+class MockupComponentIONameConflict(TimeComponent):
+    def __init__(self):
+        super().__init__()
+        self._time = datetime(2000, 1, 1)
+
+    def _initialize(self):
+        self.inputs.add(name="IO")
+        self.outputs.add(name="IO")
+
+
 class TestComponent(unittest.TestCase):
     def test_component_status(self):
         component = MockupComponent()
@@ -77,6 +87,25 @@ class TestComponent(unittest.TestCase):
         component.try_connect()
 
         self.assertEqual(component.status, ComponentStatus.CONNECTING_IDLE)
+
+    def test_simple_io_access(self):
+        comp_ok = MockupComponentIO()
+        comp_fail = MockupComponentIONameConflict()
+
+        comp_ok.initialize()
+        comp_fail.initialize()
+
+        inp = comp_ok["Input"]
+        out = comp_ok["Output"]
+
+        self.assertTrue(isinstance(inp, fm.IInput))
+        self.assertTrue(isinstance(out, fm.IOutput))
+
+        with self.assertRaises(KeyError):
+            _inp = comp_ok["abc"]
+
+        with self.assertRaises(ValueError):
+            _inp = comp_fail["IO"]
 
 
 class TestChaining(unittest.TestCase):
