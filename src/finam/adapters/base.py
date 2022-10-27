@@ -81,7 +81,8 @@ class ValueToGrid(Adapter):
     Parameters
     ----------
     grid: Grid
-        Grid specification to create grid for
+        Grid specification to create grid for.
+        Can be ``None`` to get it from the target.
     """
 
     def __init__(self, grid):
@@ -104,20 +105,23 @@ class ValueToGrid(Adapter):
         """
         value = self.pull_data(time)
         return np.full(
-            self.grid.data_shape, get_magnitude(value), dtype=value.dtype
+            self._info.grid.data_shape, get_magnitude(value), dtype=value.dtype
         ) * get_units(value)
 
     def _get_info(self, info):
-        info = info.copy_with(grid=NoGrid())
         in_info = self.exchange_info(info)
-        out_info = in_info.copy_with(grid=self.grid)
+        out_info = in_info.copy_with(grid=self.grid or info.grid, use_none=False)
+
+        if info.grid is not None and info.grid != out_info.grid:
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError(f"Grid specifications don't match. Target has {info.grid}, expected {out_info.grid}")
 
         self._info = out_info
         return out_info
 
 
 class GridToValue(Adapter):
-    """Convert a matrix to a scalar value using an aggregation function, e.g. ``numpy.ma.mean``.
+    """Convert a matrix to a scalar value using an aggregation function, e.g. ``numpy.mean``.
 
     Parameters
     ----------
