@@ -42,7 +42,7 @@ class Loggable(ABC):
     @property
     @abstractmethod
     def uses_base_logger_name(self):
-        """Whether this class has a 'base_logger_name' attribute."""
+        """Whether this class has a ``base_logger_name`` attribute."""
 
     @property
     @abstractmethod

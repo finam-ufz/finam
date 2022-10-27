@@ -277,7 +277,7 @@ class Output(IOutput, Loggable):
 
     @property
     def uses_base_logger_name(self):
-        """Whether this class has a 'base_logger_name' attribute."""
+        """Whether this class has a ``base_logger_name`` attribute. True."""
         return True
 
 

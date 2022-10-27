@@ -34,7 +34,7 @@ Extensive User Guide to get in touch with FINAM.
 [Learn more »](finam-book/index)
 :::
 
-:::{grid-item-card} {octicon}`code-square;1.5em;sd-mr-1` Well documented API
+:::{grid-item-card} {octicon}`code-square;1.5em;sd-mr-1` Well-documented API
 :link: api/index
 :link-type: doc
 
@@ -78,7 +78,7 @@ News from the [FINAM Blog](blog/index).
 
 ## FINAM Book
 
-Information about using, configuration and exploring FINAM.
+Information about using, configuring and exploring FINAM.
 
 ```{toctree}
 :includehidden:
