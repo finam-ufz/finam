@@ -27,6 +27,7 @@ extensions = [
     "sphinx.ext.napoleon",  # parameters look better than with numpydoc only
     "numpydoc",
     "sphinxcontrib.mermaid",
+    "ablog",
 ]
 
 # autosummaries from source-files
