@@ -428,6 +428,7 @@ class IOList(collections.abc.Mapping):
         return len(self._dict)
 
     def __getitem__(self, key):
+        """Access an item by name."""
         return self._dict[key]
 
     def __setitem__(self, key, value):

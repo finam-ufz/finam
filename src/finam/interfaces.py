@@ -117,7 +117,11 @@ class IComponent(ABC):
 
     @abstractmethod
     def __getitem__(self, name):
-        """Get an input or output by name
+        """Get an input or output by name. Implements access through square brackets.
+
+        Allows for the use of ``comp["Name"]`` as shortcut for ``comp.inputs["Name"]`` and ``comp.outputs["Name"]``.
+
+        Requires that the name does not appear in inputs as well as outputs.
 
         Returns
         -------
