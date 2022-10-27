@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import numpy as np
 from numpy.testing import assert_allclose
 
+import finam as fm
 from finam import UNITS, Info, NoGrid, UniformGrid
 from finam import data as fmdata
 from finam.adapters.base import Callback, GridToValue, Scale, ValueToGrid
@@ -128,7 +129,33 @@ class TestValueToGrid(unittest.TestCase):
         self.adapter = ValueToGrid(grid)
         self.source.outputs["Value"] >> self.adapter
 
-        self.adapter.get_info(Info(None, grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=grid))
+        self.source.connect()
+        self.source.connect()
+        self.source.validate()
+
+        _reference_grid, reference_data = create_grid(10, 10, 1.0)
+        out_data = self.adapter.get_data(datetime(2000, 1, 1))
+
+        assert_allclose(fmdata.get_magnitude(out_data)[0, ...], reference_data)
+        self.assertEqual(fmdata.get_units(out_data), UNITS("m"))
+
+    def test_value_to_grid_wrong_grid(self):
+        grid, data = create_grid(10, 10, 1.0)
+
+        self.adapter = ValueToGrid(grid)
+        self.source.outputs["Value"] >> self.adapter
+
+        with self.assertRaises(fm.FinamMetaDataError):
+            self.adapter.get_info(Info(None, grid=UniformGrid((2, 2))))
+
+    def test_value_to_grid_from_target(self):
+        grid, data = create_grid(10, 10, 1.0)
+
+        self.adapter = ValueToGrid(None)
+        self.source.outputs["Value"] >> self.adapter
+
+        self.adapter.get_info(Info(None, grid=grid))
         self.source.connect()
         self.source.connect()
         self.source.validate()

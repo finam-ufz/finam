@@ -19,6 +19,7 @@ This approach allows for coupling of models irrespective of their internal struc
 * :doc:`principles/index` -- Explains basic principles of the FINAM framework that are of interest for users as well as developers.
 * :doc:`usage/index` -- Guide for users that aim at coupling existing models.
 * :doc:`development/index` -- Guide for developers on how to prepare models for FINAM, and how to implement adapters.
+* :doc:`cookbook/index` -- Short recipes demonstrating how to solve specific tasks with and for FINAM.
 
 .. toctree::
     :hidden:
@@ -36,3 +37,4 @@ This approach allows for coupling of models irrespective of their internal struc
     principles/index
     usage/index
     development/index
+    cookbook/index

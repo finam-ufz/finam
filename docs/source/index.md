@@ -6,7 +6,7 @@ myst:
 html_theme.sidebar_secondary.remove: true
 ---
 
-# FINAM - is not a model
+# FINAM is not a model
 
 ```{image} _static/logo.svg
 :alt: FINAM Logo
@@ -65,6 +65,17 @@ See our gallery of examples that use FINAM.
 * FINAM [source code](https://git.ufz.de/FINAM/finam)
 * FINAM [GitLab group](https://git.ufz.de/FINAM), containing further related projects
 
+## News
+
+News from the [FINAM Blog](blog/index).
+
+```{postlist} 3
+:format: "{title}"
+:tags: announcement
+:excerpts:
+:expand: Read more ...
+```
+
 ## FINAM Book
 
 Information about using, configuration and exploring FINAM.
@@ -82,4 +93,13 @@ Information about the API of FINAM.
 ```{toctree}
 :maxdepth: 2
 api/index
+```
+
+## FINAM Blog
+
+Announcements, cookbook recipes and user experience with FINAM.
+
+```{toctree}
+:maxdepth: 2
+blog/index
 ```

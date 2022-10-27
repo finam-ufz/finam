@@ -61,6 +61,7 @@ doc = [
     "sphinx-design>=0.3",
     "myst-parser>=0.18",
     "sphinxcontrib-mermaid>=0.7",
+    "ablog>=0.10",
     "docutils>=0.18", # mdinclude with myst
 ]
 test = ["pytest-cov>=3"]

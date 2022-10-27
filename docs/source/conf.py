@@ -27,6 +27,7 @@ extensions = [
     "sphinx.ext.napoleon",  # parameters look better than with numpydoc only
     "numpydoc",
     "sphinxcontrib.mermaid",
+    "ablog",
 ]
 
 # autosummaries from source-files
@@ -58,6 +59,10 @@ numpydoc_xref_param_type = True
 myst_enable_extensions = [
     "colon_fence",
 ]
+
+blog_path = "blog/index"
+blog_title = "FINAM Blog"
+blog_baseurl = "https://finam.pages.ufz.de/finam/blog/"
 
 templates_path = ["_templates"]
 exclude_patterns = []
@@ -98,6 +103,16 @@ html_theme_options = {
     ],
     "external_links": [
         {"name": "Examples", "url": "https://git.ufz.de/FINAM/finam-examples"},
+    ],
+}
+
+html_sidebars = {
+    "blog/**": [
+        "blog/postcard.html",
+        "blog/recentposts.html",
+        "blog/tagcloud.html",
+        "blog/categories.html",
+        "blog/archives.html",
     ],
 }
 

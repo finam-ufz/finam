@@ -19,7 +19,17 @@ __all__ = [
 
 
 class NextTime(Adapter):
-    """Time interpolation providing the next future value."""
+    """Time interpolation providing the next future value.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.NextTime()
+    """
 
     def __init__(self):
         super().__init__()
@@ -65,7 +75,17 @@ class NextTime(Adapter):
 
 
 class PreviousTime(Adapter):
-    """Time interpolation providing the newest past value."""
+    """Time interpolation providing the newest past value.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.PreviousTime()
+    """
 
     def __init__(self):
         super().__init__()
@@ -119,7 +139,17 @@ class PreviousTime(Adapter):
 
 
 class LinearTime(Adapter):
-    """Linear time interpolation."""
+    """Linear time interpolation.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.LinearTime()
+    """
 
     def __init__(self):
         super().__init__()
@@ -182,6 +212,16 @@ class IntegrateTime(Adapter, NoBranchAdapter):
     """Time integration over the last time step of the requester.
 
     Calculates the temporal average.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.IntegrateTime()
+
     """
 
     def __init__(self):
