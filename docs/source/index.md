@@ -83,3 +83,12 @@ Information about the API of FINAM.
 :maxdepth: 2
 api/index
 ```
+
+## FINAM Blog
+
+Announcements, cookbook recipes and user experience with FINAM.
+
+```{toctree}
+:maxdepth: 2
+blog/index
+```
