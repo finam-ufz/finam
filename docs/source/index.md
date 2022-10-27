@@ -67,6 +67,8 @@ See our gallery of examples that use FINAM.
 
 ## News
 
+News from the [FINAM Blog](blog/index).
+
 ```{postlist} 25
 :format: "{title}"
 :tags: announcement
