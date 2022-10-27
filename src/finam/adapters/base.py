@@ -5,6 +5,8 @@ import numpy as np
 
 from ..data.grid_spec import NoGrid
 from ..data.tools import get_magnitude, get_units
+from ..tools.log_helper import ErrorLogger
+from ..errors import FinamMetaDataError
 from ..sdk import Adapter
 
 __all__ = [
@@ -17,6 +19,17 @@ __all__ = [
 
 class Callback(Adapter):
     """Transform data using a callback.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.Callback(
+            callback=lambda data, t: data * 2,
+        )
 
     Parameters
     ----------
@@ -48,6 +61,15 @@ class Callback(Adapter):
 class Scale(Adapter):
     """Scales the input.
 
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.Scale(scale=0.5)
+
     Parameters
     ----------
     scale : float
@@ -77,6 +99,19 @@ class Scale(Adapter):
 
 class ValueToGrid(Adapter):
     """Convert a scalar value to a Matrix filled with that value.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.ValueToGrid(
+            grid=fm.UniformGrid(dims=(10, 20))
+        )
+
+        adapter = fm.adapters.ValueToGrid(grid=None)
 
     Parameters
     ----------
@@ -114,7 +149,9 @@ class ValueToGrid(Adapter):
 
         if info.grid is not None and info.grid != out_info.grid:
             with ErrorLogger(self.logger):
-                raise FinamMetaDataError(f"Grid specifications don't match. Target has {info.grid}, expected {out_info.grid}")
+                raise FinamMetaDataError(
+                    f"Grid specifications don't match. Target has {info.grid}, expected {out_info.grid}"
+                )
 
         self._info = out_info
         return out_info
@@ -122,6 +159,16 @@ class ValueToGrid(Adapter):
 
 class GridToValue(Adapter):
     """Convert a matrix to a scalar value using an aggregation function, e.g. ``numpy.mean``.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import numpy as np
+        import finam as fm
+
+        adapter = fm.adapters.GridToValue(func=np.mean)
 
     Parameters
     ----------

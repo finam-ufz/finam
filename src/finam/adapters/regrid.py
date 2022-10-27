@@ -86,6 +86,20 @@ class ARegridding(Adapter, ABC):
 class RegridNearest(ARegridding):
     """Regrid data between two grid specifications with nearest neighbour interpolation.
 
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.RegridNearest()
+
+        adapter = fm.adapters.RegridNearest(
+            in_grid=fm.UniformGrid(dims=(20, 10)),
+            out_grid=fm.UniformGrid(dims=(10, 5), spacing=(2.0, 2.0, 2.0)),
+        )
+
     Parameters
     ----------
     in_grid : Grid or None (optional)
@@ -128,6 +142,20 @@ class RegridLinear(ARegridding):
     For unstructured grids, :class:`scipy.interpolate.LinearNDInterpolator` is used,
     which performs triangulation internally.
     So the actual topology of the grid is not taken into account.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.RegridLinear()
+
+        adapter = fm.adapters.RegridLinear(
+            in_grid=fm.UniformGrid(dims=(20, 10)),
+            out_grid=fm.UniformGrid(dims=(10, 5), spacing=(2.0, 2.0, 2.0)),
+        )
 
     Parameters
     ----------

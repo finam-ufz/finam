@@ -9,6 +9,17 @@ __all__ = ["CallbackProbe"]
 class CallbackProbe(Adapter):
     """Probe data by calling a callback. Simply forwards the data unchanged.
 
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.CallbackProbe(
+            callback=lambda data, t: print(data),
+        )
+
     Parameters
     ----------
     callback : callable
