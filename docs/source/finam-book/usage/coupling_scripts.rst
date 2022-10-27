@@ -80,6 +80,11 @@ An input can be connected to an output using either ``>>`` (as in the examples),
     generator.outputs["Value"] >> plot.inputs["Value"]
     generator.outputs["Value"].chain(consumer.inputs["Value"])
 
+As a shortcut, slots can be accessed by the component's ``[]`` operator directly (see :meth:`.IComponent.__getitem__`):
+
+.. code-block:: Python
+
+    generator["Value"] >> plot["Value"]
 
 Adapters
 --------
@@ -93,7 +98,7 @@ Those can be used to transform data (regridding, geographic projections, ...)
 or for temporal interpolation or aggregation.
 
 The following examples uses a similar setup like the previous one, but with differing
-time steps and two chained adapters:
+time steps and an adapter:
 
 .. testcode:: adapter-example
 
@@ -160,6 +165,29 @@ This is achieved by:
 
 #. An adapter is an input, and at the same time an output
 #. The chained input is returned by `>>` and :meth:`.IOutput.chain`. In case the chained input is an adapter (and thus also an output), it can be immediately reused in a further chaining operation
+
+The syntax looks like this:
+
+.. code-block:: Python
+
+    (
+        generator.outputs["Noise"]
+        >> AdapterA()
+        >> AdapterB()
+        >> consumer.inputs["Value"]
+    )
+
+Or, in the short slot syntax:
+
+.. code-block:: Python
+
+    (
+        generator["Noise"]
+        >> AdapterA()
+        >> AdapterB()
+        >> consumer["Value"]
+    )
+
 
 Logging
 -------
