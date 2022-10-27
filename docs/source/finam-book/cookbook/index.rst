@@ -8,5 +8,4 @@ A loose collection of recipes for solving tasks and problems frequently encounte
    :format: {title}
    :tags: cookbook
    :excerpts:
-   :sort:
    :expand: Read more ...

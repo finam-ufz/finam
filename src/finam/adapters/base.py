@@ -5,9 +5,9 @@ import numpy as np
 
 from ..data.grid_spec import NoGrid
 from ..data.tools import get_magnitude, get_units
-from ..tools.log_helper import ErrorLogger
 from ..errors import FinamMetaDataError
 from ..sdk import Adapter
+from ..tools.log_helper import ErrorLogger
 
 __all__ = [
     "Callback",

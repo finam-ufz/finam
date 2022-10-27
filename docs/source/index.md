@@ -69,11 +69,10 @@ See our gallery of examples that use FINAM.
 
 News from the [FINAM Blog](blog/index).
 
-```{postlist} 25
+```{postlist} 3
 :format: "{title}"
 :tags: announcement
 :excerpts:
-:sort:
 :expand: Read more ...
 ```
 
