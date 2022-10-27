@@ -3,12 +3,12 @@ Writing adapters
 ================
 
 This chapter provides a step-by-step guide to implement adapters in pure Python.
-For writing Python bindings for other languages, see [Python bindings](./py-bindings).
+For writing Python bindings for other languages, see :doc:`./py-bindings`.
 
 Completing the chapter will result in two adapters called ``Scale`` and ``TimeInterpolation``.
 We will build up the adapters step by step, accompanied by some test code.
 
-It is assumed that you have FINAM [installed](../usage/installation), as well as :mod:`pytest`.
+It is assumed that you have FINAM :doc:`installed <../usage/installation>`, as well as :mod:`pytest`.
 
 Set up a Python project
 -----------------------

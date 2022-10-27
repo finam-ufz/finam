@@ -10,7 +10,7 @@ We will build up the component step by step, accompanied by some test code.
 Finally, it will have two input slots and one output slot, and will calculate the sum of its inputs.
 
 The component will have internal time stepping, like a simulation model would have.
-For implementing components without internal time, see chapter [Components without time step](./special_components).
+For implementing components without internal time, see chapter :doc:`./special_components`.
 
 It is assumed that you have FINAM :doc:`../usage/installation`, as well as :mod:`pytest`.
 
@@ -170,7 +170,7 @@ They can later be accessed by the name, like ``self.inputs["A"]``.
 The grid specification defines what inputs expect to receive, or what outputs provide.
 Here, we set it to a :class:`NoGrid` instance, as we want to handle scalars only.
 In most real use cases, however, ``grid`` will be a grid specification like rectilinear or unstructured grids.
-See chapter [Data types](data_metadata) for more details.
+See chapter :doc:`./data_metadata` for more details.
 
 In the last line, we call :meth:`.TimeComponent.create_connector`, which sets up an internal helper that manages the initial exchange of data and metadata.
 For details and possible arguments, see chapter :doc:`./connect_phase`.
