@@ -141,7 +141,7 @@ Inside this method, they get their input via `self.pull_data(time)`, transform i
 Time-aware adapters, e.g. for temporal interpolation, usually override :meth:`.Adapter._source_updated` and :meth:`.Adapter._get_data`.
 In :meth:`.Adapter._source_updated`, incoming data is collected (and potentially aggregated), while in :meth:`.Adapter._get_data` the result is returned.
 
-For details, see chapter [Writing adapters](./adapters).
+For details, see chapter :doc:`./adapters`.
 
 :class:`.NoBranchAdapter`
 ^^^^^^^^^^^^^^^^^^^^^^^^^

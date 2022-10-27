@@ -65,7 +65,7 @@ The :class:`.Info` object
 Objects of type :class:`.Info` represent the metadata associated with an input or output.
 It has the following properties:
 
-* ``grid`` - for the [Grid specification](grid-specification)
+* ``grid`` - for the `Grid specification`_
 * ``meta`` - a :class:`dict` for all other metadata
 
 For convenience, entries in ``meta`` can be used like normal member variables:
@@ -111,7 +111,7 @@ In component code, these two lines are equivalent:
 Metadata from source or target
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Any `Info` attributes initialized with `None` will be filled from the metadata on the other end of the coupling link.
+Any :class:`.Info` attributes initialized with `None` will be filled from the metadata on the other end of the coupling link.
 E.g. if the grid specification of an input is intended to be taken from the connected output, the input can be initialized like this:
 
 .. testcode:: create-inputs
