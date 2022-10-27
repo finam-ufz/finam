@@ -9,9 +9,9 @@ Documentation update & redesign
 ===============================
 
 In preparation of the FINAM 0.4 release, the complete :doc:`documentation </index>` was reworked.
-Of course, everything is up to date with the code now, but there is more:
-Everything is in one place now; structure and layout are much clearer;
-the :doc:`/finam-book/index` and the :doc:`/api/index` are heavily cross-referenced.
+Of course, the docs up to date with the code now, but there is more:
+Everything is in one place, structure and layout were improved,
+and the :doc:`/finam-book/index` and the :doc:`/api/index` are heavily cross-referenced.
 
 ----
 
