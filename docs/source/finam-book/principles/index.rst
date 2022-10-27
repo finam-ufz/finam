@@ -6,7 +6,7 @@ This chapter describes:
 
 * What :doc:`components_adapters` are
 * How :doc:`coupling_scheduling` works
-* How :doc:`data_flow` is managed
+* How FINAM's :doc:`data_flow` works
 * How FINAM treats :doc:`metadata`
 
 .. toctree::
