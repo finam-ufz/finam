@@ -6,7 +6,7 @@ myst:
 html_theme.sidebar_secondary.remove: true
 ---
 
-# FINAM - is not a model
+# FINAM is not a model
 
 ```{image} _static/logo.svg
 :alt: FINAM Logo
