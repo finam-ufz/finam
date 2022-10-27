@@ -2,7 +2,7 @@
     :tags: cookbook, usage
     :category: How to
     :author: Martin Lange
-    :excerpt: 2
+    :excerpt: 1
 
 =============================
 Dead link error - what to do?

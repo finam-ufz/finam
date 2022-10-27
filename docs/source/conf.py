@@ -60,7 +60,7 @@ myst_enable_extensions = [
     "colon_fence",
 ]
 
-blog_path = "blog/posts"
+blog_path = "blog/index"
 blog_title = "FINAM Blog"
 blog_baseurl = "https://finam.pages.ufz.de/finam/blog/"
 
