@@ -35,6 +35,14 @@ nav.bd-links .blog-nav li>a {
  padding:.25rem 0
 }
 
+ul.postlist-style-none {
+	padding-left: 0px;
+}
+
+.ablog-post-title {
+    font-size: 120%;
+}
+
 .bd-header .navbar-nav > .active > .nav-link {
   color: var(--pst-color-link);
 }

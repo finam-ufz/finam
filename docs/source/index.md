@@ -65,6 +65,16 @@ See our gallery of examples that use FINAM.
 * FINAM [source code](https://git.ufz.de/FINAM/finam)
 * FINAM [GitLab group](https://git.ufz.de/FINAM), containing further related projects
 
+## News
+
+```{postlist} 25
+:format: "{title}"
+:tags: announcement
+:excerpts:
+:sort:
+:expand: Read more ...
+```
+
 ## FINAM Book
 
 Information about using, configuration and exploring FINAM.
