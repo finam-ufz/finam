@@ -284,7 +284,7 @@ class Composition(Loggable):
 
     @property
     def uses_base_logger_name(self):
-        """Whether this class has a 'base_logger_name' attribute."""
+        """Whether this class has a ``base_logger_name`` attribute. False."""
         return False
 
     def _check_status(self, module, desired_list):
