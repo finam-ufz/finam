@@ -31,7 +31,7 @@ class Component(IComponent, Loggable, ABC):
     See :doc:`/finam-book/development/special_components`.
     For components with a time step, use :class:`.TimeComponent`.
 
-    Derived classes overwrite these methods
+    Derived classes overwrite these methods:
 
     * :meth:`._initialize`
     * :meth:`._connect`
@@ -289,17 +289,18 @@ class Component(IComponent, Loggable, ABC):
 
         Raises
         ------
-        ValueError
-            If the name occurs in the inputs as well as the outputs
         KeyError
-            If the name occurs neither in the inputs nor the outputs
+            If the name occurs in the inputs as well as the outputs,
+            or neither in the inputs nor the outputs.
         """
         if name in self.inputs:
             if name in self.outputs:
+                msg = f"Name `{name}` exists in inputs as well as outputs of component {self.name}"
+                if self.status == ComponentStatus.CREATED:
+                    raise KeyError(msg)
+
                 with ErrorLogger(self.logger):
-                    raise KeyError(
-                        f"Name `{name}` exists in inputs as well as outputs of component {self.name}"
-                    )
+                    raise KeyError(msg)
 
             return self.inputs[name]
 
