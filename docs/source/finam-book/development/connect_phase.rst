@@ -72,8 +72,6 @@ To avoid this, there are the two different states :attr:`.ComponentStatus.CONNEC
 If, during an iteration, no component signals any progress (:attr:`.ComponentStatus.CONNECTING`, or newly :attr:`.ComponentStatus.CONNECTED`), initialization has stalled.
 The scheduler raises an error and informs about components that could not complete the process.
 
-.. _implementing:
-
 Implementing The Connect Phase
 ------------------------------
 
