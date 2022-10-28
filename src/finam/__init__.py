@@ -107,6 +107,7 @@ FINAM-specific error types.
    :toctree: generated
    :caption: Errors
 
+    FinamConnectError
     FinamDataError
     FinamLogError
     FinamMetaDataError
