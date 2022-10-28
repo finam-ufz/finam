@@ -165,7 +165,13 @@ It is called internally by the :meth:`.TimeComponent.initialize` method.
             self.assertEqual(len(model.outputs), 1)                         # <--
 
 Note that inputs and outputs are added with a name and a grid (or grid specification).
-They can later be accessed by the name, like ``self.inputs["A"]``.
+They can later be accessed by the name, like ``self.inputs["A"]`` and ``self.outputs["Sum"]``.
+Or, even shorter, by ``self["A"]`` and ``self["Sum"]``.
+The same syntax is used for coupling, see chapter :doc:`../usage/coupling_scripts`.
+
+.. note::
+
+    Don't give inputs and outputs the same name, as this will prevent the use of the simplified slot access syntax.
 
 The grid specification defines what inputs expect to receive, or what outputs provide.
 Here, we set it to a :class:`NoGrid` instance, as we want to handle scalars only.
