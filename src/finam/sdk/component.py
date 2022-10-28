@@ -276,6 +276,24 @@ class Component(IComponent, Loggable, ABC):
         self.logger.debug("try_connect status is %s", self.status)
 
     def __getitem__(self, name):
+        """Get an input or output by name. Implements access through square brackets.
+
+        Allows for the use of ``comp["Name"]`` as shortcut for ``comp.inputs["Name"]`` and ``comp.outputs["Name"]``.
+
+        Requires that the name does not appear in inputs as well as outputs.
+
+        Returns
+        -------
+        IInput or IOutput
+            The slot with the given name
+
+        Raises
+        ------
+        ValueError
+            If the name occurs in the inputs as well as the outputs
+        KeyError
+            If the name occurs neither in the inputs nor the outputs
+        """
         if name in self.inputs:
             if name in self.outputs:
                 raise ValueError(
