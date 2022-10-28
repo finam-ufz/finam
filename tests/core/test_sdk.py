@@ -107,6 +107,14 @@ class TestComponent(unittest.TestCase):
         with self.assertRaises(KeyError):
             _inp = comp_fail["IO"]
 
+    def test_simple_io_not_initialized(self):
+        comp_ok = MockupComponentIO()
+
+        with self.assertRaises(KeyError):
+            _inp = comp_ok["Input"]
+        with self.assertRaises(KeyError):
+            _inp = comp_ok["Output"]
+
 
 class TestChaining(unittest.TestCase):
     def test_chaining(self):
@@ -268,8 +276,8 @@ class TestIOList(unittest.TestCase):
     def test_io_list(self):
         inp = Input("test1")
         out = Output("test2")
-        inp_list = IOList("INPUT")
-        out_list = IOList("OUTPUT")
+        inp_list = IOList(None, "INPUT")
+        out_list = IOList(None, "OUTPUT")
 
         # io setting
         inp_list.add(inp)

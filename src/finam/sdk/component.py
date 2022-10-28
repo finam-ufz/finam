@@ -42,8 +42,8 @@ class Component(IComponent, Loggable, ABC):
 
     def __init__(self):
         self._status = ComponentStatus.CREATED
-        self._inputs = IOList("INPUT")
-        self._outputs = IOList("OUTPUT")
+        self._inputs = IOList(self, "INPUT")
+        self._outputs = IOList(self, "OUTPUT")
         self.base_logger_name = None
         self._connector: ConnectHelper = None
 
@@ -296,18 +296,23 @@ class Component(IComponent, Loggable, ABC):
         """
         if name in self.inputs:
             if name in self.outputs:
-                raise KeyError(
-                    f"Name {name} exists in inputs as well as outputs of component {self.name}"
-                )
+                with ErrorLogger(self.logger):
+                    raise KeyError(
+                        f"Name `{name}` exists in inputs as well as outputs of component {self.name}"
+                    )
 
             return self.inputs[name]
 
         if name in self.outputs:
             return self.outputs[name]
 
-        raise KeyError(
-            f"Name {name} does not exist in inputs or outputs of component {self.name}"
-        )
+        msg = f"Name `{name}` does not exist in inputs or outputs of component `{self.name}`"
+        if self.status == ComponentStatus.CREATED:
+            msg += " The component is not initialized. Did you miss to add it to the composition?"
+            raise KeyError(msg)
+
+        with ErrorLogger(self.logger):
+            raise KeyError(msg)
 
     def __repr__(self):
         return self.name
@@ -362,11 +367,13 @@ class IOList(collections.abc.Mapping):
 
     Parameters
     ----------
+    owner : IComponent
+        The owning component of this IOList
     io_type : int, str, IOType
         IO type. Either "INPUT" or "OUTPUT".
     """
 
-    def __init__(self, io_type):
+    def __init__(self, owner, io_type):
         """
         _summary_
 
@@ -375,6 +382,7 @@ class IOList(collections.abc.Mapping):
         io_type : _type_
             _description_
         """
+        self.owner = owner
         self.type = get_enum_value(io_type, IOType)
         self.cls = [Input, Output][self.type]
         self.name = self.cls.__name__
@@ -447,7 +455,19 @@ class IOList(collections.abc.Mapping):
 
     def __getitem__(self, key):
         """Access an item by name."""
-        return self._dict[key]
+        if key in self._dict:
+            return self._dict[key]
+
+        if self.owner is None:
+            raise KeyError(f"No {self.cls.__name__} `{key}` in unknown component.")
+
+        msg = f"No {self.cls.__name__} `{key}` in component `{self.owner.name}`."
+        if self.owner.status == ComponentStatus.CREATED:
+            msg += " The component is not initialized. Did you miss to add it to the composition?"
+            raise KeyError(msg)
+
+        with ErrorLogger(self.owner.logger):
+            raise KeyError(msg)
 
     def __setitem__(self, key, value):
         if self.frozen:
