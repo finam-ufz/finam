@@ -296,7 +296,7 @@ class Component(IComponent, Loggable, ABC):
         """
         if name in self.inputs:
             if name in self.outputs:
-                raise ValueError(
+                raise KeyError(
                     f"Name {name} exists in inputs as well as outputs of component {self.name}"
                 )
 

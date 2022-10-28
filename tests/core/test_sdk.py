@@ -104,7 +104,7 @@ class TestComponent(unittest.TestCase):
         with self.assertRaises(KeyError):
             _inp = comp_ok["abc"]
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
             _inp = comp_fail["IO"]
 
 
