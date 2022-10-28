@@ -354,7 +354,7 @@ def _check_branching(module, out):
         curr_targets = target.get_targets()
 
         if no_branch and len(curr_targets) > 1:
-            raise ValueError(
+            raise FinamConnectError(
                 f"Disallowed branching of output '{out.name}' for "
                 f"module {module.name} ({target.__class__.__name__})"
             )
@@ -367,7 +367,7 @@ def _check_branching(module, out):
 def _check_input_connected(module, inp):
     while isinstance(inp, IInput):
         if inp.get_source() is None:
-            raise ValueError(
+            raise FinamConnectError(
                 f"Unconnected input '{inp.name}' for target module {module.name}"
             )
         inp = inp.get_source()
@@ -396,7 +396,7 @@ def _dead_link_error(module, chain, first_index, last_index):
                 " >/> " if i == first_index or i + 1 == last_index else " >> "
             )
 
-    return ValueError(
+    return FinamConnectError(
         f"Dead link detected between "
         f"{chain[0].name} and {str(module)}->{chain[-1].name}:\n"
         f"{link_message}"

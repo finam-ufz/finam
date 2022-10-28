@@ -65,7 +65,6 @@ class MockupComponent(TimeComponent):
             self.outputs.add(name=key, time=self.time, grid=NoGrid())
 
     def _initialize(self):
-        pass
         self.create_connector()
 
     def _connect(self):
@@ -194,7 +193,7 @@ class TestComposition(unittest.TestCase):
         non_branching_adapter >> CallbackAdapter(callback=lambda data, time: data)
         non_branching_adapter >> CallbackAdapter(callback=lambda data, time: data)
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(FinamConnectError) as context:
             composition._validate_composition()
 
         self.assertTrue("Disallowed branching" in str(context.exception))
@@ -222,7 +221,7 @@ class TestComposition(unittest.TestCase):
         self.assertTrue(out.needs_pull)
         self.assertFalse(out.needs_push)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(FinamConnectError):
             _check_dead_links(0, inp)
 
         out = Output(name="out", info=info)
@@ -237,7 +236,7 @@ class TestComposition(unittest.TestCase):
         inp = Input(name="in", info=info)
 
         out >> ada >> inp
-        with self.assertRaises(ValueError):
+        with self.assertRaises(FinamConnectError):
             _check_dead_links(0, inp)
 
     def test_check_dead_links_error(self):
@@ -248,9 +247,7 @@ class TestComposition(unittest.TestCase):
         inp = CallbackInput(name="in", callback=None, info=info)
         out >> ada1 >> ada2 >> inp
 
-        print("TEST")
-
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(FinamConnectError) as context:
             _check_dead_links(0, inp)
 
         message = str(context.exception)
@@ -266,7 +263,7 @@ class TestComposition(unittest.TestCase):
         composition = Composition([module])
         composition.initialize()
 
-        with self.assertRaises(ValueError) as context:
+        with self.assertRaises(FinamConnectError) as context:
             composition._validate_composition()
 
         self.assertTrue("Unconnected input" in str(context.exception))
