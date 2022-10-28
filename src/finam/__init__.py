@@ -141,6 +141,7 @@ from .data.grid_spec import (
 from .data.grid_tools import CellType, Location
 from .data.tools import UNITS, Info
 from .errors import (
+    FinamConnectError,
     FinamDataError,
     FinamLogError,
     FinamMetaDataError,
@@ -209,6 +210,7 @@ __all__ += [
 __all__ += ["CellType", "Location"]
 __all__ += ["UNITS", "Info"]
 __all__ += [
+    "FinamConnectError",
     "FinamDataError",
     "FinamLogError",
     "FinamMetaDataError",

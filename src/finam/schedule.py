@@ -311,12 +311,12 @@ def _check_missing_modules(modules):
     if len(unlinked_inputs) > 0:
         raise FinamConnectError(
             f"A component was coupled, but not added to this Composition. "
-            f"Affected inputs: {list(unlinked_inputs)}"
+            f"Affected inputs: {[inp.name for inp in unlinked_inputs]}"
         )
     if len(mod_outputs) > 0:
         raise FinamConnectError(
             f"A component was coupled, but not added to this Composition. "
-            f"Affected outputs: {list(mod_outputs)}"
+            f"Affected outputs: {[out.name for out in mod_outputs]}"
         )
 
 
