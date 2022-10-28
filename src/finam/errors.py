@@ -38,3 +38,7 @@ class FinamMetaDataError(Exception):
 
 class FinamDataError(Exception):
     """Error for wrong data in FINAM."""
+
+
+class FinamConnectError(Exception):
+    """Error for wrong connection setup in FINAM."""
