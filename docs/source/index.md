@@ -103,3 +103,8 @@ Announcements, cookbook recipes and user experience with FINAM.
 :maxdepth: 2
 blog/index
 ```
+
+```{toctree}
+:hidden:
+changelog
+```

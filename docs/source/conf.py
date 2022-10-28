@@ -20,7 +20,6 @@ extensions = [
     "sphinx_design",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
-    "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
     "sphinx.ext.doctest",
     "sphinx.ext.viewcode",
@@ -34,8 +33,6 @@ extensions = [
 autosummary_generate = True
 # dont show __init__ docstring
 autoclass_content = "class"
-# for uniqur labels/anchors
-autosectionlabel_prefix_document = True
 # sort class members
 autodoc_member_order = "groupwise"
 # autodoc_member_order = 'bysource'

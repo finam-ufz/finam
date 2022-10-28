@@ -13,7 +13,7 @@ without an explicit order. Even circular!
 
 For convenience, :class:`.Component` (and thus :class:`.TimeComponent`) provides the methods
 :meth:`.Component.create_connector` and :meth:`.Component.try_connect` for handling this phase.
-See section `Implementing The Connect Phase <implementing>`_.
+See section `Implementing The Connect Phase`_.
 
 Metadata
 --------
@@ -37,7 +37,7 @@ It can then generate data matching the expected metadata.
 Metadata must be provided for all inputs and all outputs.
 This can happen in :meth:`.Component._initialize` when constructing inputs and outputs.
 If the information is not available there yet (because it depends on linked components),
-it can happen in :meth:`.Component._connect` via :meth:`.Component.try_connect()` (see section `Implementing The Connect Phase <implementing>`_).
+it can happen in :meth:`.Component._connect` via :meth:`.Component.try_connect()` (see section `Implementing The Connect Phase`_).
 
 For details on the metadata itself, see chapter :doc:`./data_metadata`.
 
@@ -74,8 +74,8 @@ The scheduler raises an error and informs about components that could not comple
 
 .. _implementing:
 
-Implementing The Connect Phase |trade|
---------------------------------------
+Implementing The Connect Phase
+------------------------------
 
 The iterative connection process is largely managed by two methods provided by :class:`.Component`:
 
