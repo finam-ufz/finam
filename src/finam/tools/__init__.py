@@ -36,10 +36,8 @@ Connect helper
 .. autosummary::
    :toctree: generated
 
-    ConnectHelper
+    connect_helper.ConnectHelper
 """
-from . import connect_helper
-from .connect_helper import ConnectHelper
 from .cwd_helper import execute_in_cwd, set_directory
 from .enum_helper import get_enum_value
 from .log_helper import (
@@ -50,8 +48,7 @@ from .log_helper import (
     is_loggable,
 )
 
-__all__ = ["connect_helper"]
-__all__ += ["execute_in_cwd", "set_directory"]
+__all__ = ["execute_in_cwd", "set_directory"]
 __all__ += ["get_enum_value"]
 __all__ += [
     "ErrorLogger",
