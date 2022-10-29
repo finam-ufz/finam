@@ -12,10 +12,10 @@ class TestConnectHelper(unittest.TestCase):
         time = datetime(2020, 10, 6)
         info = Info(grid=NoGrid(), time=time)
 
-        inputs = IOList("INPUT")
+        inputs = IOList(None, "INPUT")
         inputs.add(name="In1")
         inputs.add(name="In2", grid=NoGrid(), time=time)
-        outputs = IOList("OUTPUT")
+        outputs = IOList(None, "OUTPUT")
         outputs.add(name="Out1")
         outputs.add(name="Out2")
 
@@ -111,10 +111,10 @@ class TestConnectHelper(unittest.TestCase):
     def test_connect_fail(self):
         time = datetime(2020, 10, 6)
 
-        inputs = IOList("INPUT")
+        inputs = IOList(None, "INPUT")
         inputs.add(name="In1")
         inputs.add(name="In2")
-        outputs = IOList("OUTPUT")
+        outputs = IOList(None, "OUTPUT")
         outputs.add(name="Out1")
         outputs.add(name="Out2")
 
@@ -135,10 +135,10 @@ class TestConnectHelper(unittest.TestCase):
 
         info = Info(grid=NoGrid(), time=time)
 
-        inputs = IOList("INPUT")
+        inputs = IOList(None, "INPUT")
         inputs.add(name="In1")
         inputs.add(name="In2")
-        outputs = IOList("OUTPUT")
+        outputs = IOList(None, "OUTPUT")
         outputs.add(name="Out1")
         outputs.add(name="Out2")
 

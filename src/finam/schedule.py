@@ -15,12 +15,12 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from .errors import FinamStatusError
+from .errors import FinamConnectError, FinamStatusError
 from .interfaces import (
     ComponentStatus,
-    IAdapter,
     IComponent,
     IInput,
+    IOutput,
     ITimeComponent,
     Loggable,
     NoBranchAdapter,
@@ -207,6 +207,9 @@ class Composition(Loggable):
                 for out in mod.outputs.values():
                     _check_branching(mod, out)
 
+        with ErrorLogger(self.logger):
+            _check_missing_modules(self.modules)
+
     def _connect_components(self):
         self.logger.debug("connect components")
         counter = 0
@@ -296,6 +299,51 @@ class Composition(Loggable):
                 )
 
 
+def _check_missing_modules(modules):
+    inputs, outputs = _collect_inputs_outputs(modules)
+
+    mod_inputs = {inp for mod in modules for inp in mod.inputs.values()}
+    mod_outputs = {out for mod in modules for out in mod.outputs.values()}
+
+    unlinked_inputs = inputs - mod_inputs
+    mod_outputs = outputs - mod_outputs
+
+    if len(unlinked_inputs) > 0:
+        raise FinamConnectError(
+            f"A component was coupled, but not added to this Composition. "
+            f"Affected inputs: {[inp.name for inp in unlinked_inputs]}"
+        )
+    if len(mod_outputs) > 0:
+        raise FinamConnectError(
+            f"A component was coupled, but not added to this Composition. "
+            f"Affected outputs: {[out.name for out in mod_outputs]}"
+        )
+
+
+def _collect_inputs_outputs(modules):
+    all_inputs = set()
+    all_outputs = set()
+
+    for mod in modules:
+        for _, inp in mod.inputs.items():
+            while isinstance(inp, IInput):
+                inp = inp.get_source()
+            all_outputs.add(inp)
+
+        for _, out in mod.outputs.items():
+            targets = {out}
+            while len(targets) > 0:
+                target = targets.pop()
+                curr_targets = target.get_targets()
+                for target in curr_targets:
+                    if isinstance(target, IOutput):
+                        targets.add(target)
+                    else:
+                        all_inputs.add(target)
+
+    return all_inputs, all_outputs
+
+
 def _check_branching(module, out):
     targets = [(out, False)]
 
@@ -306,20 +354,22 @@ def _check_branching(module, out):
         curr_targets = target.get_targets()
 
         if no_branch and len(curr_targets) > 1:
-            raise ValueError(
+            raise FinamConnectError(
                 f"Disallowed branching of output '{out.name}' for "
                 f"module {module.name} ({target.__class__.__name__})"
             )
 
         for target in curr_targets:
-            if isinstance(target, IAdapter):
+            if isinstance(target, IOutput):
                 targets.append((target, no_branch))
 
 
 def _check_input_connected(module, inp):
     while isinstance(inp, IInput):
         if inp.get_source() is None:
-            raise ValueError(f"Unconnected input '{inp.name}' for module {module.name}")
+            raise FinamConnectError(
+                f"Unconnected input '{inp.name}' for target module {module.name}"
+            )
         inp = inp.get_source()
 
 
@@ -346,7 +396,7 @@ def _dead_link_error(module, chain, first_index, last_index):
                 " >/> " if i == first_index or i + 1 == last_index else " >> "
             )
 
-    return ValueError(
+    return FinamConnectError(
         f"Dead link detected between "
         f"{chain[0].name} and {str(module)}->{chain[-1].name}:\n"
         f"{link_message}"

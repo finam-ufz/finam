@@ -80,7 +80,7 @@ An input can be connected to an output using either ``>>`` (as in the examples),
     generator.outputs["Value"] >> plot.inputs["Value"]
     generator.outputs["Value"].chain(consumer.inputs["Value"])
 
-As a shortcut, slots can be accessed by the component's ``[]`` operator directly (see :meth:`.IComponent.__getitem__`):
+As a shortcut, slots can be accessed by the component's ``[]`` operator directly (see :meth:`.Component.__getitem__`):
 
 .. code-block:: Python
 
