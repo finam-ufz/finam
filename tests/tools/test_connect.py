@@ -1,10 +1,11 @@
-import logging
 import unittest
 from datetime import datetime
 
-from finam import ComponentStatus, Info, Input, NoGrid, Output
+import numpy as np
+
+from finam import ComponentStatus, Info, Input, NoGrid, Output, UniformGrid
 from finam.sdk.component import IOList
-from finam.tools.connect_helper import ConnectHelper
+from finam.tools.connect_helper import ConnectHelper, FromInput, FromOutput, FromValue
 
 
 class TestConnectHelper(unittest.TestCase):
@@ -184,3 +185,135 @@ class TestConnectHelper(unittest.TestCase):
         status = connector.connect(time)
 
         self.assertEqual(status, ComponentStatus.CONNECTED)
+
+    def test_connect_transfer_from_input(self):
+        time = datetime(2020, 10, 6)
+
+        inputs = IOList(None, "INPUT")
+        inputs.add(name="In1", time=None, grid=None)
+        inputs.add(name="In2", time=None, grid=None, units=None)
+        outputs = IOList(None, "OUTPUT")
+        outputs.add(name="Out1")
+
+        sources = [Output("so1"), Output("so1")]
+        sink = Input("si1")
+
+        sources[0] >> inputs["In1"]
+        sources[1] >> inputs["In2"]
+
+        outputs["Out1"] >> sink
+
+        inputs["In1"].ping()
+        inputs["In2"].ping()
+        sink.ping()
+
+        connector: ConnectHelper = ConnectHelper(
+            "TestLogger",
+            inputs,
+            outputs,
+            pull_data=list(inputs.keys()),
+            out_info_rules={
+                "Out1": [
+                    FromInput("In1", "grid"),
+                    FromInput("In2", "units"),
+                    FromValue("test_prop", 1),
+                ]
+            },
+            cache=True,
+        )
+        connector.connect(
+            time=None,
+            push_data={"Out1": np.zeros((9, 9))},
+        )
+
+        sources[0].push_info(Info(time=time, grid=UniformGrid((10, 10))))
+        sources[1].push_info(Info(time=time, grid=NoGrid(), units="m"))
+
+        connector.connect(time=None)
+
+        self.assertEqual(
+            connector.in_infos,
+            {
+                "In1": Info(time=time, grid=UniformGrid((10, 10))),
+                "In2": Info(time=time, grid=NoGrid(), units="m"),
+            },
+        )
+        self.assertEqual(connector.out_infos, {"Out1": None})
+        self.assertEqual(connector.infos_pushed, {"Out1": False})
+
+        connector.connect(time=None)
+        self.assertEqual(connector.infos_pushed, {"Out1": True})
+        self.assertEqual(connector.out_infos, {"Out1": None})
+
+        sink.exchange_info(Info(time=time, grid=None, units=None))
+        connector.connect(time=None)
+
+        self.assertEqual(
+            connector.out_infos,
+            {
+                "Out1": Info(
+                    time=time, grid=UniformGrid((10, 10)), units="m", test_prop=1
+                )
+            },
+        )
+
+    def test_connect_transfer_from_output(self):
+        time = datetime(2020, 10, 6)
+
+        inputs = IOList(None, "INPUT")
+        inputs.add(name="In1")
+        inputs.add(name="In2")
+        outputs = IOList(None, "OUTPUT")
+        outputs.add(name="Out1", time=None, grid=None, units=None)
+
+        sources = [Output("so1"), Output("so1")]
+        sink = Input("si1")
+
+        sources[0] >> inputs["In1"]
+        sources[1] >> inputs["In2"]
+
+        outputs["Out1"] >> sink
+
+        inputs["In1"].ping()
+        inputs["In2"].ping()
+        sink.ping()
+
+        connector: ConnectHelper = ConnectHelper(
+            "TestLogger",
+            inputs,
+            outputs,
+            pull_data=list(inputs.keys()),
+            in_info_rules={
+                "In1": [FromOutput("Out1")],
+                "In2": [
+                    FromOutput("Out1", "units"),
+                    FromValue("grid", NoGrid()),
+                ],
+            },
+            cache=True,
+        )
+        connector.connect(
+            time=None,
+            push_data={"Out1": np.zeros((9, 9))},
+        )
+
+        sink.exchange_info(Info(time=time, grid=UniformGrid((10, 10)), units="m"))
+        connector.connect(time=None)
+
+        sources[0].push_info(Info(time=time, grid=UniformGrid((10, 10))))
+        sources[1].push_info(Info(time=time, grid=NoGrid(), units="m"))
+
+        connector.connect(time=None)
+
+        self.assertEqual(
+            connector.in_infos,
+            {
+                "In1": Info(time=time, grid=UniformGrid((10, 10))),
+                "In2": Info(time=time, grid=NoGrid(), units="m"),
+            },
+        )
+
+        self.assertEqual(
+            connector.out_infos,
+            {"Out1": Info(time=time, grid=UniformGrid((10, 10)), units="m")},
+        )
