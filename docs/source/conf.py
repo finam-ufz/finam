@@ -1,5 +1,7 @@
 import datetime
 
+from finam import __version__ as finam_version
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -11,6 +13,8 @@ import datetime
 project = "finam"
 copyright = f"2021 - {datetime.datetime.now().year}, Team LandTECH"
 author = "FINAM Developers"
+version = finam_version
+release = finam_version
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
