@@ -214,9 +214,10 @@ class TestConnectHelper(unittest.TestCase):
             pull_data=list(inputs.keys()),
             out_info_rules={
                 "Out1": [
-                    FromInput("In1", "grid"),
+                    FromInput("In1", "time", "grid"),
                     FromInput("In2", "units"),
                     FromValue("test_prop", 1),
+                    FromValue("time", time),
                 ]
             },
             cache=True,
@@ -286,8 +287,9 @@ class TestConnectHelper(unittest.TestCase):
             in_info_rules={
                 "In1": [FromOutput("Out1")],
                 "In2": [
-                    FromOutput("Out1", "units"),
+                    FromOutput("Out1", "time", "units"),
                     FromValue("grid", NoGrid()),
+                    FromValue("time", time),
                 ],
             },
             cache=True,
@@ -317,3 +319,42 @@ class TestConnectHelper(unittest.TestCase):
             connector.out_infos,
             {"Out1": Info(time=time, grid=UniformGrid((10, 10)), units="m")},
         )
+
+    def test_connect_transfer_fail(self):
+
+        inputs = IOList(None, "INPUT")
+        inputs.add(name="In1")
+        outputs = IOList(None, "OUTPUT")
+        outputs.add(name="Out1")
+
+        with self.assertRaises(KeyError):
+            _connector: ConnectHelper = ConnectHelper(
+                "TestLogger",
+                inputs,
+                outputs,
+                in_info_rules={"InX": []},
+            )
+
+        with self.assertRaises(KeyError):
+            _connector: ConnectHelper = ConnectHelper(
+                "TestLogger",
+                inputs,
+                outputs,
+                out_info_rules={"OutX": []},
+            )
+
+        with self.assertRaises(KeyError):
+            _connector: ConnectHelper = ConnectHelper(
+                "TestLogger",
+                inputs,
+                outputs,
+                in_info_rules={"In1": [FromInput("InX", "grid")]},
+            )
+
+        with self.assertRaises(KeyError):
+            _connector: ConnectHelper = ConnectHelper(
+                "TestLogger",
+                inputs,
+                outputs,
+                in_info_rules={"In1": [FromOutput("OutX", "grid")]},
+            )

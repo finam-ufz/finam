@@ -138,27 +138,23 @@ class ConnectHelper(Loggable):
     def _check_info_rules(self):
         for name, rules in self._in_info_rules.items():
             if name not in self._inputs:
-                raise ValueError(
-                    f"No input named '{name}' to apply info transfer rule."
-                )
+                raise KeyError(f"No input named '{name}' to apply info transfer rule.")
             for rule in rules:
                 self._check_rule(rule)
 
         for name, rules in self._out_info_rules.items():
             if name not in self._outputs:
-                raise ValueError(
-                    f"No output named '{name}' to apply info transfer rule."
-                )
+                raise KeyError(f"No output named '{name}' to apply info transfer rule.")
             for rule in rules:
                 self._check_rule(rule)
 
     def _check_rule(self, rule):
         if isinstance(rule, FromInput) and rule.name not in self._inputs:
-            raise ValueError(
+            raise KeyError(
                 f"No input named '{rule.name}' to use in info transfer rule."
             )
         if isinstance(rule, FromOutput) and rule.name not in self._outputs:
-            raise ValueError(
+            raise KeyError(
                 f"No output named '{rule.name}' to use in info transfer rule."
             )
 
