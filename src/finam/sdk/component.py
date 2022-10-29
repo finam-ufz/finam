@@ -281,7 +281,7 @@ class Component(IComponent, Loggable, ABC):
                 }
             )
 
-        The :class:`.Info` object for output ``Out`` will be crated and pushed automatically in :meth:`.try_connect`
+        The :class:`.Info` object for output ``Out`` will be created and pushed automatically in :meth:`.try_connect`
         as soon as the metadata for ``In`` becomes available.
 
         Here, the metadata of an output is composed from the metadata of two inputs and a user-defined value:

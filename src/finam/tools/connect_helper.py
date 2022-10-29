@@ -174,13 +174,20 @@ class ConnectHelper(Loggable):
                 self._check_rule(rule)
 
     def _check_rule(self, rule):
-        if isinstance(rule, FromInput) and rule.name not in self._inputs:
-            raise KeyError(
-                f"No input named '{rule.name}' to use in info transfer rule."
-            )
-        if isinstance(rule, FromOutput) and rule.name not in self._outputs:
-            raise KeyError(
-                f"No output named '{rule.name}' to use in info transfer rule."
+        if isinstance(rule, FromInput):
+            if rule.name not in self._inputs:
+                raise KeyError(
+                    f"No input named '{rule.name}' to use in info transfer rule."
+                )
+        elif isinstance(rule, FromOutput):
+            if rule.name not in self._outputs:
+                raise KeyError(
+                    f"No output named '{rule.name}' to use in info transfer rule."
+                )
+        elif not isinstance(rule, FromValue):
+            raise TypeError(
+                f"Rules must be one of the types FromInput, FromOutput or FromValue. "
+                f"Got '{rule.__class__.__name__}'."
             )
 
     @property

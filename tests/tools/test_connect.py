@@ -358,3 +358,11 @@ class TestConnectHelper(unittest.TestCase):
                 outputs,
                 in_info_rules={"In1": [FromOutput("OutX", "grid")]},
             )
+
+        with self.assertRaises(TypeError):
+            _connector: ConnectHelper = ConnectHelper(
+                "TestLogger",
+                inputs,
+                outputs,
+                in_info_rules={"In1": [0]},
+            )
