@@ -17,7 +17,7 @@ import pint
 # isort: on
 
 from ..errors import FinamDataError, FinamMetaDataError
-from .grid_spec import NoGrid
+from . import grid_spec
 from .grid_tools import Grid, GridBase
 
 # set default format to cf-convention for pint.dequantify
@@ -58,7 +58,7 @@ def _gen_dims(ndim, info, time=None):
     """
     # create correct dims (time always first)
     dims = ["time"] if time else []
-    if isinstance(info.grid, NoGrid):
+    if isinstance(info.grid, grid_spec.NoGrid):
         # xarray has dim_0, dim_1 ... as default names
         dims += [f"dim_{i}" for i in range(ndim)]
     else:
@@ -124,7 +124,7 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
         # reshape arrays
         data = data.reshape(info.grid.data_shape, order=info.grid.order)
 
-    elif isinstance(info.grid, NoGrid):
+    elif isinstance(info.grid, grid_spec.NoGrid):
         if len(data.shape) != info.grid.dim:
             raise FinamDataError(
                 f"to_xarray: number of dimensions in data doesn't match expected number. "
@@ -451,7 +451,7 @@ def _check_shape(xdata, grid, with_time):
             f"check: given data has wrong shape. "
             f"Got {in_shape}, expected {grid.data_shape}"
         )
-    if isinstance(grid, NoGrid) and len(in_shape) != grid.dim:
+    if isinstance(grid, grid_spec.NoGrid) and len(in_shape) != grid.dim:
         raise FinamDataError(
             f"check: given data has wrong number of dimensions. "
             f"Got {len(in_shape)}, expected {grid.dim}"

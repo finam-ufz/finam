@@ -208,7 +208,9 @@ class Component(IComponent, Loggable, ABC):
         """The component's ConnectHelper"""
         return self._connector
 
-    def create_connector(self, pull_data=None, cache=True):
+    def create_connector(
+        self, pull_data=None, in_info_rules=None, out_info_rules=None, cache=True
+    ):
         """
         Create the component's ConnectHelper
 
@@ -216,6 +218,10 @@ class Component(IComponent, Loggable, ABC):
         ----------
         pull_data : arraylike
             Names of the inputs that are to be pulled.
+        in_info_rules : dict
+            Info transfer rules for inputs.
+        out_info_rules : dict
+            Info transfer rules for outputs.
         cache : bool
             Whether data and :class:`.Info` objects passed via :meth:`try_connect() <.Component.try_connect>`
             are cached for later calls. Default ``True``.
@@ -226,6 +232,8 @@ class Component(IComponent, Loggable, ABC):
             self.inputs,
             self.outputs,
             pull_data=pull_data,
+            in_info_rules=in_info_rules,
+            out_info_rules=out_info_rules,
             cache=cache,
         )
         self.inputs.frozen = True
