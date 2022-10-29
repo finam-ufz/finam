@@ -80,6 +80,7 @@ html_favicon = "_static/logo.svg"
 html_theme_options = {
     "page_sidebar_items": ["page-toc"],
     "footer_items": ["copyright"],
+    "header_links_before_dropdown": 6,
     "show_nav_level": 2,
     "show_toc_level": 2,
     "icon_links": [
@@ -100,6 +101,10 @@ html_theme_options = {
     ],
     "external_links": [
         {"name": "Examples", "url": "https://git.ufz.de/FINAM/finam-examples"},
+        {
+            "name": "Get Help",
+            "url": "https://github.com/finam-ufz/finam/discussions",
+        },
     ],
 }
 
