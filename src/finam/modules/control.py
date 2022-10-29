@@ -20,13 +20,40 @@ class TimeTrigger(TimeComponent):
                  |             |
                  +-------------+
 
+    The typical usage is shown in the example below.
+    Here, the component will retrieve metadata from it's input,
+    for all metadata fields that are ```None``.
+    Because ``out_info`` is ``None``, the received metadata is then forwarded to the output.
+
+    The same mechanism can be used in the other direction, by specifying ``out_info``
+    but not ``in_info`` in the method call.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import datetime as dt
+        import finam as fm
+
+        component = fm.modules.TimeTrigger(
+            in_info=fm.Info(time=None, grid=None, units=None),
+            start=dt.datetime(2000, 1, 1),
+            step=dt.timedelta(days=1),
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        component.initialize()
+
     Parameters
     ----------
     start : datetime.datetime
         Starting time. Can be ``None`` to retrieve it from linked components.
         See parameter ``start_from_input`` for details.
-    start : datetime.timedelta
-        Time step
+    step : datetime.timedelta
+        The component's time step
     in_info : Info, optional
         Input info, optional. However, one of ``in_info`` or ``out_info`` must be given.
         ``time`` is ignored and can be set to ``None``.
