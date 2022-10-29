@@ -229,8 +229,6 @@ class Component(IComponent, Loggable, ABC):
             Whether data and :class:`.Info` objects passed via :meth:`try_connect() <.Component.try_connect>`
             are cached for later calls. Default ``True``.
 
-        .. _examples::
-
         Examples
         --------
 
