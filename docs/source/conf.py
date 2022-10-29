@@ -38,8 +38,7 @@ autosummary_generate = True
 # dont show __init__ docstring
 autoclass_content = "class"
 # sort class members
-autodoc_member_order = "groupwise"
-# autodoc_member_order = 'bysource'
+autodoc_member_order = 'bysource'
 
 # Notes in boxes
 napoleon_use_admonition_for_notes = True
