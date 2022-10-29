@@ -9,13 +9,13 @@ Documentation update & redesign
 ===============================
 
 In preparation of the FINAM 0.4 release, the complete :doc:`documentation </index>` was reworked.
-Of course, the docs up to date with the code now, but there is more:
+Of course, the docs are up to date with the code now, but there is more:
 Everything is in one place, structure and layout were improved,
 and the :doc:`/finam-book/index` and the :doc:`/api/index` are heavily cross-referenced.
 
 ----
 
-Large parts of the :doc:`/finam-book/index` were updated for all the upcoming changes for version 0.4.
+Large parts of the :doc:`/finam-book/index` were updated for all the upcoming changes of version 0.4.
 Completely new chapters were added for metadata handling
 (:doc:`/finam-book/principles/metadata` and :doc:`/finam-book/development/data_metadata`),
 :doc:`/finam-book/development/connect_phase` and :doc:`/finam-book/development/special_components`.
