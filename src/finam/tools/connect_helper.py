@@ -7,6 +7,28 @@ from ..errors import FinamNoDataError
 from ..tools.log_helper import ErrorLogger
 
 
+class InfoSource:
+    def __init__(self, name, *fields):
+        self.name = name
+        self.fields = fields
+
+
+class FromInput(InfoSource):
+    def __init__(self, name, *fields):
+        super().__init__(name, fields)
+
+
+class FromOutput(InfoSource):
+    def __init__(self, name, *fields):
+        super().__init__(name, fields)
+
+
+class FromValue:
+    def __init__(self, field, value):
+        self.field = field
+        self.value = value
+
+
 class ConnectHelper(Loggable):
     """Helper for iterative connect.
 
@@ -22,6 +44,10 @@ class ConnectHelper(Loggable):
         All inputs of the component.
     outputs : dict
         All outputs of the component.
+    in_info_rules : dict
+        Info transfer rules for inputs.
+    out_info_rules : dict
+        Info transfer rules for outputs.
     pull_data : arraylike
         Names of the inputs that are to be pulled.
     cache : bool
@@ -35,6 +61,8 @@ class ConnectHelper(Loggable):
         inputs,
         outputs,
         pull_data=None,
+        in_info_rules=None,
+        out_info_rules=None,
         cache=True,
     ):
 
@@ -42,6 +70,9 @@ class ConnectHelper(Loggable):
         self._inputs = inputs
         self._outputs = outputs
         self._cache = cache
+
+        self._in_info_rules = in_info_rules or {}
+        self._out_info_rules = in_info_rules or {}
 
         with ErrorLogger(self.logger):
             for name in pull_data or []:
@@ -62,9 +93,38 @@ class ConnectHelper(Loggable):
             name: False for name, out in self.outputs.items() if out.needs_push
         }
 
+        self._check_info_rules()
+
         self._in_info_cache = {}
         self._out_info_cache = {}
         self._out_data_cache = {}
+
+    def _check_info_rules(self):
+        for name, rules in self._in_info_rules.items():
+            if name not in self._inputs:
+                raise ValueError(
+                    f"No input named '{name}' to apply info transfer rule."
+                )
+            for rule in rules:
+                self._check_rule(rule)
+
+        for name, rules in self._out_info_rules.items():
+            if name not in self._outputs:
+                raise ValueError(
+                    f"No output named '{name}' to apply info transfer rule."
+                )
+            for rule in rules:
+                self._check_rule(rule)
+
+    def _check_rule(self, rule):
+        if isinstance(rule, FromInput) and rule.name not in self._inputs:
+            raise ValueError(
+                f"No input named '{rule.name}' to use in info transfer rule."
+            )
+        if isinstance(rule, FromOutput) and rule.name not in self._inputs:
+            raise ValueError(
+                f"No output named '{rule.name}' to use in info transfer rule."
+            )
 
     @property
     def logger(self):
