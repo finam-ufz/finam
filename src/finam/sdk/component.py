@@ -211,20 +211,105 @@ class Component(IComponent, Loggable, ABC):
     def create_connector(
         self, pull_data=None, in_info_rules=None, out_info_rules=None, cache=True
     ):
-        """
-        Create the component's ConnectHelper
+        """Initialize the component's :class:`.tools.ConnectHelper`.
 
         Parameters
         ----------
         pull_data : arraylike
             Names of the inputs that are to be pulled.
         in_info_rules : dict
-            Info transfer rules for inputs.
+            Info transfer rules for inputs.See the examples for details.
+
+            See also :class:`.tools.FromInput`, :class:`.tools.FromOutput` and :class:`.tools.FromValue`.
         out_info_rules : dict
-            Info transfer rules for outputs.
+            Info transfer rules for outputs. See the examples for details.
+
+            See also :class:`.tools.FromInput`, :class:`.tools.FromOutput` and :class:`.tools.FromValue`.
         cache : bool
             Whether data and :class:`.Info` objects passed via :meth:`try_connect() <.Component.try_connect>`
             are cached for later calls. Default ``True``.
+
+        .. _examples::
+
+        Examples
+        --------
+
+        The following examples show the usage of this method in :meth:`._initialize`.
+
+        .. testsetup:: *
+
+            import finam as fm
+            import datetime as dt
+
+            self = fm.modules.CallbackComponent(
+                inputs={},
+                outputs={},
+                callback=lambda inp, _t: {},
+                start=dt.datetime(2000, 1, 1),
+                step=dt.timedelta(days=1),
+            )
+
+        Simple usage if no input data or any metadata from connected components is required:
+
+        .. testcode:: create-connector-simple
+
+            self.inputs.add(name="In", time=self.time, grid=fm.NoGrid())
+            self.outputs.add(name="Out", time=self.time, grid=fm.NoGrid())
+            self.create_connector()
+
+        To pull specific inputs, use ``pull_data`` like this:
+
+        .. testcode:: create-connector-pull
+
+            self.inputs.add(name="In1", time=self.time, grid=fm.NoGrid())
+            self.inputs.add(name="In2", time=self.time, grid=fm.NoGrid())
+
+            self.create_connector(pull_data=["In1", "In2"])
+
+        With the ``in_info_rules`` and ``out_info_rules``, metadata can be transferred between coupling slots.
+
+        Here, the metadata for an output is taken from an input:
+
+        .. testcode:: create-connector-in-to-out
+
+            self.inputs.add(name="In", time=self.time, grid=None, units=None)
+            self.outputs.add(name="Out")
+
+            self.create_connector(
+                out_info_rules={
+                    "Out": [
+                        fm.tools.FromInput("In")
+                    ]
+                }
+            )
+
+        The :class:`.Info` object for output ``Out`` will be crated and pushed automatically in :meth:`.try_connect`
+        as soon as the metadata for ``In`` becomes available.
+
+        Here, the metadata of an output is composed from the metadata of two inputs and a user-defined value:
+
+        .. testcode:: create-connector-in-to-out-multi
+
+            self.inputs.add(name="In1", time=self.time, grid=None, units=None)
+            self.inputs.add(name="In2", time=self.time, grid=None, units=None)
+            self.outputs.add(name="Out")
+
+            self.create_connector(
+                out_info_rules={
+                    "Out": [
+                        fm.tools.FromInput("In1", "time", "grid"),
+                        fm.tools.FromInput("In2", "units"),
+                        fm.tools.FromValue("source", "FINAM"),
+                    ]
+                }
+            )
+
+        The :class:`.Info` object for output ``Out`` would be automatically composed in :meth:`.try_connect`
+        as soon as the infos of both inputs become available.
+        ``time`` and ``grid`` would be taken from ``In1``, ``units`` from ``In2``,
+        and ``source`` would be set to ``"finam"``.
+
+        Rules are evaluated in the given order. Later rules can overwrite attributes set by earlier rules.
         """
         self.logger.debug("create connector")
         self._connector = ConnectHelper(

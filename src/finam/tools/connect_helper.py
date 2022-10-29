@@ -22,14 +22,37 @@ class InfoSource:
 
 
 class FromInput(InfoSource):
-    """Info transfer rule from an input"""
+    """Info transfer rule from an input.
+
+    See :meth:`.Component.create_connector` for usage details.
+
+    Parameters
+    ----------
+    name : str
+        Name of the input to take info from
+    *fields : str, optional
+        Into fields to take from the input.
+        Takes all fields if this is empty.
+    """
 
     def __init__(self, name, *fields):
         super().__init__(name, fields)
 
 
 class FromOutput(InfoSource):
-    """Info transfer rule from an output"""
+    """Info transfer rule from an output.
+
+    See :meth:`.Component.create_connector` for usage details.
+
+    Parameters
+    ----------
+    name : str
+        Name of the output to take info from
+    *fields : str, optional
+        Into fields to take from the output.
+        Takes all fields if this is empty.
+
+    """
 
     def __init__(self, name, *fields):
         super().__init__(name, fields)
@@ -106,7 +129,9 @@ class ConnectHelper(Loggable):
 
         self._in_info_rules = in_info_rules or {}
         self._out_info_rules = out_info_rules or {}
-        self._check_info_rules()
+
+        with ErrorLogger(self.logger):
+            self._check_info_rules()
 
         self._in_info_cache = {}
         self._out_info_cache = {}
@@ -249,8 +274,9 @@ class ConnectHelper(Loggable):
         push_data = {k: v for k, v in push_data.items() if not self.data_pushed[k]}
 
         # Try to generate infos from transfer rules
-        exchange_infos.update(self._apply_in_info_rules())
-        push_infos.update(self._apply_out_info_rules())
+        with ErrorLogger(self.logger):
+            exchange_infos.update(self._apply_in_info_rules())
+            push_infos.update(self._apply_out_info_rules())
 
         if self._cache:
             self._in_info_cache.update(exchange_infos)
