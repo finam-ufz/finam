@@ -97,8 +97,7 @@ All these methods are implemented in :class:`.Input`, so there is normally no ne
 Another implementation is provided by :class:`.CallbackInput`, for use in push-based components without a time step.
 They can connect to :meth:`.IInput.source_updated` by providing a callback function.
 
-Other classes derived from :class:`.Input` can overwrite the private :meth:`.Input._source_updated` method,
-which is called by :meth:`.Input.source_updated`.
+Other classes derived from :class:`.Input` can overwrite the method :meth:`.Input.source_updated`.
 
 :class:`.IOutput`
 ^^^^^^^^^^^^^^^^^
@@ -118,8 +117,7 @@ All other methods are only used under the hood.
 
 All these methods are implemented in :class:`.Output`, so there is normally no need to write an own implementation for :class:`.IOutput`.
 
-Other classes derived from :class:`.Output` can overwrite the private :meth:`.Output._get_data` method,
-which is called by :meth:`.Output.get_data`.
+Other classes derived from :class:`.Output` can overwrite the method :meth:`.Output.get_data`.
 
 Adapters
 --------
