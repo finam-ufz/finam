@@ -111,7 +111,7 @@ class ConnectHelper(Loggable):
         with ErrorLogger(self.logger):
             for name in pull_data or []:
                 if name not in self._inputs:
-                    raise ValueError(
+                    raise KeyError(
                         f"No input named '{name}' available to get info for."
                     )
 
@@ -273,6 +273,7 @@ class ConnectHelper(Loggable):
 
         with ErrorLogger(self.logger):
             self._check_names(exchange_infos, push_infos, push_data)
+            self._check_in_rules(exchange_infos, push_infos)
 
         exchange_infos = {
             k: v for k, v in exchange_infos.items() if self.in_infos[k] is None
@@ -359,15 +360,29 @@ class ConnectHelper(Loggable):
     def _check_names(self, exchange_infos, push_infos, push_data):
         for name in exchange_infos:
             if name not in self._inputs:
-                raise ValueError(
+                raise KeyError(
                     f"No input named '{name}' available to exchange info for."
                 )
         for name in push_infos:
             if name not in self._outputs:
-                raise ValueError(f"No output named '{name}' available to push info.")
+                raise KeyError(f"No output named '{name}' available to push info.")
         for name in push_data:
             if name not in self._outputs:
-                raise ValueError(f"No output named '{name}' available to push data.")
+                raise KeyError(f"No output named '{name}' available to push data.")
+
+    def _check_in_rules(self, exchange_infos, push_infos):
+        for name in exchange_infos:
+            if name in self._in_info_rules:
+                raise ValueError(
+                    f"There are info transfer rules given for input `{name}`. "
+                    f"Can't provide the info directly."
+                )
+        for name in push_infos:
+            if name in self._out_info_rules:
+                raise ValueError(
+                    f"There are info transfer rules given for output `{name}`. "
+                    f"Can't provide the info directly."
+                )
 
     def _exchange_in_infos(self):
         any_done = False

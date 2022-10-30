@@ -119,16 +119,16 @@ class TestConnectHelper(unittest.TestCase):
         outputs.add(name="Out1")
         outputs.add(name="Out2")
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
             _connector = ConnectHelper("TestLogger", inputs, outputs, pull_data=["In3"])
 
         connector = ConnectHelper("TestLogger", inputs, outputs)
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
             connector.connect(time=None, exchange_infos={"In3": Info(time, NoGrid())})
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
             connector.connect(time=None, push_infos={"Out3": Info(time, NoGrid())})
-        with self.assertRaises(ValueError):
+        with self.assertRaises(KeyError):
             connector.connect(time=None, push_data={"Out3": 0.0})
 
     def test_connect_caching(self):
@@ -320,8 +320,7 @@ class TestConnectHelper(unittest.TestCase):
             {"Out1": Info(time=time, grid=UniformGrid((10, 10)), units="m")},
         )
 
-    def test_connect_transfer_fail(self):
-
+    def test_connect_constructor_fail(self):
         inputs = IOList(None, "INPUT")
         inputs.add(name="In1")
         outputs = IOList(None, "OUTPUT")
@@ -365,4 +364,28 @@ class TestConnectHelper(unittest.TestCase):
                 inputs,
                 outputs,
                 in_info_rules={"In1": [0]},
+            )
+
+    def test_connect_rules_fail(self):
+        inputs = IOList(None, "INPUT")
+        inputs.add(name="In1")
+        outputs = IOList(None, "OUTPUT")
+        outputs.add(name="Out1")
+
+        connector: ConnectHelper = ConnectHelper(
+            "TestLogger",
+            inputs,
+            outputs,
+            in_info_rules={"In1": [FromOutput("Out1")]},
+            out_info_rules={"Out1": [FromInput("In1")]},
+        )
+
+        with self.assertRaises(ValueError):
+            connector.connect(
+                time=None, exchange_infos={"In1": Info(time=None, grid=NoGrid())}
+            )
+
+        with self.assertRaises(ValueError):
+            connector.connect(
+                time=None, push_infos={"Out1": Info(time=None, grid=NoGrid())}
             )
