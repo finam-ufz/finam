@@ -205,13 +205,18 @@ class Component(IComponent, Loggable, ABC):
 
     @property
     def connector(self):
-        """The component's ConnectHelper"""
+        """The component's :class:`.tools.ConnectHelper`.
+
+        See also :meth:`.create_connector` and :meth:`.try_connect`.
+        """
         return self._connector
 
     def create_connector(
         self, pull_data=None, in_info_rules=None, out_info_rules=None, cache=True
     ):
         """Initialize the component's :class:`.tools.ConnectHelper`.
+
+        See also :meth:`.try_connect`, :attr:`.connector` and :class:`.ConnectHelper` for details.
 
         Parameters
         ----------
@@ -334,17 +339,17 @@ class Component(IComponent, Loggable, ABC):
 
         Sets the component's :attr:`.status` according to success of exchange.
 
-        See :class:`.ConnectHelper` for more details.
+        See also :meth:`.create_connector`, :attr:`.connector` and :class:`.ConnectHelper` for details.
 
         Parameters
         ----------
         time : datetime.datatime
             time for data pulls
-        exchange_infos : dict
+        exchange_infos : dict of [str, Info]
             currently or newly available input data infos by input name
-        push_infos : dict
+        push_infos : dict of [str, Info]
             currently or newly available output data infos by output name
-        push_data : dict
+        push_data : dict of [str, array-like]
             currently or newly available output data by output name
         """
         self.logger.debug("try connect")
