@@ -67,7 +67,7 @@ See our gallery of examples that use FINAM.
 
 ## News
 
-News from the [FINAM Blog](blog/index).
+News from the [FINAM Blog](blog/index). See also the [Changelog](changelog).
 
 ```{postlist} 3
 :format: "{title}"
@@ -79,6 +79,7 @@ News from the [FINAM Blog](blog/index).
 ## FINAM Book
 
 Information about using, configuring and exploring FINAM.
+If you still have questions, check our [Discussions page](https://github.com/finam-ufz/finam/discussions) to get help.
 
 ```{toctree}
 :includehidden:
@@ -102,4 +103,9 @@ Announcements, cookbook recipes and user experience with FINAM.
 ```{toctree}
 :maxdepth: 2
 blog/index
+```
+
+```{toctree}
+:hidden:
+changelog
 ```

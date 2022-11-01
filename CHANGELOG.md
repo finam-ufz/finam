@@ -1,4 +1,4 @@
-# Changelog
+# Release notes
 
 ## [unpublished]
 
@@ -28,9 +28,9 @@
   * `AComponent` is now `Component`
   * `ATimeComponent` is now `TimeComponent`
 * Changed arguments for `create_connector()`
-  * Removed `required_out_infos` 
+  * Removed `required_out_infos`
   * Renamed `required_in_data` to `pull_data`
-* All error types are in module `errors` now, and re-exported at top level 
+* All error types are in module `errors` now, and re-exported at top level
 
 ## [v0.4.0-rc.2]
 
@@ -47,7 +47,7 @@
 * Connect phase of scheduler can be called separately from run (!99)
 * No need to set component status in constructor anymore (!100)
 
-### Other  
+### Other
 
 * Components are allowed to be in state VALIDATED at the end of a run (i.e. not updated) (!97)
 * Component connector checks that inputs and outputs referenced in arguments actually exist (!101)
@@ -56,12 +56,12 @@
 
 ### Data and metadata rework
 
-* Grid specifications for structured and unstructured grids (!74):  
+* Grid specifications for structured and unstructured grids (!74):
   `RectilinearGrid`, `UniformGrid`, `EsriGrid`, `UnstructuredGrid` and `UnstructuredPoints`
 * Use of `xarray.DataArray` for all exchanged data (!74)
 * All exchanged data must have `pint` units (can be "dimensionless") (!74)
 * Metadata about grid specification, units and other metadata is exchanged before the first data exchange (!77)
-* Metadata exchange is iterative and bi-directional (!77)  
+* Metadata exchange is iterative and bi-directional (!77)
   Components can depend on metadata from source or target components
 * Inputs check compatibility of incoming metadata with own requirements (!77)
 * Inputs and outputs check compatibility of incoming data with metadata (!77)
@@ -120,3 +120,14 @@
 
 * Uses Python's `datetime` and `timedelta` for all time-related parameters
 * Removed temporal sum integration adapter
+
+## [v0.1.0]
+
+* initial release of FINAM
+
+[unpublished]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0-rc.2...main
+[v0.4.0-rc.2]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0-rc.1...v0.4.0-rc.2
+[v0.4.0-rc.1]: https://git.ufz.de/FINAM/finam/-/compare/v0.3.0...v0.4.0-rc.1
+[v0.3.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.2.0...v0.3.0
+[v0.2.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.1.0...v0.2.0
+[v0.1.0]: https://git.ufz.de/FINAM/finam/-/commits/v0.1.0

@@ -1,5 +1,7 @@
 import datetime
 
+from finam import __version__ as finam_version
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -11,6 +13,8 @@ import datetime
 project = "finam"
 copyright = f"2021 - {datetime.datetime.now().year}, Team LandTECH"
 author = "FINAM Developers"
+version = finam_version
+release = finam_version
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -20,7 +24,6 @@ extensions = [
     "sphinx_design",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
-    "sphinx.ext.autosectionlabel",
     "sphinx.ext.intersphinx",
     "sphinx.ext.doctest",
     "sphinx.ext.viewcode",
@@ -34,11 +37,8 @@ extensions = [
 autosummary_generate = True
 # dont show __init__ docstring
 autoclass_content = "class"
-# for uniqur labels/anchors
-autosectionlabel_prefix_document = True
 # sort class members
-autodoc_member_order = "groupwise"
-# autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 
 # Notes in boxes
 napoleon_use_admonition_for_notes = True
@@ -83,6 +83,7 @@ html_favicon = "_static/logo.svg"
 html_theme_options = {
     "page_sidebar_items": ["page-toc"],
     "footer_items": ["copyright"],
+    "header_links_before_dropdown": 6,
     "show_nav_level": 2,
     "show_toc_level": 2,
     "icon_links": [
@@ -103,6 +104,10 @@ html_theme_options = {
     ],
     "external_links": [
         {"name": "Examples", "url": "https://git.ufz.de/FINAM/finam-examples"},
+        {
+            "name": "Get Help",
+            "url": "https://github.com/finam-ufz/finam/discussions",
+        },
     ],
 }
 
