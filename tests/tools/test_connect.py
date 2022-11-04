@@ -283,17 +283,13 @@ class TestConnectHelper(unittest.TestCase):
             "TestLogger",
             inputs,
             outputs,
-            pull_data=list(inputs.keys()),
-            in_info_rules={
-                "In1": [FromOutput("Out1")],
-                "In2": [
-                    FromOutput("Out1", "time", "units"),
-                    FromValue("grid", NoGrid()),
-                    FromValue("time", time),
-                ],
-            },
+            pull_data=inputs.names,
             cache=True,
         )
+        connector.add_in_info_rule_from_output("In1", "Out1", "time", "units")
+        connector.add_in_info_rule_from_output("In2", "Out1", "time", "units")
+        connector.add_in_info_rule_from_value("In2", "grid", NoGrid())
+        connector.add_in_info_rule_from_value("In2", "time", time)
         connector.connect(
             time=None,
             push_data={"Out1": np.zeros((9, 9))},
@@ -376,10 +372,9 @@ class TestConnectHelper(unittest.TestCase):
             "TestLogger",
             inputs,
             outputs,
-            in_info_rules={"In1": [FromOutput("Out1")]},
-            out_info_rules={"Out1": [FromInput("In1")]},
         )
-
+        connector.add_in_info_rule_from_output("In1", "Out1")
+        connector.add_out_info_rule_from_input("Out1", "In1")
         with self.assertRaises(ValueError):
             connector.connect(
                 time=None, exchange_infos={"In1": Info(time=None, grid=NoGrid())}
