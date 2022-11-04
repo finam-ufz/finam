@@ -513,6 +513,11 @@ class IOList(collections.abc.Mapping):
             raise ValueError(f"IO.add: {self.name} '{io.name}' already exists.")
         self._dict[io.name] = io
 
+    @property
+    def names(self):
+        """list: all IO names in this list."""
+        return list(self)
+
     def set_logger(self, module):
         """
         Set the logger in the items of the IOList.

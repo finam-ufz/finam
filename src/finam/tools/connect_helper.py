@@ -1,6 +1,7 @@
 """Iterative connection helpers."""
 import copy
 import logging
+from abc import ABC
 
 from finam.interfaces import ComponentStatus, Loggable
 
@@ -13,7 +14,7 @@ class MissingInfoError(Exception):
     """Internal error type for handling missing infos for transfer rules"""
 
 
-class InfoSource:
+class InfoSource(ABC):
     """Base class for info transfer rules from inputs or outputs"""
 
     def __init__(self, name, *fields):
@@ -31,7 +32,7 @@ class FromInput(InfoSource):
     name : str
         Name of the input to take info from
     *fields : str, optional
-        Into fields to take from the input.
+        Info fields to take from the input.
         Takes all fields if this is empty.
     """
 
@@ -49,9 +50,8 @@ class FromOutput(InfoSource):
     name : str
         Name of the output to take info from
     *fields : str, optional
-        Into fields to take from the output.
+        Info fields to take from the output.
         Takes all fields if this is empty.
-
     """
 
     def __init__(self, name, *fields):
@@ -59,7 +59,16 @@ class FromOutput(InfoSource):
 
 
 class FromValue:
-    """Info transfer rule from a given value"""
+    """
+    Info transfer rule from a given value
+
+    Parameters
+    ----------
+    field : str
+        Field to set.
+    value : any
+        Value to set.
+    """
 
     def __init__(self, field, value):
         self.field = field
@@ -136,6 +145,108 @@ class ConnectHelper(Loggable):
         self._in_info_cache = {}
         self._out_info_cache = {}
         self._out_data_cache = {}
+
+    def add_in_info_rule(self, input, rule):
+        """
+        Add an input info rule.
+
+        Parameters
+        ----------
+        input : str
+            Name of the input to add an info rule to.
+        rule : FromOutput or FromValue
+            Rule to add.
+        """
+        if input in self._in_info_rules:
+            if not isinstance(self._in_info_rules, list):
+                self._in_info_rules = list(self._in_info_rules)
+            self._in_info_rules[input].append(rule)
+        else:
+            self._in_info_rules[input] = [rule]
+        with ErrorLogger(self.logger):
+            self._check_info_rules()
+
+    def add_in_info_rule_from_output(self, input, output, *fields):
+        """
+        Add an input info rule depending on an output.
+
+        Parameters
+        ----------
+        input : str
+            Name of the input to add an info rule to.
+        output : str
+            Name of the output to take the info from.
+        *fields : str, optional
+            Info fields to take from the output.
+            Takes all fields if this is empty.
+        """
+        self.add_in_info_rule(input, FromOutput(output, *fields))
+
+    def add_in_info_rule_from_value(self, input, field, value):
+        """
+        Add an input info rule from a given value.
+
+        Parameters
+        ----------
+        input : str
+            Name of the input to add an info rule to.
+        field : str
+            Field to set.
+        value : any
+            Value to set.
+        """
+        self.add_in_info_rule(input, FromValue(field, value))
+
+    def add_out_info_rule(self, output, rule):
+        """
+        Add an output info rule.
+
+        Parameters
+        ----------
+        output : str
+            Name of the output to add an info rule to.
+        rule : FromInput or FromValue
+            Rule to add.
+        """
+        if output in self._out_info_rules:
+            if not isinstance(self._out_info_rules, list):
+                self._out_info_rules = list(self._out_info_rules)
+            self._out_info_rules[output].append(rule)
+        else:
+            self._out_info_rules[output] = [rule]
+        with ErrorLogger(self.logger):
+            self._check_info_rules()
+
+    def add_out_info_rule_from_input(self, output, input, *fields):
+        """
+        Add an output info rule depending on an input.
+
+        Parameters
+        ----------
+        output : str
+            Name of the output to add an info rule to.
+        input : str
+            Name of the input to take the info from.
+        *fields : str, optional
+            Info fields to take from the input.
+            Takes all fields if this is empty.
+        """
+        self.add_out_info_rule(output, FromInput(input, *fields))
+
+    def add_out_info_rule_from_value(self, output, field, value):
+        """
+        Add an output info rule from a given value.
+
+        Parameters
+        ----------
+        output : str
+            Name of the output to add an info rule to.
+        field : str
+            Field to set.
+        value : any
+            Value to set.
+        """
+        self.add_out_info_rule(output, FromValue(field, value))
 
     def _apply_rules(self, rules):
         info = Info(time=None, grid=None)
@@ -231,6 +342,11 @@ class ConnectHelper(Loggable):
     def in_data(self):
         """dict: The pulled input data so far. May contain None values."""
         return self._pulled_data
+
+    @property
+    def all_data_pulled(self):
+        """bool: True if all expected data is pulled."""
+        return all(data is not None for data in self.in_data.values())
 
     @property
     def infos_pushed(self):
