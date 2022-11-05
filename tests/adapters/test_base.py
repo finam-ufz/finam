@@ -65,7 +65,6 @@ class TestScale(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1)), 0)
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2)), 2)
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 2)
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3)), 4)
 
