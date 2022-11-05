@@ -115,7 +115,7 @@ class Input(IInput, Loggable):
 
         Must be called after linking and before the connect phase.
         """
-        self.source.pinged()
+        self.source.pinged(self)
 
     def exchange_info(self, info=None):
         """Exchange the data info with the input's source.

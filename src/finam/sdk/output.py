@@ -30,7 +30,7 @@ class Output(IOutput, Loggable):
         if info is not None:
             self.push_info(info)
 
-        self._connected_inputs = 0
+        self._connected_inputs = set()
         self._out_infos_exchanged = 0
 
     @property
@@ -38,7 +38,7 @@ class Output(IOutput, Loggable):
         """Info: The input's data info."""
         if self._output_info is None:
             raise FinamNoDataError("No data info available")
-        if self.has_targets and self._out_infos_exchanged < self._connected_inputs:
+        if self.has_targets and self._out_infos_exchanged < len(self._connected_inputs):
             raise FinamNoDataError("Data info was not completely exchanged yet")
 
         return self._output_info
@@ -85,9 +85,14 @@ class Output(IOutput, Loggable):
         """
         return self.targets
 
-    def pinged(self):
+    def pinged(self, source):
         """Called when receiving a ping from a downstream input."""
-        self._connected_inputs += 1
+        if source in self._connected_inputs:
+            with ErrorLogger(self.logger):
+                raise ValueError(
+                    f"Input '{source.name}' is already connected to this output"
+                )
+        self._connected_inputs.add(source)
 
     def push_data(self, data, time):
         """Push data into the output.
@@ -111,7 +116,7 @@ class Output(IOutput, Loggable):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        if self.has_targets and self._out_infos_exchanged < self._connected_inputs:
+        if self.has_targets and self._out_infos_exchanged < len(self._connected_inputs):
             raise FinamNoDataError("Can't push data before output info was exchanged.")
 
         with ErrorLogger(self.logger):
@@ -169,7 +174,7 @@ class Output(IOutput, Loggable):
 
         if self._output_info is None:
             raise FinamNoDataError(f"No data info available in {self.name}")
-        if self._out_infos_exchanged < self._connected_inputs:
+        if self._out_infos_exchanged < len(self._connected_inputs):
             raise FinamNoDataError(f"Data info was not yet exchanged in {self.name}")
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
@@ -324,7 +329,7 @@ class CallbackOutput(Output):
 
         if self._output_info is None:
             raise FinamNoDataError(f"No data info available in {self.name}")
-        if self._out_infos_exchanged < self._connected_inputs:
+        if self._out_infos_exchanged < len(self._connected_inputs):
             raise FinamNoDataError(f"Data info was not yet exchanged in {self.name}")
 
         data = self.callback(self, time)

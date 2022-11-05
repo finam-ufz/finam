@@ -263,8 +263,15 @@ class IOutput(ABC):
         """
 
     @abstractmethod
-    def pinged(self):
-        """Called when receiving a ping from a downstream input."""
+    def pinged(self, source):
+        """Called when receiving a ping from a downstream input.
+
+        Parameters
+        ----------
+
+        source : IInput
+            Pinging target end point
+        """
 
     @abstractmethod
     def push_data(self, data, time):

@@ -168,9 +168,9 @@ class Adapter(IAdapter, Input, Output, ABC):
         """
         return self.exchange_info(info)
 
-    def pinged(self):
+    def pinged(self, source):
         """Called when receiving a ping from a downstream input."""
-        self.ping()
+        self.source.pinged(source)
 
     @final
     def exchange_info(self, info=None):

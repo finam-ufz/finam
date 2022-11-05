@@ -164,7 +164,7 @@ class TestOutput(unittest.TestCase):
             out.get_data(t)
 
         out.push_info(info)
-        out._connected_inputs = 1
+        out._connected_inputs = {inp}
 
         with self.assertRaises(FinamNoDataError):
             out.push_data(100, t)
