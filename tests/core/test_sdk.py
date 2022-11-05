@@ -1,6 +1,7 @@
 """
 Unit tests for the sdk implementations.
 """
+import logging
 import unittest
 from datetime import datetime
 
@@ -466,20 +467,32 @@ class TestNotImplemented(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             comp._connect()
 
-        with self.assertRaises(NotImplementedError):
+        # check that the debug log for not implementing _validate is there
+        with self.assertLogs(level=logging.DEBUG) as captured:
             comp.validate()
-        with self.assertRaises(NotImplementedError):
+        self.assertEqual(len(captured.records), 2)
+        self.assertEqual(captured.records[0].levelno, logging.DEBUG)
+        self.assertEqual(captured.records[1].levelno, logging.DEBUG)
+        with self.assertLogs(level=logging.DEBUG) as captured:
             comp._validate()
+        self.assertEqual(len(captured.records), 1)
+        self.assertEqual(captured.records[0].levelno, logging.DEBUG)
 
         with self.assertRaises(NotImplementedError):
             comp.update()
         with self.assertRaises(NotImplementedError):
             comp._update()
 
-        with self.assertRaises(NotImplementedError):
+        # check that the debug log for not implementing _finalize is there
+        with self.assertLogs(level=logging.DEBUG) as captured:
             comp.finalize()
-        with self.assertRaises(NotImplementedError):
+        self.assertEqual(len(captured.records), 2)
+        self.assertEqual(captured.records[0].levelno, logging.DEBUG)
+        self.assertEqual(captured.records[1].levelno, logging.DEBUG)
+        with self.assertLogs(level=logging.DEBUG) as captured:
             comp._finalize()
+        self.assertEqual(len(captured.records), 1)
+        self.assertEqual(captured.records[0].levelno, logging.DEBUG)
 
     def test_adapter_not_implemented(self):
         adapter = NotImplAdapter()
