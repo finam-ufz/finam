@@ -192,6 +192,25 @@ class TestOutput(unittest.TestCase):
         self.assertEqual(inp.pull_data(t), 100)
         self.assertEqual(counter, 1)
 
+    def test_know_targets(self):
+        out = Output(name="Output")
+        in1 = Input(name="In1")
+        in2 = Input(name="In1")
+
+        ada = fm.adapters.Scale(2.0)
+
+        out >> ada
+        ada >> in1
+        ada >> in2
+
+        in1.ping()
+        in2.ping()
+
+        self.assertEqual(out._connected_inputs, {in1, in2})
+
+        with self.assertRaises(ValueError):
+            in1.ping()
+
 
 class TestInput(unittest.TestCase):
     def test_fail_set_source(self):
