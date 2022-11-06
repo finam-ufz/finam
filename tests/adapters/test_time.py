@@ -36,19 +36,19 @@ class TestNextValue(unittest.TestCase):
         self.source.validate()
 
     def test_next_value(self):
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0)), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0), None), 0.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12)), 1.0)
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12), None), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0), None), 1.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 2.0)
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12), None), 2.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0), None), 2.0)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 4, 0))
+            self.adapter.get_data(datetime(2000, 1, 4, 0), None)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(100)
+            self.adapter.get_data(100, None)
 
 
 class TestPreviousValue(unittest.TestCase):
@@ -71,22 +71,22 @@ class TestPreviousValue(unittest.TestCase):
         self.source.validate()
 
     def test_previous_value(self):
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0)), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0), None), 0.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12)), 0.0)
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12), None), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0), None), 1.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 1.0)
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12), None), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0), None), 2.0)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 1, 0))
+            self.adapter.get_data(datetime(2000, 1, 1, 0), None)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 4, 0))
+            self.adapter.get_data(datetime(2000, 1, 4, 0), None)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(100)
+            self.adapter.get_data(100, None)
 
 
 class TestLinearInterpolation(unittest.TestCase):
@@ -108,22 +108,22 @@ class TestLinearInterpolation(unittest.TestCase):
         self.source.validate()
 
     def test_linear_interpolation(self):
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0)), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0), None), 0.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12)), 0.5)
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0)), 1.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 12), None), 0.5)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0), None), 1.0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 1.5)
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0)), 2.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12), None), 1.5)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0), None), 2.0)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 1, 0))
+            self.adapter.get_data(datetime(2000, 1, 1, 0), None)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 4, 0))
+            self.adapter.get_data(datetime(2000, 1, 4, 0), None)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(100)
+            self.adapter.get_data(100, None)
 
 
 class TestLinearGridInterpolation(unittest.TestCase):
@@ -152,46 +152,46 @@ class TestLinearGridInterpolation(unittest.TestCase):
 
     def test_linear_grid_interpolation(self):
         self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 0)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 0), None))[
                 0, 2, 3
             ],
             0.0,
         )
         self.source.update()
         self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12), None))[
                 0, 2, 3
             ],
             0.5,
         )
         self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0), None))[
                 0, 2, 3
             ],
             1.0,
         )
         self.source.update()
         self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 12)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 12), None))[
                 0, 2, 3
             ],
             1.5,
         )
         self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 3, 0)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 3, 0), None))[
                 0, 2, 3
             ],
             2.0,
         )
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 1, 0))
+            self.adapter.get_data(datetime(2000, 1, 1, 0), None)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 4, 0))
+            self.adapter.get_data(datetime(2000, 1, 4, 0), None)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(100)
+            self.adapter.get_data(100, None)
 
 
 class TestLinearIntegration(unittest.TestCase):
@@ -218,25 +218,28 @@ class TestLinearIntegration(unittest.TestCase):
     def test_linear_integration(self):
         self.source.update()
         self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12))), 0.25
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12), None)),
+            0.25,
         )
         self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0))), 0.75
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0), None)),
+            0.75,
         )
         self.source.update()
         self.source.update()
         self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 4, 0))), 2.0
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 4, 0), None)),
+            2.0,
         )
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 2, 0))
+            self.adapter.get_data(datetime(2000, 1, 2, 0), None)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 5, 0))
+            self.adapter.get_data(datetime(2000, 1, 5, 0), None)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(100)
+            self.adapter.get_data(100, None)
 
 
 class TestLinearGridIntegration(unittest.TestCase):
@@ -267,13 +270,13 @@ class TestLinearGridIntegration(unittest.TestCase):
     def test_linear_grid_integration(self):
         self.source.update()
         self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12), None))[
                 0, 2, 3
             ],
             0.25,
         )
         self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0), None))[
                 0, 2, 3
             ],
             0.75,
@@ -281,20 +284,20 @@ class TestLinearGridIntegration(unittest.TestCase):
         self.source.update()
         self.source.update()
         self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 4, 0)))[
+            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 4, 0), None))[
                 0, 2, 3
             ],
             2.0,
         )
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 2, 0))
+            self.adapter.get_data(datetime(2000, 1, 2, 0), None)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 5, 0))
+            self.adapter.get_data(datetime(2000, 1, 5, 0), None)
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(100)
+            self.adapter.get_data(100, None)
 
 
 def create_grid(cols, rows, value):

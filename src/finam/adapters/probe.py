@@ -30,7 +30,7 @@ class CallbackProbe(Adapter):
         super().__init__()
         self.callback = callback
 
-    def _get_data(self, time):
+    def _get_data(self, time, target):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -43,6 +43,6 @@ class CallbackProbe(Adapter):
         array_like
             data-set for the requested time.
         """
-        data = self.pull_data(time)
+        data = self.pull_data(time, target)
         self.callback(data, time)
         return data

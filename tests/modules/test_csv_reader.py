@@ -61,9 +61,12 @@ class TestCsvReader(unittest.TestCase):
             reader.validate()
 
             self.assertEqual(reader.time, datetime(2000, 1, 1))
-            self.assertEqual(reader.outputs["X"].get_data(datetime(2000, 1, 1)), 1)
             self.assertEqual(
-                reader.outputs["Y"].get_data(datetime(2000, 1, 1)), 7 * UNITS.meter
+                reader.outputs["X"].get_data(datetime(2000, 1, 1), None), 1
+            )
+            self.assertEqual(
+                reader.outputs["Y"].get_data(datetime(2000, 1, 1), None),
+                7 * UNITS.meter,
             )
 
             self.assertEqual(sink1.info.time, datetime(2000, 1, 1))
@@ -72,9 +75,12 @@ class TestCsvReader(unittest.TestCase):
             reader.update()
 
             self.assertEqual(reader.time, datetime(2000, 1, 2))
-            self.assertEqual(reader.outputs["X"].get_data(datetime(2000, 1, 2)), 2)
             self.assertEqual(
-                reader.outputs["Y"].get_data(datetime(2000, 1, 2)), 8 * UNITS.meter
+                reader.outputs["X"].get_data(datetime(2000, 1, 2), None), 2
+            )
+            self.assertEqual(
+                reader.outputs["Y"].get_data(datetime(2000, 1, 2), None),
+                8 * UNITS.meter,
             )
 
             reader.update()

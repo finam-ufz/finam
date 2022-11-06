@@ -7,7 +7,7 @@ from datetime import datetime
 from ..data import tools
 from ..data.tools import Info
 from ..errors import FinamMetaDataError, FinamNoDataError, FinamTimeError
-from ..interfaces import IInput, IOutput, Loggable
+from ..interfaces import IAdapter, IInput, IOutput, Loggable
 from ..tools.log_helper import ErrorLogger
 
 
@@ -30,7 +30,7 @@ class Output(IOutput, Loggable):
         if info is not None:
             self.push_info(info)
 
-        self._connected_inputs = set()
+        self._connected_inputs = {}
         self._out_infos_exchanged = 0
 
     @property
@@ -87,12 +87,12 @@ class Output(IOutput, Loggable):
 
     def pinged(self, source):
         """Called when receiving a ping from a downstream input."""
-        if source in self._connected_inputs:
+        if not isinstance(source, IAdapter) and source in self._connected_inputs:
             with ErrorLogger(self.logger):
                 raise ValueError(
                     f"Input '{source.name}' is already connected to this output"
                 )
-        self._connected_inputs.add(source)
+        self._connected_inputs[source] = None
 
     def push_data(self, data, time):
         """Push data into the output.
@@ -153,19 +153,25 @@ class Output(IOutput, Loggable):
         for target in self.targets:
             target.source_updated(time)
 
-    def get_data(self, time):
+    def get_data(self, time, target):
         """Get the output's data-set for the given time.
 
         Parameters
         ----------
         time : datetime.datatime
             simulation time to get the data for.
+        target : IInput or None
+            Requesting end point of this pull.
 
         Returns
         -------
         any
             data-set for the requested time.
-            Should return `None` if no data is available.
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no data is available
         """
         self.logger.debug("get data")
         if not isinstance(time, datetime):
@@ -179,7 +185,18 @@ class Output(IOutput, Loggable):
         if len(self.data) == 0:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        return self._interpolate(time)
+        data = self._interpolate(time)
+        self._clear_data(time, target)
+        return data
+
+    def _clear_data(self, time, target):
+        self._connected_inputs[target] = time
+        if any(t is None for t in self._connected_inputs.values()):
+            return
+
+        t_min = min(self._connected_inputs.values())
+        while len(self.data) > 1 and self.data[1][0] <= t_min:
+            self.data.pop(0)
 
     def _interpolate(self, time):
         if time < self.data[0][0] or time > self.data[-1][0]:
@@ -338,13 +355,25 @@ class CallbackOutput(Output):
     def push_data(self, data, time):
         raise NotImplementedError("CallbackInput does not support push of data")
 
-    def get_data(self, time):
-        """Informs the input that a new output is available.
+    def get_data(self, time, target):
+        """Get the output's data-set for the given time.
 
         Parameters
         ----------
         time : datetime.datatime
-            Simulation time of the notification.
+            simulation time to get the data for.
+        target : IInput
+            requesting end point of this pull
+
+        Returns
+        -------
+        any
+            data-set for the requested time.
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no data is available
         """
         self.logger.debug("source changed")
         if not isinstance(time, datetime):

@@ -27,7 +27,7 @@ class MockupConsumer(TimeComponent):
         pass
 
     def _update(self):
-        self.data = self.inputs["Input"].pull_data(self.time)
+        self.data = self.inputs["Input"].pull_data(self.time, None)
         self.time += self.step
 
     def _finalize(self):
@@ -66,8 +66,8 @@ class SpecAdapter(Adapter):
     def __init__(self):
         super().__init__()
 
-    def _get_data(self, time):
-        return self.pull_data(time)
+    def _get_data(self, time, target):
+        return self.pull_data(time, target)
 
     def _get_info(self, info):
         in_info = self.exchange_info(info)

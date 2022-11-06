@@ -161,10 +161,10 @@ class TestOutput(unittest.TestCase):
         out >> inp
 
         with self.assertRaises(FinamNoDataError):
-            out.get_data(t)
+            out.get_data(t, None)
 
         out.push_info(info)
-        out._connected_inputs = {inp}
+        out._connected_inputs = {inp: None}
 
         with self.assertRaises(FinamNoDataError):
             out.push_data(100, t)
@@ -187,7 +187,7 @@ class TestOutput(unittest.TestCase):
         self.assertTrue(inp.has_source)
         self.assertTrue(out.has_targets)
         self.assertEqual(out.get_info(info), info)
-        self.assertEqual(out.get_data(t), 100)
+        self.assertEqual(out.get_data(t, None), 100)
         self.assertEqual(inp.exchange_info(info), info)
         self.assertEqual(inp.pull_data(t), 100)
         self.assertEqual(counter, 1)
@@ -206,10 +206,26 @@ class TestOutput(unittest.TestCase):
         in1.ping()
         in2.ping()
 
-        self.assertEqual(out._connected_inputs, {in1, in2})
+        self.assertEqual(out._connected_inputs, {in1: None, in2: None})
 
         with self.assertRaises(ValueError):
             in1.ping()
+
+    def test_know_targets_adapter(self):
+        out = Output(name="Output")
+        in1 = Input(name="In1")
+        in2 = Input(name="In1")
+
+        ada = fm.adapters.LinearTime()
+
+        out >> ada
+        ada >> in1
+        ada >> in2
+
+        in1.ping()
+        in2.ping()
+
+        self.assertEqual(out._connected_inputs, {ada: None})
 
 
 class TestInput(unittest.TestCase):
@@ -270,26 +286,26 @@ class TestCallbackOutput(unittest.TestCase):
             _data = out.push_data(0, t)
 
         with self.assertRaises(ValueError):
-            _data = out.get_data(0)
+            _data = out.get_data(0, None)
 
         with self.assertRaises(FinamNoDataError):
-            _data = out.get_data(t)
+            _data = out.get_data(t, None)
 
         out._output_info = Info(time=t, grid=NoGrid())
 
         with self.assertRaises(FinamNoDataError):
-            _data = out.get_data(t)
+            _data = out.get_data(t, None)
 
         out._out_infos_exchanged = 1
 
-        data = out.get_data(t)
+        data = out.get_data(t, None)
 
         self.assertEqual(data, 42)
         self.assertEqual(caller, out)
         self.assertEqual(counter, 1)
 
         with self.assertRaises(FinamNoDataError):
-            _data = out.get_data(t)
+            _data = out.get_data(t, None)
 
 
 class TestIOList(unittest.TestCase):
@@ -435,7 +451,7 @@ class TestIOFails(unittest.TestCase):
             out.notify_targets(0)
 
         with self.assertRaises(ValueError):
-            out.get_data(0)
+            out.get_data(0, None)
 
         out = Output(name="Out")
         with self.assertRaises(FinamMetaDataError):
@@ -516,9 +532,9 @@ class TestNotImplemented(unittest.TestCase):
     def test_adapter_not_implemented(self):
         adapter = NotImplAdapter()
         with self.assertRaises(NotImplementedError):
-            adapter.get_data(datetime(2000, 1, 1))
+            adapter.get_data(datetime(2000, 1, 1), None)
         with self.assertRaises(NotImplementedError):
-            adapter._get_data(datetime(2000, 1, 1))
+            adapter._get_data(datetime(2000, 1, 1), None)
 
 
 if __name__ == "__main__":

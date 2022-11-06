@@ -123,8 +123,8 @@ class RegridNearest(ARegridding):
         # only store IDs, since they will be constant
         self.ids = tree.query(self._transform(self.output_grid.data_points))[1]
 
-    def _get_data(self, time):
-        in_data = self.pull_data(time)
+    def _get_data(self, time, target):
+        in_data = self.pull_data(time, target)
 
         res = (
             dtools.get_data(in_data)
@@ -204,8 +204,8 @@ class RegridLinear(ARegridding):
             tree = KDTree(self.input_grid.data_points, **kw)
             self.fill_ids = tree.query(out_points)[1]
 
-    def _get_data(self, time):
-        in_data = self.pull_data(time)
+    def _get_data(self, time, target):
+        in_data = self.pull_data(time, target)
 
         if isinstance(self.input_grid, StructuredGrid):
             self.inter.values = dtools.get_magnitude(dtools.strip_time(in_data))

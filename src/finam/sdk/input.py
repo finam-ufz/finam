@@ -83,17 +83,22 @@ class Input(IInput, Loggable):
         """
         self.logger.debug("source changed")
 
-    def pull_data(self, time):
+    def pull_data(self, time, target=None):
         """Retrieve the data from the input's source.
 
         Parameters
         ----------
         time : datetime.datatime
             Simulation time to get the data for.
+        target : IInput or None
+            Requesting end point of this pull.
+            Should be ``None`` for normal input pulls in components.
+            Simple adapters should forward the source in :meth:`.Adapter._get_data`.
+            Push-based adapters should use ``self`` in :meth:`.Adapter._source_updated`.
 
         Returns
         -------
-        array_like
+        :class:`xarray.DataArray`
             Data set for the given simulation time.
         """
         self.logger.debug("pull data")
@@ -101,7 +106,7 @@ class Input(IInput, Loggable):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        data = self.source.get_data(time)
+        data = self.source.get_data(time, target or self)
 
         with ErrorLogger(self.logger):
             if "units" in self._input_info.meta:

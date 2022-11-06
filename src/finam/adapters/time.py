@@ -50,10 +50,10 @@ class NextTime(Adapter):
         """
         _check_time(self.logger, time)
 
-        self.data = self.pull_data(time)
+        self.data = self.pull_data(time, self)
         self.time = time
 
-    def _get_data(self, time):
+    def _get_data(self, time, _target):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -106,7 +106,7 @@ class PreviousTime(Adapter):
         """
         _check_time(self.logger, time)
 
-        data = self.pull_data(time)
+        data = self.pull_data(time, self)
         if self.new_data is None:
             self.old_data = (time, data)
         else:
@@ -114,7 +114,7 @@ class PreviousTime(Adapter):
 
         self.new_data = (time, data)
 
-    def _get_data(self, time):
+    def _get_data(self, time, _target):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -171,9 +171,9 @@ class LinearTime(Adapter):
         _check_time(self.logger, time)
 
         self.old_data = self.new_data
-        self.new_data = (time, dtools.strip_data(self.pull_data(time)))
+        self.new_data = (time, dtools.strip_data(self.pull_data(time, self)))
 
-    def _get_data(self, time):
+    def _get_data(self, time, _target):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -243,13 +243,13 @@ class IntegrateTime(Adapter, NoBranchAdapter):
         """
         _check_time(self.logger, time)
 
-        data = dtools.strip_data(self.pull_data(time))
+        data = dtools.strip_data(self.pull_data(time, self))
         self.data.append((time, data))
 
         if self.prev_time is None:
             self.prev_time = time
 
-    def _get_data(self, time):
+    def _get_data(self, time, _target):
         """Get the output's data-set for the given time.
 
         Parameters
