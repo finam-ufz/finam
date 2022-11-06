@@ -102,6 +102,7 @@ class Composition(Loggable):
                         "Composition: modules need to be instances of 'IComponent'."
                     )
         self.modules = modules
+        self.dependencies = None
         self.is_initialized = False
         self.is_connected = False
         self.mpi_rank = mpi_rank
@@ -147,6 +148,8 @@ class Composition(Loggable):
         for mod in self.modules:
             mod.validate()
             self._check_status(mod, [ComponentStatus.VALIDATED])
+
+        self.dependencies = _find_dependencies(self.modules)
 
         self.is_connected = True
 
@@ -385,6 +388,26 @@ def _check_dead_links(module, inp):
             raise _dead_link_error(module, chain, first_index, i)
         if item.needs_pull:
             first_index = i
+
+
+def _find_dependencies(modules):
+    out_map = {}
+    for mod in modules:
+        for _, out in mod.outputs.items():
+            out_map[out] = mod
+
+    dependencies = {}
+
+    for mod in modules:
+        deps = set()
+        for _, inp in mod.inputs.items():
+            while isinstance(inp, IInput):
+                inp = inp.get_source()
+            comp = out_map[inp]
+            deps.add(comp)
+        dependencies[mod] = deps
+
+    return dependencies
 
 
 def _dead_link_error(module, chain, first_index, last_index):

@@ -439,6 +439,51 @@ class TestComposition(unittest.TestCase):
         with self.assertRaises(FinamConnectError):
             composition.connect()
 
+    def test_dependencies_simple(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: 1.0}, step=timedelta(1.0)
+        )
+        module2 = MockupDependentComponent(step=timedelta(1.0))
+
+        composition = Composition([module1, module2])
+        composition.initialize()
+
+        module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
+
+        composition.connect()
+
+        self.assertEqual(composition.dependencies, {module1: set(), module2: {module1}})
+
+    def test_dependencies_multi(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: 1.0}, step=timedelta(1.0)
+        )
+        module2 = MockupDependentComponent(step=timedelta(1.0))
+
+        module3 = MockupCircularComponent(step=timedelta(1.0))
+        module4 = MockupDependentComponent(step=timedelta(1.0))
+
+        composition = Composition([module1, module2, module3, module4])
+        composition.initialize()
+
+        module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
+        module1.outputs["Output"] >> Scale(1.0) >> module3.inputs["Input"]
+        module3.outputs["Output"] >> Scale(1.0) >> module4.inputs["Input"]
+
+        composition.connect()
+
+        print(composition.dependencies)
+
+        self.assertEqual(
+            composition.dependencies,
+            {
+                module1: set(),
+                module2: {module1},
+                module3: {module1},
+                module4: {module3},
+            },
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
