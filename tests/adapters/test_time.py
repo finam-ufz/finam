@@ -7,14 +7,14 @@ from datetime import datetime, timedelta
 import numpy as np
 import pint
 
-from finam import FinamTimeError, FinamNoDataError, Info, NoGrid, UniformGrid
+from finam import FinamNoDataError, FinamTimeError, Info, NoGrid, UniformGrid
 from finam import data as tools
 from finam.adapters.time import (
+    ExtrapolateTime,
     IntegrateTime,
     LinearTime,
     NextTime,
     PreviousTime,
-    ExtrapolateTime,
 )
 from finam.modules.generators import CallbackGenerator
 

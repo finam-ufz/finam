@@ -19,7 +19,7 @@ __all__ = [
 ]
 
 
-class ExtrapolateTime(Adapter):
+class ExtrapolateTime(Adapter, NoBranchAdapter):
     """Time extrapolation (nearest) to break circular dependencies"""
 
     def __init__(self):

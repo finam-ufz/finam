@@ -15,6 +15,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from .adapters.time import ExtrapolateTime
 from .errors import FinamConnectError, FinamStatusError
 from .interfaces import (
     ComponentStatus,
@@ -25,7 +26,6 @@ from .interfaces import (
     Loggable,
     NoBranchAdapter,
 )
-from .adapters.time import ExtrapolateTime
 from .tools.log_helper import ErrorLogger, is_loggable
 
 
