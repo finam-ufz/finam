@@ -116,11 +116,9 @@ class Component(IComponent, Loggable, ABC):
     def _validate(self):
         """Validate the correctness of the component's settings and coupling.
 
-        Components must overwrite this method.
+        Components should overwrite this method.
         """
-        raise NotImplementedError(
-            f"Method `_validate` must be implemented by all components, but implementation is missing in {self.name}."
-        )
+        self.logger.debug("Method `_validate` not implemented by user.")
 
     @final
     def update(self):
@@ -163,11 +161,9 @@ class Component(IComponent, Loggable, ABC):
     def _finalize(self):
         """Finalize and clean up the component.
 
-        Components must overwrite this method.
+        Components should overwrite this method.
         """
-        raise NotImplementedError(
-            f"Method `_finalize` must be implemented by all components, but implementation is missing in {self.name}."
-        )
+        self.logger.debug("Method `_finalize` not implemented by user.")
 
     @property
     def inputs(self):

@@ -189,6 +189,10 @@ This is done in :meth:`.TimeComponent._connect`.
 
 After this connection phase, models can validate their state in :meth:`.TimeComponent._validate`. We do nothing there.
 
+.. note::
+
+    It is not strictly required to implement `_validate` but it is highly encouraged to do so.
+
 .. code-block:: Python
 
     # imports...
@@ -314,6 +318,10 @@ Finalize
 In method :meth:`.TimeComponent._finalize`, the component can do any cleanup required at the end of the coupled run, like closing streams or writing final output data to disk.
 
 We do nothing special here.
+
+.. note::
+
+    It is not strictly required to implement `_finalize` but it is highly encouraged to do so.
 
 .. code-block:: Python
 
