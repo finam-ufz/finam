@@ -43,7 +43,7 @@ class CallbackGenerator(TimeComponent):
 
     Parameters
     ----------
-    callbacks : dict of (callable, Info)
+    callbacks : dict of (str, tuple(callable, Info))
         Dict of tuples (callback, info). ``callback(time) -> data`` per output name, returning the generated data.
     start : datetime.datatime
         Starting time.

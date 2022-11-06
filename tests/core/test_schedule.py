@@ -7,6 +7,7 @@ import unittest
 from datetime import datetime, timedelta
 from tempfile import TemporaryDirectory
 
+import finam as fm
 from finam import (
     Adapter,
     CallbackInput,
@@ -26,7 +27,7 @@ from finam import (
 from finam import data as tools
 from finam.adapters.base import Scale
 from finam.adapters.time import NextTime
-from finam.modules import debug
+from finam.modules import CallbackComponent, CallbackGenerator, debug
 from finam.schedule import _check_dead_links
 
 
@@ -492,6 +493,83 @@ class TestComposition(unittest.TestCase):
                 module3: {module1},
                 module4: {module3},
             },
+        )
+
+    def test_dependencies_schedule(self):
+        start = datetime(2000, 1, 1)
+        info = fm.Info(time=start, grid=fm.NoGrid())
+
+        updates = []
+
+        def lambda_generator(t):
+            updates.append("A")
+            return t.day
+
+        def lambda_component(inp, _t):
+            updates.append("B")
+            return {"Out": inp["In"]}
+
+        def lambda_component_2(inp, _t):
+            updates.append("C")
+            return {"Out": inp["In"]}
+
+        module1 = CallbackGenerator(
+            callbacks={"Out": (lambda_generator, info)},
+            start=start,
+            step=timedelta(1.0),
+        )
+        module2 = CallbackComponent(
+            inputs={
+                "In": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            outputs={
+                "Out": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            callback=lambda_component,
+            start=start,
+            step=timedelta(days=5),
+        )
+        module3 = CallbackComponent(
+            inputs={
+                "In": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            outputs={
+                "Out": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            callback=lambda_component_2,
+            start=start,
+            step=timedelta(days=8),
+        )
+        composition = Composition([module1, module2, module3])
+        composition.initialize()
+
+        module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
+        module2.outputs["Out"] >> Scale(1.0) >> module3.inputs["In"]
+
+        composition.connect()
+        self.assertEqual(updates, ["A", "B", "C"])
+
+        composition.run(datetime(2000, 1, 2))
+        self.assertEqual(
+            updates,
+            [
+                "A",
+                "B",
+                "C",  # Connect
+                "A",
+                "A",
+                "A",
+                "A",
+                "A",
+                "B",  # Update B to 5
+                "A",
+                "A",
+                "A",
+                "A",
+                "A",
+                "B",  # Update B to 10
+                "C",  # Update C to 8
+            ],
         )
 
 
