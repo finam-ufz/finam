@@ -3,7 +3,7 @@ Unit tests for the sdk implementations.
 """
 import logging
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import finam as fm
 from finam import (
@@ -16,6 +16,7 @@ from finam import (
     FinamMetaDataError,
     FinamNoDataError,
     FinamStatusError,
+    FinamTimeError,
     Info,
     Input,
     NoGrid,
@@ -226,6 +227,103 @@ class TestOutput(unittest.TestCase):
         in2.ping()
 
         self.assertEqual(out._connected_inputs, {ada: None})
+
+    def test_cache_data(self):
+        t = datetime(2000, 1, 1)
+        info = Info(time=t, grid=NoGrid())
+
+        out = Output(name="Output")
+        inp = Input(name="Input")
+
+        out >> inp
+
+        inp.ping()
+
+        out.push_info(info)
+        inp.exchange_info(info)
+
+        self.assertEqual(out._connected_inputs, {inp: None})
+
+        out.push_data(1, t)
+        self.assertEqual(out.data, [(t, 1)])
+
+        with self.assertRaises(FinamTimeError):
+            data = inp.pull_data(t - timedelta(hours=1))
+        with self.assertRaises(FinamTimeError):
+            data = inp.pull_data(t + timedelta(hours=1))
+
+        data = inp.pull_data(t)
+        self.assertEqual(out.data, [(t, 1)])
+        self.assertEqual(data, 1)
+
+        t2 = t + timedelta(days=1)
+        out.push_data(2, t2)
+        self.assertEqual(out.data, [(t, 1), (t2, 2)])
+
+        with self.assertRaises(FinamTimeError):
+            data = inp.pull_data(t - timedelta(hours=1))
+        with self.assertRaises(FinamTimeError):
+            data = inp.pull_data(t2 + timedelta(hours=1))
+
+        self.assertEqual(inp.pull_data(t), 1)
+        self.assertEqual(inp.pull_data(t + timedelta(hours=0)), 1)
+        self.assertEqual(inp.pull_data(t + timedelta(hours=11)), 1)
+        self.assertEqual(inp.pull_data(t + timedelta(hours=12)), 2)
+
+        self.assertEqual(len(out.data), 2)
+        self.assertEqual(inp.pull_data(t2), 2)
+        self.assertEqual(len(out.data), 1)
+
+        out.push_data(3, t + timedelta(days=2))
+        out.push_data(4, t + timedelta(days=3))
+        out.push_data(5, t + timedelta(days=4))
+
+        self.assertEqual(len(out.data), 4)
+        self.assertEqual(inp.pull_data(t + timedelta(days=2)), 3)
+        self.assertEqual(len(out.data), 3)
+
+    def test_cache_data_multi(self):
+        t = datetime(2000, 1, 1)
+        info = Info(time=t, grid=NoGrid())
+
+        out = Output(name="Output")
+        in1 = Input(name="Input")
+        in2 = Input(name="Input")
+
+        out >> in1
+        out >> in2
+
+        in1.ping()
+        in2.ping()
+
+        out.push_info(info)
+        in1.exchange_info(info)
+        in2.exchange_info(info)
+
+        for i in range(10):
+            out.push_data(i + 1, t + timedelta(days=i))
+
+        self.assertEqual(len(out.data), 10)
+
+        in1.pull_data(datetime(2000, 1, 3))
+        self.assertEqual(len(out.data), 10)
+
+        in2.pull_data(datetime(2000, 1, 1))
+        self.assertEqual(len(out.data), 10)
+
+        in2.pull_data(datetime(2000, 1, 2))
+        self.assertEqual(len(out.data), 9)
+
+        in2.pull_data(datetime(2000, 1, 8))
+        self.assertEqual(len(out.data), 8)
+
+        in1.pull_data(datetime(2000, 1, 8))
+        self.assertEqual(len(out.data), 3)
+
+        in1.pull_data(datetime(2000, 1, 10))
+        self.assertEqual(len(out.data), 3)
+        in2.pull_data(datetime(2000, 1, 10))
+        self.assertEqual(len(out.data), 1)
 
 
 class TestInput(unittest.TestCase):
