@@ -158,8 +158,6 @@ class ConnectHelper(Loggable):
             Rule to add.
         """
         if in_name in self._in_info_rules:
-            if not isinstance(self._in_info_rules[in_name], list):
-                self._in_info_rules[in_name] = list(self._in_info_rules[in_name])
             self._in_info_rules[in_name].append(rule)
         else:
             self._in_info_rules[in_name] = [rule]
@@ -178,8 +176,6 @@ class ConnectHelper(Loggable):
             Rule to add.
         """
         if out_name in self._out_info_rules:
-            if not isinstance(self._out_info_rules[out_name], list):
-                self._out_info_rules[out_name] = list(self._out_info_rules[out_name])
             self._out_info_rules[out_name].append(rule)
         else:
             self._out_info_rules[out_name] = [rule]
