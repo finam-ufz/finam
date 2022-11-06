@@ -3,7 +3,8 @@ import logging
 from datetime import datetime, timedelta
 
 from ..data import tools
-from ..sdk import TimeComponent
+from ..interfaces import ComponentStatus
+from ..sdk import CallbackInput, Component, TimeComponent
 from ..tools.log_helper import ErrorLogger
 
 
@@ -141,3 +142,121 @@ class DebugConsumer(TimeComponent):
 
     def _finalize(self):
         pass
+
+
+class ScheduleLogger(Component):
+
+    """Logging of module update schedule.
+
+    Takes inputs of arbitrary types and simply logs the time of notifications of each input
+    as an ASCII graph.
+
+    .. code-block:: text
+
+                     +----------------+
+        --> [custom] |                |
+        --> [custom] | ScheduleLogger |
+        --> [......] |                |
+                     +----------------+
+
+    Note:
+        This component is push-based without an internal time step.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        from datetime import timedelta
+        import finam as fm
+
+        schedule = fm.modules.ScheduleLogger(
+            inputs=["Grid1", "Grid2"],
+            time_step=timedelta(days=1),
+            log_level="INFO",
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        schedule.initialize()
+
+    Parameters
+    ----------
+    inputs : list of str
+        Input names.
+    time_step : datetime.timedelta, optional
+        Time per character in the ASCII graph. Default 1 day.
+    log_level : str or int, optional
+        Log level for the ASCII graph. Default "INFO".
+    """
+
+    def __init__(self, inputs, time_step=timedelta(days=1), log_level="INFO"):
+        super().__init__()
+        self._input_names = inputs
+        self._time_step = time_step
+        self._log_level = logging.getLevelName(log_level)
+
+        self._schedule = None
+
+    def _initialize(self):
+        for inp in self._input_names:
+            self.inputs.add(
+                CallbackInput(self._data_changed, name=inp, time=None, grid=None)
+            )
+
+        self.create_connector()
+
+    def _connect(self):
+        self.try_connect()
+
+    def _validate(self):
+        pass
+
+    def _data_changed(self, caller, time):
+        self._update_schedule(caller, time)
+
+    def _update(self):
+        pass
+
+    def _update_schedule(self, caller, time):
+        if self._schedule is None:
+            self._schedule = {inp: [] for _, inp in self.inputs.items()}
+
+        self._schedule[caller].append(time)
+
+        if self.status == ComponentStatus.VALIDATED:
+            self._print_schedule(caller)
+
+    def _print_schedule(self, caller):
+        t_min = min(t[0] for _, t in self._schedule.items() if len(t) > 0)
+        t_max = max(t[-1] for _, t in self._schedule.items() if len(t) > 0)
+        t_diff = t_max - t_min
+
+        num_char = int(t_diff / self._time_step) + 1
+
+        self.logger.log(self._log_level, "input updated")
+
+        max_name_len = max(len(inp.name) for inp in self._schedule)
+
+        for inp, times in self._schedule.items():
+            if len(times) == 0:
+                continue
+
+            s = [" "] * num_char
+
+            prev = 0
+            for t in times:
+                d = t - t_min
+                pos = int(d / self._time_step)
+                for i in range(prev, pos):
+                    s[i] = "-"
+                s[pos] = "o"
+                prev = pos + 1
+
+            s = "".join(s)
+
+            if inp == caller:
+                s += " <-"
+
+            self.logger.log(self._log_level, "%s %s", inp.name.ljust(max_name_len), s)
