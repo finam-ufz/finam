@@ -83,6 +83,10 @@ class TimeTrigger(TimeComponent):
         self._step = step
         self._start_from_input = start_from_input
 
+    @property
+    def next_time(self):
+        return self.time + self._step
+
     def _initialize(self):
         with ErrorLogger(self.logger):
             if self._ini_in_info is None and self._ini_out_info is None:

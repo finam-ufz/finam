@@ -198,7 +198,7 @@ class Composition(Loggable):
         self._finalize_components()
         self._finalize_composition()
 
-    def _update_recursive(self, module, chain=None):
+    def _update_recursive(self, module, chain=None, target_time=None):
         chain = chain or []
         if module in chain:
             chain.append(module)
@@ -209,12 +209,15 @@ class Composition(Loggable):
 
         chain.append(module)
 
+        if isinstance(module, ITimeComponent):
+            target_time = module.next_time
+
         for dep in self.dependencies[module]:
             if isinstance(dep, ITimeComponent):
-                if dep.time < module.next_time:
+                if dep.time < target_time:
                     return self._update_recursive(dep, chain)
             else:
-                updated = self._update_recursive(dep, chain)
+                updated = self._update_recursive(dep, chain, target_time)
                 if updated is not None:
                     return updated
 

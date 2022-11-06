@@ -28,6 +28,10 @@ class MockupConsumer(TimeComponent):
         self.units = units
         self.data = None
 
+    @property
+    def next_time(self):
+        return self.time + self.step
+
     def _initialize(self):
         self.inputs.add(name="Input", time=self.time, grid=None, units=self.units)
         self.create_connector(pull_data=["Input"])

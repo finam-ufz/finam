@@ -88,6 +88,10 @@ class DebugConsumer(TimeComponent):
         """dict[str, data] : The component's input data from the last time step"""
         return self._data
 
+    @property
+    def next_time(self):
+        return self.time + self._step
+
     def _initialize(self):
         for name, info in self._input_infos.items():
             info.time = self.time

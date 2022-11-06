@@ -79,6 +79,10 @@ class CallbackComponent(TimeComponent):
         self._time = start
         self._data_generated = False
 
+    @property
+    def next_time(self):
+        return self.time + self._step
+
     def _initialize(self):
         for name, info in self._input_infos.items():
             info.time = self.time

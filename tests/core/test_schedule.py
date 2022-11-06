@@ -64,6 +64,10 @@ class MockupComponent(TimeComponent):
         for key, _ in self._callbacks.items():
             self.outputs.add(name=key, time=self.time, grid=NoGrid())
 
+    @property
+    def next_time(self):
+        return self.time + self._step
+
     def _initialize(self):
         self.create_connector()
 
@@ -95,6 +99,10 @@ class MockupDependentComponent(TimeComponent):
 
         self.inputs.add(name="Input")
 
+    @property
+    def next_time(self):
+        return self.time + self._step
+
     def _initialize(self):
         self.create_connector(pull_data=["Input"])
 
@@ -121,6 +129,10 @@ class MockupCircularComponent(TimeComponent):
         self._time = datetime(2000, 1, 1)
 
         self.pulled_data = None
+
+    @property
+    def next_time(self):
+        return self.time + self._step
 
     def _initialize(self):
         self.inputs.add(name="Input")
