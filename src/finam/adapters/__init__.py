@@ -38,17 +38,18 @@ Time adapters
 .. autosummary::
    :toctree: generated
 
+    ExtrapolateTime
+    IntegrateTime
+    LinearTime
     NextTime
     PreviousTime
-    LinearTime
-    IntegrateTime
 """
 
 from . import base, probe, regrid, time
 from .base import Callback, GridToValue, Scale, ValueToGrid
 from .probe import CallbackProbe
 from .regrid import RegridLinear, RegridNearest
-from .time import IntegrateTime, LinearTime, NextTime, PreviousTime
+from .time import ExtrapolateTime, IntegrateTime, LinearTime, NextTime, PreviousTime
 
 __all__ = ["base", "probe", "regrid", "time"]
 __all__ += [
@@ -63,6 +64,7 @@ __all__ += [
     "RegridLinear",
 ]
 __all__ += [
+    "ExtrapolateTime",
     "NextTime",
     "PreviousTime",
     "LinearTime",

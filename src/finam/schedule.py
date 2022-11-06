@@ -25,6 +25,7 @@ from .interfaces import (
     Loggable,
     NoBranchAdapter,
 )
+from .adapters.time import ExtrapolateTime
 from .tools.log_helper import ErrorLogger, is_loggable
 
 
@@ -204,7 +205,8 @@ class Composition(Loggable):
             chain.append(module)
             with ErrorLogger(self.logger):
                 raise ValueError(
-                    f"Circular dependency: {' >> '.join([c.name for c in reversed(chain)])}"
+                    f"Circular dependency: {' >> '.join([c.name for c in reversed(chain)])}. "
+                    f"You may need to insert an ExtrapolateTime adapter somewhere."
                 )
 
         chain.append(module)
@@ -432,8 +434,12 @@ def _find_dependencies(modules):
         for _, inp in mod.inputs.items():
             while isinstance(inp, IInput):
                 inp = inp.get_source()
-            comp = out_map[inp]
-            deps.add(comp)
+                if isinstance(inp, ExtrapolateTime):
+                    break
+            if not isinstance(inp, ExtrapolateTime):
+                comp = out_map[inp]
+                deps.add(comp)
+
         dependencies[mod] = deps
 
     return dependencies
