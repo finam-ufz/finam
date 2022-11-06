@@ -1,4 +1,4 @@
-"""IOList for Components."""
+"""Enum conversion helper."""
 
 from enum import Enum
 

@@ -84,7 +84,7 @@ This method must be called at the end of :meth:`.Component._initialize`, after a
 
 If the component has no dependencies in this phase, if can be simply called without arguments.
 
-For components with dependencies, they can be specified like this:
+For components with data dependencies, they can be specified like this:
 
 .. code-block:: Python
 
@@ -94,7 +94,10 @@ For components with dependencies, they can be specified like this:
 
 Where strings are the names of inputs that data pull is required for.
 
-For more on filling incomplete metadata, see section `Metadata from source or target`_.
+For how to retrieve metadata fom connected components, see section `Metadata from source or target`_.
+
+For details on how to automatically transfer metadata between coupling slots,
+see the API docs for :meth:`.Component.create_connector`.
 
 Method :meth:`try_connect() <.Component.try_connect()>`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

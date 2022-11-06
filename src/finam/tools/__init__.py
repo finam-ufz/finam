@@ -37,9 +37,11 @@ Connect helper
    :toctree: generated
 
     ConnectHelper
+    FromInput
+    FromOutput
+    FromValue
 """
-from . import connect_helper
-from .connect_helper import ConnectHelper
+from .connect_helper import ConnectHelper, FromInput, FromOutput, FromValue
 from .cwd_helper import execute_in_cwd, set_directory
 from .enum_helper import get_enum_value
 from .log_helper import (
@@ -50,8 +52,7 @@ from .log_helper import (
     is_loggable,
 )
 
-__all__ = ["connect_helper"]
-__all__ += ["execute_in_cwd", "set_directory"]
+__all__ = ["execute_in_cwd", "set_directory"]
 __all__ += ["get_enum_value"]
 __all__ += [
     "ErrorLogger",
@@ -60,3 +61,4 @@ __all__ += [
     "LogStdOutStdErr",
     "LogCStdOutStdErr",
 ]
+__all__ += ["ConnectHelper", "FromInput", "FromOutput", "FromValue"]

@@ -80,7 +80,7 @@ class WeightedSum(Component):
             # just to check for all inputs equal
             _push_infos = self._check_infos()
 
-        if all((data is not None for _name, data in self.connector.in_data.items())):
+        if self.connector.all_data_pulled:
             self._in_data = self.connector.in_data
 
     def _check_infos(self):

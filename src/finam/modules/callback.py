@@ -93,7 +93,7 @@ class CallbackComponent(TimeComponent):
     def _connect(self):
         push_data = {}
         if not self._data_generated:
-            if all((data is not None for name, data in self.connector.in_data.items())):
+            if self.connector.all_data_pulled:
                 push_data = self._callback(self.connector.in_data, self.time)
                 self._data_generated = True
 

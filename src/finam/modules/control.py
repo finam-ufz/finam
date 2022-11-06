@@ -3,6 +3,7 @@
 from ..data.tools import strip_data
 from ..errors import FinamMetaDataError
 from ..sdk import TimeComponent
+from ..tools.connect_helper import FromInput, FromOutput
 from ..tools.log_helper import ErrorLogger
 
 
@@ -75,9 +76,6 @@ class TimeTrigger(TimeComponent):
         self._ini_in_info = in_info
         self._ini_out_info = out_info
 
-        self._in_info = None
-        self._out_info = None
-
         self._start = start
         if self._start is not None:
             self.time = self._start
@@ -106,53 +104,33 @@ class TimeTrigger(TimeComponent):
         if self._ini_out_info is not None:
             self._ini_out_info.time = self._start
 
+        in_info_rules = {}
+        out_info_rules = {}
+
         if self._start is None:
             if self._start_from_input:
                 self.inputs.add(name="In", info=self._ini_in_info)
                 self.outputs.add(name="Out")
+                out_info_rules["Out"] = [FromInput("In")]
             else:
                 self.inputs.add(name="In")
                 self.outputs.add(name="Out", info=self._ini_out_info)
+                in_info_rules["In"] = [FromOutput("Out")]
         else:
             self.inputs.add(name="In", info=self._ini_in_info)
             self.outputs.add(name="Out", info=self._ini_out_info)
+            if self._ini_out_info is None:
+                out_info_rules["Out"] = [FromInput("In")]
+            if self._ini_in_info is None:
+                in_info_rules["In"] = [FromOutput("Out")]
 
-        self.create_connector(pull_data=["In"])
+        self.create_connector(
+            pull_data=["In"],
+            in_info_rules=in_info_rules,
+            out_info_rules=out_info_rules,
+        )
 
     def _connect(self):
-        in_infos = {}
-        out_infos = {}
-
-        if self._ini_out_info is None or (
-            self._start is None and self._start_from_input
-        ):
-            in_info = self.connector.in_infos["In"]
-            if in_info is not None:
-                self._in_info = in_info
-                if self._start is None:
-                    self.time = in_info.time
-                if self._ini_out_info is None:
-                    self._out_info = in_info
-                else:
-                    self._ini_out_info.time = in_info.time
-                    self._out_info = self._ini_out_info
-                out_infos["Out"] = self._out_info
-
-        if self._ini_in_info is None or (
-            self._start is None and not self._start_from_input
-        ):
-            out_info = self.connector.out_infos["Out"]
-            if out_info is not None:
-                self._out_info = out_info
-                if self._start is None:
-                    self.time = out_info.time
-                if self._ini_in_info is None:
-                    self._in_info = out_info
-                else:
-                    self._ini_in_info.time = out_info.time
-                    self._in_info = self._ini_in_info
-                in_infos["In"] = self._in_info
-
         out_data = {}
         if (
             not self.connector.data_pushed["Out"]
@@ -160,9 +138,11 @@ class TimeTrigger(TimeComponent):
         ):
             out_data["Out"] = self.connector.in_data["In"]
 
-        self.try_connect(
-            exchange_infos=in_infos, push_infos=out_infos, push_data=out_data
-        )
+        self.try_connect(push_data=out_data)
+
+        in_info = self.connector.in_infos["In"]
+        if in_info is not None:
+            self.time = in_info.time
 
     def _validate(self):
         pass
