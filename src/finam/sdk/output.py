@@ -121,6 +121,9 @@ class Output(IOutput, Loggable):
 
         with ErrorLogger(self.logger):
             self.data.append((time, tools.to_xarray(data, self.name, self.info, time)))
+
+        self.logger.debug("data cache: %d", len(self.data))
+
         self.notify_targets(time)
 
     def push_info(self, info):
@@ -186,7 +189,14 @@ class Output(IOutput, Loggable):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         data = self._interpolate(time)
+        data_count = len(self.data)
         self._clear_data(time, target)
+
+        if len(self.data) < data_count:
+            self.logger.debug(
+                "reduced data cache: %d -> %d", data_count, len(self.data)
+            )
+
         return data
 
     def _clear_data(self, time, target):
