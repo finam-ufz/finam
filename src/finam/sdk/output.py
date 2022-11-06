@@ -165,7 +165,7 @@ class Output(IOutput, Loggable):
 
         Returns
         -------
-        any
+        :class:`xarray.DataArray`
             data-set for the requested time.
 
         Raises
@@ -362,14 +362,14 @@ class CallbackOutput(Output):
         Parameters
         ----------
         time : datetime.datatime
-            simulation time to get the data for.
+            Simulation time to get the data for.
         target : IInput
-            requesting end point of this pull
+            Requesting end point of this pull
 
         Returns
         -------
-        any
-            data-set for the requested time.
+        :class:`xarray.DataArray`
+            Data-set for the requested time.
 
         Raises
         ------

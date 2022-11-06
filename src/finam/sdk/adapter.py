@@ -106,6 +106,22 @@ class Adapter(IAdapter, Input, Output, ABC):
 
     @final
     def get_data(self, time, target):
+        """Get the transformed data of this adapter.
+
+        Internally calls :meth:`._get_data`.
+
+        Parameters
+        ----------
+        time : datetime.datatime
+            Simulation time to get the data for.
+        target : IInput
+            Requesting end point of this pull.
+
+        Returns
+        -------
+        :class:`xarray.DataArray`
+            Transformed data-set for the requested time.
+        """
         self.logger.debug("get data")
         if not isinstance(time, datetime):
             with ErrorLogger(self.logger):
@@ -128,8 +144,13 @@ class Adapter(IAdapter, Input, Output, ABC):
         ----------
         time : datetime.datatime
             Simulation time to get the data for.
-        target : IInput or None
+        target : IInput
             Requesting end point of this pull.
+
+        Returns
+        -------
+        :class:`xarray.DataArray`
+            Transformed data-set for the requested time.
         """
         raise NotImplementedError(
             f"Method `_get_data` must be implemented by all adapters, but implementation is missing in {self.name}."

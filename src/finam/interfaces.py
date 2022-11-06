@@ -322,7 +322,7 @@ class IOutput(ABC):
 
         Returns
         -------
-        any
+        :class:`xarray.DataArray`
             data-set for the requested time.
 
         Raises
