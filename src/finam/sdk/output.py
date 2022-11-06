@@ -211,7 +211,8 @@ class Output(IOutput, Loggable):
 
             t_prev, data_prev = self.data[i - 1]
             diff = t - t_prev
-            t_half = t_prev + diff
+            t_half = t_prev + diff / 2
+
             if time < t_half:
                 return data_prev
 
