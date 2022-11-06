@@ -154,7 +154,7 @@ class ConnectHelper(Loggable):
         ----------
         in_name : str
             Name of the input to add an info rule to.
-        rule : FromOutput or FromValue
+        rule : FromOutput or FromInput or FromValue
             Rule to add.
         """
         if in_name in self._in_info_rules:
@@ -166,37 +166,6 @@ class ConnectHelper(Loggable):
         with ErrorLogger(self.logger):
             self._check_info_rules()
 
-    def add_in_info_rule_from_output(self, in_name, out_name, *fields):
-        """
-        Add an input info rule depending on an output.
-
-        Parameters
-        ----------
-        in_name : str
-            Name of the input to add an info rule to.
-        out_name : str
-            Name of the output to take the info from.
-        *fields : str, optional
-            Info fields to take from the output.
-            Takes all fields if this is empty.
-        """
-        self.add_in_info_rule(in_name, FromOutput(out_name, *fields))
-
-    def add_in_info_rule_from_value(self, in_name, field, value):
-        """
-        Add an input info rule from a given value.
-
-        Parameters
-        ----------
-        in_name : str
-            Name of the input to add an info rule to.
-        field : str
-            Field to set.
-        value : any
-            Value to set.
-        """
-        self.add_in_info_rule(in_name, FromValue(field, value))
-
     def add_out_info_rule(self, out_name, rule):
         """
         Add an output info rule.
@@ -205,7 +174,7 @@ class ConnectHelper(Loggable):
         ----------
         out_name : str
             Name of the output to add an info rule to.
-        rule : FromInput or FromValue
+        rule : FromInput or FromOutput or FromValue
             Rule to add.
         """
         if out_name in self._out_info_rules:
@@ -216,37 +185,6 @@ class ConnectHelper(Loggable):
             self._out_info_rules[out_name] = [rule]
         with ErrorLogger(self.logger):
             self._check_info_rules()
-
-    def add_out_info_rule_from_input(self, out_name, in_name, *fields):
-        """
-        Add an output info rule depending on an input.
-
-        Parameters
-        ----------
-        out_name : str
-            Name of the output to add an info rule to.
-        in_name : str
-            Name of the input to take the info from.
-        *fields : str, optional
-            Info fields to take from the input.
-            Takes all fields if this is empty.
-        """
-        self.add_out_info_rule(out_name, FromInput(in_name, *fields))
-
-    def add_out_info_rule_from_value(self, out_name, field, value):
-        """
-        Add an output info rule from a given value.
-
-        Parameters
-        ----------
-        out_name : str
-            Name of the output to add an info rule to.
-        field : str
-            Field to set.
-        value : any
-            Value to set.
-        """
-        self.add_out_info_rule(out_name, FromValue(field, value))
 
     def _apply_rules(self, rules):
         info = Info(time=None, grid=None)
