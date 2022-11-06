@@ -20,7 +20,17 @@ __all__ = [
 
 
 class ExtrapolateTime(Adapter, NoBranchAdapter):
-    """Time extrapolation (nearest) to break circular dependencies"""
+    """Time extrapolation (nearest) to break circular dependencies.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.ExtrapolateTime()
+    """
 
     def __init__(self):
         super().__init__()
