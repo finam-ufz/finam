@@ -123,6 +123,8 @@ class DebugConsumer(TimeComponent):
         pass
 
     def _update(self):
+        self._time += self._step
+
         self._data = {
             n: self.inputs[n].pull_data(self.time) for n in self._input_infos.keys()
         }
@@ -136,8 +138,6 @@ class DebugConsumer(TimeComponent):
                     self._time,
                     pdata,
                 )
-
-        self._time += self._step
 
     def _finalize(self):
         pass

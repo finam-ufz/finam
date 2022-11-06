@@ -7,6 +7,7 @@ import numpy as np
 
 from ..data import tools as dtools
 from ..data.grid_spec import NoGrid
+from ..interfaces import ComponentStatus
 from ..sdk import TimeComponent
 from ..tools.log_helper import ErrorLogger
 
@@ -93,7 +94,7 @@ class CsvWriter(TimeComponent):
         for inp in self._input_names:
             self.inputs.add(name=inp, time=None, grid=NoGrid(), units=None)
 
-        self.create_connector()
+        self.create_connector(pull_data=self._input_names)
 
     def _connect(self):
         """Push initial values to outputs.
@@ -101,6 +102,14 @@ class CsvWriter(TimeComponent):
         After the method call, the component should have status CONNECTED.
         """
         self.try_connect()
+
+        if self.status == ComponentStatus.CONNECTED:
+            values = [
+                dtools.get_magnitude(dtools.strip_time(data))
+                for _, data in self.connector.in_data.items()
+            ]
+
+            self._update_rows(values)
 
     def _validate(self):
         """Validate the correctness of the component's settings and coupling.
@@ -114,19 +123,22 @@ class CsvWriter(TimeComponent):
 
         After the method call, the component should have status UPDATED or FINISHED.
         """
+        self._time += self._step
+
         values = [
             dtools.get_magnitude(
                 dtools.strip_time(self.inputs[inp].pull_data(self.time))
             )
             for inp in self._input_names
         ]
+        self._update_rows(values)
+
+    def _update_rows(self, values):
         with ErrorLogger(self.logger):
             for (value, name) in zip(values, self._input_names):
                 dtools.assert_type(self, name, value.item(), [int, float])
 
         self._rows.append([self.time.isoformat()] + values)
-
-        self._time += self._step
 
     def _finalize(self):
         """Finalize and clean up the component.

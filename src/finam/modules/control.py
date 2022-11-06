@@ -152,10 +152,9 @@ class TimeTrigger(TimeComponent):
         pass
 
     def _update(self):
-        data = strip_data(self.inputs["In"].pull_data(self.time))
-
         self.time += self._step
 
+        data = strip_data(self.inputs["In"].pull_data(self.time))
         self.outputs["Out"].push_data(data, self.time)
 
     def _finalize(self):
