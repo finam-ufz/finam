@@ -38,11 +38,13 @@ class TestScheduleLogger(unittest.TestCase):
         )
 
         schedule = fm.modules.ScheduleLogger(
-            {
+            inputs={
                 "M1": True,
                 "M2": True,
                 "M3": True,
-            }
+            },
+            log_level="DEBUG",
+            stdout=True,
         )
 
         composition = fm.Composition([module1, module2, module3, schedule])

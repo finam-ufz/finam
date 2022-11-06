@@ -173,7 +173,8 @@ class ScheduleLogger(Component):
         schedule = fm.modules.ScheduleLogger(
             inputs={"Grid1": True, "Grid2": True},
             time_step=timedelta(days=1),
-            log_level="INFO",
+            log_level="DEBUG",
+            stdout=True,
         )
 
     .. testcode:: constructor
@@ -190,13 +191,19 @@ class ScheduleLogger(Component):
         Time per character in the ASCII graph. Default 1 day.
     log_level : str or int, optional
         Log level for the ASCII graph. Default "INFO".
+    stdout : bool
+        Prints the ASCII graphs to stdout.
+        Useful for piping to file and/or for documentation
     """
 
-    def __init__(self, inputs, time_step=timedelta(days=1), log_level="INFO"):
+    def __init__(
+        self, inputs, time_step=timedelta(days=1), log_level="INFO", stdout=False
+    ):
         super().__init__()
         self._pull_inputs = inputs
         self._time_step = time_step
         self._log_level = logging.getLevelName(log_level)
+        self._stdout = stdout
 
         self._schedule = None
         self._output_map = None
@@ -248,6 +255,8 @@ class ScheduleLogger(Component):
         num_char = int(t_diff / self._time_step) + 1
 
         self.logger.log(self._log_level, "input updated")
+        if self._stdout:
+            print("")
 
         max_name_len = max(len(inp.name) for inp in self._schedule)
 
@@ -278,4 +287,7 @@ class ScheduleLogger(Component):
             if inp == caller:
                 s += " <-"
 
-            self.logger.log(self._log_level, "%s %s", inp.name.ljust(max_name_len), s)
+            s = f"{inp.name.ljust(max_name_len)} {s}"
+            self.logger.log(self._log_level, s)
+            if self._stdout:
+                print(s)
