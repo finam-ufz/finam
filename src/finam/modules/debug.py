@@ -3,7 +3,7 @@ import logging
 from datetime import datetime, timedelta
 
 from ..data import tools
-from ..interfaces import ComponentStatus
+from ..interfaces import ComponentStatus, IInput
 from ..sdk import CallbackInput, Component, TimeComponent
 from ..tools.log_helper import ErrorLogger
 
@@ -171,7 +171,7 @@ class ScheduleLogger(Component):
         import finam as fm
 
         schedule = fm.modules.ScheduleLogger(
-            inputs=["Grid1", "Grid2"],
+            inputs={"Grid1": True, "Grid2": True},
             time_step=timedelta(days=1),
             log_level="INFO",
         )
@@ -183,8 +183,9 @@ class ScheduleLogger(Component):
 
     Parameters
     ----------
-    inputs : list of str
-        Input names.
+    inputs : dict of str, bool
+        Input names and whether to pull data from them when notified.
+        Pulling is useful for correct output behaviour when clearing the data cache.
     time_step : datetime.timedelta, optional
         Time per character in the ASCII graph. Default 1 day.
     log_level : str or int, optional
@@ -193,19 +194,21 @@ class ScheduleLogger(Component):
 
     def __init__(self, inputs, time_step=timedelta(days=1), log_level="INFO"):
         super().__init__()
-        self._input_names = inputs
+        self._pull_inputs = inputs
         self._time_step = time_step
         self._log_level = logging.getLevelName(log_level)
 
         self._schedule = None
+        self._output_map = None
 
     def _initialize(self):
-        for inp in self._input_names:
+        for inp in self._pull_inputs:
             self.inputs.add(
                 CallbackInput(self._data_changed, name=inp, time=None, grid=None)
             )
-
-        self.create_connector()
+        self.create_connector(
+            pull_data=[inp for inp, pull in self._pull_inputs.items() if pull]
+        )
 
     def _connect(self):
         self.try_connect()
@@ -222,8 +225,17 @@ class ScheduleLogger(Component):
     def _update_schedule(self, caller, time):
         if self._schedule is None:
             self._schedule = {inp: [] for _, inp in self.inputs.items()}
+            self._output_map = {}
+            for _, inp in self.inputs.items():
+                out = inp
+                while isinstance(out, IInput):
+                    out = out.get_source()
+                self._output_map[inp] = out
 
         self._schedule[caller].append(time)
+
+        if self._pull_inputs[caller.name]:
+            _data = caller.pull_data(time)
 
         if self.status == ComponentStatus.VALIDATED:
             self._print_schedule(caller)
@@ -245,13 +257,20 @@ class ScheduleLogger(Component):
 
             s = [" "] * num_char
 
+            out = self._output_map[inp]
+
+            data_cache = getattr(out, "data", [])
+            data_len = len(data_cache)
+            i_min = len(times) - data_len
+
             prev = 0
-            for t in times:
+            for i, t in enumerate(times):
                 d = t - t_min
                 pos = int(d / self._time_step)
-                for i in range(prev, pos):
-                    s[i] = "-"
-                s[pos] = "o"
+                for j in range(prev, pos):
+                    s[j] = "-"
+
+                s[pos] = "o" if i >= i_min else "x"
                 prev = pos + 1
 
             s = "".join(s)

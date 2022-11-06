@@ -37,7 +37,13 @@ class TestScheduleLogger(unittest.TestCase):
             step=timedelta(days=8),
         )
 
-        schedule = fm.modules.ScheduleLogger(["M1", "M2", "M3"])
+        schedule = fm.modules.ScheduleLogger(
+            {
+                "M1": True,
+                "M2": True,
+                "M3": True,
+            }
+        )
 
         composition = fm.Composition([module1, module2, module3, schedule])
         composition.initialize()
@@ -50,4 +56,4 @@ class TestScheduleLogger(unittest.TestCase):
         module3.outputs["Out"] >> schedule.inputs["M3"]
 
         composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.run(datetime(2000, 1, 30))
