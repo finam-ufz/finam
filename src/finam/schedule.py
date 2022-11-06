@@ -181,9 +181,9 @@ class Composition(Loggable):
                 break
 
             to_update = min(time_modules, key=lambda m: m.time)
-            to_update.update()
+            updated = self._update_recursive(to_update)
             self._check_status(
-                to_update, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED]
+                updated, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED]
             )
 
             any_running = False
@@ -197,6 +197,32 @@ class Composition(Loggable):
 
         self._finalize_components()
         self._finalize_composition()
+
+    def _update_recursive(self, module, chain=None):
+        chain = chain or []
+        if module in chain:
+            chain.append(module)
+            with ErrorLogger(self.logger):
+                raise ValueError(
+                    f"Circular dependency: {' >> '.join([c.name for c in reversed(chain)])}"
+                )
+
+        chain.append(module)
+
+        for dep in self.dependencies[module]:
+            if isinstance(dep, ITimeComponent):
+                if dep.time < module.next_time:
+                    return self._update_recursive(dep, chain)
+            else:
+                updated = self._update_recursive(dep, chain)
+                if updated is not None:
+                    return updated
+
+        if isinstance(module, ITimeComponent):
+            module.update()
+            return module
+
+        return None
 
     def _validate_composition(self):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""

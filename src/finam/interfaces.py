@@ -124,6 +124,14 @@ class ITimeComponent(IComponent, ABC):
     def time(self):
         """The component's current simulation time."""
 
+    @property
+    @abstractmethod
+    def next_time(self):
+        """The component's predicted simulation time of the next pulls.
+
+        Can be ``None`` if the component has no inputs.
+        """
+
 
 class IInput(ABC):
     """Interface for input slots."""
