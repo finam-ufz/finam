@@ -248,7 +248,7 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
 .. testoutput:: time-adapter
     :hide:
 
-    14.0 dimensionless
+    15.0 dimensionless
 
 In :meth:`.Adapter._get_data`, the following happens:
 

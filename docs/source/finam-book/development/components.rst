@@ -111,6 +111,10 @@ We want our component to have a user-defined time step, so we add it here:
             self._step = step                                            # <--
             self.time = start
 
+        @property                                                        # <--
+        def next_time(self):                                             # <--
+            return self.time + self._step                                # <--
+
 
     class TestDummy(unittest.TestCase):
         def test_dummy_model(self):
@@ -143,6 +147,10 @@ It is called internally by the :meth:`.TimeComponent.initialize` method.
     class DummyModel(fm.TimeComponent):
 
         def __init__(self, start, step):
+            # ...
+
+        @property
+        def next_time(self):
             # ...
 
         def _initialize(self):                                             # <--
@@ -290,6 +298,8 @@ In :meth:`.TimeComponent._update`, we get the component's input data, do a "mode
             # ...
 
         def _update(self):
+            self._time += self._step
+
             a = self.inputs["A"].pull_data(self.time)
             b = self.inputs["B"].pull_data(self.time)
 
@@ -298,8 +308,6 @@ In :meth:`.TimeComponent._update`, we get the component's input data, do a "mode
             # We need to unwrap the data here, as the push time will not equal the pull time.
             # This would result in conflicting timestamps in the internal checks
             result = fm.data.strip_data(result)
-
-            self._time += self._step
 
             self.outputs["Sum"].push_data(result, self.time)
 
@@ -367,6 +375,10 @@ Here is the final code of the completed component.
             self._step = step
             self.time = start
 
+        @property
+        def next_time(self):
+            return self.time + self._step
+
         def _initialize(self):
             self.inputs.add(name="A", time=self.time, grid=fm.NoGrid())
             self.inputs.add(name="B", time=self.time, grid=fm.NoGrid())
@@ -381,6 +393,8 @@ Here is the final code of the completed component.
             pass
 
         def _update(self):
+            self._time += self._step
+
             a = self.inputs["A"].pull_data(self.time)
             b = self.inputs["B"].pull_data(self.time)
 
@@ -389,8 +403,6 @@ Here is the final code of the completed component.
             # We need to unwrap the data here, as the push time will not equal the pull time.
             # This would result in conflicting timestamps in the internal checks
             result = fm.data.strip_data(result)
-
-            self._time += self._step
 
             self.outputs["Sum"].push_data(result, self.time)
 
