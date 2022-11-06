@@ -484,8 +484,6 @@ class TestComposition(unittest.TestCase):
 
         composition.connect()
 
-        print(composition.dependencies)
-
         self.assertEqual(
             composition.dependencies,
             {

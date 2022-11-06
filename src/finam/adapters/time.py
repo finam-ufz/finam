@@ -21,6 +21,7 @@ __all__ = [
 
 class ExtrapolateTime(Adapter):
     """Time extrapolation (nearest) to break circular dependencies"""
+
     def __init__(self):
         super().__init__()
         self.time = None
@@ -56,7 +57,7 @@ class ExtrapolateTime(Adapter):
 
         t = time if self.time is None or time <= self.time else self.time
 
-        return self.pull_data(t, target)
+        return dtools.strip_data(self.pull_data(t, target))
 
 
 class NextTime(Adapter):
