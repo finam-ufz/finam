@@ -1,52 +1,172 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="svg8" width="512" height="128" version="1.1" viewBox="0 0 512 128" xmlns="http://www.w3.org/2000/svg">
+<svg id="svg8" width="512" height="256" version="1.1" viewBox="0 0 512 256" xmlns="http://www.w3.org/2000/svg">
   <defs id="defs25">
     <marker id="marker2246" overflow="visible" orient="auto">
-      <path id="path2244" transform="scale(.6) rotate(180) translate(0)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175-6e-7 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
-    </marker>
-    <marker id="marker2182" overflow="visible" orient="auto">
-      <path id="path2180" transform="scale(.6) rotate(180) translate(0)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175-6e-7 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+      <path id="path2244" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
     </marker>
     <marker id="Arrow2Mend" overflow="visible" orient="auto">
-      <path id="path881" transform="scale(.6) rotate(180) translate(0)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175-6e-7 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+      <path id="path881" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+    </marker>
+    <marker id="marker2246-4" overflow="visible" orient="auto">
+      <path id="path2244-3" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+    </marker>
+    <marker id="marker2246-4-8" overflow="visible" orient="auto">
+      <path id="path2244-3-4" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+    </marker>
+    <marker id="Arrow2Mend-1" overflow="visible" orient="auto">
+      <path id="path881-2" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+    </marker>
+    <marker id="marker2246-4-81" overflow="visible" orient="auto">
+      <path id="path2244-3-5" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+    </marker>
+    <marker id="marker2246-4-8-1" overflow="visible" orient="auto">
+      <path id="path2244-3-4-3" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+    </marker>
+    <marker id="Arrow2Mend-1-1" overflow="visible" orient="auto">
+      <path id="path881-2-7" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+    </marker>
+    <marker id="marker2246-4-81-9" overflow="visible" orient="auto">
+      <path id="path2244-3-5-8" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+    </marker>
+    <marker id="marker2246-4-8-1-3" overflow="visible" orient="auto">
+      <path id="path2244-3-4-3-0" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+    </marker>
+    <marker id="Arrow2Mend-1-1-9" overflow="visible" orient="auto">
+      <path id="path881-2-7-2" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+    </marker>
+    <marker id="marker2246-4-81-9-0" overflow="visible" orient="auto">
+      <path id="path2244-3-5-8-3" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
+    </marker>
+    <marker id="marker2246-4-8-1-3-0" overflow="visible" orient="auto">
+      <path id="path2244-3-4-3-0-7" transform="scale(-.6)" d="m8.7186 4.0337-10.926-4.0177 10.926-4.0177c-1.7455 2.3721-1.7354 5.6175 0 8.0354z" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width=".625"/>
     </marker>
   </defs>
-  <g>
-    <ellipse id="path1305-2-2-3-31-2-6" cx="59.255" cy="50.5" rx="4" ry="4" stop-color="#000000"/>
-    <ellipse id="path1305-2-2-3-31-2-9" cx="59.255" cy="80.5" rx="4" ry="4" stop-color="#000000"/>
-    <ellipse id="path1305-2-2-3-31-2-7" cx="179.46" cy="50.5" rx="4" ry="4" stop-color="#000000"/>
-    <ellipse id="path1305-2-2-3-31-2-5" cx="299.38" cy="50.5" rx="4" ry="4" stop-color="#000000"/>
-    <ellipse id="path1305-2-2-3-31-2-94" cx="418.01" cy="80.5" rx="4" ry="4" stop-color="#000000"/>
-    <ellipse id="path1305-2-2-3-31-1" cx="109.29" cy="20.5" rx="4" ry="4" stop-color="#000000"/>
-    <ellipse id="path1305-2-2-3-31-2" cx="59.255" cy="20.5" rx="4" ry="4" stop-color="#000000"/>
-    <ellipse id="path1305-2-2-3-31" cx="159.03" cy="20.5" rx="4" ry="4" stop-color="#000000"/>
-  </g>
-  <g fill="none" stroke="#000">
-    <path id="path1274-4" d="m208.86 20.5h50.037" stroke-dasharray="4,4"/>
-    <g>
-      <path id="path1274-1" d="m60.296 80.5h357.72"/>
-      <path id="path1274" d="m60.296 20.5h148.57"/>
-      <path id="path852" d="m52.557 105.1h447.08" marker-end="url(#Arrow2Mend)" stroke-width="1.9766"/>
+  <circle id="path1305-2-2-3-31-2" cx="68" cy="20" r="4" stop-color="#000000"/>
+  <path id="path1274-4" d="m70 20h148" fill="none" stroke="#000" stroke-dasharray="4, 4" stroke-width="2"/>
+  <path id="path852" d="m56 104h149.48" fill="none" marker-end="url(#Arrow2Mend)" stroke="#000" stroke-width="2"/>
+  <g font-family="Arial" letter-spacing="0px" word-spacing="0px">
+    <text id="text1164" x="118.55342" y="119.694" font-size="13.333px" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162" x="118.55342" y="119.694" font-size="13.333px">Time</tspan></text>
+    <g font-size="16px">
+      <text id="text1164-0-2" x="32.494274" y="25.726562" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2" x="32.494274" y="25.726562">A</tspan></text>
+      <g>
+        <text id="text1164-0-2-30" x="7.421875" y="19.648438" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-6" x="7.421875" y="19.648438" font-family="Arial" font-size="16px" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal">a)</tspan></text>
+        <text id="text1164-0-2-30-7" x="263.42188" y="19.648438" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-6-3" x="263.42188" y="19.648438" font-family="Arial" font-size="16px" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal">b)</tspan></text>
+        <text id="text1164-0-2-30-3" x="7.375" y="147.64844" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-6-6" x="7.375" y="147.64844" font-family="Arial" font-size="16px" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal">c)</tspan></text>
+        <text id="text1164-0-2-30-6" x="263.45312" y="147.64844" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal;line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-6-64" x="263.45312" y="147.64844" font-family="Arial" font-size="16px" style="font-variant-caps:normal;font-variant-east-asian:normal;font-variant-ligatures:normal;font-variant-numeric:normal">d)</tspan></text>
+      </g>
+      <text id="text1164-0-2-3" x="32.334118" y="57.726562" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-3" x="32.334118" y="57.726562">B</tspan></text>
+      <text id="text1164-0-2-0" x="31.970837" y="89.726562" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-7" x="31.970837" y="89.726562">C</tspan></text>
     </g>
   </g>
-  <g font-family="Arial" font-size="16px" letter-spacing="0px" word-spacing="0px">
-    <text id="text1164" x="238.04768" y="123.16895" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162" x="238.04768" y="123.16895">Time</tspan></text>
-    <text id="text1164-0" transform="rotate(-90)" x="-98.661514" y="17.543695" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0" x="-98.661514" y="17.543695">Components</tspan></text>
-    <text id="text1164-0-2" x="32.494274" y="26.226562" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2" x="32.494274" y="26.226562">A</tspan></text>
-    <text id="text1164-0-2-3" x="32.334118" y="56.226562" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-3" x="32.334118" y="56.226562">B</tspan></text>
-    <text id="text1164-0-2-0" x="31.970837" y="86.226562" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-7" x="31.970837" y="86.226562">C</tspan></text>
+  <path id="path1274-0-6" d="m56 20h11" fill="none" stroke="#000" stroke-width="2"/>
+  <circle id="path1305-2-2-3-31-2-3" cx="76" cy="52" r="4" stop-color="#000000"/>
+  <path id="path1274-0-6-6" d="m56 52h18" fill="none" stroke="#000" stroke-width="2"/>
+  <circle id="path1305-2-2-3-31-2-3-8" cx="92" cy="84" r="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-3-8-5" cx="68" cy="84" r="4" stop-color="#000000"/>
+  <path id="path1274-0-6-6-0" d="m56 84h35" fill="none" stroke="#000" stroke-width="2"/>
+  <circle id="path1305-2-2-3-3" cx="220" cy="20" r="3" fill="#fff" stop-color="#000000" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <g fill="none" stroke="#000">
+    <path id="path1692" d="m412.01 200v-12.859" marker-end="url(#marker2246)"/>
+    <path id="path1692-2" d="m37.84 75v-12.859" marker-end="url(#marker2246-4)"/>
+    <path id="path1692-2-5" d="m37.84 42.859v-12.859" marker-end="url(#marker2246-4-8)"/>
   </g>
-  <path id="path1274-0" d="m60.296 50.5h239.08" fill="none" stroke="#000"/>
-  <ellipse id="path1305-2-2-3" cx="208.82" cy="20.5" rx="4" ry="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-2" cx="324" cy="20" r="4" stop-color="#000000"/>
+  <g fill="none" stroke="#000" stroke-width="2">
+    <path id="path1274-4-1" d="m326 20h147" stroke-dasharray="4, 4"/>
+    <path id="path1274-4-1-3" d="m334 52h76" stroke-dasharray="4, 4"/>
+    <path id="path852-9" d="m312 104h149.48" marker-end="url(#Arrow2Mend-1)"/>
+  </g>
+  <g font-family="Arial" letter-spacing="0px" word-spacing="0px">
+    <text id="text1164-0" x="374.55341" y="119.694" font-size="13.333px" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-3" x="374.55341" y="119.694" font-size="13.333px">Time</tspan></text>
+    <g font-size="16px">
+      <text id="text1164-0-2-2" x="288.49426" y="25.726562" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-8" x="288.49426" y="25.726562">A</tspan></text>
+      <text id="text1164-0-2-3-2" x="288.33411" y="57.726562" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-3-4" x="288.33411" y="57.726562">B</tspan></text>
+      <text id="text1164-0-2-0-4" x="287.97083" y="89.726562" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-7-0" x="287.97083" y="89.726562">C</tspan></text>
+    </g>
+  </g>
+  <path id="path1274-0-6-1" d="m312 20h11" fill="none" stroke="#000" stroke-width="2"/>
+  <circle id="path1305-2-2-3-31-2-3-3" cx="332" cy="52" r="4" stop-color="#000000"/>
+  <path id="path1274-0-6-6-1" d="m312 52h18" fill="none" stroke="#000" stroke-width="2"/>
+  <circle id="path1305-2-2-3-31-2-3-8-2" cx="348" cy="84" r="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-3-8-5-0" cx="324" cy="84" r="4" stop-color="#000000"/>
   <g stroke="#000">
-    <path id="path1274-4-1" d="m258.9 20.5h50.037" fill="none" stroke-dasharray="2,4"/>
-    <ellipse id="path1305-2-2-3-3" cx="258.6" cy="20.5" rx="3.5" ry="3.5" fill="#fff" stop-color="#000000" stroke-linecap="round" stroke-linejoin="round"/>
-    <ellipse id="path1305-2-2-3-3-0" cx="308.64" cy="20.5" rx="3.5" ry="3.5" fill="#fff" stop-color="#000000" stroke-linecap="round" stroke-linejoin="round"/>
+    <path id="path1274-0-6-6-0-3" d="m312 84h36" fill="none" stroke-width="2"/>
+    <circle id="path1305-2-2-3-3-0" cx="476" cy="20" r="3" fill="#fff" stop-color="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    <circle id="path1305-2-2-3-3-0-9" cx="412" cy="52" r="3" fill="#fff" stop-color="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    <path id="path1692-2-0" d="m293.84 75v-12.859" fill="none" marker-end="url(#marker2246-4-81)"/>
+    <path id="path1692-2-5-4" d="m293.84 42.859v-12.859" fill="none" marker-end="url(#marker2246-4-8-1)"/>
   </g>
-  <g fill="none" stroke="#000" stroke-width=".5">
-    <path id="path1692" d="m207.12 39.878v-12.859" marker-end="url(#marker2246)"/>
-    <path id="path1692-2" d="m209.72 70.839v-43.733" marker-end="url(#marker2182)"/>
-    <path id="path2404" d="m182.98 47.965c4.472-6.7821 18.672-2.5106 24.14-8.0865 6.6743 8.5396 78.411-0.16471 87.778 8.6787"/>
-    <path id="path2404-5" d="m64.441 78.754c8.4498-9.2944 138.76 3.1049 145.28-7.9143 8.9773 11.261 192.39-2.2211 203.22 8.5065"/>
+  <circle id="path1305-2-2-3-31-2-2-6" cx="68" cy="148" r="4" stop-color="#000000"/>
+  <g fill="none" stroke="#000" stroke-width="2">
+    <path id="path1274-4-1-32" d="m70 148h147" stroke-dasharray="4, 4"/>
+    <path id="path1274-4-1-3-4" d="m78 180h76" stroke-dasharray="4, 4"/>
+    <path id="path852-9-5" d="m56 232h149.48" marker-end="url(#Arrow2Mend-1-1)"/>
+  </g>
+  <g font-family="Arial" letter-spacing="0px" word-spacing="0px">
+    <text id="text1164-0-3" x="118.55341" y="247.694" font-size="13.333px" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-3-1" x="118.55341" y="247.694" font-size="13.333px">Time</tspan></text>
+    <g font-size="16px">
+      <text id="text1164-0-2-2-2" x="32.494263" y="153.72656" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-8-7" x="32.494263" y="153.72656">A</tspan></text>
+      <text id="text1164-0-2-3-2-7" x="32.334106" y="185.72656" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-3-4-6" x="32.334106" y="185.72656">B</tspan></text>
+      <text id="text1164-0-2-0-4-0" x="31.970825" y="217.72656" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-7-0-8" x="31.970825" y="217.72656">C</tspan></text>
+    </g>
+  </g>
+  <path id="path1274-0-6-1-0" d="m56 148h11" fill="none" stroke="#000" stroke-width="2"/>
+  <circle id="path1305-2-2-3-31-2-3-3-3" cx="76" cy="180" r="4" stop-color="#000000"/>
+  <path id="path1274-0-6-6-1-9" d="m56 180h18" fill="none" stroke="#000" stroke-width="2"/>
+  <circle id="path1305-2-2-3-31-2-3-8-2-1" cx="92" cy="212" r="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-3-8-2-1-5" cx="116" cy="212" r="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-3-8-2-1-89" cx="140" cy="212" r="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-3-8-2-1-6" cx="164" cy="212" r="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-3-8-5-0-0" cx="68" cy="212" r="4" stop-color="#000000"/>
+  <path id="path1274-0-6-6-0-3-9" d="m56 212h108" fill="none" stroke="#000" stroke-width="2"/>
+  <circle id="path1305-2-2-3-31-2-3-8-2-1-2" cx="348" cy="212" r="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-3-8-2-1-5-5" cx="372" cy="212" r="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-3-8-2-1-89-0" cx="396" cy="212" r="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-3-8-2-1-6-6" cx="420" cy="212" r="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-3-8-5-0-0-4" cx="324" cy="212" r="4" stop-color="#000000"/>
+  <g stroke="#000">
+    <path id="path1274-0-6-6-0-3-9-7" d="m312 212h108" fill="none" stroke-width="2"/>
+    <circle id="path1305-2-2-3-3-0-95" cx="220" cy="148" r="3" fill="#fff" stop-color="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    <circle id="path1305-2-2-3-3-0-9-5" cx="156" cy="180" r="3" fill="#fff" stop-color="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+    <path id="path1692-2-0-3" d="m37.84 203v-12.859" fill="none" marker-end="url(#marker2246-4-81-9)"/>
+    <path id="path1692-2-5-4-2" d="m37.84 170.86v-12.859" fill="none" marker-end="url(#marker2246-4-8-1-3)"/>
+  </g>
+  <circle id="path1305-2-2-3-31-2-2-6-2" cx="324" cy="148" r="4" stop-color="#000000"/>
+  <g fill="none" stroke="#000" stroke-width="2">
+    <path id="path1274-4-1-32-2" d="m326 148h147" stroke-dasharray="4, 4"/>
+    <path id="path1274-4-1-3-4-9" d="m334 180h76"/>
+    <path id="path852-9-5-7" d="m312 232h149.48" marker-end="url(#Arrow2Mend-1-1-9)"/>
+  </g>
+  <g font-family="Arial" letter-spacing="0px" word-spacing="0px">
+    <text id="text1164-0-3-7" x="374.55341" y="247.694" font-size="13.333px" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-3-1-0" x="374.55341" y="247.694" font-size="13.333px">Time</tspan></text>
+    <g font-size="16px">
+      <text id="text1164-0-2-2-2-3" x="288.49426" y="153.72656" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-8-7-3" x="288.49426" y="153.72656">A</tspan></text>
+      <text id="text1164-0-2-3-2-7-9" x="288.33411" y="185.72656" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-3-4-6-8" x="288.33411" y="185.72656">B</tspan></text>
+      <text id="text1164-0-2-0-4-0-0" x="287.97083" y="217.72656" style="line-height:1.25" xml:space="preserve"><tspan id="tspan1162-0-2-7-0-8-1" x="287.97083" y="217.72656">C</tspan></text>
+    </g>
+  </g>
+  <path id="path1274-0-6-1-0-9" d="m312 148h11" fill="none" stroke="#000" stroke-width="2"/>
+  <circle id="path1305-2-2-3-31-2-3-3-3-4" cx="332" cy="180" r="4" stop-color="#000000"/>
+  <circle id="path1305-2-2-3-31-2-3-3-3-4-1" cx="412" cy="180" r="4" stop-color="#000000"/>
+  <g stroke="#000">
+    <path id="path1274-0-6-6-1-9-6" d="m312 180h18" fill="none" stroke-width="2"/>
+    <g stroke-width="2">
+      <circle id="path1305-2-2-3-3-0-95-8" cx="476" cy="148" r="3" fill="#fff" stop-color="#000000" stroke-linecap="round" stroke-linejoin="round"/>
+      <path id="path1274-4-1-3-4-9-8" d="m414 180h76" fill="none" stroke-dasharray="4, 4"/>
+      <circle id="path1305-2-2-3-3-0-9-5-1-2" cx="492" cy="180" r="3" fill="#fff" stop-color="#000000" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+  <g fill="none" stroke="#000">
+    <g>
+      <path id="path1692-2-0-3-6" d="m293.84 203v-12.859" marker-end="url(#marker2246-4-81-9-0)"/>
+      <path id="path1692-2-5-4-2-1" d="m293.84 170.86v-12.859" marker-end="url(#marker2246-4-8-1-3-0)"/>
+      <path id="path2404" d="m396 207c2.5628-7.4968 12-2 16-7 2 4 7 1 8 7"/>
+    </g>
+    <g stroke-linejoin="round">
+      <rect id="rect6925" x="52.5" y="12.5" width="175" height="15" stop-color="#000000"/>
+      <rect id="rect6925-4" x="308.5" y="44.5" width="111" height="15" stop-color="#000000" stroke-width=".99999"/>
+      <rect id="rect6925-4-4" x="308.5" y="172.5" width="191" height="15" stop-color="#000000" stroke-width=".99999"/>
+      <rect id="rect6925-4-6" x="52.5" y="204.5" width="119" height="15" stop-color="#000000" stroke-width=".99999"/>
+    </g>
   </g>
 </svg>
