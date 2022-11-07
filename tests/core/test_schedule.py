@@ -510,7 +510,6 @@ class TestComposition(unittest.TestCase):
         )
 
     def test_static_run(self):
-        time = datetime(2000, 1, 1)
         info = fm.Info(time=None, grid=fm.NoGrid())
 
         source = fm.modules.StaticSimplexNoise(info=info, seed=123)
@@ -523,10 +522,10 @@ class TestComposition(unittest.TestCase):
         composition = Composition([source, sink])
         composition.initialize()
 
-        source.outputs["Noise"] >> sink.inputs["In"]
+        source.outputs["Noise"] >> Scale(1.0) >> sink.inputs["In"]
 
         with self.assertRaises(ValueError):
-            composition.run(t_max=time)
+            composition.run(t_max=datetime(2000, 1, 1))
 
         composition.run()
 

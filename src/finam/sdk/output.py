@@ -122,9 +122,8 @@ class Output(IOutput, Loggable):
             self.logger.debug("skipping push to unconnected output")
             return
 
-        if not self.is_static and not isinstance(time, datetime):
-            with ErrorLogger(self.logger):
-                raise ValueError("Time must be of type datetime")
+        with ErrorLogger(self.logger):
+            _check_time(time, self.is_static)
 
         if self.has_targets and self._out_infos_exchanged < len(self._connected_inputs):
             raise FinamNoDataError("Can't push data before output info was exchanged.")
@@ -162,9 +161,9 @@ class Output(IOutput, Loggable):
             Simulation time of the simulation.
         """
         self.logger.debug("notify targets")
-        if not self.is_static and not isinstance(time, datetime):
-            with ErrorLogger(self.logger):
-                raise ValueError("Time must be of type datetime")
+
+        with ErrorLogger(self.logger):
+            _check_time(time, self.is_static)
 
         for target in self.targets:
             target.source_updated(time)
@@ -190,9 +189,9 @@ class Output(IOutput, Loggable):
             Raises the error if no data is available
         """
         self.logger.debug("get data")
-        if not self.is_static and not isinstance(time, datetime):
-            with ErrorLogger(self.logger):
-                raise ValueError("Time must be of type datetime")
+
+        with ErrorLogger(self.logger):
+            _check_time(time, self.is_static)
 
         if self._output_info is None:
             raise FinamNoDataError(f"No data info available in {self.name}")
@@ -406,9 +405,9 @@ class CallbackOutput(Output):
             Raises the error if no data is available
         """
         self.logger.debug("source changed")
-        if not isinstance(time, datetime):
-            with ErrorLogger(self.logger):
-                raise ValueError("Time must be of type datetime")
+
+        with ErrorLogger(self.logger):
+            _check_time(time, False)
 
         if self._output_info is None:
             raise FinamNoDataError(f"No data info available in {self.name}")
@@ -422,3 +421,12 @@ class CallbackOutput(Output):
 
         with ErrorLogger(self.logger):
             return tools.to_xarray(data, self.name, self.info, time)
+
+
+def _check_time(time, is_static):
+    if is_static:
+        if time is not None and not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime or None in static outputs")
+    else:
+        if not isinstance(time, datetime):
+            raise ValueError("Time must be of type datetime")
