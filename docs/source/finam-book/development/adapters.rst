@@ -41,8 +41,8 @@ File ``src/scale.py``:
             super().__init__()
             self.scale = scale
 
-        def _get_data(self, time):
-            d = self.pull_data(time)
+        def _get_data(self, time, target):
+            d = self.pull_data(time, target)
             return d * self.scale
 
 .. testcode:: scale-adapter
@@ -141,7 +141,7 @@ This functionality is provided by :class:`.Adapter`'s methods :meth:`.Adapter._g
         def _source_updated(self, time):
             pass
 
-        def _get_data(self, time):
+        def _get_data(self, time, target):
             pass
 
 Note
@@ -165,10 +165,15 @@ In :meth:`.Adapter._source_updated`, we need to store incoming data:
             return True
 
         def _source_updated(self, time):
-            self.old_data = self.new_data
-            self.new_data = (time, fm.data.strip_data(self.pull_data(time)))
+            data = self.pull_data(time, self)
 
-        def _get_data(self, time):
+            self.old_data = self.new_data
+            self.new_data = (
+                time,
+                fm.data.strip_data(data)
+            )
+
+        def _get_data(self, time, target):
             pass
 
 We "move" the previous ``new_data`` to ``old_data``, and replace ``new_data`` by the incoming data, as a ``(time, data)`` tuple.
@@ -192,10 +197,15 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
             return True
 
         def _source_updated(self, time):
-            self.old_data = self.new_data
-            self.new_data = (time, fm.data.strip_data(self.pull_data(time)))
+            data = self.pull_data(time, self)
 
-        def _get_data(self, time):
+            self.old_data = self.new_data
+            self.new_data = (
+                time,
+                fm.data.strip_data(data)
+            )
+
+        def _get_data(self, time, _target):
             if self.old_data is None:
                 if self.new_data is None:
                     return None

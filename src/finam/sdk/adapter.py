@@ -105,13 +105,29 @@ class Adapter(IAdapter, Input, Output, ABC):
         """
 
     @final
-    def get_data(self, time):
+    def get_data(self, time, target):
+        """Get the transformed data of this adapter.
+
+        Internally calls :meth:`._get_data`.
+
+        Parameters
+        ----------
+        time : datetime.datatime
+            Simulation time to get the data for.
+        target : IInput
+            Requesting end point of this pull.
+
+        Returns
+        -------
+        :class:`xarray.DataArray`
+            Transformed data-set for the requested time.
+        """
         self.logger.debug("get data")
         if not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise FinamTimeError("Time must be of type datetime")
 
-        data = self._get_data(time)
+        data = self._get_data(time, target)
         name = self.get_source().name + "_" + self.name
 
         with ErrorLogger(self.logger):
@@ -119,10 +135,22 @@ class Adapter(IAdapter, Input, Output, ABC):
                 data, name, self._output_info, time, no_time_check=True
             )
 
-    def _get_data(self, time):
-        """Asks the adapter for the transformed data.
+    def _get_data(self, time, target):
+        """Get the transformed data of this adapter.
 
         Adapters must overwrite this method.
+
+        Parameters
+        ----------
+        time : datetime.datatime
+            Simulation time to get the data for.
+        target : IInput
+            Requesting end point of this pull.
+
+        Returns
+        -------
+        :class:`xarray.DataArray`
+            Transformed data-set for the requested time.
         """
         raise NotImplementedError(
             f"Method `_get_data` must be implemented by all adapters, but implementation is missing in {self.name}."
@@ -168,9 +196,9 @@ class Adapter(IAdapter, Input, Output, ABC):
         """
         return self.exchange_info(info)
 
-    def pinged(self):
+    def pinged(self, source):
         """Called when receiving a ping from a downstream input."""
-        self.ping()
+        self.source.pinged(self if self.needs_push else source)
 
     @final
     def exchange_info(self, info=None):

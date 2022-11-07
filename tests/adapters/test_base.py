@@ -35,11 +35,11 @@ class TestCallback(unittest.TestCase):
         self.source.validate()
 
     def test_callback_adapter(self):
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1)), 0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1), None), 0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2)), 2)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2), None), 2)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3)), 4)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3), None), 4)
 
 
 class TestScale(unittest.TestCase):
@@ -62,12 +62,11 @@ class TestScale(unittest.TestCase):
         self.source.validate()
 
     def test_callback_adapter(self):
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1)), 0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1), None), 0)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2)), 2)
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 12)), 2)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2), None), 2)
         self.source.update()
-        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3)), 4)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3), None), 4)
 
 
 class TestGridToValue(unittest.TestCase):
@@ -91,7 +90,7 @@ class TestGridToValue(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-        result = self.adapter.get_data(datetime(2000, 1, 1))
+        result = self.adapter.get_data(datetime(2000, 1, 1), None)
         self.assertEqual(result, 1.0 * UNITS.meter)
 
     def test_grid_to_value_sum(self):
@@ -103,7 +102,7 @@ class TestGridToValue(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-        result = self.adapter.get_data(datetime(2000, 1, 1))
+        result = self.adapter.get_data(datetime(2000, 1, 1), None)
         self.assertEqual(result, 200.0 * UNITS.meter)
 
 
@@ -135,7 +134,7 @@ class TestValueToGrid(unittest.TestCase):
         self.source.validate()
 
         _reference_grid, reference_data = create_grid(10, 10, 1.0)
-        out_data = self.adapter.get_data(datetime(2000, 1, 1))
+        out_data = self.adapter.get_data(datetime(2000, 1, 1), None)
 
         assert_allclose(fmdata.get_magnitude(out_data)[0, ...], reference_data)
         self.assertEqual(fmdata.get_units(out_data), UNITS("m"))
@@ -161,7 +160,7 @@ class TestValueToGrid(unittest.TestCase):
         self.source.validate()
 
         _reference_grid, reference_data = create_grid(10, 10, 1.0)
-        out_data = self.adapter.get_data(datetime(2000, 1, 1))
+        out_data = self.adapter.get_data(datetime(2000, 1, 1), None)
 
         assert_allclose(fmdata.get_magnitude(out_data)[0, ...], reference_data)
         self.assertEqual(fmdata.get_units(out_data), UNITS("m"))

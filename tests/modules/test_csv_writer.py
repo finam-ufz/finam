@@ -48,7 +48,7 @@ class TestCsvWriter(unittest.TestCase):
             csv = pd.read_csv(file_path)
 
             assert_array_equal(csv.columns, ["time", "A", "B", "C"])
-            assert_array_equal(csv["B"], list(range(1, 31)))
+            assert_array_equal(csv["B"], list(range(0, 30)))
             self.assertEqual(csv.shape[0], 30)
 
     def test_constructor_fail(self):

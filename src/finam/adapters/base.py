@@ -41,7 +41,7 @@ class Callback(Adapter):
         super().__init__()
         self.callback = callback
 
-    def _get_data(self, time):
+    def _get_data(self, time, target):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -54,7 +54,7 @@ class Callback(Adapter):
         array_like
             data-set for the requested time.
         """
-        d = self.pull_data(time)
+        d = self.pull_data(time, target)
         return self.callback(d, time)
 
 
@@ -80,7 +80,7 @@ class Scale(Adapter):
         super().__init__()
         self.scale = scale
 
-    def _get_data(self, time):
+    def _get_data(self, time, target):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -93,7 +93,7 @@ class Scale(Adapter):
         array_like
             data-set for the requested time.
         """
-        d = self.pull_data(time)
+        d = self.pull_data(time, target)
         return d * self.scale
 
 
@@ -125,7 +125,7 @@ class ValueToGrid(Adapter):
         self.grid = grid
         self._info = None
 
-    def _get_data(self, time):
+    def _get_data(self, time, target):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -138,7 +138,7 @@ class ValueToGrid(Adapter):
         array_like
             data-set for the requested time.
         """
-        value = self.pull_data(time)
+        value = self.pull_data(time, target)
         return np.full(
             self._info.grid.data_shape, get_magnitude(value), dtype=value.dtype
         ) * get_units(value)
@@ -180,7 +180,7 @@ class GridToValue(Adapter):
         super().__init__()
         self.func = func
 
-    def _get_data(self, time):
+    def _get_data(self, time, target):
         """Get the output's data-set for the given time.
 
         Parameters
@@ -193,7 +193,7 @@ class GridToValue(Adapter):
         array_like
             data-set for the requested time.
         """
-        grid = self.pull_data(time)
+        grid = self.pull_data(time, target)
 
         func_result = self.func(get_magnitude(grid)) * get_units(grid)
 

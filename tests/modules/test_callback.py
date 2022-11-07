@@ -3,12 +3,13 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
+import finam as fm
 from finam import Composition, Info, NoGrid
 from finam.modules import CallbackComponent, CallbackGenerator, DebugConsumer
 
 
 def transform(inputs, _time):
-    return {"Out1": inputs["In1"] * 2.0}
+    return {"Out1": fm.data.strip_data(inputs["In1"]) * 2.0}
 
 
 def consume(_inputs, _time):

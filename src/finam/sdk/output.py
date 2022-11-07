@@ -6,8 +6,8 @@ from datetime import datetime
 
 from ..data import tools
 from ..data.tools import Info
-from ..errors import FinamMetaDataError, FinamNoDataError
-from ..interfaces import IInput, IOutput, Loggable
+from ..errors import FinamMetaDataError, FinamNoDataError, FinamTimeError
+from ..interfaces import IAdapter, IInput, IOutput, Loggable
 from ..tools.log_helper import ErrorLogger
 
 
@@ -16,7 +16,7 @@ class Output(IOutput, Loggable):
 
     def __init__(self, name=None, info=None, **info_kwargs):
         self.targets = []
-        self.data = None
+        self.data = []
         self._output_info = None
         self.base_logger_name = None
         if name is None:
@@ -30,7 +30,7 @@ class Output(IOutput, Loggable):
         if info is not None:
             self.push_info(info)
 
-        self._connected_inputs = 0
+        self._connected_inputs = {}
         self._out_infos_exchanged = 0
 
     @property
@@ -38,7 +38,7 @@ class Output(IOutput, Loggable):
         """Info: The input's data info."""
         if self._output_info is None:
             raise FinamNoDataError("No data info available")
-        if self.has_targets and self._out_infos_exchanged < self._connected_inputs:
+        if self.has_targets and self._out_infos_exchanged < len(self._connected_inputs):
             raise FinamNoDataError("Data info was not completely exchanged yet")
 
         return self._output_info
@@ -85,9 +85,14 @@ class Output(IOutput, Loggable):
         """
         return self.targets
 
-    def pinged(self):
+    def pinged(self, source):
         """Called when receiving a ping from a downstream input."""
-        self._connected_inputs += 1
+        if not isinstance(source, IAdapter) and source in self._connected_inputs:
+            with ErrorLogger(self.logger):
+                raise ValueError(
+                    f"Input '{source.name}' is already connected to this output"
+                )
+        self._connected_inputs[source] = None
 
     def push_data(self, data, time):
         """Push data into the output.
@@ -111,11 +116,11 @@ class Output(IOutput, Loggable):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        if self.has_targets and self._out_infos_exchanged < self._connected_inputs:
+        if self.has_targets and self._out_infos_exchanged < len(self._connected_inputs):
             raise FinamNoDataError("Can't push data before output info was exchanged.")
 
         with ErrorLogger(self.logger):
-            self.data = tools.to_xarray(data, self.name, self.info, time)
+            self.data.append((time, tools.to_xarray(data, self.name, self.info, time)))
         self.notify_targets(time)
 
     def push_info(self, info):
@@ -148,19 +153,25 @@ class Output(IOutput, Loggable):
         for target in self.targets:
             target.source_updated(time)
 
-    def get_data(self, time):
+    def get_data(self, time, target):
         """Get the output's data-set for the given time.
 
         Parameters
         ----------
         time : datetime.datatime
             simulation time to get the data for.
+        target : IInput or None
+            Requesting end point of this pull.
 
         Returns
         -------
-        any
+        :class:`xarray.DataArray`
             data-set for the requested time.
-            Should return `None` if no data is available.
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no data is available
         """
         self.logger.debug("get data")
         if not isinstance(time, datetime):
@@ -169,12 +180,48 @@ class Output(IOutput, Loggable):
 
         if self._output_info is None:
             raise FinamNoDataError(f"No data info available in {self.name}")
-        if self._out_infos_exchanged < self._connected_inputs:
+        if self._out_infos_exchanged < len(self._connected_inputs):
             raise FinamNoDataError(f"Data info was not yet exchanged in {self.name}")
-        if self.data is None:
+        if len(self.data) == 0:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        return self.data
+        data = self._interpolate(time)
+        self._clear_data(time, target)
+        return data
+
+    def _clear_data(self, time, target):
+        self._connected_inputs[target] = time
+        if any(t is None for t in self._connected_inputs.values()):
+            return
+
+        t_min = min(self._connected_inputs.values())
+        while len(self.data) > 1 and self.data[1][0] <= t_min:
+            self.data.pop(0)
+
+    def _interpolate(self, time):
+        if time < self.data[0][0] or time > self.data[-1][0]:
+            raise FinamTimeError(
+                f"Requested time {time} out of range [{self.data[0][0]}, {self.data[-1][0]}]"
+            )
+        for i, (t, data) in enumerate(self.data):
+            if time > t:
+                continue
+            if time == t:
+                return data
+
+            t_prev, data_prev = self.data[i - 1]
+            diff = t - t_prev
+            t_half = t_prev + diff / 2
+
+            if time < t_half:
+                return data_prev
+
+            return data
+
+        raise FinamTimeError(
+            f"Time interpolation failed. This should not happen and is probably a bug. "
+            f"Time is {time}."
+        )
 
     def get_info(self, info):
         """Exchange and get the output's data info.
@@ -309,13 +356,25 @@ class CallbackOutput(Output):
     def push_data(self, data, time):
         raise NotImplementedError("CallbackInput does not support push of data")
 
-    def get_data(self, time):
-        """Informs the input that a new output is available.
+    def get_data(self, time, target):
+        """Get the output's data-set for the given time.
 
         Parameters
         ----------
         time : datetime.datatime
-            Simulation time of the notification.
+            Simulation time to get the data for.
+        target : IInput
+            Requesting end point of this pull
+
+        Returns
+        -------
+        :class:`xarray.DataArray`
+            Data-set for the requested time.
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no data is available
         """
         self.logger.debug("source changed")
         if not isinstance(time, datetime):
@@ -324,7 +383,7 @@ class CallbackOutput(Output):
 
         if self._output_info is None:
             raise FinamNoDataError(f"No data info available in {self.name}")
-        if self._out_infos_exchanged < self._connected_inputs:
+        if self._out_infos_exchanged < len(self._connected_inputs):
             raise FinamNoDataError(f"Data info was not yet exchanged in {self.name}")
 
         data = self.callback(self, time)

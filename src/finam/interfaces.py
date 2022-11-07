@@ -174,17 +174,19 @@ class IInput(ABC):
         """
 
     @abstractmethod
-    def pull_data(self, time):
+    def pull_data(self, time, target):
         """Retrieve the data from the input's source.
 
         Parameters
         ----------
         time : datetime.datatime
             Simulation time to get the data for.
+        target : IInput or None
+            Requesting end point of this pull.
 
         Returns
         -------
-        array_like
+        :class:`xarray.DataArray`
             Data set for the given simulation time.
         """
 
@@ -263,8 +265,15 @@ class IOutput(ABC):
         """
 
     @abstractmethod
-    def pinged(self):
-        """Called when receiving a ping from a downstream input."""
+    def pinged(self, source):
+        """Called when receiving a ping from a downstream input.
+
+        Parameters
+        ----------
+
+        source : IInput
+            Pinging target end point
+        """
 
     @abstractmethod
     def push_data(self, data, time):
@@ -301,19 +310,20 @@ class IOutput(ABC):
         """
 
     @abstractmethod
-    def get_data(self, time):
+    def get_data(self, time, target):
         """Get the output's data-set for the given time.
 
         Parameters
         ----------
         time : datetime.datatime
-            simulation time to get the data for.
+            Simulation time to get the data for.
+        target : IInput
+            Requesting end point of this pull
 
         Returns
         -------
-        any
+        :class:`xarray.DataArray`
             data-set for the requested time.
-            Should return `None` if no data is available.
 
         Raises
         ------
