@@ -16,6 +16,7 @@ Modules
     CsvReader
     CsvWriter
     DebugConsumer
+    DebugPushConsumer
     ScheduleLogger
     SimplexNoise
     TimeTrigger
@@ -25,7 +26,7 @@ Modules
 from . import callback, control, debug, generators, mergers, noise, readers, writers
 from .callback import CallbackComponent
 from .control import TimeTrigger
-from .debug import DebugConsumer, ScheduleLogger
+from .debug import DebugConsumer, DebugPushConsumer, ScheduleLogger
 from .generators import CallbackGenerator
 from .mergers import WeightedSum
 from .noise import SimplexNoise
@@ -48,6 +49,7 @@ __all__ += [
     "CsvReader",
     "CsvWriter",
     "DebugConsumer",
+    "DebugPushConsumer",
     "ScheduleLogger",
     "SimplexNoise",
     "TimeTrigger",

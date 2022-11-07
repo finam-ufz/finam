@@ -213,7 +213,9 @@ class DebugPushConsumer(Component):
 
     def _initialize(self):
         for name, info in self._input_infos.items():
-            self.inputs.add(CallbackInput(callback=self._data_pushed, name=name, info=info))
+            self.inputs.add(
+                CallbackInput(callback=self._data_pushed, name=name, info=info)
+            )
         self.create_connector()
 
     def _connect(self):
@@ -231,8 +233,9 @@ class DebugPushConsumer(Component):
     def _finalize(self):
         pass
 
-    def _data_pushed(self, time, caller):
+    def _data_pushed(self, caller, time):
         data = caller.pull_data(time)
+        self._data[caller.name] = data
         if self._log_data is not None:
             pdata = tools.strip_data(data) if self._strip_data else data
             self.logger.log(
@@ -242,7 +245,6 @@ class DebugPushConsumer(Component):
                 time,
                 pdata,
             )
-
 
 
 class ScheduleLogger(Component):
