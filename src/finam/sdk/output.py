@@ -122,7 +122,7 @@ class Output(IOutput, Loggable):
             self.logger.debug("skipping push to unconnected output")
             return
 
-        if not isinstance(time, datetime):
+        if not self.is_static and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
@@ -297,7 +297,7 @@ class Output(IOutput, Loggable):
                 self._output_info.grid = info.grid
 
             if self._output_info.time is None:
-                if info.time is None:
+                if not self.is_static and info.time is None:
                     raise FinamMetaDataError(
                         "Can't set property `time` from target info, as it is not provided"
                     )

@@ -102,7 +102,7 @@ class Input(IInput, Loggable):
             Data set for the given simulation time.
         """
         self.logger.debug("pull data")
-        if not isinstance(time, datetime):
+        if not self.source.is_static and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
@@ -223,7 +223,7 @@ class CallbackInput(Input):
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
-        if not isinstance(time, datetime):
+        if not self.source.is_static and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
