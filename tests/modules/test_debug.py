@@ -59,3 +59,33 @@ class TestScheduleLogger(unittest.TestCase):
 
         composition.connect()
         composition.run(datetime(2000, 1, 30))
+
+
+class TestPushDebugConsumer(unittest.TestCase):
+    def test_consumer(self):
+        start = datetime(2000, 1, 1)
+        info = fm.Info(time=start, grid=fm.NoGrid())
+
+        module1 = fm.modules.CallbackGenerator(
+            callbacks={"Out": (lambda t: t.day, info)},
+            start=start,
+            step=timedelta(days=2),
+        )
+        consumer = fm.modules.DebugPushConsumer(
+            inputs={
+                "In": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            log_data="INFO",
+        )
+
+        composition = fm.Composition([module1, consumer])
+        composition.initialize()
+
+        module1.outputs["Out"] >> consumer.inputs["In"]
+
+        composition.connect()
+        self.assertEqual(fm.data.strip_data(consumer.data["In"]), 1)
+
+        composition.run(t_max=datetime(2000, 1, 10))
+
+        self.assertEqual(fm.data.strip_data(consumer.data["In"]), 11)

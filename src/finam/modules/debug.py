@@ -144,6 +144,109 @@ class DebugConsumer(TimeComponent):
         pass
 
 
+class DebugPushConsumer(Component):
+    """Generic component with arbitrary inputs and extensive debug logging. Push-based.
+
+    .. code-block:: text
+
+                   +-------------------+
+      --> [custom] |                   |
+      --> [custom] | DebugPushConsumer |
+      --> [......] |                   |
+                   +-------------------+
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import datetime as dt
+        import finam as fm
+
+        component = fm.modules.DebugPushConsumer(
+            inputs={
+                "A": fm.Info(time=None, grid=fm.NoGrid()),
+                "B": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            log_data="INFO",
+            strip_data=False,
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        component.initialize()
+
+
+
+    Parameters
+    ----------
+    inputs : dict[str, Info]
+        List of input names
+    log_data : int or str or bool, optional
+        Log level for printing received data, like "DEBUG" or "INFO".
+        Default ``False``, logs nothing.
+
+        ``True`` uses "INFO".
+    strip_data : bool, optional
+        Strips data before logging. Default ``True``.
+    """
+
+    def __init__(self, inputs, log_data=False, strip_data=True):
+        super().__init__()
+
+        self._strip_data = strip_data
+        self._log_data = None
+        if isinstance(log_data, bool):
+            if log_data:
+                self._log_data = logging.INFO
+        else:
+            self._log_data = logging.getLevelName(log_data)
+
+        self._input_infos = inputs
+        self._data = {}
+
+    @property
+    def data(self):
+        """dict[str, data] : The component's input data from the last time step"""
+        return self._data
+
+    def _initialize(self):
+        for name, info in self._input_infos.items():
+            self.inputs.add(
+                CallbackInput(callback=self._data_pushed, name=name, info=info)
+            )
+        self.create_connector()
+
+    def _connect(self):
+        self.try_connect()
+        for name, info in self.connector.in_infos.items():
+            if info is not None:
+                self.logger.debug("Exchanged input info for %s", name)
+
+    def _validate(self):
+        pass
+
+    def _update(self):
+        pass
+
+    def _finalize(self):
+        pass
+
+    def _data_pushed(self, caller, time):
+        data = caller.pull_data(time)
+        self._data[caller.name] = data
+        if self._log_data is not None:
+            pdata = tools.strip_data(data) if self._strip_data else data
+            self.logger.log(
+                self._log_data,
+                'Received "%s" - %s: %s',
+                caller.name,
+                time,
+                pdata,
+            )
+
+
 class ScheduleLogger(Component):
 
     """Logging of module update schedule.
