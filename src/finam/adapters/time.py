@@ -205,8 +205,7 @@ class LinearTime(Adapter):
 
     def __init__(self):
         super().__init__()
-        self.old_data = None
-        self.new_data = None
+        self.data = []
 
     @property
     def needs_push(self):
@@ -222,8 +221,8 @@ class LinearTime(Adapter):
         """
         _check_time(self.logger, time)
 
-        self.old_data = self.new_data
-        self.new_data = (time, dtools.strip_data(self.pull_data(time, self)))
+        data = dtools.strip_data(self.pull_data(time, self))
+        self.data.append((time, data))
 
     def _get_data(self, time, _target):
         """Get the output's data-set for the given time.
@@ -238,26 +237,41 @@ class LinearTime(Adapter):
         array_like
             data-set for the requested time.
         """
-        if self.new_data is None:
+        data = self._interpolate(time)
+        self._clear_cached_data(time)
+        return data
+
+    def _clear_cached_data(self, time):
+        while len(self.data) > 1 and self.data[1][0] <= time:
+            self.data.pop(0)
+
+    def _interpolate(self, time):
+        if len(self.data) == 0:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        _check_time(
-            self.logger,
-            time,
-            (None if self.old_data is None else self.old_data[0], self.new_data[0]),
+        _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
+
+        if len(self.data) == 1:
+            return self.data[0][1]
+
+        for i, (t, data) in enumerate(self.data):
+            if time > t:
+                continue
+            if time == t:
+                return data
+
+            t_prev, data_prev = self.data[i - 1]
+
+            dt = (time - t_prev) / (t - t_prev)
+
+            result = _interpolate(data_prev, data, dt)
+
+            return result
+
+        raise FinamTimeError(
+            f"Time interpolation failed. This should not happen and is probably a bug. "
+            f"Time is {time}."
         )
-
-        if self.old_data is None:
-            return self.new_data[1]
-
-        dt = (time - self.old_data[0]) / (self.new_data[0] - self.old_data[0])
-
-        o = self.old_data[1]
-        n = self.new_data[1]
-
-        result = _interpolate(o, n, dt)
-
-        return result
 
 
 class IntegrateTime(Adapter, NoBranchAdapter):
