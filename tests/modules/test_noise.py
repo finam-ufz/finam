@@ -302,7 +302,7 @@ class TestStaticNoise(unittest.TestCase):
 
         self.assertEqual(data_1.shape, ())
 
-        composition.run(datetime(2000, 1, 5))
+        composition.run(t_max=None)
 
         data_2 = fm.data.strip_data(sink.data["Input"])
         self.assertEqual(data_1, data_2)

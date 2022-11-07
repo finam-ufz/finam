@@ -511,9 +511,9 @@ class TestComposition(unittest.TestCase):
 
     def test_static_run(self):
         time = datetime(2000, 1, 1)
-        info = fm.Info(time=time, grid=fm.NoGrid())
+        info = fm.Info(time=None, grid=fm.NoGrid())
 
-        source = fm.modules.SimplexNoise(info)
+        source = fm.modules.StaticSimplexNoise(info=info, seed=123)
         sink = fm.modules.DebugPushConsumer(
             inputs={
                 "In": fm.Info(time=None, grid=fm.NoGrid()),
@@ -524,6 +524,9 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         source.outputs["Noise"] >> sink.inputs["In"]
+
+        with self.assertRaises(ValueError):
+            composition.run(t_max=time)
 
         composition.run()
 
