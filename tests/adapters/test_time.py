@@ -269,7 +269,7 @@ class TestLinearIntegration(unittest.TestCase):
         )
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 2, 0), None)
+            self.adapter.get_data(datetime(2000, 1, 1, 0), None)
 
         with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 5, 0), None)
@@ -327,7 +327,7 @@ class TestLinearGridIntegration(unittest.TestCase):
         )
 
         with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 2, 0), None)
+            self.adapter.get_data(datetime(2000, 1, 1, 0), None)
 
         with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 5, 0), None)
