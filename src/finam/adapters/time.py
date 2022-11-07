@@ -17,6 +17,7 @@ __all__ = [
     "PreviousTime",
     "LinearTime",
     "IntegrateTime",
+    "TimeCachingAdapter",
 ]
 
 

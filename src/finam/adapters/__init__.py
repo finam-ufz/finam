@@ -43,13 +43,21 @@ Time adapters
     LinearTime
     NextTime
     PreviousTime
+    TimeCachingAdapter
 """
 
 from . import base, probe, regrid, time
 from .base import Callback, GridToValue, Scale, ValueToGrid
 from .probe import CallbackProbe
 from .regrid import RegridLinear, RegridNearest
-from .time import ExtrapolateTime, IntegrateTime, LinearTime, NextTime, PreviousTime
+from .time import (
+    ExtrapolateTime,
+    IntegrateTime,
+    LinearTime,
+    NextTime,
+    PreviousTime,
+    TimeCachingAdapter,
+)
 
 __all__ = ["base", "probe", "regrid", "time"]
 __all__ += [
@@ -69,4 +77,5 @@ __all__ += [
     "PreviousTime",
     "LinearTime",
     "IntegrateTime",
+    "TimeCachingAdapter",
 ]
