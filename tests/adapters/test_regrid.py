@@ -56,12 +56,12 @@ class TestRegrid(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        composition = Composition([source, sink])
+        composition = Composition([source, sink], log_level="DEBUG")
         composition.initialize()
 
         (source.outputs["Output"] >> RegridNearest() >> sink.inputs["Input"])
 
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(t_max=datetime(2000, 1, 5))
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
         self.assertEqual(sink.data["Input"][0, 0, 0], 1.0 * UNITS.meter)

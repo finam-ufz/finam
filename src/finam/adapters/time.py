@@ -11,11 +11,63 @@ from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
 
 __all__ = [
+    "ExtrapolateTime",
     "NextTime",
     "PreviousTime",
     "LinearTime",
     "IntegrateTime",
 ]
+
+
+class ExtrapolateTime(Adapter, NoBranchAdapter):
+    """Time extrapolation (nearest) to break circular dependencies.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.ExtrapolateTime()
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.time = None
+
+    def _source_updated(self, time):
+        """Informs the input that a new output is available.
+
+        Parameters
+        ----------
+        time : datetime
+            Simulation time of the notification.
+        """
+        _check_time(self.logger, time)
+        self.time = time
+
+    def _get_data(self, time, target):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
+        _check_time(self.logger, time)
+
+        if self.data is None:
+            raise FinamNoDataError(f"No data available in {self.name}")
+
+        t = time if self.time is None or time <= self.time else self.time
+
+        return dtools.strip_data(self.pull_data(t, target))
 
 
 class NextTime(Adapter):
@@ -186,14 +238,14 @@ class LinearTime(Adapter):
         array_like
             data-set for the requested time.
         """
+        if self.new_data is None:
+            raise FinamNoDataError(f"No data available in {self.name}")
+
         _check_time(
             self.logger,
             time,
             (None if self.old_data is None else self.old_data[0], self.new_data[0]),
         )
-
-        if self.new_data is None:
-            raise FinamNoDataError(f"No data available in {self.name}")
 
         if self.old_data is None:
             return self.new_data[1]
@@ -262,10 +314,10 @@ class IntegrateTime(Adapter, NoBranchAdapter):
         array_like
             data-set for the requested time.
         """
-        _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
-
         if len(self.data) == 0:
             raise FinamNoDataError(f"No data available in {self.name}")
+
+        _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
 
         if len(self.data) == 1:
             return self.data[0][1]

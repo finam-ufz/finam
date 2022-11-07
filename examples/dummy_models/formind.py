@@ -40,6 +40,10 @@ class Formind(fm.TimeComponent):
         self.info = fm.Info(time=start, grid=grid)
         self.lai = None
 
+    @property
+    def next_time(self):
+        return self.time + self._step
+
     def _initialize(self):
         self.lai = fm.data.full(1.0, "LAI", self.info, self.time)
 
@@ -55,6 +59,9 @@ class Formind(fm.TimeComponent):
         pass
 
     def _update(self):
+        # Increment model time
+        self._time += self._step
+
         # Retrieve inputs
         soil_water = self.inputs["soil_water"].pull_data(self.time)
 
@@ -64,9 +71,6 @@ class Formind(fm.TimeComponent):
                 0.5, 1.0
             )
             self.lai.data[i] = (self.lai.data[i] + growth) * 0.9
-
-        # Increment model time
-        self._time += self._step
 
         # Push model state to outputs
         self.outputs["LAI"].push_data(self.lai.data, self.time)

@@ -9,8 +9,6 @@ from datetime import datetime, timedelta
 from dummy_models import formind, mhm
 
 import finam as fm
-from finam.adapters import regrid, time
-from finam.modules import generators
 
 if __name__ == "__main__":
 
@@ -21,7 +19,7 @@ if __name__ == "__main__":
         p = 0.1 * (1 + int(tt / (5 * 365)) % 2)
         return (1.0 if random.uniform(0, 1) < p else 0.0) * fm.UNITS.Unit("mm")
 
-    precipitation = generators.CallbackGenerator(
+    precipitation = fm.modules.CallbackGenerator(
         {"precipitation": (precip, fm.Info(time=None, grid=fm.NoGrid(), units="mm"))},
         start=start_date,
         step=timedelta(days=1),
@@ -48,21 +46,22 @@ if __name__ == "__main__":
 
     (  # RNG -> mHM (precipitation)
         precipitation.outputs["precipitation"]
-        >> time.IntegrateTime()
+        >> fm.adapters.IntegrateTime()
         >> mhm.inputs["precipitation"]
     )
 
     (  # mHM -> Formind (soil moisture)
         mhm.outputs["soil_water"]
-        >> time.IntegrateTime()
-        >> regrid.RegridLinear(fill_with_nearest=True)
+        >> fm.adapters.IntegrateTime()
+        >> fm.adapters.RegridLinear(fill_with_nearest=True)
+        >> fm.adapters.ExtrapolateTime()
         >> formind.inputs["soil_water"]
     )
 
     (  # Formind -> mHM (LAI)
         formind.outputs["LAI"]
-        >> time.NextTime()
-        >> regrid.RegridLinear(fill_with_nearest=True)
+        >> fm.adapters.NextTime()
+        >> fm.adapters.RegridLinear(fill_with_nearest=True)
         >> mhm.inputs["LAI"]
     )
 

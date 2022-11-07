@@ -48,6 +48,10 @@ class Mhm(fm.TimeComponent):
         self.grid = grid
         self.soil_water = None
 
+    @property
+    def next_time(self):
+        return self.time + self._step
+
     def _initialize(self):
         self.soil_water = fm.data.full(
             1.0, "soil_water", fm.Info(time=self.time, grid=self.grid), self.time
@@ -77,6 +81,9 @@ class Mhm(fm.TimeComponent):
         pass
 
     def _update(self):
+        # Increment model time
+        self._time += self._step
+
         # Retrieve inputs
         precipitation = fm.data.strip_time(
             self.inputs["precipitation"].pull_data(self.time)
@@ -102,8 +109,6 @@ class Mhm(fm.TimeComponent):
 
         mean_evaporation /= float(len(self.soil_water.data))
 
-        # Increment model time
-        self._time += self._step
         # Push model state to outputs
         self.outputs["soil_water"].push_data(
             fm.data.get_data(self.soil_water), self.time

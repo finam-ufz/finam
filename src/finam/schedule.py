@@ -15,6 +15,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+from .adapters.time import ExtrapolateTime
 from .errors import FinamConnectError, FinamStatusError
 from .interfaces import (
     ComponentStatus,
@@ -102,6 +103,7 @@ class Composition(Loggable):
                         "Composition: modules need to be instances of 'IComponent'."
                     )
         self.modules = modules
+        self.dependencies = None
         self.is_initialized = False
         self.is_connected = False
         self.mpi_rank = mpi_rank
@@ -148,6 +150,8 @@ class Composition(Loggable):
             mod.validate()
             self._check_status(mod, [ComponentStatus.VALIDATED])
 
+        self.dependencies = _find_dependencies(self.modules)
+
         self.is_connected = True
 
     def run(self, t_max):
@@ -178,14 +182,14 @@ class Composition(Loggable):
                 break
 
             to_update = min(time_modules, key=lambda m: m.time)
-            to_update.update()
+            updated = self._update_recursive(to_update)
             self._check_status(
-                to_update, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED]
+                updated, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED]
             )
 
             any_running = False
             for mod in time_modules:
-                if mod.time < t_max:
+                if mod.status != ComponentStatus.FINISHED and mod.time < t_max:
                     any_running = True
                     break
 
@@ -194,6 +198,37 @@ class Composition(Loggable):
 
         self._finalize_components()
         self._finalize_composition()
+
+    def _update_recursive(self, module, chain=None, target_time=None):
+        chain = chain or []
+        if module in chain:
+            chain.append(module)
+            with ErrorLogger(self.logger):
+                raise ValueError(
+                    f"Circular dependency: {' >> '.join([c.name for c in reversed(chain)])}. "
+                    f"You may need to insert an ExtrapolateTime adapter somewhere."
+                )
+
+        chain.append(module)
+
+        if isinstance(module, ITimeComponent):
+            target_time = module.next_time
+
+        for dep in self.dependencies[module]:
+            if isinstance(dep, ITimeComponent):
+                if dep.time < target_time:
+                    return self._update_recursive(dep, chain)
+            else:
+                updated = self._update_recursive(dep, chain, target_time)
+                if updated is not None:
+                    return updated
+
+        if isinstance(module, ITimeComponent):
+            if module.status != ComponentStatus.FINISHED:
+                module.update()
+            return module
+
+        return None
 
     def _validate_composition(self):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
@@ -385,6 +420,30 @@ def _check_dead_links(module, inp):
             raise _dead_link_error(module, chain, first_index, i)
         if item.needs_pull:
             first_index = i
+
+
+def _find_dependencies(modules):
+    out_map = {}
+    for mod in modules:
+        for _, out in mod.outputs.items():
+            out_map[out] = mod
+
+    dependencies = {}
+
+    for mod in modules:
+        deps = set()
+        for _, inp in mod.inputs.items():
+            while isinstance(inp, IInput):
+                inp = inp.get_source()
+                if isinstance(inp, ExtrapolateTime):
+                    break
+            if not isinstance(inp, ExtrapolateTime):
+                comp = out_map[inp]
+                deps.add(comp)
+
+        dependencies[mod] = deps
+
+    return dependencies
 
 
 def _dead_link_error(module, chain, first_index, last_index):

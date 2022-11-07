@@ -7,6 +7,7 @@ import unittest
 from datetime import datetime, timedelta
 from tempfile import TemporaryDirectory
 
+import finam as fm
 from finam import (
     Adapter,
     CallbackInput,
@@ -26,7 +27,7 @@ from finam import (
 from finam import data as tools
 from finam.adapters.base import Scale
 from finam.adapters.time import NextTime
-from finam.modules import debug
+from finam.modules import CallbackComponent, CallbackGenerator, debug
 from finam.schedule import _check_dead_links
 
 
@@ -64,6 +65,10 @@ class MockupComponent(TimeComponent):
         for key, _ in self._callbacks.items():
             self.outputs.add(name=key, time=self.time, grid=NoGrid())
 
+    @property
+    def next_time(self):
+        return self.time + self._step
+
     def _initialize(self):
         self.create_connector()
 
@@ -95,6 +100,10 @@ class MockupDependentComponent(TimeComponent):
 
         self.inputs.add(name="Input")
 
+    @property
+    def next_time(self):
+        return self.time + self._step
+
     def _initialize(self):
         self.create_connector(pull_data=["Input"])
 
@@ -121,6 +130,10 @@ class MockupCircularComponent(TimeComponent):
         self._time = datetime(2000, 1, 1)
 
         self.pulled_data = None
+
+    @property
+    def next_time(self):
+        return self.time + self._step
 
     def _initialize(self):
         self.inputs.add(name="Input")
@@ -438,6 +451,126 @@ class TestComposition(unittest.TestCase):
 
         with self.assertRaises(FinamConnectError):
             composition.connect()
+
+    def test_dependencies_simple(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: 1.0}, step=timedelta(1.0)
+        )
+        module2 = MockupDependentComponent(step=timedelta(1.0))
+
+        composition = Composition([module1, module2])
+        composition.initialize()
+
+        module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
+
+        composition.connect()
+
+        self.assertEqual(composition.dependencies, {module1: set(), module2: {module1}})
+
+    def test_dependencies_multi(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: 1.0}, step=timedelta(1.0)
+        )
+        module2 = MockupDependentComponent(step=timedelta(1.0))
+
+        module3 = MockupCircularComponent(step=timedelta(1.0))
+        module4 = MockupDependentComponent(step=timedelta(1.0))
+
+        composition = Composition([module1, module2, module3, module4])
+        composition.initialize()
+
+        module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
+        module1.outputs["Output"] >> Scale(1.0) >> module3.inputs["Input"]
+        module3.outputs["Output"] >> Scale(1.0) >> module4.inputs["Input"]
+
+        composition.connect()
+
+        self.assertEqual(
+            composition.dependencies,
+            {
+                module1: set(),
+                module2: {module1},
+                module3: {module1},
+                module4: {module3},
+            },
+        )
+
+    def test_dependencies_schedule(self):
+        start = datetime(2000, 1, 1)
+        info = fm.Info(time=start, grid=fm.NoGrid())
+
+        updates = []
+
+        def lambda_generator(t):
+            updates.append("A")
+            return t.day
+
+        def lambda_component(inp, _t):
+            updates.append("B")
+            return {"Out": inp["In"]}
+
+        def lambda_component_2(inp, _t):
+            updates.append("C")
+            return {"Out": inp["In"]}
+
+        module1 = CallbackGenerator(
+            callbacks={"Out": (lambda_generator, info)},
+            start=start,
+            step=timedelta(1.0),
+        )
+        module2 = CallbackComponent(
+            inputs={
+                "In": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            outputs={
+                "Out": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            callback=lambda_component,
+            start=start,
+            step=timedelta(days=5),
+        )
+        module3 = CallbackComponent(
+            inputs={
+                "In": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            outputs={
+                "Out": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            callback=lambda_component_2,
+            start=start,
+            step=timedelta(days=8),
+        )
+        composition = Composition([module1, module2, module3])
+        composition.initialize()
+
+        module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
+        module2.outputs["Out"] >> Scale(1.0) >> module3.inputs["In"]
+
+        composition.connect()
+        self.assertEqual(updates, ["A", "B", "C"])
+
+        composition.run(datetime(2000, 1, 2))
+        self.assertEqual(
+            updates,
+            [
+                "A",
+                "B",
+                "C",  # Connect
+                "A",
+                "A",
+                "A",
+                "A",
+                "A",
+                "B",  # Update B to 5
+                "A",
+                "A",
+                "A",
+                "A",
+                "A",
+                "B",  # Update B to 10
+                "C",  # Update C to 8
+            ],
+        )
 
 
 if __name__ == "__main__":

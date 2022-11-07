@@ -33,6 +33,10 @@ class Ogs(fm.TimeComponent):
         self._step = step
         self.head = 0 * fm.UNITS.Unit("mm")
 
+    @property
+    def next_time(self):
+        return self.time + self._step
+
     def _initialize(self):
 
         self.inputs.add(
@@ -49,14 +53,14 @@ class Ogs(fm.TimeComponent):
         pass
 
     def _update(self):
+        # Increment model time
+        self._time += self.step
+
         # Retrieve inputs
         recharge = fm.data.strip_time(self.inputs["GW_recharge"].pull_data(self.time))
 
         # Run the model step here
         self.head = (self.head + fm.data.get_data(recharge)) * 0.9
-
-        # Increment model time
-        self._time += self.step
 
         # Push model state to outputs
         self.outputs["head"].push_data(self.head, self.time)

@@ -143,9 +143,14 @@ In the most simple case, all metadata is known in :meth:`.Component._initialize`
 
     class SimpleConnect(fm.TimeComponent):
 
-        def __init__(self, time):
+        def __init__(self, time, step):
             super().__init__()
             self.time = time
+            self.step = step
+
+        @property
+        def next_time(self):
+            return self.time + self.step
 
         def _initialize(self):
             self.inputs.add(name="A", time=self.time, grid=fm.NoGrid(), units="m")
@@ -177,7 +182,7 @@ In the most simple case, all metadata is known in :meth:`.Component._initialize`
         step=timedelta(days=30),
     )
 
-    simple_conn = SimpleConnect(datetime(2000, 1, 1))
+    simple_conn = SimpleConnect(datetime(2000, 1, 1), timedelta(days=1))
 
     consumer = fm.modules.DebugConsumer(
         {"Input": fm.Info(None, grid=fm.NoGrid())},
@@ -212,9 +217,14 @@ and the initial data should be generated from it.
 
     class ComplexConnect(fm.TimeComponent):
 
-        def __init__(self, time):
+        def __init__(self, time, step):
             super().__init__()
             self.time = time
+            self.step = step
+
+        @property
+        def next_time(self):
+            return self.time + self.step
 
         def _initialize(self):
             self.inputs.add(name="A", time=self.time, grid=None, units="m")
@@ -259,7 +269,7 @@ and the initial data should be generated from it.
         step=timedelta(days=30),
     )
 
-    complex_conn = ComplexConnect(datetime(2000, 1, 1))
+    complex_conn = ComplexConnect(datetime(2000, 1, 1), timedelta(days=1))
 
     consumer = fm.modules.DebugConsumer(
         {"Input": fm.Info(None, grid=fm.NoGrid())},

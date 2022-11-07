@@ -7,12 +7,48 @@ from datetime import datetime, timedelta
 import numpy as np
 import pint
 
-from finam import FinamTimeError, Info, NoGrid, UniformGrid
+from finam import FinamNoDataError, FinamTimeError, Info, NoGrid, UniformGrid
 from finam import data as tools
-from finam.adapters.time import IntegrateTime, LinearTime, NextTime, PreviousTime
+from finam.adapters.time import (
+    ExtrapolateTime,
+    IntegrateTime,
+    LinearTime,
+    NextTime,
+    PreviousTime,
+)
 from finam.modules.generators import CallbackGenerator
 
 reg = pint.UnitRegistry(force_ndarray_like=True)
+
+
+class TestExtrapolateTime(unittest.TestCase):
+    def setUp(self):
+        self.source = CallbackGenerator(
+            callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+
+        self.adapter = ExtrapolateTime()
+
+        self.source.initialize()
+
+        self.source.outputs["Step"] >> self.adapter
+
+        self.adapter.get_info(Info(None, grid=NoGrid()))
+
+        self.source.connect()
+        self.source.connect()
+        self.source.validate()
+
+    def test_extrapolate(self):
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0), None), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 0.0)
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0), None), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 1.0)
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 2.0)
 
 
 class TestNextValue(unittest.TestCase):

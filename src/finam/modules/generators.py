@@ -43,7 +43,7 @@ class CallbackGenerator(TimeComponent):
 
     Parameters
     ----------
-    callbacks : dict of (callable, Info)
+    callbacks : dict of (str, tuple(callable, Info))
         Dict of tuples (callback, info). ``callback(time) -> data`` per output name, returning the generated data.
     start : datetime.datatime
         Starting time.
@@ -63,6 +63,10 @@ class CallbackGenerator(TimeComponent):
         self._step = step
         self._time = start
         self._initial_data = None
+
+    @property
+    def next_time(self):
+        return None
 
     def _initialize(self):
         """Initialize the component.

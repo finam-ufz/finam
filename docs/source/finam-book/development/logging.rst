@@ -32,6 +32,10 @@ Here is an example using the dummy model from the previous chapter:
             super().__init__()
             # your setup
 
+        @property
+        def next_time(self):
+            return self.time # + step
+
         def _initialize(self):
             self.logger.debug("trying to initialize the dummy model")
 
@@ -77,6 +81,10 @@ In order to show these errors in the logger, we provide a context manager :class
 
         def __init__(self):
             super().__init__()
+
+        @property
+        def next_time(self):
+            return self.time # + step
 
         def _initialize(self):
             with ErrorLogger(self.logger):

@@ -16,6 +16,10 @@ class MockupConsumer(TimeComponent):
         self.info = info
         self.data = None
 
+    @property
+    def next_time(self):
+        return self.time + self.step
+
     def _initialize(self):
         self.inputs.add(name="Input", info=self.info)
         self.create_connector()
@@ -42,6 +46,10 @@ class MockupProducer(TimeComponent):
         self.info = info
 
         self.out_info = None
+
+    @property
+    def next_time(self):
+        return self.time + self.step
 
     def _initialize(self):
         self.outputs.add(name="Output", info=self.info)

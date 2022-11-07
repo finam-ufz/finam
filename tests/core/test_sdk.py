@@ -39,6 +39,10 @@ class MockupComponent(TimeComponent):
         super().__init__()
         self._time = datetime(2000, 1, 1)
 
+    @property
+    def next_time(self):
+        return self.time + timedelta(days=1)
+
     def _initialize(self):
         self.status = ComponentStatus.FAILED
 
@@ -47,6 +51,10 @@ class MockupComponentIO(TimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
+
+    @property
+    def next_time(self):
+        return self.time + timedelta(days=1)
 
     def _initialize(self):
         self.inputs.add(name="Input")
@@ -57,6 +65,10 @@ class MockupComponentIONameConflict(TimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
+
+    @property
+    def next_time(self):
+        return self.time + timedelta(days=1)
 
     def _initialize(self):
         self.inputs.add(name="IO")
@@ -579,6 +591,10 @@ class NotImplComponent(TimeComponent):
     def __init__(self):
         super().__init__()
         self._time = datetime(2000, 1, 1)
+
+    @property
+    def next_time(self):
+        return self.time + timedelta(days=1)
 
 
 class NotImplAdapter(Adapter):

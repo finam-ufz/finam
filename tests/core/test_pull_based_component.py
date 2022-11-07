@@ -55,4 +55,4 @@ class TestPullBasedComponent(unittest.TestCase):
 
         composition.run(t_max=datetime(2000, 1, 12))
 
-        self.assertEqual(consumer.data, {"In": 11})
+        self.assertEqual(consumer.data, {"In": 12})
