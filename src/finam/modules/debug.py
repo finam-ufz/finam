@@ -3,7 +3,8 @@ import logging
 from datetime import datetime, timedelta
 
 from ..data import tools
-from ..sdk import TimeComponent
+from ..interfaces import ComponentStatus, IInput
+from ..sdk import CallbackInput, Component, TimeComponent
 from ..tools.log_helper import ErrorLogger
 
 
@@ -141,3 +142,152 @@ class DebugConsumer(TimeComponent):
 
     def _finalize(self):
         pass
+
+
+class ScheduleLogger(Component):
+
+    """Logging of module update schedule.
+
+    Takes inputs of arbitrary types and simply logs the time of notifications of each input
+    as an ASCII graph.
+
+    .. code-block:: text
+
+                     +----------------+
+        --> [custom] |                |
+        --> [custom] | ScheduleLogger |
+        --> [......] |                |
+                     +----------------+
+
+    Note:
+        This component is push-based without an internal time step.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        from datetime import timedelta
+        import finam as fm
+
+        schedule = fm.modules.ScheduleLogger(
+            inputs={"Grid1": True, "Grid2": True},
+            time_step=timedelta(days=1),
+            log_level="DEBUG",
+            stdout=True,
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        schedule.initialize()
+
+    Parameters
+    ----------
+    inputs : dict of str, bool
+        Input names and whether to pull data from them when notified.
+        Pulling is useful for correct output behaviour when clearing the data cache.
+    time_step : datetime.timedelta, optional
+        Time per character in the ASCII graph. Default 1 day.
+    log_level : str or int, optional
+        Log level for the ASCII graph. Default "INFO".
+    stdout : bool
+        Prints the ASCII graphs to stdout.
+        Useful for piping to file and/or for documentation
+    """
+
+    def __init__(
+        self, inputs, time_step=timedelta(days=1), log_level="INFO", stdout=False
+    ):
+        super().__init__()
+        self._pull_inputs = inputs
+        self._time_step = time_step
+        self._log_level = logging.getLevelName(log_level)
+        self._stdout = stdout
+
+        self._schedule = None
+        self._output_map = None
+
+    def _initialize(self):
+        for inp in self._pull_inputs:
+            self.inputs.add(
+                CallbackInput(self._data_changed, name=inp, time=None, grid=None)
+            )
+        self.create_connector(
+            pull_data=[inp for inp, pull in self._pull_inputs.items() if pull]
+        )
+
+    def _connect(self):
+        self.try_connect()
+
+    def _validate(self):
+        pass
+
+    def _data_changed(self, caller, time):
+        self._update_schedule(caller, time)
+
+    def _update(self):
+        pass
+
+    def _update_schedule(self, caller, time):
+        if self._schedule is None:
+            self._schedule = {inp: [] for _, inp in self.inputs.items()}
+            self._output_map = {}
+            for _, inp in self.inputs.items():
+                out = inp
+                while isinstance(out, IInput):
+                    out = out.get_source()
+                self._output_map[inp] = out
+
+        self._schedule[caller].append(time)
+
+        if self._pull_inputs[caller.name]:
+            _data = caller.pull_data(time)
+
+        if self.status == ComponentStatus.VALIDATED:
+            self._print_schedule(caller)
+
+    def _print_schedule(self, caller):
+        t_min = min(t[0] for _, t in self._schedule.items() if len(t) > 0)
+        t_max = max(t[-1] for _, t in self._schedule.items() if len(t) > 0)
+        t_diff = t_max - t_min
+
+        num_char = int(t_diff / self._time_step) + 1
+
+        self.logger.log(self._log_level, "input updated")
+        if self._stdout:
+            print("")
+
+        max_name_len = max(len(inp.name) for inp in self._schedule)
+
+        for inp, times in self._schedule.items():
+            if len(times) == 0:
+                continue
+
+            s = [" "] * num_char
+
+            out = self._output_map[inp]
+
+            data_cache = getattr(out, "data", [])
+            data_len = len(data_cache)
+            i_min = len(times) - data_len
+
+            prev = 0
+            for i, t in enumerate(times):
+                d = t - t_min
+                pos = int(d / self._time_step)
+                for j in range(prev, pos):
+                    s[j] = "-"
+
+                s[pos] = "o" if i >= i_min else "x"
+                prev = pos + 1
+
+            s = "".join(s)
+
+            if inp == caller:
+                s += " <-"
+
+            s = f"{inp.name.ljust(max_name_len)} {s}"
+            self.logger.log(self._log_level, s)
+            if self._stdout:
+                print(s)
