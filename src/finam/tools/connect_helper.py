@@ -17,9 +17,15 @@ class MissingInfoError(Exception):
 class InfoSource(ABC):
     """Base class for info transfer rules from inputs or outputs"""
 
-    def __init__(self, name, *fields):
+    def __init__(self, name, fields):
         self.name = name
-        self.fields = list(*fields) or []
+
+        if fields is not None and not isinstance(fields, list):
+            raise TypeError(
+                "Fields must be a list of metadata attributes as strings, or None."
+            )
+
+        self.fields = fields or []
 
 
 class FromInput(InfoSource):
@@ -31,12 +37,12 @@ class FromInput(InfoSource):
     ----------
     name : str
         Name of the input to take info from
-    *fields : str, optional
+    fields : list of str, optional
         Info fields to take from the input.
         Takes all fields if this is empty.
     """
 
-    def __init__(self, name, *fields):
+    def __init__(self, name, fields=None):
         super().__init__(name, fields)
 
 
@@ -49,12 +55,12 @@ class FromOutput(InfoSource):
     ----------
     name : str
         Name of the output to take info from
-    *fields : str, optional
+    fields : list of str, optional
         Info fields to take from the output.
         Takes all fields if this is empty.
     """
 
-    def __init__(self, name, *fields):
+    def __init__(self, name, fields=None):
         super().__init__(name, fields)
 
 

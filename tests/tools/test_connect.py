@@ -214,8 +214,8 @@ class TestConnectHelper(unittest.TestCase):
             pull_data=list(inputs.keys()),
             out_info_rules={
                 "Out1": [
-                    FromInput("In1", "time", "grid"),
-                    FromInput("In2", "units"),
+                    FromInput("In1", ["time", "grid"]),
+                    FromInput("In2", ["units"]),
                     FromValue("test_prop", 1),
                     FromValue("time", time),
                 ]
@@ -286,8 +286,8 @@ class TestConnectHelper(unittest.TestCase):
             pull_data=inputs.names,
             cache=True,
         )
-        connector.add_in_info_rule("In1", FromOutput("Out1", "time", "units"))
-        connector.add_in_info_rule("In2", FromOutput("Out1", "time", "units"))
+        connector.add_in_info_rule("In1", FromOutput("Out1", ["time", "units"]))
+        connector.add_in_info_rule("In2", FromOutput("Out1", ["time", "units"]))
         connector.add_in_info_rule("In2", FromValue("grid", NoGrid()))
         connector.add_in_info_rule("In2", FromValue("time", time))
         connector.connect(
@@ -343,10 +343,18 @@ class TestConnectHelper(unittest.TestCase):
                 "TestLogger",
                 inputs,
                 outputs,
-                in_info_rules={"In1": [FromInput("InX", "grid")]},
+                in_info_rules={"In1": [FromInput("InX", ["grid"])]},
             )
 
         with self.assertRaises(KeyError):
+            _connector: ConnectHelper = ConnectHelper(
+                "TestLogger",
+                inputs,
+                outputs,
+                in_info_rules={"In1": [FromOutput("OutX", ["grid"])]},
+            )
+
+        with self.assertRaises(TypeError):
             _connector: ConnectHelper = ConnectHelper(
                 "TestLogger",
                 inputs,
