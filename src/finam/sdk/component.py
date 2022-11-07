@@ -300,8 +300,8 @@ class Component(IComponent, Loggable, ABC):
             self.create_connector(
                 out_info_rules={
                     "Out": [
-                        fm.tools.FromInput("In1", "time", "grid"),
-                        fm.tools.FromInput("In2", "units"),
+                        fm.tools.FromInput("In1", ["time", "grid"]),
+                        fm.tools.FromInput("In2", ["units"]),
                         fm.tools.FromValue("source", "FINAM"),
                     ]
                 }
