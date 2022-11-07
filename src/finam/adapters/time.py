@@ -1,6 +1,7 @@
 """
 Adapters that deal with time, like temporal interpolation and integration.
 """
+from abc import ABC, abstractmethod
 from datetime import datetime
 
 from finam.interfaces import NoBranchAdapter
@@ -16,6 +17,7 @@ __all__ = [
     "PreviousTime",
     "LinearTime",
     "IntegrateTime",
+    "TimeCachingAdapter",
 ]
 
 
@@ -70,7 +72,62 @@ class ExtrapolateTime(Adapter, NoBranchAdapter):
         return dtools.strip_data(self.pull_data(t, target))
 
 
-class NextTime(Adapter):
+class TimeCachingAdapter(Adapter, NoBranchAdapter, ABC):
+    """Abstract base class for time handling and caching adapters."""
+
+    def __init__(self):
+        super().__init__()
+        self.data = []
+
+    @property
+    def needs_push(self):
+        return True
+
+    def _source_updated(self, time):
+        """Informs the input that a new output is available.
+
+        Parameters
+        ----------
+        time : datetime
+            Simulation time of the notification.
+        """
+        _check_time(self.logger, time)
+
+        data = dtools.strip_data(self.pull_data(time, self))
+        self.data.append((time, data))
+
+    def _get_data(self, time, _target):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
+        if len(self.data) == 0:
+            raise FinamNoDataError(f"No data available in {self.name}")
+
+        _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
+
+        data = self._interpolate(time)
+        self._clear_cached_data(time)
+        return data
+
+    def _clear_cached_data(self, time):
+        while len(self.data) > 1 and self.data[1][0] <= time:
+            self.data.pop(0)
+
+    @abstractmethod
+    def _interpolate(self, time):
+        """Interpolate for the given time"""
+
+
+class NextTime(TimeCachingAdapter):
     """Time interpolation providing the next future value.
 
     Examples
@@ -83,50 +140,23 @@ class NextTime(Adapter):
         adapter = fm.adapters.NextTime()
     """
 
-    def __init__(self):
-        super().__init__()
-        self.data = None
-        self.time = None
+    def _interpolate(self, time):
+        if len(self.data) == 1:
+            return self.data[0][1]
 
-    @property
-    def needs_push(self):
-        return True
+        for t, data in self.data:
+            if time > t:
+                continue
 
-    def _source_updated(self, time):
-        """Informs the input that a new output is available.
+            return data
 
-        Parameters
-        ----------
-        time : datetime
-            Simulation time of the notification.
-        """
-        _check_time(self.logger, time)
-
-        self.data = self.pull_data(time, self)
-        self.time = time
-
-    def _get_data(self, time, _target):
-        """Get the output's data-set for the given time.
-
-        Parameters
-        ----------
-        time : datetime
-            simulation time to get the data for.
-
-        Returns
-        -------
-        array_like
-            data-set for the requested time.
-        """
-        _check_time(self.logger, time, (None, self.time))
-
-        if self.data is None:
-            raise FinamNoDataError(f"No data available in {self.name}")
-
-        return self.data
+        raise FinamTimeError(
+            f"Time interpolation failed. This should not happen and is probably a bug. "
+            f"Time is {time}."
+        )
 
 
-class PreviousTime(Adapter):
+class PreviousTime(TimeCachingAdapter):
     """Time interpolation providing the newest past value.
 
     Examples
@@ -139,58 +169,26 @@ class PreviousTime(Adapter):
         adapter = fm.adapters.PreviousTime()
     """
 
-    def __init__(self):
-        super().__init__()
-        self.old_data = None
-        self.new_data = None
+    def _interpolate(self, time):
+        if len(self.data) == 1:
+            return self.data[0][1]
 
-    @property
-    def needs_push(self):
-        return True
+        for i, (t, data) in enumerate(self.data):
+            if time > t:
+                continue
+            if time == t:
+                return data
 
-    def _source_updated(self, time):
-        """Informs the input that a new output is available.
+            _, data_prev = self.data[i - 1]
+            return data_prev
 
-        Parameters
-        ----------
-        time : datetime
-            Simulation time of the notification.
-        """
-        _check_time(self.logger, time)
-
-        data = self.pull_data(time, self)
-        if self.new_data is None:
-            self.old_data = (time, data)
-        else:
-            self.old_data = self.new_data
-
-        self.new_data = (time, data)
-
-    def _get_data(self, time, _target):
-        """Get the output's data-set for the given time.
-
-        Parameters
-        ----------
-        time : datetime
-            simulation time to get the data for.
-
-        Returns
-        -------
-        array_like
-            data-set for the requested time.
-        """
-        _check_time(self.logger, time, (self.old_data[0], self.new_data[0]))
-
-        if self.new_data is None:
-            raise FinamNoDataError(f"No data available in {self.name}")
-
-        if time < self.new_data[0]:
-            return self.old_data[1]
-
-        return self.new_data[1]
+        raise FinamTimeError(
+            f"Time interpolation failed. This should not happen and is probably a bug. "
+            f"Time is {time}."
+        )
 
 
-class LinearTime(Adapter):
+class LinearTime(TimeCachingAdapter):
     """Linear time interpolation.
 
     Examples
@@ -203,64 +201,32 @@ class LinearTime(Adapter):
         adapter = fm.adapters.LinearTime()
     """
 
-    def __init__(self):
-        super().__init__()
-        self.old_data = None
-        self.new_data = None
+    def _interpolate(self, time):
 
-    @property
-    def needs_push(self):
-        return True
+        if len(self.data) == 1:
+            return self.data[0][1]
 
-    def _source_updated(self, time):
-        """Informs the input that a new output is available.
+        for i, (t, data) in enumerate(self.data):
+            if time > t:
+                continue
+            if time == t:
+                return data
 
-        Parameters
-        ----------
-        time : datetime
-            Simulation time of the notification.
-        """
-        _check_time(self.logger, time)
+            t_prev, data_prev = self.data[i - 1]
 
-        self.old_data = self.new_data
-        self.new_data = (time, dtools.strip_data(self.pull_data(time, self)))
+            dt = (time - t_prev) / (t - t_prev)
 
-    def _get_data(self, time, _target):
-        """Get the output's data-set for the given time.
+            result = _interpolate(data_prev, data, dt)
 
-        Parameters
-        ----------
-        time : datetime
-            simulation time to get the data for.
+            return result
 
-        Returns
-        -------
-        array_like
-            data-set for the requested time.
-        """
-        if self.new_data is None:
-            raise FinamNoDataError(f"No data available in {self.name}")
-
-        _check_time(
-            self.logger,
-            time,
-            (None if self.old_data is None else self.old_data[0], self.new_data[0]),
+        raise FinamTimeError(
+            f"Time interpolation failed. This should not happen and is probably a bug. "
+            f"Time is {time}."
         )
 
-        if self.old_data is None:
-            return self.new_data[1]
 
-        dt = (time - self.old_data[0]) / (self.new_data[0] - self.old_data[0])
-
-        o = self.old_data[1]
-        n = self.new_data[1]
-
-        result = _interpolate(o, n, dt)
-
-        return result
-
-
-class IntegrateTime(Adapter, NoBranchAdapter):
+class IntegrateTime(TimeCachingAdapter):
     """Time integration over the last time step of the requester.
 
     Calculates the temporal average.
@@ -278,12 +244,7 @@ class IntegrateTime(Adapter, NoBranchAdapter):
 
     def __init__(self):
         super().__init__()
-        self.data = []
         self.prev_time = None
-
-    @property
-    def needs_push(self):
-        return True
 
     def _source_updated(self, time):
         """Informs the input that a new output is available.
@@ -319,6 +280,13 @@ class IntegrateTime(Adapter, NoBranchAdapter):
 
         _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
 
+        sum_value = self._interpolate(time)
+        self._clear_cached_data(self.prev_time)
+        self.prev_time = time
+        return sum_value
+
+    def _interpolate(self, time):
+
         if len(self.data) == 1:
             return self.data[0][1]
 
@@ -350,11 +318,6 @@ class IntegrateTime(Adapter, NoBranchAdapter):
         dt = time - self.prev_time
         if dt.total_seconds() > 0:
             sum_value /= dt.total_seconds()
-
-        if len(self.data) > 2:
-            self.data = self.data[-2:]
-
-        self.prev_time = time
 
         return sum_value
 
