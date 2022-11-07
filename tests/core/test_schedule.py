@@ -411,7 +411,21 @@ class TestComposition(unittest.TestCase):
         composition = Composition([module])
         composition.initialize()
 
-        composition.run(t_max=datetime(2000, 1, 31))
+        with self.assertRaises(ValueError):
+            composition.run(t_max=datetime(2000, 1, 31))
+
+        composition.run(t_max=None)
+
+    def test_time_comp(self):
+        module = MockupComponent(callbacks={"Output": lambda t: t}, step=timedelta(1.0))
+
+        composition = Composition([module])
+        composition.initialize()
+
+        with self.assertRaises(ValueError):
+            composition.run(t_max=None)
+
+        composition.run(t_max=datetime(2000, 1, 2))
 
     def test_no_update(self):
         module1 = MockupComponent(
@@ -494,6 +508,24 @@ class TestComposition(unittest.TestCase):
                 module4: {module3},
             },
         )
+
+    def test_static_run(self):
+        time = datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.NoGrid())
+
+        source = fm.modules.SimplexNoise(info)
+        sink = fm.modules.DebugPushConsumer(
+            inputs={
+                "In": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+        )
+
+        composition = Composition([source, sink])
+        composition.initialize()
+
+        source.outputs["Noise"] >> sink.inputs["In"]
+
+        composition.run()
 
     def test_dependencies_schedule(self):
         start = datetime(2000, 1, 1)

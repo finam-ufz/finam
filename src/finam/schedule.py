@@ -154,33 +154,36 @@ class Composition(Loggable):
 
         self.is_connected = True
 
-    def run(self, t_max):
+    def run(self, t_max=None):
         """Run this composition using the loop-based update strategy.
 
         Performs the connect phase if it ``connect()`` was not already called.
 
         Parameters
         ----------
-        t_max : datetime.datatime
+        t_max : datetime.datatime or None, optional
             Simulation time up to which to simulate.
+            Should be ``None`` if no components with time are present.
         """
-        if not isinstance(t_max, datetime):
-            with ErrorLogger(self.logger):
-                raise ValueError("t_max must be of type datetime")
+        time_modules = [m for m in self.modules if isinstance(m, ITimeComponent)]
+
+        with ErrorLogger(self.logger):
+            if len(time_modules) == 0:
+                if t_max is not None:
+                    raise ValueError(
+                        "t_max must be None for a composition without time components"
+                    )
+            else:
+                if not isinstance(t_max, datetime):
+                    raise ValueError(
+                        "t_max must be of type datetime for a composition with time components"
+                    )
 
         if not self.is_connected:
             self.connect()
 
-        time_modules = [m for m in self.modules if isinstance(m, ITimeComponent)]
-
         self.logger.debug("running composition")
-        while True:
-            if len(time_modules) == 0:
-                self.logger.warning(
-                    "No ITimeComponent in composition. Nothing to update."
-                )
-                break
-
+        while len(time_modules) > 0:
             to_update = min(time_modules, key=lambda m: m.time)
             updated = self._update_recursive(to_update)
             self._check_status(
