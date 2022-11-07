@@ -529,6 +529,9 @@ class TestComposition(unittest.TestCase):
 
         composition.run()
 
+        # We get data without the time dimension here
+        self.assertEqual(sink.data["In"].shape, ())
+
     def test_dependencies_schedule(self):
         start = datetime(2000, 1, 1)
         info = fm.Info(time=start, grid=fm.NoGrid())
