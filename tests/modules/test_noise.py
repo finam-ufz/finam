@@ -266,3 +266,42 @@ class TestNoise(unittest.TestCase):
 
         source = fm.modules.SimplexNoise(octaves=1)
         source._update()
+
+
+class TestStaticNoise(unittest.TestCase):
+    def test_static_noise(self):
+        in_info = fm.Info(
+            time=None,
+            grid=fm.NoGrid(),
+            units="m",
+        )
+
+        source = fm.modules.StaticSimplexNoise(info=in_info, seed=123)
+        sink = fm.modules.DebugConsumer(
+            {"Input": fm.Info(None, grid=None)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+        # We want to get to a point where this works
+        # sink = fm.modules.DebugPushConsumer(
+        #     inputs={
+        #         "Input": fm.Info(time=None, grid=fm.NoGrid()),
+        #     },
+        #     log_data="INFO",
+        # )
+
+        composition = fm.Composition([source, sink])
+        composition.initialize()
+
+        source.outputs["Noise"] >> sink.inputs["Input"]
+
+        composition.connect()
+        data_1 = fm.data.strip_data(sink.data["Input"])
+        print(data_1)
+        self.assertEqual(data_1.shape, ())
+
+        composition.run(datetime(2000, 1, 5))
+
+        data_2 = fm.data.strip_data(sink.data["Input"])
+        self.assertEqual(data_1, data_2)
+        self.assertEqual(data_2.shape, ())

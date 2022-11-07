@@ -19,6 +19,7 @@ Modules
     DebugPushConsumer
     ScheduleLogger
     SimplexNoise
+    StaticSimplexNoise
     TimeTrigger
     WeightedSum
 """
@@ -29,7 +30,7 @@ from .control import TimeTrigger
 from .debug import DebugConsumer, DebugPushConsumer, ScheduleLogger
 from .generators import CallbackGenerator
 from .mergers import WeightedSum
-from .noise import SimplexNoise
+from .noise import SimplexNoise, StaticSimplexNoise
 from .readers import CsvReader
 from .writers import CsvWriter
 
@@ -52,6 +53,7 @@ __all__ += [
     "DebugPushConsumer",
     "ScheduleLogger",
     "SimplexNoise",
+    "StaticSimplexNoise",
     "TimeTrigger",
     "WeightedSum",
 ]

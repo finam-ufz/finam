@@ -7,8 +7,8 @@ from datetime import datetime
 from ..data import tools
 from ..data.tools import Info
 from ..errors import (
-    FinamMetaDataError,
     FinamDataError,
+    FinamMetaDataError,
     FinamNoDataError,
     FinamTimeError,
 )
