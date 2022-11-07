@@ -37,6 +37,10 @@ class Adapter(IAdapter, Input, Output, ABC):
         self.source = None
         self.targets = []
 
+    @property
+    def is_static(self):
+        return False
+
     @final
     @property
     def info(self):

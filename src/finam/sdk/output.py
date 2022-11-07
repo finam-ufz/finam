@@ -27,7 +27,7 @@ class Output(IOutput, Loggable):
         if name is None:
             raise ValueError("Output: needs a name.")
         self.name = name
-        self.static = static
+        self._static = static
 
         if info_kwargs:
             if info is not None:
@@ -38,6 +38,10 @@ class Output(IOutput, Loggable):
 
         self._connected_inputs = {}
         self._out_infos_exchanged = 0
+
+    @property
+    def is_static(self):
+        return self._static
 
     @property
     def info(self):
@@ -118,14 +122,14 @@ class Output(IOutput, Loggable):
             self.logger.debug("skipping push to unconnected output")
             return
 
-        if not self.static and not isinstance(time, datetime):
+        if not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
         if self.has_targets and self._out_infos_exchanged < len(self._connected_inputs):
             raise FinamNoDataError("Can't push data before output info was exchanged.")
 
-        if self.static and len(self.data) > 0:
+        if self.is_static and len(self.data) > 0:
             raise FinamDataError("Can't push data repeatedly to a static output.")
 
         with ErrorLogger(self.logger):
@@ -158,7 +162,7 @@ class Output(IOutput, Loggable):
             Simulation time of the simulation.
         """
         self.logger.debug("notify targets")
-        if not self.static and not isinstance(time, datetime):
+        if not self.is_static and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
@@ -186,7 +190,7 @@ class Output(IOutput, Loggable):
             Raises the error if no data is available
         """
         self.logger.debug("get data")
-        if not self.static and not isinstance(time, datetime):
+        if not self.is_static and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
@@ -197,9 +201,9 @@ class Output(IOutput, Loggable):
         if len(self.data) == 0:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        data = self.data[0][1] if self.static else self._interpolate(time)
+        data = self.data[0][1] if self.is_static else self._interpolate(time)
 
-        if not self.static:
+        if not self.is_static:
             data_count = len(self.data)
             self._clear_data(time, target)
 
@@ -363,6 +367,10 @@ class CallbackOutput(Output):
     def __init__(self, callback, name, info=None, **info_kwargs):
         super().__init__(name=name, info=info, **info_kwargs)
         self.callback = callback
+
+    @property
+    def is_static(self):
+        return False
 
     @property
     def needs_push(self):

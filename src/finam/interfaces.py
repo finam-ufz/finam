@@ -226,6 +226,11 @@ class IOutput(ABC):
 
     @property
     @abstractmethod
+    def is_static(self):
+        """Whether the input is static"""
+
+    @property
+    @abstractmethod
     def info(self):
         """Info: The output's data info.
 

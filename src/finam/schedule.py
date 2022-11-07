@@ -437,7 +437,8 @@ def _find_dependencies(modules):
                 inp = inp.get_source()
                 if isinstance(inp, ExtrapolateTime):
                     break
-            if not isinstance(inp, ExtrapolateTime):
+
+            if not isinstance(inp, ExtrapolateTime) and not inp.is_static:
                 comp = out_map[inp]
                 deps.add(comp)
 
