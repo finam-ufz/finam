@@ -189,7 +189,7 @@ class Composition(Loggable):
 
             any_running = False
             for mod in time_modules:
-                if mod.time < t_max:
+                if mod.status != ComponentStatus.FINISHED and mod.time < t_max:
                     any_running = True
                     break
 
@@ -224,7 +224,8 @@ class Composition(Loggable):
                     return updated
 
         if isinstance(module, ITimeComponent):
-            module.update()
+            if module.status != ComponentStatus.FINISHED:
+                module.update()
             return module
 
         return None
