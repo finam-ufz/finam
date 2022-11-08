@@ -43,6 +43,7 @@ Time adapters
     LinearTime
     NextTime
     PreviousTime
+    StackTime
     TimeCachingAdapter
 """
 
@@ -56,6 +57,7 @@ from .time import (
     LinearTime,
     NextTime,
     PreviousTime,
+    StackTime,
     TimeCachingAdapter,
 )
 
@@ -77,5 +79,6 @@ __all__ += [
     "PreviousTime",
     "LinearTime",
     "IntegrateTime",
+    "StackTime",
     "TimeCachingAdapter",
 ]
