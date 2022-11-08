@@ -151,9 +151,9 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
     )
 
 
-def has_time(xdata):
+def has_time_axis(xdata):
     """
-    Check if the data array has a timestamp.
+    Check if the data array has a time axis.
 
     Parameters
     ----------
@@ -163,10 +163,31 @@ def has_time(xdata):
     Returns
     -------
     bool
-        Wether the data has a timestamp.
+        Whether the data has a time axis.
     """
     check_quantified(xdata, "has_time")
     return "time" in xdata.coords
+
+
+def has_time(xdata):
+    """
+    Check if the data array has a timestamp that is not NaT.
+
+    Parameters
+    ----------
+    xdata : xarray.DataArray
+        The given data array.
+
+    Returns
+    -------
+    bool
+        Whether the data has a timestamp that is not NaT.
+    """
+    if has_time_axis(xdata):
+        time = xdata["time"]
+        return time.size > 1 or (time.size > 0 and not pd.isnull(time.item()))
+
+    return False
 
 
 def get_time(xdata):
@@ -183,7 +204,7 @@ def get_time(xdata):
     list of datetime.datetime or None
         timestamps of the data array.
     """
-    if has_time(xdata):
+    if has_time_axis(xdata):
         time = xdata["time"]
         if time.size == 1:
             time = [time.item()]
@@ -245,7 +266,7 @@ def strip_time(xdata):
             f"Can strip time of xarray DataArray only. Got {xdata.__class__.__name__}"
         )
 
-    if has_time(xdata):
+    if has_time_axis(xdata):
         if xdata.shape[0] > 1:
             raise FinamDataError(
                 "Can't strip time of a data array with multiple time entries"
@@ -405,7 +426,7 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
                 f"check: given data has wrong name. Got {xdata.name}, expected {name}"
             )
 
-    if not has_time(xdata):
+    if not has_time_axis(xdata):
         raise FinamDataError("check: given data should hold a time.")
 
     if not ignore_time:

@@ -50,6 +50,7 @@ Data tools
     get_time
     get_units
     has_time
+    has_time_axis
     is_quantified
     quantify
     strip_data
@@ -93,6 +94,7 @@ from .tools import (
     get_time,
     get_units,
     has_time,
+    has_time_axis,
     is_quantified,
     quantify,
     strip_data,
@@ -136,6 +138,7 @@ __all__ += [
     "get_time",
     "get_units",
     "has_time",
+    "has_time_axis",
     "quantify",
     "is_quantified",
     "strip_data",
