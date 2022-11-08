@@ -551,6 +551,9 @@ class IOList(collections.abc.Mapping):
     def __len__(self):
         return len(self._dict)
 
+    def __contains__(self, item):
+        return item in self._dict
+
     def __getitem__(self, key):
         """Access an item by name."""
         if key in self._dict:
