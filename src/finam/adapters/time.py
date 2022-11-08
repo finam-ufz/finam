@@ -205,8 +205,18 @@ class StackTime(TimeCachingAdapter):
     """
 
     def _interpolate(self, time):
-        arr = np.stack([d[1] for d in self.data])
-        return dtools.to_xarray(arr, self.name, self.info, [d[0] for d in self.data])
+        extract = []
+
+        for t, data in self.data:
+            if time > t:
+                extract.append((t, data))
+                continue
+
+            extract.append((t, data))
+            break
+
+        arr = np.stack([d[1] for d in extract])
+        return dtools.to_xarray(arr, self.name, self.info, [d[0] for d in extract])
 
 
 class LinearTime(TimeCachingAdapter):
