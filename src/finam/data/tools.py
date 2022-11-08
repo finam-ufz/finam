@@ -102,31 +102,44 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
     else:
         data = np.asarray(data)
 
+    time_entries = (
+        len(time) if time is not None and not isinstance(time, datetime.datetime) else 1
+    )
+
     # check correct data size
     if isinstance(info.grid, Grid):
-        if data.size != info.grid.data_size:
+        data_size = data.size / time_entries
+        if data_size != info.grid.data_size:
             raise FinamDataError(
                 f"to_xarray: data size doesn't match grid size. "
-                f"Got {data.size}, expected {info.grid.data_size}"
+                f"Got {data_size}, expected {info.grid.data_size}"
             )
         # check shape of non-flat arrays
         if len(data.shape) != 1:
+            data_shape = data.shape if time_entries <= 1 else data.shape[1:]
             if (
-                data.shape != info.grid.data_shape
-                and tuple(v for v in data.shape if v != 1) != info.grid.data_shape
+                data_shape != info.grid.data_shape
+                and tuple(v for v in data_shape if v != 1) != info.grid.data_shape
             ):
                 raise FinamDataError(
                     f"to_xarray: data shape doesn't match grid shape. "
-                    f"Got {data.shape}, expected {info.grid.data_shape}"
+                    f"Got {data_shape}, expected {info.grid.data_shape}"
                 )
+
         # reshape arrays
-        data = data.reshape(info.grid.data_shape, order=info.grid.order)
+        if time_entries <= 1:
+            data = data.reshape(info.grid.data_shape, order=info.grid.order)
+        else:
+            data = data.reshape(
+                [time_entries] + list(info.grid.data_shape), order=info.grid.order
+            )
 
     elif isinstance(info.grid, grid_spec.NoGrid):
-        if len(data.shape) != info.grid.dim:
+        data_shape = data.shape if time_entries <= 1 else data.shape[1:]
+        if len(data_shape) != info.grid.dim:
             raise FinamDataError(
                 f"to_xarray: number of dimensions in data doesn't match expected number. "
-                f"Got {len(data.shape)}, expected {info.grid.dim}"
+                f"Got {len(data_shape)}, expected {info.grid.dim}"
             )
 
     if units is not None:
@@ -136,12 +149,18 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
             raise FinamDataError(
                 f"Given data has wrong units. Got {str(units)}, expected {str(info.units)}"
             )
+
+    time_coords = (
+        [pd.Timestamp(time) if time else pd.NaT]
+        if time_entries <= 1
+        else [pd.Timestamp(t) for t in time]
+    )
     # generate quantified DataArray
     out_array = xr.DataArray(
         name=name,
-        data=data[np.newaxis, ...],
+        data=data[np.newaxis, ...] if time_entries <= 1 else data,
         dims=_gen_dims(np.ndim(data), info),
-        coords=dict(time=[pd.Timestamp(time) if time else pd.NaT]),
+        coords=dict(time=time_coords),
         attrs=info.meta,
     )
     return (
@@ -435,10 +454,23 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
                 raise FinamDataError(
                     f"check: given data has a time, but should have NaT. Got {get_time(xdata)[0]}, expected NaT"
                 )
-        elif time != get_time(xdata)[0]:
-            raise FinamDataError(
-                f"check: given data has wrong time. Got {get_time(xdata)[0]}, expected {time}"
-            )
+        elif isinstance(time, datetime.datetime):
+            if time != get_time(xdata)[0]:
+                raise FinamDataError(
+                    f"check: given data has wrong time. Got {get_time(xdata)[0]}, expected {time}"
+                )
+        else:
+            if len(time) != len(get_time(xdata)):
+                raise FinamDataError(
+                    f"check: given data has wrong number of time entries. "
+                    f"Got {len(get_time(xdata))}, expected {len(time)}"
+                )
+            else:
+                for i, (t1, t2) in enumerate(zip(time, get_time(xdata))):
+                    if t1 != t2:
+                        raise FinamDataError(
+                            f"check: given data has wrong time at index {i}. Got {t2}, expected {t1}"
+                        )
 
     _check_shape(xdata, info.grid)
 
