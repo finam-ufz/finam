@@ -106,6 +106,37 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
         len(time) if time is not None and not isinstance(time, datetime.datetime) else 1
     )
 
+    data = _check_input_shape(data, info, time_entries)
+
+    if units is not None:
+        if "units" not in info.meta and units != UNITS.dimensionless:
+            raise FinamDataError("Given data has units, but metadata has none.")
+        if "units" in info.meta and UNITS.Unit(info.units) != units:
+            raise FinamDataError(
+                f"Given data has wrong units. Got {str(units)}, expected {str(info.units)}"
+            )
+
+    time_coords = (
+        [pd.Timestamp(time) if time else pd.NaT]
+        if time_entries <= 1
+        else [pd.Timestamp(t) for t in time]
+    )
+    # generate quantified DataArray
+    out_array = xr.DataArray(
+        name=name,
+        data=data[np.newaxis, ...] if time_entries <= 1 else data,
+        dims=_gen_dims(np.ndim(data), info),
+        coords=dict(time=time_coords),
+        attrs=info.meta,
+    )
+    return (
+        out_array.pint.quantify()
+        if "units" in info.meta
+        else out_array.pint.quantify("")
+    )
+
+
+def _check_input_shape(data, info, time_entries):
     # check correct data size
     if isinstance(info.grid, Grid):
         data_size = data.size / time_entries
@@ -142,32 +173,7 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
                 f"Got {len(data_shape)}, expected {info.grid.dim}"
             )
 
-    if units is not None:
-        if "units" not in info.meta and units != UNITS.dimensionless:
-            raise FinamDataError("Given data has units, but metadata has none.")
-        if "units" in info.meta and UNITS.Unit(info.units) != units:
-            raise FinamDataError(
-                f"Given data has wrong units. Got {str(units)}, expected {str(info.units)}"
-            )
-
-    time_coords = (
-        [pd.Timestamp(time) if time else pd.NaT]
-        if time_entries <= 1
-        else [pd.Timestamp(t) for t in time]
-    )
-    # generate quantified DataArray
-    out_array = xr.DataArray(
-        name=name,
-        data=data[np.newaxis, ...] if time_entries <= 1 else data,
-        dims=_gen_dims(np.ndim(data), info),
-        coords=dict(time=time_coords),
-        attrs=info.meta,
-    )
-    return (
-        out_array.pint.quantify()
-        if "units" in info.meta
-        else out_array.pint.quantify("")
-    )
+    return data
 
 
 def has_time_axis(xdata):
@@ -449,28 +455,8 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
         raise FinamDataError("check: given data should hold a time.")
 
     if not ignore_time:
-        if time is None:
-            if not pd.isnull(get_time(xdata)[0]):
-                raise FinamDataError(
-                    f"check: given data has a time, but should have NaT. Got {get_time(xdata)[0]}, expected NaT"
-                )
-        elif isinstance(time, datetime.datetime):
-            if time != get_time(xdata)[0]:
-                raise FinamDataError(
-                    f"check: given data has wrong time. Got {get_time(xdata)[0]}, expected {time}"
-                )
-        else:
-            if len(time) != len(get_time(xdata)):
-                raise FinamDataError(
-                    f"check: given data has wrong number of time entries. "
-                    f"Got {len(get_time(xdata))}, expected {len(time)}"
-                )
-            else:
-                for i, (t1, t2) in enumerate(zip(time, get_time(xdata))):
-                    if t1 != t2:
-                        raise FinamDataError(
-                            f"check: given data has wrong time at index {i}. Got {t2}, expected {t1}"
-                        )
+        data_time = get_time(xdata)
+        _check_time(time, data_time)
 
     _check_shape(xdata, info.grid)
 
@@ -508,6 +494,31 @@ def _check_shape(xdata, grid):
             f"check: given data has wrong number of dimensions. "
             f"Got {len(in_shape)}, expected {grid.dim}"
         )
+
+
+def _check_time(time, data_time):
+    if time is None:
+        if not pd.isnull(data_time[0]):
+            raise FinamDataError(
+                f"check: given data has a time, but should have NaT. Got {data_time[0]}, expected NaT"
+            )
+    elif isinstance(time, datetime.datetime):
+        if time != data_time[0]:
+            raise FinamDataError(
+                f"check: given data has wrong time. Got {data_time[0]}, expected {time}"
+            )
+    else:
+        if len(time) != len(data_time):
+            raise FinamDataError(
+                f"check: given data has wrong number of time entries. "
+                f"Got {len(data_time)}, expected {len(time)}"
+            )
+
+        for i, (t1, t2) in enumerate(zip(time, data_time)):
+            if t1 != t2:
+                raise FinamDataError(
+                    f"check: given data has wrong time at index {i}. Got {t2}, expected {t1}"
+                )
 
 
 def is_quantified(xdata):
