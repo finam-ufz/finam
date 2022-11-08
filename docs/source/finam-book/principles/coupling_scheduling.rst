@@ -33,12 +33,18 @@ The figure illustrates a few important aspects of coupling:
 Scheduling
 ----------
 
-The scheduling of components follows a simple algorithm that allows for arbitrary, and even variable, model/component time steps.
+The scheduling of components follows a simple algorithm that allows for arbitrary, and even variable component time steps.
 
-At each iteration, the component most back in time is selected as the *active component*.
-Then, it is checked whether the *active component* has any upstream components that are not yet at the time of it's next pull.
-If there is any such upstream component component, it becomes the *active component*, and the check is repeated.
-If there is no such upstream component component, the *active component* is updated once.
+The algorithm selects the component most back in time, and recursively analyzes its dependencies.
+It then updates upstream components before advancing downstream components.
+This way, components can rely on data that is not outdated.
+
+The algorithm in detail:
+
+* At each iteration, the component most back in time is selected as the *active component*.
+* It is checked whether the *active component* has any upstream components that are not yet at the time of it's next pull.
+* If there is any such upstream component component, it becomes the *active component*, and the check is repeated.
+* If there is no such upstream component component, the *active component* is updated once.
 
 This way, it is guaranteed that each components has the data for it's next pull available when updated.
 
