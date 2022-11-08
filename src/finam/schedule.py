@@ -47,7 +47,7 @@ class Composition(Loggable):
         composition = Composition([comp_a, comp_b])
         composition.initialize()
 
-        comp_b >> SomeAdapter() >> comp_b
+        comp_b.outputs["Out"] >> SomeAdapter() >> comp_b.inputs["In"]
 
         composition.run(t_max=...)
 
