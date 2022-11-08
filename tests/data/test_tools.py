@@ -3,6 +3,7 @@ import unittest
 from datetime import datetime as dt
 
 import numpy as np
+import pandas as pd
 import pint
 import xarray as xr
 
@@ -33,7 +34,7 @@ class TestDataTools(unittest.TestCase):
         dar1 = finam.data.to_xarray(data, "data", info)
 
         # assert stuff
-        self.assertIsNone(finam.data.get_time(dar1))
+        self.assertEqual(finam.data.get_time(dar1), [pd.NaT])
         self.assertIsInstance(finam.data.get_magnitude(dar0), np.ndarray)
         self.assertIsInstance(finam.data.get_data(dar0), pint.Quantity)
         self.assertIsInstance(
@@ -123,9 +124,9 @@ class TestDataTools(unittest.TestCase):
         time = dt(2000, 1, 1)
 
         xdata = finam.data.to_xarray(1.0, "data", finam.Info(time, grid=finam.NoGrid()))
-        self.assertEqual(xdata.shape, ())
+        self.assertEqual(xdata.shape, (1,))
         stripped = finam.data.strip_time(xdata)
-        self.assertEqual(xdata.shape, stripped.shape)
+        self.assertEqual(stripped.shape, ())
 
         xdata = finam.data.to_xarray(
             1.0,
@@ -169,9 +170,9 @@ class TestDataTools(unittest.TestCase):
     def test_strip_data(self):
         time = dt(2000, 1, 1)
         xdata = finam.data.to_xarray(1.0, "data", finam.Info(time, grid=finam.NoGrid()))
-        self.assertEqual(xdata.shape, ())
+        self.assertEqual(xdata.shape, (1,))
         stripped = finam.data.strip_data(xdata)
-        self.assertEqual(xdata.shape, stripped.shape)
+        self.assertEqual(stripped.shape, ())
         self.assertTrue(isinstance(stripped, pint.Quantity))
         self.assertFalse(isinstance(stripped, xr.DataArray))
 
@@ -250,10 +251,10 @@ class TestDataTools(unittest.TestCase):
             datetime.datetime(2000, 1, 1),
         )
 
-        finam.data.tools._check_shape(xdata, finam.NoGrid(), with_time=True)
+        finam.data.tools._check_shape(xdata, finam.NoGrid())
 
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.tools._check_shape(xdata, finam.NoGrid(dim=1), with_time=True)
+            finam.data.tools._check_shape(xdata, finam.NoGrid(dim=1))
 
     def test_quantify(self):
         xdata = xr.DataArray(1.0, attrs={"units": "m"})

@@ -7,6 +7,8 @@ import unittest
 from datetime import datetime, timedelta
 from tempfile import TemporaryDirectory
 
+import numpy as np
+
 import finam as fm
 from finam import (
     Adapter,
@@ -530,7 +532,8 @@ class TestComposition(unittest.TestCase):
         composition.run()
 
         # We get data without the time dimension here
-        self.assertEqual(sink.data["In"].shape, ())
+        self.assertEqual(sink.data["In"].shape, (1,))
+        self.assertTrue(np.isnat(sink.data["In"].coords["time"][0]))
 
     def test_dependencies_schedule(self):
         start = datetime(2000, 1, 1)

@@ -38,7 +38,7 @@ def _extract_units(xdata):
         return None
 
 
-def _gen_dims(ndim, info, time=None):
+def _gen_dims(ndim, info):
     """
     Generate dimension names.
 
@@ -48,8 +48,6 @@ def _gen_dims(ndim, info, time=None):
         Number of dimensions.
     info : Info
         Info associated with the data.
-    time : datetime.datatime or None, optional
-        Timestamp for the data, by default None
 
     Returns
     -------
@@ -57,7 +55,7 @@ def _gen_dims(ndim, info, time=None):
         Dimension names.
     """
     # create correct dims (time always first)
-    dims = ["time"] if time else []
+    dims = ["time"]
     if isinstance(info.grid, grid_spec.NoGrid):
         # xarray has dim_0, dim_1 ... as default names
         dims += [f"dim_{i}" for i in range(ndim)]
@@ -138,13 +136,12 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
             raise FinamDataError(
                 f"Given data has wrong units. Got {str(units)}, expected {str(info.units)}"
             )
-
     # generate quantified DataArray
     out_array = xr.DataArray(
         name=name,
-        data=data[np.newaxis, ...] if time else data,
-        dims=_gen_dims(np.ndim(data), info, time),
-        coords=dict(time=[pd.Timestamp(time)]) if time else None,
+        data=data[np.newaxis, ...],
+        dims=_gen_dims(np.ndim(data), info),
+        coords=dict(time=[pd.Timestamp(time) if time else pd.NaT]),
         attrs=info.meta,
     )
     return (
@@ -407,22 +404,24 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
             raise FinamDataError(
                 f"check: given data has wrong name. Got {xdata.name}, expected {name}"
             )
-    if time is not None:
-        if not has_time(xdata):
-            raise FinamDataError("check: given data should hold a time.")
-        if not ignore_time and time != get_time(xdata)[0]:
+
+    if not has_time(xdata):
+        raise FinamDataError("check: given data should hold a time.")
+
+    if not ignore_time:
+        if time is None:
+            if not pd.isnull(get_time(xdata)[0]):
+                raise FinamDataError(
+                    f"check: given data has a time, but should have NaT. Got {get_time(xdata)[0]}, expected NaT"
+                )
+        elif time != get_time(xdata)[0]:
             raise FinamDataError(
                 f"check: given data has wrong time. Got {get_time(xdata)[0]}, expected {time}"
             )
 
-        _check_shape(xdata, info.grid, True)
+    _check_shape(xdata, info.grid)
 
-    elif has_time(xdata):
-        raise FinamDataError("check: given data shouldn't hold a time.")
-    else:
-        _check_shape(xdata, info.grid, False)
-
-    dims = _gen_dims(len(xdata.dims) - (1 if time else 0), info, time)
+    dims = _gen_dims(len(xdata.dims) - 1, info)
     if dims != list(xdata.dims):
         raise FinamDataError(
             f"check: given data has wrong dimensions. Got {list(xdata.dims)}, expected {dims}."
@@ -444,8 +443,8 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
         )
 
 
-def _check_shape(xdata, grid, with_time):
-    in_shape = xdata.shape[1:] if with_time else xdata.shape
+def _check_shape(xdata, grid):
+    in_shape = xdata.shape[1:]
     if isinstance(grid, Grid) and in_shape != grid.data_shape:
         raise FinamDataError(
             f"check: given data has wrong shape. "
