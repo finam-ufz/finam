@@ -11,13 +11,27 @@ FINAM 0.4 released
 After two months of hard work since the last release, FINAM 0.4 comes with a full load of new features
 and usability improvements. This version is a real breakthrough in the development of FINAM!
 
-Highlights are new grid data types, automatic metadata and units handling,
+Highlights are a new scheduling algorithm, grid data types, automatic metadata and units handling,
 more flexible exchange during initialization, and a completely reworked documentation.
 
 What's new?
 -----------
 
 FINAM 0.4 comes with several new major features around data and metadata handling.
+
+Scheduling algorithm
+^^^^^^^^^^^^^^^^^^^^
+
+The old scheduling algorithm simply selected the component most back in time.
+It had the flaw that the data received by a component was usually associated to time passed,
+rather than to the time span of the next step to perform.
+
+The new algorithm recursively analyzes dependencies and updates upstream components before advancing downstream components.
+This way, components can rely on data that is not outdated.
+
+For circular couplings, we provide a new adapter that extrapolates in time, so the dependency cycle can be interrupted.
+
+For more details on the new algorithm, see the book chapter :doc:`/finam-book/principles/coupling_scheduling`.
 
 Metadata for all coupling slots
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
