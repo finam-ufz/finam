@@ -79,7 +79,7 @@ Components
 ^^^^^^^^^^
 * `finam-plot <https://finam.pages.ufz.de/finam-plot/>`_
     Provides FINAM components for live plotting using :mod:`matplotlib`.
-* `finam-netcdf <https://git.ufz.de/FINAM/finam-netcdf>`_
+* `finam-netcdf <https://finam.pages.ufz.de/finam-netcdf/>`_
     Provides FINAM components for `NetCDF <https://www.unidata.ucar.edu/software/netcdf/>`_ file reading and writing.
 
 Tools
