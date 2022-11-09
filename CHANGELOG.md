@@ -2,9 +2,13 @@
 
 ## [unpublished]
 
+### New scheduling algorithm
+
+* FINAM uses a new scheduling algorithm that allows components to use future data instead of only past/current (!157, !159)
+* It is now possible to set up static couplings that run only once and have no explicit time or stepping (!166)
+
 ### Data and metadata rework
 
-* New scheduling algorithm that allows components to use future data instead of only past/current (!157, !159)
 * Outputs check compatibility between metadata of inputs if there is more than one target input (!104)
 * Add data tools function `check_units(lhs, rhs)` to check for convertibility (!105)
 * Components can exchange their starting time through the `Info` object (!111)
@@ -39,6 +43,7 @@
 * All error types are in module `errors` now, and re-exported at top level (!116)
 * Overwriting `_validate()` and `_finalize()` in components is now mandatory (!156)
 * Input and output slots can be accessed from components directly, e.g. `comp["A"]` instead of `comp.inputs["A"]` (!147)
+* Inputs and outputs can be marked as `static` for constant data without time information (!166, !171)
 
 ## [v0.4.0-rc.2]
 
