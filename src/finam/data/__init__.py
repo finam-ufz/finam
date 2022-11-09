@@ -40,6 +40,7 @@ Data tools
     :noindex: UNITS
     :noindex: Info
     assert_type
+    assign_time
     check
     check_quantified
     full
@@ -57,7 +58,6 @@ Data tools
     strip_time
     to_units
     to_xarray
-    with_time
 """
 
 from ..errors import FinamDataError
@@ -85,6 +85,7 @@ from .tools import (
     UNITS,
     Info,
     assert_type,
+    assign_time,
     check,
     check_quantified,
     full,
@@ -102,7 +103,6 @@ from .tools import (
     strip_time,
     to_units,
     to_xarray,
-    with_time,
 )
 
 __all__ = ["grid_spec", "grid_tools", "tools"]
@@ -130,6 +130,7 @@ __all__ += [
     "FinamDataError",
     "Info",
     "assert_type",
+    "assign_time",
     "check",
     "check_quantified",
     "full",
@@ -147,5 +148,4 @@ __all__ += [
     "strip_time",
     "to_units",
     "to_xarray",
-    "with_time",
 ]

@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 
 from ..data import tools
-from ..data.tools import Info, has_time, strip_time, with_time
+from ..data.tools import Info, assign_time, has_time, strip_time
 from ..errors import FinamDataError, FinamMetaDataError
 from ..interfaces import IInput, IOutput, Loggable
 from ..tools.log_helper import ErrorLogger
@@ -131,7 +131,7 @@ class Input(IInput, Loggable):
             return strip_time(data)
 
         if time is not None and not has_time(data):
-            data = with_time(data, time)
+            data = assign_time(data, time)
 
         return data
 

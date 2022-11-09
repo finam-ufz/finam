@@ -215,7 +215,7 @@ def has_time(xdata):
     return False
 
 
-def with_time(xdata, time):
+def assign_time(xdata, time):
     """
     Replace the time coordinate values of the data.
 
