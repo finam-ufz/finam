@@ -138,6 +138,11 @@ class IInput(ABC):
 
     @property
     @abstractmethod
+    def is_static(self):
+        """Whether the input is static"""
+
+    @property
+    @abstractmethod
     def info(self):
         """Info: The input's data info."""
 
@@ -227,7 +232,7 @@ class IOutput(ABC):
     @property
     @abstractmethod
     def is_static(self):
-        """Whether the input is static"""
+        """Whether the output is static"""
 
     @property
     @abstractmethod

@@ -14,18 +14,23 @@ from ..tools.log_helper import ErrorLogger
 class Input(IInput, Loggable):
     """Default input implementation."""
 
-    def __init__(self, name, info=None, **info_kwargs):
+    def __init__(self, name, info=None, static=False, **info_kwargs):
         self.source = None
         self.base_logger_name = None
         if name is None:
             raise ValueError("Input: needs a name.")
         self.name = name
+        self._static = static
         if info_kwargs:
             if info is not None:
                 raise ValueError("Input: can't use **kwargs in combination with info")
             info = Info(**info_kwargs)
         self._input_info = info
         self._in_info_exchanged = False
+
+    @property
+    def is_static(self):
+        return self._static
 
     @property
     def info(self):
@@ -201,7 +206,7 @@ class CallbackInput(Input):
     """
 
     def __init__(self, callback, name, info=None, **info_kwargs):
-        super().__init__(name=name, info=info, **info_kwargs)
+        super().__init__(name=name, info=info, static=False, **info_kwargs)
         self.callback = callback
 
     @property

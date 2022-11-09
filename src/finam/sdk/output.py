@@ -364,12 +364,8 @@ class CallbackOutput(Output):
     """
 
     def __init__(self, callback, name, info=None, **info_kwargs):
-        super().__init__(name=name, info=info, **info_kwargs)
+        super().__init__(name=name, info=info, static=False, **info_kwargs)
         self.callback = callback
-
-    @property
-    def is_static(self):
-        return False
 
     @property
     def needs_push(self):
