@@ -4,19 +4,24 @@
 
 ### Data and metadata rework
 
+* New scheduling algorithm that allows components to use future data instead of only past/current (!157, !159)
 * Outputs check compatibility between metadata of inputs if there is more than one target input (!104)
 * Add data tools function `check_units(lhs, rhs)` to check for convertibility (!105)
 * Components can exchange their starting time through the `Info` object (!111)
+* Info exchange is automated by the `ConnectHelper` by specifying transfer rules at initialization (!154)
 * `Info` now requires time in constructor (can be `None`) (!111)
 * Scheduler checks for dead links that don't work in terms of push/pull combination (!112)
 * `IInput`, `IOutput` and `IAdapter` have new internally used properties `needs_push` and `needs_pull` (!112)
 * `to_xarray` now checks the data shape if the data is not flat (!130)
+* Outputs can be flagged `static` for data that is only used during initialization, or that is constant (!166)
 
 ### Components
 
 * Add `modules.WeightedSum` for aggregation of multiple inputs (!105)
 * Add `modules.SimplexNoise` for generating spatio-temporal noise (!131)
 * Add `modules.TimeTrigger` to forward data from pull-based to push-based components (!131)
+* Add `modules.ScheduleLogger` to visualize scheduling/module updates through ASCII charts (!160)
+* Add `modules.DebugPushConsumer` as a push-based variant of the debug consumer (!165)
 
 ### Other
 
@@ -27,10 +32,13 @@
   * `AAdapter` is now `Adapter`
   * `AComponent` is now `Component`
   * `ATimeComponent` is now `TimeComponent`
-* Changed arguments for `create_connector()`
+* Changed arguments for `create_connector()` (!111)
   * Removed `required_out_infos`
   * Renamed `required_in_data` to `pull_data`
-* All error types are in module `errors` now, and re-exported at top level
+  * Added arguments to specify info exchange rules
+* All error types are in module `errors` now, and re-exported at top level (!116)
+* Overwriting `_validate()` and `_finalize()` in components is now mandatory (!156)
+* Input and output slots can be accessed from components directly, e.g. `comp["A"]` instead of `comp.inputs["A"]` (!147)
 
 ## [v0.4.0-rc.2]
 

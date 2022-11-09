@@ -366,6 +366,9 @@ class TestCallbackInput(unittest.TestCase):
             counter += 1
 
         inp = CallbackInput(callback=callback, name="callback")
+        out = Output(name="Out")
+
+        out >> inp
 
         inp.source_updated(t)
 
@@ -582,6 +585,9 @@ class TestIOFails(unittest.TestCase):
 
     def test_callback_input_fail(self):
         inp = CallbackInput(callback=lambda t: t, name="In")
+        out = Output(name="Out")
+
+        out >> inp
 
         with self.assertRaises(ValueError):
             inp.source_updated(0)

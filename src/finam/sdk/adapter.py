@@ -37,6 +37,10 @@ class Adapter(IAdapter, Input, Output, ABC):
         self.source = None
         self.targets = []
 
+    @property
+    def is_static(self):
+        return False
+
     @final
     @property
     def info(self):
@@ -66,7 +70,7 @@ class Adapter(IAdapter, Input, Output, ABC):
             Simulation time of the data set.
         """
         self.logger.debug("push data")
-        if not isinstance(time, datetime):
+        if time is not None and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
@@ -82,13 +86,29 @@ class Adapter(IAdapter, Input, Output, ABC):
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
-        if not isinstance(time, datetime):
+        if time is not None and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
         self._source_updated(time)
 
         self.notify_targets(time)
+
+    def notify_targets(self, time):
+        """Notify all targets by calling their ``source_updated(time)`` method.
+
+        Parameters
+        ----------
+        time : datetime.datatime
+            Simulation time of the simulation.
+        """
+        self.logger.debug("notify targets")
+        if time is not None and not isinstance(time, datetime):
+            with ErrorLogger(self.logger):
+                raise ValueError("Time must be of type datetime")
+
+        for target in self.targets:
+            target.source_updated(time)
 
     def _source_updated(self, time):
         """Informs the input that a new output is available.
@@ -123,7 +143,7 @@ class Adapter(IAdapter, Input, Output, ABC):
             Transformed data-set for the requested time.
         """
         self.logger.debug("get data")
-        if not isinstance(time, datetime):
+        if time is not None and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise FinamTimeError("Time must be of type datetime")
 
