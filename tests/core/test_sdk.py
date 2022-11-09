@@ -392,8 +392,10 @@ class TestInput(unittest.TestCase):
 
         self.assertFalse(fm.data.has_time_axis(data))
 
-        with self.assertRaises(FinamStaticDataError):
-            in1.pull_data(None)
+        data_2 = in1.pull_data(None)
+
+        self.assertEqual(data, in1._cached_data)
+        self.assertEqual(data, data_2)
 
     def test_pull_dynamic_time(self):
         t = datetime(2000, 1, 1)

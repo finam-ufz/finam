@@ -27,7 +27,7 @@ class Input(IInput, Loggable):
             info = Info(**info_kwargs)
         self._input_info = info
         self._in_info_exchanged = False
-        self._pulled = False
+        self._cached_data = None
 
     @property
     def is_static(self):
@@ -109,23 +109,21 @@ class Input(IInput, Loggable):
         """
         self.logger.debug("pull data")
 
-        with ErrorLogger(self.logger):
-            if self.is_static and self._pulled:
-                raise FinamStaticDataError(
-                    "Can't pull data repeatedly from a static input."
-                )
-
-            if time is not None and not isinstance(time, datetime):
+        if time is not None and not isinstance(time, datetime):
+            with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        data = self.source.get_data(time, target or self)
+        if self.is_static:
+            if self._cached_data is None:
+                self._cached_data = self.source.get_data(time, target or self)
+            data = self._cached_data
+        else:
+            data = self.source.get_data(time, target or self)
 
         with ErrorLogger(self.logger):
             if "units" in self._input_info.meta:
                 data = tools.to_units(data, self._input_info.units)
             tools.check(data, data.name, self._input_info, time, ignore_time=True)
-
-        self._pulled = True
 
         if self.is_static:
             if has_time(data):
