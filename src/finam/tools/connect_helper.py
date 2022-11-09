@@ -298,6 +298,30 @@ class ConnectHelper(Loggable):
         """dict: If data was pushed for outputs so far."""
         return self._pushed_data
 
+    @property
+    def data_required(self):
+        """dict: If data to push is still required."""
+        return {
+            name: not pushed and name not in self._out_data_cache
+            for name, pushed in self.data_pushed.items()
+        }
+
+    @property
+    def in_infos_required(self):
+        """dict: If input infos to exchange are still required."""
+        return {
+            name: inf is None and name not in self._in_info_cache
+            for name, inf in self.in_infos.items()
+        }
+
+    @property
+    def out_infos_required(self):
+        """dict: If output infos to push are still required."""
+        return {
+            name: not pushed and name not in self._out_info_cache
+            for name, pushed in self.infos_pushed.items()
+        }
+
     def connect(self, time, exchange_infos=None, push_infos=None, push_data=None):
         """Exchange the info and data with linked components.
 
