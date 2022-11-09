@@ -7,10 +7,70 @@ This chapter lists known components and adapters for use in FINAM compositions.
 Included in FINAM core package
 ------------------------------
 
-* Module :mod:`finam.modules`
-    Contains all components included in the FINAM core package.
-* Module :mod:`finam.adapters`
-    Contains all adapters included in the FINAM core package.
+Components
+^^^^^^^^^^
+
+Several components, primarily for testing and debugging, are provided in module :mod:`finam.modules`.
+
+.. currentmodule:: finam.modules
+
+.. autosummary::
+    CallbackComponent
+    CallbackGenerator
+    CsvReader
+    CsvWriter
+    DebugConsumer
+    DebugPushConsumer
+    ScheduleLogger
+    SimplexNoise
+    StaticSimplexNoise
+    TimeTrigger
+    WeightedSum
+
+Adapters
+^^^^^^^^
+
+Different general-purpose adapters are provided in module :mod:`finam.adapters`.
+
+.. currentmodule:: finam.adapters
+
+
+Base adapters
+"""""""""""""
+
+.. autosummary::
+
+    Callback
+    Scale
+    ValueToGrid
+    GridToValue
+
+Probe adapters
+""""""""""""""
+
+.. autosummary::
+
+    CallbackProbe
+
+Regridding adapters
+"""""""""""""""""""
+
+.. autosummary::
+
+    RegridNearest
+    RegridLinear
+
+Time adapters
+"""""""""""""
+
+.. autosummary::
+
+    ExtrapolateTime
+    IntegrateTime
+    LinearTime
+    NextTime
+    PreviousTime
+    TimeCachingAdapter
 
 Provided by FINAM developers
 ----------------------------
