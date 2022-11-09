@@ -50,9 +50,9 @@ class TestConnectHelper(unittest.TestCase):
         self.assertEqual(connector.in_infos, {"In1": None, "In2": None})
         self.assertEqual(connector.out_infos, {"Out1": None, "Out2": None})
 
-        self.assertEqual(connector.data_required, {'Out1': True, 'Out2': True})
-        self.assertEqual(connector.in_infos_required, {'In1': True, 'In2': True})
-        self.assertEqual(connector.out_infos_required, {'Out1': True, 'Out2': True})
+        self.assertEqual(connector.data_required, {"Out1": True, "Out2": True})
+        self.assertEqual(connector.in_infos_required, {"In1": True, "In2": False})
+        self.assertEqual(connector.out_infos_required, {"Out1": True, "Out2": True})
 
         status = connector.connect(time)
 
@@ -66,9 +66,9 @@ class TestConnectHelper(unittest.TestCase):
         self.assertEqual(status, ComponentStatus.CONNECTING)
         self.assertEqual(connector.in_infos, {"In1": info, "In2": None})
 
-        self.assertEqual(connector.data_required, {'Out1': True, 'Out2': True})
-        self.assertEqual(connector.in_infos_required, {'In1': False, 'In2': True})
-        self.assertEqual(connector.out_infos_required, {'Out1': True, 'Out2': True})
+        self.assertEqual(connector.data_required, {"Out1": True, "Out2": True})
+        self.assertEqual(connector.in_infos_required, {"In1": False, "In2": False})
+        self.assertEqual(connector.out_infos_required, {"Out1": True, "Out2": True})
 
         sources[0].push_data(1, time)
 
@@ -83,9 +83,9 @@ class TestConnectHelper(unittest.TestCase):
         self.assertEqual(status, ComponentStatus.CONNECTING)
         self.assertEqual(connector.out_infos, {"Out1": None, "Out2": None})
 
-        self.assertEqual(connector.data_required, {'Out1': True, 'Out2': True})
-        self.assertEqual(connector.in_infos_required, {'In1': False, 'In2': True})
-        self.assertEqual(connector.out_infos_required, {'Out1': False, 'Out2': True})
+        self.assertEqual(connector.data_required, {"Out1": True, "Out2": True})
+        self.assertEqual(connector.in_infos_required, {"In1": False, "In2": False})
+        self.assertEqual(connector.out_infos_required, {"Out1": False, "Out2": True})
 
         sinks[0].exchange_info(info.copy())
 
@@ -100,9 +100,9 @@ class TestConnectHelper(unittest.TestCase):
         )
         sources[1].push_data(2, time)
 
-        self.assertEqual(connector.data_required, {'Out1': True, 'Out2': True})
-        self.assertEqual(connector.in_infos_required, {'In1': False, 'In2': False})
-        self.assertEqual(connector.out_infos_required, {'Out1': False, 'Out2': False})
+        self.assertEqual(connector.data_required, {"Out1": True, "Out2": True})
+        self.assertEqual(connector.in_infos_required, {"In1": False, "In2": False})
+        self.assertEqual(connector.out_infos_required, {"Out1": False, "Out2": False})
 
         self.assertEqual(status, ComponentStatus.CONNECTING)
         self.assertEqual(connector.in_infos, {"In1": info, "In2": info})
@@ -118,7 +118,7 @@ class TestConnectHelper(unittest.TestCase):
         status = connector.connect(time, push_data={"Out1": 1, "Out2": 2})
         self.assertEqual(status, ComponentStatus.CONNECTED)
 
-        self.assertEqual(connector.data_required, {'Out1': False, 'Out2': False})
+        self.assertEqual(connector.data_required, {"Out1": False, "Out2": False})
 
         self.assertEqual(connector.infos_pushed, {"Out1": True, "Out2": True})
         self.assertEqual(connector.data_pushed, {"Out1": True, "Out2": True})

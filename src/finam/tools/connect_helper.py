@@ -310,7 +310,10 @@ class ConnectHelper(Loggable):
     def in_infos_required(self):
         """dict: If input infos to exchange are still required."""
         return {
-            name: inf is None and name not in self._in_info_cache
+            name: inf is None
+            and self.inputs[name].info is None
+            and name not in self._in_info_cache
+            and name not in self._in_info_rules
             for name, inf in self.in_infos.items()
         }
 
@@ -318,7 +321,9 @@ class ConnectHelper(Loggable):
     def out_infos_required(self):
         """dict: If output infos to push are still required."""
         return {
-            name: not pushed and name not in self._out_info_cache
+            name: not pushed
+            and name not in self._out_info_cache
+            and name not in self._out_info_rules
             for name, pushed in self.infos_pushed.items()
         }
 
