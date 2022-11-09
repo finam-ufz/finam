@@ -127,9 +127,10 @@ class Input(IInput, Loggable):
 
         if self.is_static:
             if has_time(data):
-                raise FinamStaticDataError(
-                    "Static input received data with a timestamp."
-                )
+                with ErrorLogger(self.logger):
+                    raise FinamStaticDataError(
+                        "Static input received data with a timestamp."
+                    )
             return strip_time(data)
 
         if time is not None and not has_time(data):

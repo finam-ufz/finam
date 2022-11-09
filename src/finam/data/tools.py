@@ -217,7 +217,7 @@ def has_time(xdata):
 
 def assign_time(xdata, time):
     """
-    Replace the time coordinate values of the data.
+    Replace the time coordinate values of the data, or adds a new axis.
 
     Parameters
     ----------
@@ -233,7 +233,12 @@ def assign_time(xdata, time):
     """
     if isinstance(time, datetime.datetime):
         time = [time]
-    return xdata.assign_coords(dict(time=[pd.Timestamp(t) for t in time]))
+    if has_time_axis(xdata):
+        return xdata.assign_coords(dict(time=[pd.Timestamp(t) for t in time]))
+
+    return xdata.expand_dims(dim="time", axis=0).assign_coords(
+        dict(time=[pd.Timestamp(t) for t in time])
+    )
 
 
 def get_time(xdata):
