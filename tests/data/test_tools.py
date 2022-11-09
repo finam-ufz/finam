@@ -120,6 +120,25 @@ class TestDataTools(unittest.TestCase):
         self.assertTrue("dim_0" in dar0.dims)
         self.assertTrue("id" in dar1.dims)
 
+    def test_assign_time(self):
+        t1 = dt(1900, 1, 1)
+        t2 = dt(2000, 1, 1)
+        xdata = finam.data.to_xarray(
+            1.0, "data", finam.Info(t1, grid=finam.NoGrid()), t1
+        )
+
+        self.assertEqual(finam.data.get_time(xdata)[0], t1)
+
+        xdata = finam.data.assign_time(xdata, t2)
+
+        self.assertEqual(finam.data.get_time(xdata)[0], t2)
+
+        xdata = finam.data.strip_time(xdata)
+        self.assertFalse(finam.data.has_time_axis(xdata))
+
+        xdata = finam.data.assign_time(xdata, t2)
+        self.assertEqual(finam.data.get_time(xdata)[0], t2)
+
     def test_has_time(self):
         time = dt(2000, 1, 1)
         xdata = finam.data.to_xarray(

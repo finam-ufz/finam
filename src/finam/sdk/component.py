@@ -484,7 +484,7 @@ class IOList(collections.abc.Mapping):
         self._dict = {}
         self.frozen = False
 
-    def add(self, io=None, *, name=None, info=None, **info_kwargs):
+    def add(self, io=None, *, name=None, info=None, static=False, **info_kwargs):
         """
         Add a new IO object either directly ob by attributes.
 
@@ -496,6 +496,8 @@ class IOList(collections.abc.Mapping):
             Name of the new IO object to add, by default None
         info : Info, optional
             Info of the new IO object to add, by default None
+        static : bool, optional
+            Whether the new IO object in static, by default False
         **info_kwargs
             Optional keyword arguments to instantiate an Info object
 
@@ -506,7 +508,11 @@ class IOList(collections.abc.Mapping):
         """
         if self.frozen:
             raise ValueError("IO.add: list is frozen.")
-        io = self.cls(name, info, **info_kwargs) if io is None else io
+        io = (
+            self.cls(name=name, info=info, static=static, **info_kwargs)
+            if io is None
+            else io
+        )
         if not isinstance(io, self.icls):
             raise ValueError(f"IO.add: {self.name} is not of type {self.iname}")
         if io.name in self._dict:

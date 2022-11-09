@@ -403,12 +403,17 @@ def _check_branching(module, out):
 
 
 def _check_input_connected(module, inp):
+    static = inp.is_static
+
     while isinstance(inp, IInput):
         if inp.get_source() is None:
             raise FinamConnectError(
                 f"Unconnected input '{inp.name}' for target module {module.name}"
             )
         inp = inp.get_source()
+
+    if static and not inp.is_static:
+        raise FinamConnectError("Can't connect a static input to a non-static output.")
 
 
 def _check_dead_links(module, inp):

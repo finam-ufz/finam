@@ -12,9 +12,11 @@ from finam import (
     CallbackOutput,
     ComponentStatus,
     Composition,
+    FinamDataError,
     FinamLogError,
     FinamMetaDataError,
     FinamNoDataError,
+    FinamStaticDataError,
     FinamStatusError,
     FinamTimeError,
     Info,
@@ -337,6 +339,25 @@ class TestOutput(unittest.TestCase):
         in2.pull_data(datetime(2000, 1, 10))
         self.assertEqual(len(out.data), 1)
 
+    def test_push_static(self):
+        t = datetime(2000, 1, 1)
+        info = Info(time=t, grid=NoGrid())
+
+        out = Output(name="Output", static=True)
+        in1 = Input(name="Input")
+
+        out >> in1
+
+        in1.ping()
+
+        out.push_info(info)
+        in1.exchange_info(info)
+
+        out.push_data(0, None)
+
+        with self.assertRaises(FinamStaticDataError):
+            out.push_data(0, None)
+
 
 class TestInput(unittest.TestCase):
     def test_fail_set_source(self):
@@ -351,6 +372,50 @@ class TestInput(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             inp.set_source(outp)
+
+    def test_pull_static(self):
+        t = datetime(2000, 1, 1)
+        info = Info(time=t, grid=NoGrid())
+
+        out = Output(name="Output", static=True)
+        in1 = Input(name="Input", static=True)
+
+        out >> in1
+
+        in1.ping()
+
+        out.push_info(info)
+        in1.exchange_info(info)
+
+        out.push_data(0, None)
+        data = in1.pull_data(None)
+
+        self.assertFalse(fm.data.has_time_axis(data))
+
+        data_2 = in1.pull_data(None)
+
+        self.assertEqual(data, in1._cached_data)
+        self.assertEqual(data, data_2)
+
+    def test_pull_dynamic_time(self):
+        t = datetime(2000, 1, 1)
+        info = Info(time=t, grid=NoGrid())
+
+        out = Output(name="Output", static=True)
+        in1 = Input(name="Input")
+
+        out >> in1
+
+        in1.ping()
+
+        out.push_info(info)
+        in1.exchange_info(info)
+
+        out.push_data(0, None)
+        data = in1.pull_data(t)
+
+        self.assertTrue(fm.data.has_time_axis(data))
+        self.assertEqual(fm.data.get_time(data)[0], t)
 
 
 class TestCallbackInput(unittest.TestCase):
@@ -461,6 +526,21 @@ class TestIOList(unittest.TestCase):
         with self.assertRaises(ValueError):
             out_list.add(name="test3")
 
+    def test_io_list_fail(self):
+        comp = MockupComponent()
+        inp_list = IOList(None, "INPUT")
+
+        with self.assertRaises(KeyError):
+            inp_list["In"]
+
+        inp_list.owner = comp
+        with self.assertRaises(KeyError):
+            inp_list["In"]
+
+        comp.initialize()
+        with self.assertRaises(KeyError):
+            inp_list["In"]
+
 
 class TestComponentFails(unittest.TestCase):
     def test_try_connect_fail(self):
@@ -476,6 +556,31 @@ class TestComponentFails(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             comp.time = 0
+
+    def test_get_slot_fail(self):
+        comp = MockupComponentIONameConflict()
+        comp.initialize()
+
+        with self.assertRaises(KeyError):
+            _ = comp["IO"]
+
+        comp = MockupComponentIO()
+
+        with self.assertRaises(KeyError):
+            _ = comp["Input"]
+
+        with self.assertRaises(KeyError):
+            _ = comp["Output"]
+
+        comp.initialize()
+        _ = comp["Input"]
+        _ = comp["Output"]
+
+        with self.assertRaises(KeyError):
+            _ = comp["x"]
+
+        with self.assertRaises(KeyError):
+            _ = comp["x"]
 
 
 class TestAdapter(unittest.TestCase):
@@ -499,6 +604,10 @@ class TestAdapter(unittest.TestCase):
             adapter.set_source(0)
 
         self.assertEqual(adapter.info, None)
+
+    def test_adapter_static(self):
+        adapter = MockupAdapter()
+        self.assertFalse(adapter.is_static)
 
 
 class TestIOFails(unittest.TestCase):

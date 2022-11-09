@@ -40,6 +40,7 @@ Data tools
     :noindex: UNITS
     :noindex: Info
     assert_type
+    assign_time
     check
     check_quantified
     full
@@ -84,6 +85,7 @@ from .tools import (
     UNITS,
     Info,
     assert_type,
+    assign_time,
     check,
     check_quantified,
     full,
@@ -128,6 +130,7 @@ __all__ += [
     "FinamDataError",
     "Info",
     "assert_type",
+    "assign_time",
     "check",
     "check_quantified",
     "full",

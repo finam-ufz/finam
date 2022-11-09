@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from finam.interfaces import ComponentStatus
 
-from ..sdk import TimeComponent
+from ..sdk import Component, TimeComponent
 from ..tools.log_helper import ErrorLogger
 
 
@@ -118,6 +118,99 @@ class CallbackGenerator(TimeComponent):
 
         for key, (callback, _) in self._callbacks.items():
             self.outputs[key].push_data(callback(self._time), self.time)
+
+    def _finalize(self):
+        """Finalize and clean up the component.
+
+        After the method call, the component should have status FINALIZED.
+        """
+
+
+class StaticCallbackGenerator(Component):
+    """Component to generate static data from multiple callbacks.
+
+    .. code-block:: text
+
+        +-------------------------+
+        |                         | [custom] -->
+        | StaticCallbackGenerator | [custom] -->
+        |                         | [......] -->
+        +-------------------------+
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        generator = fm.modules.StaticCallbackGenerator(
+            callbacks={
+                "Out1": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
+                "Out2": (lambda t: t.month, fm.Info(time=None, grid=fm.NoGrid()))
+            },
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        generator.initialize()
+
+    Parameters
+    ----------
+    callbacks : dict of (str, tuple(callable, Info))
+        Dict of tuples (callback, info). ``callback() -> data`` per output name, returning the generated data.
+    """
+
+    def __init__(self, callbacks):
+        super().__init__()
+        self._callbacks = callbacks
+        self._initial_data = None
+
+    def _initialize(self):
+        """Initialize the component.
+
+        After the method call, the component's inputs and outputs must be available,
+        and the component should have status INITIALIZED.
+        """
+        for key, (_, info) in self._callbacks.items():
+            self.outputs.add(name=key, info=info, static=True)
+
+        self.create_connector()
+
+    def _connect(self):
+        """Push initial values to outputs.
+
+        After the method call, the component should have status CONNECTED.
+        """
+        if self._initial_data is None:
+            self._initial_data = {
+                key: callback() for key, (callback, _) in self._callbacks.items()
+            }
+
+        push_data = {}
+        for name, pushed in self.connector.data_pushed.items():
+            if not pushed:
+                push_data[name] = self._initial_data[name]
+
+        self.try_connect(push_data=push_data)
+
+        if self.status == ComponentStatus.CONNECTED:
+            del self._initial_data
+            del self._connector
+
+    def _validate(self):
+        """Validate the correctness of the component's settings and coupling.
+
+        After the method call, the component should have status VALIDATED.
+        """
+
+    def _update(self):
+        """Update the component by one time step.
+        Push new values to outputs.
+
+        After the method call, the component should have status UPDATED or FINISHED.
+        """
 
     def _finalize(self):
         """Finalize and clean up the component.

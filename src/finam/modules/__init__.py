@@ -19,6 +19,7 @@ Modules
     DebugPushConsumer
     ScheduleLogger
     SimplexNoise
+    StaticCallbackGenerator
     StaticSimplexNoise
     TimeTrigger
     WeightedSum
@@ -28,7 +29,7 @@ from . import callback, control, debug, generators, mergers, noise, readers, wri
 from .callback import CallbackComponent
 from .control import TimeTrigger
 from .debug import DebugConsumer, DebugPushConsumer, ScheduleLogger
-from .generators import CallbackGenerator
+from .generators import CallbackGenerator, StaticCallbackGenerator
 from .mergers import WeightedSum
 from .noise import SimplexNoise, StaticSimplexNoise
 from .readers import CsvReader
@@ -53,6 +54,7 @@ __all__ += [
     "DebugPushConsumer",
     "ScheduleLogger",
     "SimplexNoise",
+    "StaticCallbackGenerator",
     "StaticSimplexNoise",
     "TimeTrigger",
     "WeightedSum",

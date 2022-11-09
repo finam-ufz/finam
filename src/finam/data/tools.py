@@ -215,6 +215,32 @@ def has_time(xdata):
     return False
 
 
+def assign_time(xdata, time):
+    """
+    Replace the time coordinate values of the data, or adds a new axis.
+
+    Parameters
+    ----------
+    xdata : xarray.DataArray
+        The given data array.
+    time : datetime.datetime or array_like of datetime.datetime
+        The time value(s) to set the time coordinates to
+
+    Returns
+    -------
+    xarray.DataArray
+        The data with replaced time coordinate values.
+    """
+    if isinstance(time, datetime.datetime):
+        time = [time]
+    if has_time_axis(xdata):
+        return xdata.assign_coords(dict(time=[pd.Timestamp(t) for t in time]))
+
+    return xdata.expand_dims(dim="time", axis=0).assign_coords(
+        dict(time=[pd.Timestamp(t) for t in time])
+    )
+
+
 def get_time(xdata):
     """
     Get the timestamps of a data array.
@@ -296,7 +322,7 @@ def strip_time(xdata):
             raise FinamDataError(
                 "Can't strip time of a data array with multiple time entries"
             )
-        return xdata[0, ...]
+        return xdata[0, ...].drop_vars("time")
 
     return xdata
 

@@ -7,9 +7,9 @@ from datetime import datetime
 from ..data import tools
 from ..data.tools import Info
 from ..errors import (
-    FinamDataError,
     FinamMetaDataError,
     FinamNoDataError,
+    FinamStaticDataError,
     FinamTimeError,
 )
 from ..interfaces import IAdapter, IInput, IOutput, Loggable
@@ -128,8 +128,12 @@ class Output(IOutput, Loggable):
         if self.has_targets and self._out_infos_exchanged < len(self._connected_inputs):
             raise FinamNoDataError("Can't push data before output info was exchanged.")
 
-        if self.is_static and len(self.data) > 0:
-            raise FinamDataError("Can't push data repeatedly to a static output.")
+        if self.is_static:
+            if len(self.data) > 0:
+                raise FinamStaticDataError(
+                    "Can't push data repeatedly to a static output."
+                )
+            time = None
 
         with ErrorLogger(self.logger):
             self.data.append((time, tools.to_xarray(data, self.name, self.info, time)))
@@ -364,12 +368,8 @@ class CallbackOutput(Output):
     """
 
     def __init__(self, callback, name, info=None, **info_kwargs):
-        super().__init__(name=name, info=info, **info_kwargs)
+        super().__init__(name=name, info=info, static=False, **info_kwargs)
         self.callback = callback
-
-    @property
-    def is_static(self):
-        return False
 
     @property
     def needs_push(self):

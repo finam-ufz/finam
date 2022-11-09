@@ -5,8 +5,8 @@ import logging
 from datetime import datetime
 
 from ..data import tools
-from ..data.tools import Info
-from ..errors import FinamMetaDataError
+from ..data.tools import Info, assign_time, has_time, strip_time
+from ..errors import FinamMetaDataError, FinamStaticDataError
 from ..interfaces import IInput, IOutput, Loggable
 from ..tools.log_helper import ErrorLogger
 
@@ -14,18 +14,24 @@ from ..tools.log_helper import ErrorLogger
 class Input(IInput, Loggable):
     """Default input implementation."""
 
-    def __init__(self, name, info=None, **info_kwargs):
+    def __init__(self, name, info=None, static=False, **info_kwargs):
         self.source = None
         self.base_logger_name = None
         if name is None:
             raise ValueError("Input: needs a name.")
         self.name = name
+        self._static = static
         if info_kwargs:
             if info is not None:
                 raise ValueError("Input: can't use **kwargs in combination with info")
             info = Info(**info_kwargs)
         self._input_info = info
         self._in_info_exchanged = False
+        self._cached_data = None
+
+    @property
+    def is_static(self):
+        return self._static
 
     @property
     def info(self):
@@ -102,16 +108,33 @@ class Input(IInput, Loggable):
             Data set for the given simulation time.
         """
         self.logger.debug("pull data")
+
         if time is not None and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        data = self.source.get_data(time, target or self)
+        if self.is_static:
+            if self._cached_data is None:
+                self._cached_data = self.source.get_data(time, target or self)
+            data = self._cached_data
+        else:
+            data = self.source.get_data(time, target or self)
 
         with ErrorLogger(self.logger):
             if "units" in self._input_info.meta:
                 data = tools.to_units(data, self._input_info.units)
             tools.check(data, data.name, self._input_info, time, ignore_time=True)
+
+        if self.is_static:
+            if has_time(data):
+                with ErrorLogger(self.logger):
+                    raise FinamStaticDataError(
+                        "Static input received data with a timestamp."
+                    )
+            return strip_time(data)
+
+        if time is not None and not has_time(data):
+            data = assign_time(data, time)
 
         return data
 
@@ -200,8 +223,8 @@ class CallbackInput(Input):
         A callback ``callback(caller, time)``, returning the transformed data.
     """
 
-    def __init__(self, callback, name, info=None, **info_kwargs):
-        super().__init__(name=name, info=info, **info_kwargs)
+    def __init__(self, callback, name, info=None, static=False, **info_kwargs):
+        super().__init__(name=name, info=info, static=static, **info_kwargs)
         self.callback = callback
 
     @property
