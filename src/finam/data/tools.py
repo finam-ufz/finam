@@ -317,7 +317,7 @@ def strip_time(xdata):
             raise FinamDataError(
                 "Can't strip time of a data array with multiple time entries"
             )
-        return xdata[0, ...]
+        return xdata[0, ...].drop_vars("time")
 
     return xdata
 

@@ -12,6 +12,7 @@ from finam import (
     CallbackOutput,
     ComponentStatus,
     Composition,
+    FinamDataError,
     FinamLogError,
     FinamMetaDataError,
     FinamNoDataError,
@@ -337,6 +338,25 @@ class TestOutput(unittest.TestCase):
         in2.pull_data(datetime(2000, 1, 10))
         self.assertEqual(len(out.data), 1)
 
+    def test_push_static(self):
+        t = datetime(2000, 1, 1)
+        info = Info(time=t, grid=NoGrid())
+
+        out = Output(name="Output", static=True)
+        in1 = Input(name="Input")
+
+        out >> in1
+
+        in1.ping()
+
+        out.push_info(info)
+        in1.exchange_info(info)
+
+        out.push_data(0, None)
+
+        with self.assertRaises(FinamDataError):
+            out.push_data(0, None)
+
 
 class TestInput(unittest.TestCase):
     def test_fail_set_source(self):
@@ -351,6 +371,48 @@ class TestInput(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             inp.set_source(outp)
+
+    def test_pull_static(self):
+        t = datetime(2000, 1, 1)
+        info = Info(time=t, grid=NoGrid())
+
+        out = Output(name="Output", static=True)
+        in1 = Input(name="Input", static=True)
+
+        out >> in1
+
+        in1.ping()
+
+        out.push_info(info)
+        in1.exchange_info(info)
+
+        out.push_data(0, None)
+        data = in1.pull_data(None)
+
+        self.assertFalse(fm.data.has_time_axis(data))
+
+        with self.assertRaises(FinamDataError):
+            in1.pull_data(None)
+
+    def test_pull_dynamic_time(self):
+        t = datetime(2000, 1, 1)
+        info = Info(time=t, grid=NoGrid())
+
+        out = Output(name="Output", static=True)
+        in1 = Input(name="Input")
+
+        out >> in1
+
+        in1.ping()
+
+        out.push_info(info)
+        in1.exchange_info(info)
+
+        out.push_data(0, None)
+        data = in1.pull_data(t)
+
+        self.assertTrue(fm.data.has_time_axis(data))
+        self.assertEqual(fm.data.get_time(data)[0], t)
 
 
 class TestCallbackInput(unittest.TestCase):
@@ -539,6 +601,10 @@ class TestAdapter(unittest.TestCase):
             adapter.set_source(0)
 
         self.assertEqual(adapter.info, None)
+
+    def test_adapter_static(self):
+        adapter = MockupAdapter()
+        self.assertFalse(adapter.is_static)
 
 
 class TestIOFails(unittest.TestCase):
