@@ -7,9 +7,9 @@ from datetime import datetime
 from ..data import tools
 from ..data.tools import Info
 from ..errors import (
-    FinamDataError,
     FinamMetaDataError,
     FinamNoDataError,
+    FinamStaticDataError,
     FinamTimeError,
 )
 from ..interfaces import IAdapter, IInput, IOutput, Loggable
@@ -129,7 +129,7 @@ class Output(IOutput, Loggable):
             raise FinamNoDataError("Can't push data before output info was exchanged.")
 
         if self.is_static and len(self.data) > 0:
-            raise FinamDataError("Can't push data repeatedly to a static output.")
+            raise FinamStaticDataError("Can't push data repeatedly to a static output.")
 
         with ErrorLogger(self.logger):
             self.data.append((time, tools.to_xarray(data, self.name, self.info, time)))

@@ -16,6 +16,7 @@ from finam import (
     FinamLogError,
     FinamMetaDataError,
     FinamNoDataError,
+    FinamStaticDataError,
     FinamStatusError,
     FinamTimeError,
     Info,
@@ -354,7 +355,7 @@ class TestOutput(unittest.TestCase):
 
         out.push_data(0, None)
 
-        with self.assertRaises(FinamDataError):
+        with self.assertRaises(FinamStaticDataError):
             out.push_data(0, None)
 
 
@@ -391,7 +392,7 @@ class TestInput(unittest.TestCase):
 
         self.assertFalse(fm.data.has_time_axis(data))
 
-        with self.assertRaises(FinamDataError):
+        with self.assertRaises(FinamStaticDataError):
             in1.pull_data(None)
 
     def test_pull_dynamic_time(self):

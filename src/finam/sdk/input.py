@@ -6,7 +6,7 @@ from datetime import datetime
 
 from ..data import tools
 from ..data.tools import Info, assign_time, has_time, strip_time
-from ..errors import FinamDataError, FinamMetaDataError
+from ..errors import FinamMetaDataError, FinamStaticDataError
 from ..interfaces import IInput, IOutput, Loggable
 from ..tools.log_helper import ErrorLogger
 
@@ -111,7 +111,9 @@ class Input(IInput, Loggable):
 
         with ErrorLogger(self.logger):
             if self.is_static and self._pulled:
-                raise FinamDataError("Can't pull data repeatedly from a static input.")
+                raise FinamStaticDataError(
+                    "Can't pull data repeatedly from a static input."
+                )
 
             if time is not None and not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
@@ -127,7 +129,9 @@ class Input(IInput, Loggable):
 
         if self.is_static:
             if has_time(data):
-                raise FinamDataError("Static input received data with a timestamp.")
+                raise FinamStaticDataError(
+                    "Static input received data with a timestamp."
+                )
             return strip_time(data)
 
         if time is not None and not has_time(data):

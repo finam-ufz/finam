@@ -40,5 +40,9 @@ class FinamDataError(Exception):
     """Error for wrong data in FINAM."""
 
 
+class FinamStaticDataError(Exception):
+    """Error for operations that are not allowed on static inputs or outputs."""
+
+
 class FinamConnectError(Exception):
     """Error for wrong connection setup in FINAM."""

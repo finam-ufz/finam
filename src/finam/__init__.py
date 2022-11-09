@@ -112,6 +112,7 @@ FINAM-specific error types.
     FinamLogError
     FinamMetaDataError
     FinamNoDataError
+    FinamStaticDataError
     FinamStatusError
     FinamTimeError
 
@@ -147,6 +148,7 @@ from .errors import (
     FinamLogError,
     FinamMetaDataError,
     FinamNoDataError,
+    FinamStaticDataError,
     FinamStatusError,
     FinamTimeError,
 )
@@ -216,6 +218,7 @@ __all__ += [
     "FinamLogError",
     "FinamMetaDataError",
     "FinamNoDataError",
+    "FinamStaticDataError",
     "FinamStatusError",
     "FinamTimeError",
 ]
