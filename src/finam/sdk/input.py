@@ -5,8 +5,8 @@ import logging
 from datetime import datetime
 
 from ..data import tools
-from ..data.tools import Info
-from ..errors import FinamMetaDataError
+from ..data.tools import Info, has_time, strip_time, with_time
+from ..errors import FinamDataError, FinamMetaDataError
 from ..interfaces import IInput, IOutput, Loggable
 from ..tools.log_helper import ErrorLogger
 
@@ -27,6 +27,7 @@ class Input(IInput, Loggable):
             info = Info(**info_kwargs)
         self._input_info = info
         self._in_info_exchanged = False
+        self._pulled = False
 
     @property
     def is_static(self):
@@ -107,8 +108,12 @@ class Input(IInput, Loggable):
             Data set for the given simulation time.
         """
         self.logger.debug("pull data")
-        if time is not None and not isinstance(time, datetime):
-            with ErrorLogger(self.logger):
+
+        with ErrorLogger(self.logger):
+            if self.is_static and self._pulled:
+                raise FinamDataError("Can't pull data repeatedly from a static input.")
+
+            if time is not None and not isinstance(time, datetime):
                 raise ValueError("Time must be of type datetime")
 
         data = self.source.get_data(time, target or self)
@@ -117,6 +122,16 @@ class Input(IInput, Loggable):
             if "units" in self._input_info.meta:
                 data = tools.to_units(data, self._input_info.units)
             tools.check(data, data.name, self._input_info, time, ignore_time=True)
+
+        self._pulled = True
+
+        if self.is_static:
+            if has_time(data):
+                raise FinamDataError("Static input received data with a timestamp.")
+            return strip_time(data)
+
+        if time is not None and not has_time(data):
+            data = with_time(data, time)
 
         return data
 
@@ -205,8 +220,8 @@ class CallbackInput(Input):
         A callback ``callback(caller, time)``, returning the transformed data.
     """
 
-    def __init__(self, callback, name, info=None, **info_kwargs):
-        super().__init__(name=name, info=info, static=False, **info_kwargs)
+    def __init__(self, callback, name, info=None, static=False, **info_kwargs):
+        super().__init__(name=name, info=info, static=static, **info_kwargs)
         self.callback = callback
 
     @property

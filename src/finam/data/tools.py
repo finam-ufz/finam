@@ -215,6 +215,27 @@ def has_time(xdata):
     return False
 
 
+def with_time(xdata, time):
+    """
+    Replace the time coordinate values of the data.
+
+    Parameters
+    ----------
+    xdata : xarray.DataArray
+        The given data array.
+    time : datetime.datetime or array_like of datetime.datetime
+        The time value(s) to set the time coordinates to
+
+    Returns
+    -------
+    xarray.DataArray
+        The data with replaced time coordinate values.
+    """
+    if isinstance(time, datetime.datetime):
+        time = [time]
+    return xdata.assign_coords(dict(time=[pd.Timestamp(t) for t in time]))
+
+
 def get_time(xdata):
     """
     Get the timestamps of a data array.

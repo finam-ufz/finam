@@ -57,6 +57,7 @@ Data tools
     strip_time
     to_units
     to_xarray
+    with_time
 """
 
 from ..errors import FinamDataError
@@ -101,6 +102,7 @@ from .tools import (
     strip_time,
     to_units,
     to_xarray,
+    with_time,
 )
 
 __all__ = ["grid_spec", "grid_tools", "tools"]
@@ -145,4 +147,5 @@ __all__ += [
     "strip_time",
     "to_units",
     "to_xarray",
+    "with_time",
 ]
