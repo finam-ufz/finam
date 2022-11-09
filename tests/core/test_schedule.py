@@ -95,12 +95,13 @@ class MockupComponent(TimeComponent):
 
 
 class MockupDependentComponent(TimeComponent):
-    def __init__(self, step):
+    def __init__(self, step, static=False):
         super().__init__()
         self._step = step
         self._time = datetime(2000, 1, 1)
+        self.static = static
 
-        self.inputs.add(name="Input")
+        self.inputs.add(name="Input", static=self.static)
 
     @property
     def next_time(self):
@@ -534,6 +535,20 @@ class TestComposition(unittest.TestCase):
         # We get data without the time dimension here
         self.assertEqual(sink.data["In"].shape, (1,))
         self.assertTrue(np.isnat(sink.data["In"].coords["time"][0]))
+
+    def test_static_fail(self):
+        info = fm.Info(time=None, grid=fm.NoGrid())
+
+        source = fm.modules.SimplexNoise(info=info, seed=123)
+        sink = MockupDependentComponent(step=timedelta(days=1), static=True)
+
+        composition = Composition([source, sink])
+        composition.initialize()
+
+        source.outputs["Noise"] >> Scale(1.0) >> sink.inputs["Input"]
+
+        with self.assertRaises(FinamConnectError):
+            composition.connect()
 
     def test_dependencies_schedule(self):
         start = datetime(2000, 1, 1)
