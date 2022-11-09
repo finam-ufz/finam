@@ -3,6 +3,7 @@ import unittest
 from datetime import datetime as dt
 
 import numpy as np
+import pandas as pd
 import pint
 import xarray as xr
 
@@ -33,7 +34,7 @@ class TestDataTools(unittest.TestCase):
         dar1 = finam.data.to_xarray(data, "data", info)
 
         # assert stuff
-        self.assertIsNone(finam.data.get_time(dar1))
+        self.assertEqual(finam.data.get_time(dar1), [pd.NaT])
         self.assertIsInstance(finam.data.get_magnitude(dar0), np.ndarray)
         self.assertIsInstance(finam.data.get_data(dar0), pint.Quantity)
         self.assertIsInstance(
@@ -119,13 +120,42 @@ class TestDataTools(unittest.TestCase):
         self.assertTrue("dim_0" in dar0.dims)
         self.assertTrue("id" in dar1.dims)
 
+    def test_has_time(self):
+        time = dt(2000, 1, 1)
+        xdata = finam.data.to_xarray(
+            1.0, "data", finam.Info(time, grid=finam.NoGrid()), time
+        )
+        self.assertEqual(xdata.shape, (1,))
+        self.assertTrue(finam.data.has_time_axis(xdata))
+        self.assertTrue(finam.data.has_time(xdata))
+
+        xdata = xr.concat(
+            [
+                xdata,
+                finam.data.to_xarray(
+                    1.0,
+                    "data",
+                    finam.Info(dt(2000, 1, 2), grid=finam.NoGrid()),
+                    dt(2000, 1, 2),
+                ),
+            ],
+            dim="time",
+        )
+        self.assertTrue(finam.data.has_time_axis(xdata))
+        self.assertTrue(finam.data.has_time(xdata))
+
+        xdata = finam.data.to_xarray(1.0, "data", finam.Info(None, grid=finam.NoGrid()))
+        self.assertEqual(xdata.shape, (1,))
+        self.assertTrue(finam.data.has_time_axis(xdata))
+        self.assertFalse(finam.data.has_time(xdata))
+
     def test_strip_time(self):
         time = dt(2000, 1, 1)
 
         xdata = finam.data.to_xarray(1.0, "data", finam.Info(time, grid=finam.NoGrid()))
-        self.assertEqual(xdata.shape, ())
+        self.assertEqual(xdata.shape, (1,))
         stripped = finam.data.strip_time(xdata)
-        self.assertEqual(xdata.shape, stripped.shape)
+        self.assertEqual(stripped.shape, ())
 
         xdata = finam.data.to_xarray(
             1.0,
@@ -169,9 +199,9 @@ class TestDataTools(unittest.TestCase):
     def test_strip_data(self):
         time = dt(2000, 1, 1)
         xdata = finam.data.to_xarray(1.0, "data", finam.Info(time, grid=finam.NoGrid()))
-        self.assertEqual(xdata.shape, ())
+        self.assertEqual(xdata.shape, (1,))
         stripped = finam.data.strip_data(xdata)
-        self.assertEqual(xdata.shape, stripped.shape)
+        self.assertEqual(stripped.shape, ())
         self.assertTrue(isinstance(stripped, pint.Quantity))
         self.assertFalse(isinstance(stripped, xr.DataArray))
 
@@ -250,10 +280,10 @@ class TestDataTools(unittest.TestCase):
             datetime.datetime(2000, 1, 1),
         )
 
-        finam.data.tools._check_shape(xdata, finam.NoGrid(), with_time=True)
+        finam.data.tools._check_shape(xdata, finam.NoGrid())
 
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.tools._check_shape(xdata, finam.NoGrid(dim=1), with_time=True)
+            finam.data.tools._check_shape(xdata, finam.NoGrid(dim=1))
 
     def test_quantify(self):
         xdata = xr.DataArray(1.0, attrs={"units": "m"})

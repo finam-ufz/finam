@@ -4,6 +4,8 @@ Adapters that deal with time, like temporal interpolation and integration.
 from abc import ABC, abstractmethod
 from datetime import datetime
 
+import numpy as np
+
 from finam.interfaces import NoBranchAdapter
 
 from ..data import tools as dtools
@@ -17,6 +19,7 @@ __all__ = [
     "PreviousTime",
     "LinearTime",
     "IntegrateTime",
+    "StackTime",
     "TimeCachingAdapter",
 ]
 
@@ -186,6 +189,34 @@ class PreviousTime(TimeCachingAdapter):
             f"Time interpolation failed. This should not happen and is probably a bug. "
             f"Time is {time}."
         )
+
+
+class StackTime(TimeCachingAdapter):
+    """Stacks all incoming data since the last push.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.StackTime()
+    """
+
+    def _interpolate(self, time):
+        extract = []
+
+        for t, data in self.data:
+            if time > t:
+                extract.append((t, data))
+                continue
+
+            extract.append((t, data))
+            break
+
+        arr = np.stack([d[1] for d in extract])
+        return dtools.to_xarray(arr, self.name, self.info, [d[0] for d in extract])
 
 
 class LinearTime(TimeCachingAdapter):
