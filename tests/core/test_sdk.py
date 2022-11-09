@@ -461,6 +461,21 @@ class TestIOList(unittest.TestCase):
         with self.assertRaises(ValueError):
             out_list.add(name="test3")
 
+    def test_io_list_fail(self):
+        comp = MockupComponent()
+        inp_list = IOList(None, "INPUT")
+
+        with self.assertRaises(KeyError):
+            inp_list["In"]
+
+        inp_list.owner = comp
+        with self.assertRaises(KeyError):
+            inp_list["In"]
+
+        comp.initialize()
+        with self.assertRaises(KeyError):
+            inp_list["In"]
+
 
 class TestComponentFails(unittest.TestCase):
     def test_try_connect_fail(self):
@@ -476,6 +491,31 @@ class TestComponentFails(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             comp.time = 0
+
+    def test_get_slot_fail(self):
+        comp = MockupComponentIONameConflict()
+        comp.initialize()
+
+        with self.assertRaises(KeyError):
+            _ = comp["IO"]
+
+        comp = MockupComponentIO()
+
+        with self.assertRaises(KeyError):
+            _ = comp["Input"]
+
+        with self.assertRaises(KeyError):
+            _ = comp["Output"]
+
+        comp.initialize()
+        _ = comp["Input"]
+        _ = comp["Output"]
+
+        with self.assertRaises(KeyError):
+            _ = comp["x"]
+
+        with self.assertRaises(KeyError):
+            _ = comp["x"]
 
 
 class TestAdapter(unittest.TestCase):
