@@ -32,6 +32,9 @@ class DebugConsumer(TimeComponent):
                 "A": fm.Info(time=None, grid=fm.NoGrid()),
                 "B": fm.Info(time=None, grid=fm.NoGrid()),
             },
+            callbacks={
+                "A": lambda n, d, t: print(t)
+            },
             start=dt.datetime(2000, 1, 1),
             step=dt.timedelta(days=7),
             log_data="INFO",
@@ -48,7 +51,9 @@ class DebugConsumer(TimeComponent):
     Parameters
     ----------
     inputs : dict[str, Info]
-        List of input names
+        Dictionary of input names and infos.
+    callbacks : dict[str, callable]
+        Dictionary of optional input callbacks: callable(name, data, time).
     start : datetime.datetime
         Starting time
     step : datetime.timedelta
@@ -62,7 +67,9 @@ class DebugConsumer(TimeComponent):
         Strips data before logging. Default ``True``.
     """
 
-    def __init__(self, inputs, start, step, log_data=False, strip_data=True):
+    def __init__(
+        self, inputs, start, step, callbacks=None, log_data=False, strip_data=True
+    ):
         super().__init__()
 
         with ErrorLogger(self.logger):
@@ -80,6 +87,7 @@ class DebugConsumer(TimeComponent):
             self._log_data = logging.getLevelName(log_data)
 
         self._input_infos = inputs
+        self._callbacks = callbacks or {}
         self._step = step
         self._time = start
         self._data = {}
@@ -117,6 +125,8 @@ class DebugConsumer(TimeComponent):
                         self._time,
                         pdata,
                     )
+                if name in self._callbacks:
+                    self._callbacks[name](name, data, self._time)
 
                 self._data[name] = data
 
@@ -139,6 +149,8 @@ class DebugConsumer(TimeComponent):
                     self._time,
                     pdata,
                 )
+            if name in self._callbacks:
+                self._callbacks[name](name, data, self._time)
 
     def _finalize(self):
         pass
@@ -168,6 +180,9 @@ class DebugPushConsumer(Component):
                 "A": fm.Info(time=None, grid=fm.NoGrid()),
                 "B": fm.Info(time=None, grid=fm.NoGrid()),
             },
+            callbacks={
+                "A": lambda n, d, t: print(t)
+            },
             log_data="INFO",
             strip_data=False,
         )
@@ -182,7 +197,9 @@ class DebugPushConsumer(Component):
     Parameters
     ----------
     inputs : dict[str, Info]
-        List of input names
+        Dictionary of input names and infos.
+    callbacks : dict[str, callable]
+        Dictionary of optional input callbacks: callable(name, data, time).
     log_data : int or str or bool, optional
         Log level for printing received data, like "DEBUG" or "INFO".
         Default ``False``, logs nothing.
@@ -192,7 +209,7 @@ class DebugPushConsumer(Component):
         Strips data before logging. Default ``True``.
     """
 
-    def __init__(self, inputs, log_data=False, strip_data=True):
+    def __init__(self, inputs, callbacks=None, log_data=False, strip_data=True):
         super().__init__()
 
         self._strip_data = strip_data
@@ -204,6 +221,7 @@ class DebugPushConsumer(Component):
             self._log_data = logging.getLevelName(log_data)
 
         self._input_infos = inputs
+        self._callbacks = callbacks or {}
         self._data = {}
 
     @property
@@ -245,6 +263,8 @@ class DebugPushConsumer(Component):
                 time,
                 pdata,
             )
+        if caller.name in self._callbacks:
+            self._callbacks[caller.name](caller.name, data, time)
 
 
 class ScheduleLogger(Component):

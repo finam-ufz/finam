@@ -75,6 +75,9 @@ class TestPushDebugConsumer(unittest.TestCase):
             inputs={
                 "In": fm.Info(time=None, grid=fm.NoGrid()),
             },
+            callbacks={
+                "In": lambda n, d, t: print(t),
+            },
             log_data="INFO",
         )
 
