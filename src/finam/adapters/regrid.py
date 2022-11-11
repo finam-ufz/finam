@@ -117,11 +117,13 @@ class RegridNearest(ARegridding):
 
     def _update_grid_specs(self):
         self.transformer = _create_transformer(self.input_grid, self.output_grid)
+        out_coords = self._transform(self.output_grid.data_points)
+
         # generate IDs to select data
         kw = self.tree_options or {}
         tree = KDTree(self.input_grid.data_points, **kw)
         # only store IDs, since they will be constant
-        self.ids = tree.query(self._transform(self.output_grid.data_points))[1]
+        self.ids = tree.query(out_coords)[1]
 
     def _get_data(self, time, target):
         in_data = self.pull_data(time, target)
@@ -179,9 +181,11 @@ class RegridLinear(ARegridding):
         self.inter = None
         self.out_ids = None
         self.fill_ids = None
+        self.out_coords = None
 
     def _update_grid_specs(self):
         self.transformer = _create_transformer(self.input_grid, self.output_grid)
+        self.out_coords = self._transform(self.output_grid.data_points)
 
         if isinstance(self.input_grid, StructuredGrid):
             self.inter = RegularGridInterpolator(
@@ -196,7 +200,7 @@ class RegridLinear(ARegridding):
             )
         if self.fill_with_nearest:
             # check for outliers once
-            points = self._transform(self.output_grid.data_points)
+            points = self.out_coords
             res = self.inter(points)
             self.out_ids = np.isnan(res)
             out_points = points[self.out_ids]
@@ -209,7 +213,7 @@ class RegridLinear(ARegridding):
 
         if isinstance(self.input_grid, StructuredGrid):
             self.inter.values = dtools.get_magnitude(dtools.strip_time(in_data))
-            res = self.inter(self._transform(self.output_grid.data_points))
+            res = self.inter(self.out_coords)
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values.flatten(
                     order=self.input_grid.order
@@ -221,7 +225,7 @@ class RegridLinear(ARegridding):
                 ),
                 dtype=np.double,
             )
-            res = self.inter(self._transform(self.output_grid.data_points))
+            res = self.inter(self.out_coords)
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values[self.fill_ids, 0]
 
