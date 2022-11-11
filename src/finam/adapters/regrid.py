@@ -38,7 +38,6 @@ class ARegridding(Adapter, ABC):
         """set up interpolator"""
 
     def _get_info(self, info):
-
         request = info.copy_with(grid=self.input_grid)
         in_info = self.exchange_info(request)
 
@@ -116,7 +115,7 @@ class RegridNearest(ARegridding):
         self.ids = None
 
     def _update_grid_specs(self):
-        self.transformer = _create_transformer(self.input_grid, self.output_grid)
+        self.transformer = _create_transformer(self.output_grid, self.input_grid)
         out_coords = self._transform(self.output_grid.data_points)
 
         # generate IDs to select data
@@ -184,7 +183,7 @@ class RegridLinear(ARegridding):
         self.out_coords = None
 
     def _update_grid_specs(self):
-        self.transformer = _create_transformer(self.input_grid, self.output_grid)
+        self.transformer = _create_transformer(self.output_grid, self.input_grid)
         self.out_coords = self._transform(self.output_grid.data_points)
 
         if isinstance(self.input_grid, StructuredGrid):

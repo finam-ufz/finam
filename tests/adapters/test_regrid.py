@@ -174,12 +174,12 @@ class TestRegrid(unittest.TestCase):
                 dims=(5, 10),
                 spacing=(2.0, 2.0, 2.0),
                 data_location=Location.POINTS,
-                crs="EPSG:25832",
+                crs="EPSG:32632",
             ),
             units="m",
         )
         out_spec = UniformGrid(
-            dims=(9, 19), data_location=Location.POINTS, crs="EPSG:32632"
+            dims=(9, 19), data_location=Location.POINTS, crs="EPSG:25832"
         )
 
         in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
