@@ -30,7 +30,7 @@ nav.bd-links li>a:hover {
 }
 
 nav.bd-links .blog-nav li>a {
- color:var(--pst-color-text-muted);
+ color: var(--pst-color-text-muted);
  display:inline;
  padding:.25rem 0
 }
@@ -45,6 +45,10 @@ ul.postlist-style-none {
 
 .bd-header .navbar-nav > .active > .nav-link {
   color: var(--pst-color-link);
+}
+
+#navbar-icon-links i.fa-square-gitlab:before {
+ color: var(--pst-color-text-muted);
 }
 
 .bd-page-width {
