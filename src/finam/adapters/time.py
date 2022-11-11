@@ -35,11 +35,24 @@ class ExtrapolateTime(Adapter, NoBranchAdapter):
         import finam as fm
 
         adapter = fm.adapters.ExtrapolateTime()
+
+    Parameters
+    ----------
+    last_pull : bool, optional
+        Use the last successful pull time instead of the last push time if out of range.
+        Defaults to ``False``.
+    force_last : bool, optional
+        Use the last successful pull time instead of the last push time even if in range.
+        Only used if ``last_pull`` is ``True``.
+        Defaults to ``True``.
     """
 
-    def __init__(self):
+    def __init__(self, last_pull=False, force_last=True):
         super().__init__()
-        self.time = None
+        self.push_time = None
+        self.pull_time = None
+        self._last_pull = last_pull
+        self._force_last = force_last
 
     def _source_updated(self, time):
         """Informs the input that a new output is available.
@@ -50,7 +63,9 @@ class ExtrapolateTime(Adapter, NoBranchAdapter):
             Simulation time of the notification.
         """
         _check_time(self.logger, time)
-        self.time = time
+        self.push_time = time
+        if self.pull_time is None:
+            self.pull_time = time
 
     def _get_data(self, time, target):
         """Get the output's data-set for the given time.
@@ -70,7 +85,21 @@ class ExtrapolateTime(Adapter, NoBranchAdapter):
         if self.data is None:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        t = time if self.time is None or time <= self.time else self.time
+        if self.push_time is None:
+            t = time
+            self.pull_time = time
+        else:
+            if time <= self.push_time:
+                if self._last_pull and self._force_last:
+                    t = self.pull_time
+                else:
+                    t = time
+            else:
+                if self._last_pull:
+                    t = self.pull_time
+                else:
+                    t = self.push_time
+                self.pull_time = time
 
         return dtools.strip_data(self.pull_data(t, target))
 

@@ -53,6 +53,52 @@ class TestExtrapolateTime(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 2.0)
 
 
+class TestExtrapolateTimeFixed(unittest.TestCase):
+    def setUp(self):
+        self.source = CallbackGenerator(
+            callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+
+        self.adapter = ExtrapolateTime(last_pull=True, force_last=True)
+
+        self.source.initialize()
+
+        self.source.outputs["Step"] >> self.adapter
+
+        self.adapter.get_info(Info(None, grid=NoGrid()))
+
+        self.source.connect()
+        self.source.connect()
+        self.source.validate()
+
+    def test_extrapolate(self):
+        data = self.adapter.get_data(datetime(2000, 1, 5), None)
+        self.source.update()
+        self.source.update()
+
+        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 5))
+
+        self.source.update()
+        self.source.update()
+
+        data = self.adapter.get_data(datetime(2000, 1, 10), None)
+        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 10))
+
+    def test_extrapolate_fail(self):
+        data = self.adapter.get_data(datetime(2000, 1, 5), None)
+        self.source.update()
+        self.source.update()
+
+        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 5))
+
+        self.source.update()
+
+        with self.assertRaises(FinamTimeError):
+            _data = self.adapter.get_data(datetime(2000, 1, 10), None)
+
+
 class TestNextValue(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
