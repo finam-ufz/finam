@@ -55,6 +55,8 @@ Probe adapters
 Regridding adapters
 """""""""""""""""""
 
+See also package `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_ for more advanced regridding.
+
 .. autosummary::
 
     RegridNearest
@@ -77,10 +79,17 @@ Provided by FINAM developers
 
 Components
 ^^^^^^^^^^
+
 * `finam-plot <https://finam.pages.ufz.de/finam-plot/>`_
-    Provides FINAM components for live plotting using :mod:`matplotlib`.
+    FINAM components for live plotting using :mod:`matplotlib`.
 * `finam-netcdf <https://finam.pages.ufz.de/finam-netcdf/>`_
-    Provides FINAM components for `NetCDF <https://www.unidata.ucar.edu/software/netcdf/>`_ file reading and writing.
+    FINAM components for `NetCDF <https://www.unidata.ucar.edu/software/netcdf/>`_ file reading and writing.
+
+Adapters
+^^^^^^^^
+
+* `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_
+    FINAM adapter for advances regridding using `ESMPy <https://earthsystemmodeling.org/esmpy/>`_.
 
 Tools
 ^^^^^
