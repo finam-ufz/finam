@@ -1,5 +1,7 @@
 """
 Basic linear and nearest neighbour regridding adapters.
+
+See package `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_ for more advanced regridding.
 """
 from abc import ABC, abstractmethod
 
@@ -85,6 +87,9 @@ class ARegridding(Adapter, ABC):
 class RegridNearest(ARegridding):
     """Regrid data between two grid specifications with nearest neighbour interpolation.
 
+    See package `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_ for more advanced regridding
+    using `ESMPy <https://earthsystemmodeling.org/esmpy/>`_.
+
     Examples
     --------
 
@@ -143,6 +148,9 @@ class RegridLinear(ARegridding):
     For unstructured grids, :class:`scipy.interpolate.LinearNDInterpolator` is used,
     which performs triangulation internally.
     So the actual topology of the grid is not taken into account.
+
+    See package `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_ for more advanced regridding
+    using `ESMPy <https://earthsystemmodeling.org/esmpy/>`_.
 
     Examples
     --------

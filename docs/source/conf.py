@@ -123,9 +123,9 @@ html_sidebars = {
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-    "Python": ("https://docs.python.org/", None),
-    "NumPy": ("http://docs.scipy.org/doc/numpy/", None),
-    "SciPy": ("http://docs.scipy.org/doc/scipy/reference", None),
+    "Python": ("https://docs.python.org/3/", None),
+    "NumPy": ("https://numpy.org/doc/stable/", None),
+    "SciPy": ("https://docs.scipy.org/doc/scipy/", None),
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "pint": ("https://pint.readthedocs.io/en/stable/", None),
     "pytest": ("https://docs.pytest.org/en/7.1.x/", None),
