@@ -94,7 +94,7 @@ Adapters
 Tools
 ^^^^^
 
-* `finam-graph <https://git.ufz.de/FINAM/finam-graph>`_
+* `finam-graph <https://finam.pages.ufz.de/finam-graph/>`_
     A tool for visualizing FINAM coupling setups.
 
 Known 3rd party
