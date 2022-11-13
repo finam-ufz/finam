@@ -32,6 +32,14 @@ Regridding adapters
     RegridNearest
     RegridLinear
 
+Statistics adapters
+===================
+
+.. autosummary::
+   :toctree: generated
+
+    Histogram
+
 Time adapters
 =============
 
@@ -51,6 +59,7 @@ from . import base, probe, regrid, time
 from .base import Callback, GridToValue, Scale, ValueToGrid
 from .probe import CallbackProbe
 from .regrid import RegridLinear, RegridNearest
+from .stats import Histogram
 from .time import (
     ExtrapolateTime,
     IntegrateTime,
@@ -61,7 +70,7 @@ from .time import (
     TimeCachingAdapter,
 )
 
-__all__ = ["base", "probe", "regrid", "time"]
+__all__ = ["base", "probe", "regrid", "stats", "time"]
 __all__ += [
     "Callback",
     "Scale",
@@ -73,6 +82,7 @@ __all__ += [
     "RegridNearest",
     "RegridLinear",
 ]
+__all__ += ["Histogram"]
 __all__ += [
     "ExtrapolateTime",
     "NextTime",

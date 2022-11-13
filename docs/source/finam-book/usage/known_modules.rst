@@ -62,6 +62,14 @@ See also package `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_ for 
     RegridNearest
     RegridLinear
 
+Statistics adapters
+===================
+
+.. autosummary::
+   :toctree: generated
+
+    Histogram
+
 Time adapters
 """""""""""""
 
