@@ -333,9 +333,8 @@ def _generate_structured(grid, t, freq):
 
 
 def _generate_unstructured(grid, t, freq):
-
     points = grid.data_points
-    data = np.full((grid.point_count,), 0.0, dtype=float)
+    data = np.full((points.shape[0],), 0.0, dtype=float)
 
     if grid.dim == 1:
         for i, p in enumerate(points):
