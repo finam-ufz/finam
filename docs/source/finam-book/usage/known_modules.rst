@@ -25,6 +25,7 @@ Several components, primarily for testing and debugging, are provided in module 
     SimplexNoise
     StaticSimplexNoise
     TimeTrigger
+    UserControl
     WeightedSum
 
 Adapters

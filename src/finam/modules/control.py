@@ -1,7 +1,9 @@
 """Components for controlling data flow"""
+import datetime as dt
 
 from ..data.tools import strip_data
 from ..errors import FinamMetaDataError
+from ..interfaces import ComponentStatus
 from ..sdk import TimeComponent
 from ..tools.connect_helper import FromInput, FromOutput
 from ..tools.log_helper import ErrorLogger
@@ -156,6 +158,87 @@ class TimeTrigger(TimeComponent):
 
         data = strip_data(self.inputs["In"].pull_data(self.time))
         self.outputs["Out"].push_data(data, self.time)
+
+    def _finalize(self):
+        pass
+
+
+class UserControl(TimeComponent):
+
+    """Component to allow users to step a simulation.
+
+    Prompts for input on the console.
+
+    Users can just press ENTER to proceed by one step, or enter a target time in ISO format.
+
+    .. code-block:: text
+
+                 +-------------+
+                 |             |
+                 | UserControl |
+                 |             |
+                 +-------------+
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import datetime as dt
+        import finam as fm
+
+        component = fm.modules.UserControl(
+            start=dt.datetime(2000, 1, 1),
+            step=dt.timedelta(days=1),
+        )
+
+    .. testcode:: constructor
+        :hide:
+
+        component.initialize()
+
+    Parameters
+    ----------
+    start : datetime.datetime
+        Starting time. Can be ``None`` to retrieve it from linked components.
+        See parameter ``start_from_input`` for details.
+    step : datetime.timedelta, optional
+        The component's time step. Default 1 day.
+    """
+
+    def __init__(self, start, step=dt.timedelta(days=1)):
+        super().__init__()
+
+        self.time = start
+        self.step = step
+
+    @property
+    def next_time(self):
+        return None
+
+    def _initialize(self):
+        pass
+
+    def _connect(self):
+        self.status = ComponentStatus.CONNECTED
+
+    def _validate(self):
+        pass
+
+    def _update(self):
+        run_until = None
+
+        inp = input(f"Time: {self.time} - Run until: ")
+        if inp == "":
+            run_until = self.time + self.step
+        else:
+            try:
+                run_until = dt.datetime.fromisoformat(inp)
+            except ValueError:
+                print(f"Not a time: '{inp}'.")
+
+        if run_until is not None:
+            self.time = run_until
 
     def _finalize(self):
         pass
