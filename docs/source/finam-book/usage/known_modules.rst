@@ -63,10 +63,9 @@ See also package `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_ for 
     RegridLinear
 
 Statistics adapters
-===================
+"""""""""""""""""""
 
 .. autosummary::
-   :toctree: generated
 
     Histogram
 
