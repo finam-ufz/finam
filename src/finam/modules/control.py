@@ -1,9 +1,9 @@
 """Components for controlling data flow"""
 import datetime as dt
 
+from ..data.grid_spec import NoGrid
 from ..data.tools import strip_data
 from ..errors import FinamMetaDataError
-from ..interfaces import ComponentStatus
 from ..sdk import TimeComponent
 from ..tools.connect_helper import FromInput, FromOutput
 from ..tools.log_helper import ErrorLogger
@@ -175,7 +175,7 @@ class UserControl(TimeComponent):
 
                  +-------------+
                  |             |
-                 | UserControl |
+                 | UserControl | [Counter] -->
                  |             |
                  +-------------+
 
@@ -211,21 +211,32 @@ class UserControl(TimeComponent):
 
         self.time = start
         self.step = step
+        self._counter = 0
 
     @property
     def next_time(self):
         return None
 
     def _initialize(self):
-        pass
+        self.outputs.add(name="Counter", time=self.time, grid=NoGrid())
+
+        self.create_connector()
 
     def _connect(self):
-        self.status = ComponentStatus.CONNECTED
+        push_data = {}
+        if self.connector.data_required["Counter"]:
+            push_data["Counter"] = self._counter
+
+        self.try_connect(push_data=push_data)
 
     def _validate(self):
         pass
 
     def _update(self):
+        self._counter += 1
+        self._prompt()
+
+    def _prompt(self):
         run_until = None
 
         inp = input(f"Time: {self.time} - Run until (ENTER to step): ")
@@ -239,6 +250,7 @@ class UserControl(TimeComponent):
 
         if run_until is not None:
             self.time = run_until
+            self.outputs["Counter"].push_data(self._counter, self.time)
 
     def _finalize(self):
         pass
