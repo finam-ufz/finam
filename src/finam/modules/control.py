@@ -228,7 +228,7 @@ class UserControl(TimeComponent):
     def _update(self):
         run_until = None
 
-        inp = input(f"Time: {self.time} - Run until: ")
+        inp = input(f"Time: {self.time} - Run until (ENTER to step): ")
         if inp == "":
             run_until = self.time + self.step
         else:
