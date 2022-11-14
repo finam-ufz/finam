@@ -184,7 +184,9 @@ class Composition(Loggable):
 
         self.logger.debug("running composition")
         while len(time_modules) > 0:
-            to_update = min(time_modules, key=lambda m: m.time)
+            sort_modules = list(time_modules)
+            sort_modules.sort(key=lambda m: m.time)
+            to_update = sort_modules[0]
             updated = self._update_recursive(to_update)
             self._check_status(
                 updated, [ComponentStatus.VALIDATED, ComponentStatus.UPDATED]
