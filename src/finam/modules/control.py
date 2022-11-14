@@ -201,7 +201,6 @@ class UserControl(TimeComponent):
     ----------
     start : datetime.datetime
         Starting time. Can be ``None`` to retrieve it from linked components.
-        See parameter ``start_from_input`` for details.
     step : datetime.timedelta, optional
         The component's time step. Default 1 day.
     """
