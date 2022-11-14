@@ -22,12 +22,13 @@ Modules
     StaticCallbackGenerator
     StaticSimplexNoise
     TimeTrigger
+    UserControl
     WeightedSum
 """
 
 from . import callback, control, debug, generators, mergers, noise, readers, writers
 from .callback import CallbackComponent
-from .control import TimeTrigger
+from .control import TimeTrigger, UserControl
 from .debug import DebugConsumer, DebugPushConsumer, ScheduleLogger
 from .generators import CallbackGenerator, StaticCallbackGenerator
 from .mergers import WeightedSum
@@ -57,5 +58,6 @@ __all__ += [
     "StaticCallbackGenerator",
     "StaticSimplexNoise",
     "TimeTrigger",
+    "UserControl",
     "WeightedSum",
 ]
