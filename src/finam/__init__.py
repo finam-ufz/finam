@@ -97,6 +97,7 @@ Basic interfaces of the FINAM framework.
     IOutput
     Loggable
     NoBranchAdapter
+    NoDependencyAdapter
 
 Errors
 ======
@@ -161,6 +162,7 @@ from .interfaces import (
     ITimeComponent,
     Loggable,
     NoBranchAdapter,
+    NoDependencyAdapter,
 )
 from .schedule import Composition
 from .sdk import (
@@ -191,6 +193,7 @@ __all__ += [
     "ComponentStatus",
     "Loggable",
     "NoBranchAdapter",
+    "NoDependencyAdapter",
 ]
 __all__ += ["Composition"]
 __all__ += [

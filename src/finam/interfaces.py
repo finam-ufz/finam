@@ -394,3 +394,7 @@ class IAdapter(IInput, IOutput, ABC):
 
 class NoBranchAdapter:
     """Interface to mark adapters as allowing only a single end point."""
+
+
+class NoDependencyAdapter:
+    """Interface to mark adapters as breaking time dependencies between components."""

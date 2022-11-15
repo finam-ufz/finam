@@ -6,7 +6,7 @@ from datetime import datetime
 
 import numpy as np
 
-from finam.interfaces import NoBranchAdapter
+from finam.interfaces import NoBranchAdapter, NoDependencyAdapter
 
 from ..data import tools as dtools
 from ..errors import FinamNoDataError, FinamTimeError
@@ -24,7 +24,7 @@ __all__ = [
 ]
 
 
-class ExtrapolateTime(Adapter, NoBranchAdapter):
+class ExtrapolateTime(Adapter, NoDependencyAdapter, NoBranchAdapter):
     """Time extrapolation (nearest) to break circular dependencies.
 
     Examples
