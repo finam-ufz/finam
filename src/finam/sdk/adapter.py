@@ -9,7 +9,7 @@ from typing import final
 from ..data import tools
 from ..data.tools import Info
 from ..errors import FinamLogError, FinamMetaDataError, FinamTimeError
-from ..interfaces import IAdapter, IOutput
+from ..interfaces import IAdapter, IOutput, ITimeOffsetAdapter
 from ..tools.log_helper import ErrorLogger, is_loggable
 from .input import Input
 from .output import Output
@@ -124,7 +124,6 @@ class Adapter(IAdapter, Input, Output, ABC):
             Simulation time of the notification.
         """
 
-    @final
     def get_data(self, time, target):
         """Get the transformed data of this adapter.
 
@@ -281,3 +280,38 @@ class Adapter(IAdapter, Input, Output, ABC):
         """Logger name derived from source logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
         return ".".join(([base_logger.name, " >> ", self.name]))
+
+
+class TimeOffsetAdapter(Adapter, ITimeOffsetAdapter, ABC):
+    """Base class for adapters that offset time to resolve dependency cycles."""
+
+    def get_data(self, time, target):
+        """Get the transformed data of this adapter.
+
+        Internally calls :meth:`._get_data`.
+
+        Parameters
+        ----------
+        time : datetime.datatime
+            Simulation time to get the data for.
+        target : IInput
+            Requesting end point of this pull.
+
+        Returns
+        -------
+        :class:`xarray.DataArray`
+            Transformed data-set for the requested time.
+        """
+        self.logger.debug("get data")
+        if time is not None and not isinstance(time, datetime):
+            with ErrorLogger(self.logger):
+                raise FinamTimeError("Time must be of type datetime")
+
+        new_time = self.with_offset(time)
+        data = self._get_data(new_time, target)
+        name = self.get_source().name + "_" + self.name
+
+        with ErrorLogger(self.logger):
+            return tools.to_xarray(
+                data, name, self._output_info, new_time, no_time_check=True
+            )

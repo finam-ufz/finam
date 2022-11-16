@@ -39,6 +39,7 @@ Implementations of FINAM interfaces for component and adapter development.
     Input
     Output
     TimeComponent
+    TimeOffsetAdapter
 
 Grids
 =====
@@ -175,6 +176,7 @@ from .sdk import (
     Input,
     Output,
     TimeComponent,
+    TimeOffsetAdapter,
 )
 
 try:
@@ -203,6 +205,7 @@ __all__ += [
     "Adapter",
     "Component",
     "TimeComponent",
+    "TimeOffsetAdapter",
     "CallbackInput",
     "CallbackOutput",
     "Input",
