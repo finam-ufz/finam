@@ -53,6 +53,7 @@ Time adapters
     StackTime
     OffsetFixed
     OffsetToPush
+    OffsetToPull
     TimeCachingAdapter
 """
 
@@ -66,6 +67,7 @@ from .time import (
     LinearTime,
     NextTime,
     OffsetFixed,
+    OffsetToPull,
     OffsetToPush,
     PreviousTime,
     StackTime,
@@ -93,5 +95,6 @@ __all__ += [
     "StackTime",
     "OffsetFixed",
     "OffsetToPush",
+    "OffsetToPull",
     "TimeCachingAdapter",
 ]

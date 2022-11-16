@@ -21,6 +21,7 @@ __all__ = [
     "StackTime",
     "OffsetFixed",
     "OffsetToPush",
+    "OffsetToPull",
     "TimeCachingAdapter",
 ]
 
@@ -66,7 +67,7 @@ class OffsetFixed(TimeOffsetAdapter):
 
 
 class OffsetToPush(TimeOffsetAdapter):
-    """Offsets the request time to the last push time of out of range.
+    """Offsets the request time to the last push time if out of range.
 
     An illustrative example:
     The adapter offsets time to the last available push date.
@@ -113,6 +114,77 @@ class OffsetToPush(TimeOffsetAdapter):
         """
         _check_time(self.logger, time)
         self.push_time = time
+
+
+# pylint: disable=too-many-ancestors
+class OffsetToPull(TimeOffsetAdapter, NoBranchAdapter):
+    """Offsets the request time to a previous pull time.
+
+    An illustrative example:
+    With ``step=2``, the adapter offsets time by two past pulls:
+
+    .. code-block:: Text
+
+        A  O====O====O====O----o
+        ^            .<--------'
+        |            |
+        B  =O=O=O=O=O=O=O
+
+    Offset can be fine-tuned ba using ``additional_offset`` (e.d. 2 days):
+
+    .. code-block:: Text
+
+        A  O====O====O====O----o
+        ^          .<----------'
+        |          |
+        B  =O=O=O=O=O=O=O
+
+    Parameters
+    ----------
+
+    steps : int, optional
+        The number of pulls to offset. Defaults to 1.
+    additional_offset : datetime.timedelta
+        Additional offset in time units. Defaults to no offset.
+    """
+
+    def __init__(self, steps=1, additional_offset=timedelta(days=0)):
+        super().__init__()
+        self.steps = steps
+        self.additional_offset = additional_offset
+        self._pulls = []
+
+    def with_offset(self, time):
+        if len(self._pulls) == 0:
+            self._pulls.append(self.initial_time)
+
+        t = self._pulls[0]
+        off = t - self.additional_offset
+        if off < self.initial_time:
+            return self.initial_time
+
+        return off
+
+    def _pulled(self, time):
+        self._pulls.append(time)
+        while len(self._pulls) > self.steps:
+            self._pulls.pop(0)
+
+    def _get_data(self, time, target):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
+        d = self.pull_data(time, target)
+        return d
 
 
 class TimeCachingAdapter(Adapter, NoBranchAdapter, ABC):

@@ -400,7 +400,7 @@ class NoDependencyAdapter:
     """Interface to mark adapters as breaking time dependencies between components."""
 
 
-class ITimeOffsetAdapter:
+class ITimeOffsetAdapter(ABC):
     """Interface for adapters that manipulate the request time."""
 
     @abstractmethod

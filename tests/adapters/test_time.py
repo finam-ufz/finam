@@ -15,6 +15,7 @@ from finam.adapters.time import (
     LinearTime,
     NextTime,
     OffsetFixed,
+    OffsetToPull,
     OffsetToPush,
     PreviousTime,
     StackTime,
@@ -52,6 +53,38 @@ class TestOffsetToPush(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 1.0)
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 2.0)
+
+
+class TestOffsetToPull(unittest.TestCase):
+    def setUp(self):
+        self.source = CallbackGenerator(
+            callbacks={"Step": (lambda t: t.day, Info(None, grid=NoGrid()))},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+
+        self.adapter = OffsetToPull(steps=2, additional_offset=timedelta(days=0.8))
+
+        self.source.initialize()
+
+        self.source.outputs["Step"] >> self.adapter
+
+        self.adapter.get_info(Info(None, grid=NoGrid()))
+
+        self.source.connect()
+        self.source.connect()
+        self.source.validate()
+
+    def test_offset_to_push(self):
+        for _ in range(10):
+            self.source.update()
+
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0), None), 1)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0), None), 1)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0), None), 1)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 4, 0), None), 1)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 8, 0), None), 2)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 12, 0), None), 3)
 
 
 class TestOffsetFixed(unittest.TestCase):

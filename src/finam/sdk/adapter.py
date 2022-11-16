@@ -314,10 +314,15 @@ class TimeOffsetAdapter(Adapter, ITimeOffsetAdapter, ABC):
         data = self._get_data(new_time, target)
         name = self.get_source().name + "_" + self.name
 
+        self._pulled(time)
+
         with ErrorLogger(self.logger):
             return tools.to_xarray(
                 data, name, self._output_info, new_time, no_time_check=True
             )
+
+    def _pulled(self, time):
+        pass
 
     def _get_data(self, time, target):
         """Get the output's data-set for the given time.

@@ -82,6 +82,7 @@ Time adapters
     StackTime
     OffsetFixed
     OffsetToPush
+    OffsetToPull
 
 Provided by FINAM developers
 ----------------------------
