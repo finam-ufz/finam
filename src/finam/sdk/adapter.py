@@ -321,9 +321,6 @@ class TimeOffsetAdapter(Adapter, ITimeOffsetAdapter, ABC):
                 data, name, self._output_info, new_time, no_time_check=True
             )
 
-    def _pulled(self, time):
-        pass
-
     def _get_data(self, time, target):
         """Get the output's data-set for the given time.
 
@@ -339,6 +336,21 @@ class TimeOffsetAdapter(Adapter, ITimeOffsetAdapter, ABC):
         """
         d = self.pull_data(time, target)
         return d
+
+    def _pulled(self, time):
+        """This method is called during pulls, with the original pull time.
+
+        Can be overwritten to store the original pull time,
+        as in :meth:`._get_data()` only the manipulated time is available.
+
+        Called after :meth:`._get_data()` (i.e. after the actual pull).
+
+        Parameters
+        ----------
+
+        time : datetime.datetime
+            The original (requested) time of the current pull.
+        """
 
     def get_info(self, info):
         """Exchange and get the output's data info.

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam.interfaces import NoBranchAdapter
+from finam.interfaces import NoBranchAdapter, NoDependencyAdapter
 
 from ..data import tools as dtools
 from ..errors import FinamNoDataError, FinamTimeError
@@ -66,7 +66,8 @@ class OffsetFixed(TimeOffsetAdapter):
         return off
 
 
-class OffsetToPush(TimeOffsetAdapter):
+# pylint: disable=too-many-ancestors
+class OffsetToPush(TimeOffsetAdapter, NoDependencyAdapter):
     """Offsets the request time to the last push time if out of range.
 
     An illustrative example:
@@ -86,9 +87,17 @@ class OffsetToPush(TimeOffsetAdapter):
         A  O=========O---------o
         ^                      ^
         |                      |
-        B  O=O=O=O=O=O=O=OO=O=O=O
+        B  =O=O=O=O=O=O=O=O=O=O=O
 
     If the requested time is before the last push, it is not modified.
+
+    .. note::
+        This adapters fully breaks dependency chains and loops.
+
+        It is recommended to use other subclasses of :class:`.ITimeOffsetAdapter`,
+        e.g. :class:`.adapters.OffsetFixed` or :class:`.adapters.OffsetToPull`.
+        These adapters have a more consistent pull interval, and dependencies are still checked.
+
     """
 
     def __init__(self):
