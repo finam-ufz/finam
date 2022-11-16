@@ -28,7 +28,7 @@ from finam import (
 )
 from finam import data as tools
 from finam.adapters.base import Scale
-from finam.adapters.time import NextTime
+from finam.adapters.time import NextTime, OffsetFixed
 from finam.modules import CallbackComponent, CallbackGenerator, debug
 from finam.schedule import _check_dead_links, _find_dependencies
 
@@ -484,7 +484,7 @@ class TestComposition(unittest.TestCase):
 
         self.assertEqual(
             _find_dependencies(
-                module1, composition.output_owners, datetime(2000, 1, 1)
+                module1, composition.output_owners, datetime(2000, 1, 5)
             ),
             {},
         )
@@ -492,7 +492,13 @@ class TestComposition(unittest.TestCase):
             _find_dependencies(
                 module2, composition.output_owners, datetime(2000, 1, 1)
             ),
-            {module1: datetime(2000, 1, 1)},
+            {},
+        )
+        self.assertEqual(
+            _find_dependencies(
+                module2, composition.output_owners, datetime(2000, 1, 5)
+            ),
+            {module1: datetime(2000, 1, 5)},
         )
 
     def test_dependencies_multi(self):
@@ -509,33 +515,51 @@ class TestComposition(unittest.TestCase):
 
         module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
         module1.outputs["Output"] >> Scale(1.0) >> module3.inputs["Input"]
-        module3.outputs["Output"] >> Scale(1.0) >> module4.inputs["Input"]
+        (
+            module3.outputs["Output"]
+            >> Scale(1.0)
+            >> OffsetFixed(timedelta(days=2))
+            >> module4.inputs["Input"]
+        )
 
         composition.connect()
 
         self.assertEqual(
             _find_dependencies(
-                module1, composition.output_owners, datetime(2000, 1, 1)
+                module1, composition.output_owners, datetime(2000, 1, 5)
             ),
             {},
         )
         self.assertEqual(
             _find_dependencies(
-                module2, composition.output_owners, datetime(2000, 1, 1)
+                module2, composition.output_owners, datetime(2000, 1, 5)
             ),
-            {module1: datetime(2000, 1, 1)},
+            {module1: datetime(2000, 1, 5)},
         )
         self.assertEqual(
             _find_dependencies(
-                module3, composition.output_owners, datetime(2000, 1, 1)
+                module3, composition.output_owners, datetime(2000, 1, 5)
             ),
-            {module1: datetime(2000, 1, 1)},
+            {module1: datetime(2000, 1, 5)},
         )
+
         self.assertEqual(
             _find_dependencies(
                 module4, composition.output_owners, datetime(2000, 1, 1)
             ),
-            {module3: datetime(2000, 1, 1)},
+            {},
+        )
+        self.assertEqual(
+            _find_dependencies(
+                module4, composition.output_owners, datetime(2000, 1, 2)
+            ),
+            {},
+        )
+        self.assertEqual(
+            _find_dependencies(
+                module4, composition.output_owners, datetime(2000, 1, 5)
+            ),
+            {module3: datetime(2000, 1, 3)},
         )
 
     def test_static_run(self):

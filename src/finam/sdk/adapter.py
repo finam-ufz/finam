@@ -175,7 +175,6 @@ class Adapter(IAdapter, Input, Output, ABC):
             f"Method `_get_data` must be implemented by all adapters, but implementation is missing in {self.name}."
         )
 
-    @final
     def get_info(self, info):
         """Exchange and get the output's data info.
 
@@ -285,6 +284,10 @@ class Adapter(IAdapter, Input, Output, ABC):
 class TimeOffsetAdapter(Adapter, ITimeOffsetAdapter, ABC):
     """Base class for adapters that offset time to resolve dependency cycles."""
 
+    def __init__(self):
+        super().__init__()
+        self.initial_time = None
+
     def get_data(self, time, target):
         """Get the transformed data of this adapter.
 
@@ -315,3 +318,42 @@ class TimeOffsetAdapter(Adapter, ITimeOffsetAdapter, ABC):
             return tools.to_xarray(
                 data, name, self._output_info, new_time, no_time_check=True
             )
+
+    def _get_data(self, time, target):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
+        d = self.pull_data(time, target)
+        return d
+
+    def get_info(self, info):
+        """Exchange and get the output's data info.
+
+        Parameters
+        ----------
+        info : Info
+            Requested data info
+
+        Returns
+        -------
+        dict
+            Delivered data info
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no info is available
+        """
+        self.logger.debug("get info")
+        self._output_info = self._get_info(info)
+        self.initial_time = self._output_info.time
+        return self._output_info

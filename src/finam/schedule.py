@@ -213,7 +213,7 @@ class Composition(Loggable):
             with ErrorLogger(self.logger):
                 raise ValueError(
                     f"Circular dependency: {' >> '.join([c.name for c in reversed(chain)])}. "
-                    f"You may need to insert a NoDependencyAdapter subclass somewhere."
+                    f"You may need to insert a NoDependencyAdapter or ITimeOffsetAdapter subclass somewhere."
                 )
 
         chain.append(module)
@@ -461,8 +461,11 @@ def _find_dependencies(module, output_owners, target_time):
 
         if not isinstance(inp, NoDependencyAdapter) and not inp.is_static:
             comp = output_owners[inp]
-            if comp not in deps or local_time > deps[comp]:
-                deps[comp] = local_time
+            if not isinstance(comp, ITimeComponent) or (
+                isinstance(comp, ITimeComponent) and comp.time < local_time
+            ):
+                if comp not in deps or local_time > deps[comp]:
+                    deps[comp] = local_time
 
     return deps
 

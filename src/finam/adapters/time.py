@@ -56,36 +56,13 @@ class OffsetFixed(TimeOffsetAdapter):
                 raise ValueError("Step must be of type timedelta")
 
         self.offset = offset
-        self.start_time = None
 
     def with_offset(self, time):
-        if self.start_time is None:
-            self.start_time = time
-            return time
-
         off = time - self.offset
-        if off < self.start_time:
-            return self.start_time
+        if off < self.initial_time:
+            return self.initial_time
 
         return off
-
-    def _get_data(self, time, target):
-        """Get the output's data-set for the given time.
-
-        Parameters
-        ----------
-        time : datetime
-            simulation time to get the data for.
-
-        Returns
-        -------
-        array_like
-            data-set for the requested time.
-        """
-        _check_time(self.logger, time)
-
-        d = self.pull_data(time, target)
-        return d
 
 
 class OffsetToPush(TimeOffsetAdapter):
@@ -112,13 +89,14 @@ class OffsetToPush(TimeOffsetAdapter):
 
     If the requested time is before the last push, it is not modified.
     """
+
     def __init__(self):
         super().__init__()
         self.push_time = None
 
     def with_offset(self, time):
         if self.push_time is None:
-            return time
+            return self.initial_time
 
         if time > self.push_time:
             return self.push_time
@@ -135,24 +113,6 @@ class OffsetToPush(TimeOffsetAdapter):
         """
         _check_time(self.logger, time)
         self.push_time = time
-
-    def _get_data(self, time, target):
-        """Get the output's data-set for the given time.
-
-        Parameters
-        ----------
-        time : datetime
-            simulation time to get the data for.
-
-        Returns
-        -------
-        array_like
-            data-set for the requested time.
-        """
-        _check_time(self.logger, time)
-
-        d = self.pull_data(time, target)
-        return d
 
 
 class TimeCachingAdapter(Adapter, NoBranchAdapter, ABC):
