@@ -2,7 +2,7 @@
 Adapters that deal with time, like temporal interpolation and integration.
 """
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import numpy as np
 
@@ -10,10 +10,11 @@ from finam.interfaces import NoBranchAdapter, NoDependencyAdapter
 
 from ..data import tools as dtools
 from ..errors import FinamNoDataError, FinamTimeError
-from ..sdk import Adapter
+from ..sdk import Adapter, TimeOffsetAdapter
 from ..tools.log_helper import ErrorLogger
 
 __all__ = [
+    "FixedOffset",
     "ExtrapolateTime",
     "NextTime",
     "PreviousTime",
@@ -22,6 +23,58 @@ __all__ = [
     "StackTime",
     "TimeCachingAdapter",
 ]
+
+
+class FixedOffset(TimeOffsetAdapter):
+    """Offsets the request time by subtracting an offset.
+
+    Offset results that are located before the initial pull/request time are set to this time.
+
+    Parameters
+    ----------
+
+    offset : datetime.timedelta
+        The offset duration to subtract from the request time.
+    """
+
+    def __init__(self, offset):
+        super().__init__()
+
+        with ErrorLogger(self.logger):
+            if not isinstance(offset, timedelta):
+                raise ValueError("Step must be of type timedelta")
+
+        self.offset = offset
+        self.start_time = None
+
+    def with_offset(self, time):
+        if self.start_time is None:
+            self.start_time = time
+            return time
+
+        off = time - self.offset
+        if off < self.start_time:
+            return self.start_time
+
+        return off
+
+    def _get_data(self, time, target):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
+        _check_time(self.logger, time)
+
+        d = self.pull_data(time, target)
+        return d
 
 
 class ExtrapolateTime(Adapter, NoDependencyAdapter, NoBranchAdapter):

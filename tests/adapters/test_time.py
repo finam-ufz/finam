@@ -12,6 +12,7 @@ from finam import FinamTimeError, Info, NoGrid, UniformGrid
 from finam import data as tools
 from finam.adapters.time import (
     ExtrapolateTime,
+    FixedOffset,
     IntegrateTime,
     LinearTime,
     NextTime,
@@ -51,6 +52,63 @@ class TestExtrapolateTime(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 1.0)
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 2.0)
+
+
+class TestFixedOffset(unittest.TestCase):
+    def setUp(self):
+        self.last_pull = None
+
+        def callback(t):
+            return t.day - 1
+
+        self.source = CallbackGenerator(
+            callbacks={"Step": (callback, Info(None, grid=NoGrid()))},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+
+        self.adapter = FixedOffset(offset=timedelta(days=10))
+
+        self.source.initialize()
+
+        self.source.outputs["Step"] >> self.adapter
+
+        self.adapter.get_info(Info(None, grid=NoGrid()))
+
+        self.source.connect()
+        self.source.connect()
+        self.source.validate()
+
+    def test_fixed_offset(self):
+        data = self.adapter.get_data(datetime(2000, 1, 1), None)
+        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 1))
+        self.assertEqual(tools.get_data(data), 0)
+
+        self.source.update()
+        self.source.update()
+
+        data = self.adapter.get_data(datetime(2000, 1, 5), None)
+        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 1))
+        self.assertEqual(tools.get_data(data), 0)
+
+        for _ in range(20):
+            self.source.update()
+
+        data = self.adapter.get_data(datetime(2000, 1, 10), None)
+        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 1))
+        self.assertEqual(tools.get_data(data), 0)
+
+        data = self.adapter.get_data(datetime(2000, 1, 11), None)
+        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 1))
+        self.assertEqual(tools.get_data(data), 0)
+
+        data = self.adapter.get_data(datetime(2000, 1, 12), None)
+        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 2))
+        self.assertEqual(tools.get_data(data), 1)
+
+        data = self.adapter.get_data(datetime(2000, 1, 20), None)
+        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 10))
+        self.assertEqual(tools.get_data(data), 9)
 
 
 class TestExtrapolateTimeFixed(unittest.TestCase):

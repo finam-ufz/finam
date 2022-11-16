@@ -46,6 +46,7 @@ Time adapters
 .. autosummary::
    :toctree: generated
 
+    FixedOffset
     ExtrapolateTime
     IntegrateTime
     LinearTime
@@ -62,6 +63,7 @@ from .regrid import RegridLinear, RegridNearest
 from .stats import Histogram
 from .time import (
     ExtrapolateTime,
+    FixedOffset,
     IntegrateTime,
     LinearTime,
     NextTime,
@@ -84,7 +86,7 @@ __all__ += [
 ]
 __all__ += ["Histogram"]
 __all__ += [
-    "ExtrapolateTime",
+    "FixedOffset" "ExtrapolateTime",
     "NextTime",
     "PreviousTime",
     "LinearTime",
