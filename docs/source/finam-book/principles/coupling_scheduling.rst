@@ -94,9 +94,10 @@ This is one responsibility of adapters.
 Particularly for components with large time steps, it is also possible to integrate over multiple source component time steps.
 E.g., component B could use the weighted average of the several steps B has performed since B's last updates.
 
-The update scheme explained so far only forks if there are no cycles in the dependencies.
-In the case of circular or bi-directional coupling, one of the involved components must use data that is extrapolated in time.
-FINAM provides a dedicated adapter for the purpose of breaking circular dependencies through temporal extrapolation.
+The update scheme explained so far only works if there are no cycles in the dependencies.
+In the case of cyclic or bi-directional coupling, one of the involved components must use data from the past, or extrapolate in time.
+FINAM provides dedicated adapters that resolve cyclic dependencies through delayed data usage or time extrapolation.
+This gives users full control over how cyclic dependencies are resolved.
 
 Initialization
 --------------
