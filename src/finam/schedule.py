@@ -15,13 +15,14 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from .errors import FinamConnectError, FinamStatusError
+from .errors import FinamConnectError, FinamStatusError, FinamTimeError
 from .interfaces import (
     ComponentStatus,
     IComponent,
     IInput,
     IOutput,
     ITimeComponent,
+    ITimeOffsetAdapter,
     Loggable,
     NoBranchAdapter,
     NoDependencyAdapter,
@@ -104,6 +105,7 @@ class Composition(Loggable):
                     )
         self.modules = modules
         self.dependencies = None
+        self.output_owners = None
         self.is_initialized = False
         self.is_connected = False
         self.mpi_rank = mpi_rank
@@ -150,7 +152,7 @@ class Composition(Loggable):
             mod.validate()
             self._check_status(mod, [ComponentStatus.VALIDATED])
 
-        self.dependencies = _find_dependencies(self.modules)
+        self.output_owners = _map_outputs(self.modules)
 
         self.is_connected = True
 
@@ -219,18 +221,24 @@ class Composition(Loggable):
         if isinstance(module, ITimeComponent):
             target_time = module.next_time
 
-        for dep in self.dependencies[module]:
+        deps = _find_dependencies(module, self.output_owners, target_time)
+
+        for dep, local_time in deps.items():
             if isinstance(dep, ITimeComponent):
-                if dep.time < target_time:
+                if dep.time < local_time:
                     return self._update_recursive(dep, chain)
             else:
-                updated = self._update_recursive(dep, chain, target_time)
+                updated = self._update_recursive(dep, chain, local_time)
                 if updated is not None:
                     return updated
 
         if isinstance(module, ITimeComponent):
             if module.status != ComponentStatus.FINISHED:
                 module.update()
+            else:
+                raise FinamTimeError(
+                    f"Can't update dependency component {module.name}, as it is already finished."
+                )
             return module
 
         return None
@@ -432,29 +440,31 @@ def _check_dead_links(module, inp):
             first_index = i
 
 
-def _find_dependencies(modules):
+def _map_outputs(modules):
     out_map = {}
     for mod in modules:
         for _, out in mod.outputs.items():
             out_map[out] = mod
+    return out_map
 
-    dependencies = {}
 
-    for mod in modules:
-        deps = set()
-        for _, inp in mod.inputs.items():
-            while isinstance(inp, IInput):
-                inp = inp.get_source()
-                if isinstance(inp, NoDependencyAdapter):
-                    break
+def _find_dependencies(module, output_owners, target_time):
+    deps = {}
+    for _, inp in module.inputs.items():
+        local_time = target_time
+        while isinstance(inp, IInput):
+            inp = inp.get_source()
+            if isinstance(inp, NoDependencyAdapter):
+                break
+            if isinstance(inp, ITimeOffsetAdapter):
+                local_time = inp.with_offset(target_time)
 
-            if not isinstance(inp, NoDependencyAdapter) and not inp.is_static:
-                comp = out_map[inp]
-                deps.add(comp)
+        if not isinstance(inp, NoDependencyAdapter) and not inp.is_static:
+            comp = output_owners[inp]
+            if comp not in deps or local_time > deps[comp]:
+                deps[comp] = local_time
 
-        dependencies[mod] = deps
-
-    return dependencies
+    return deps
 
 
 def _dead_link_error(module, chain, first_index, last_index):

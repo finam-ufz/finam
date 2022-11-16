@@ -398,3 +398,24 @@ class NoBranchAdapter:
 
 class NoDependencyAdapter:
     """Interface to mark adapters as breaking time dependencies between components."""
+
+
+class ITimeOffsetAdapter:
+    """Interface for adapters that manipulate the request time."""
+
+    @abstractmethod
+    def with_offset(self, time):
+        """Get the manipulated time for a given request time.
+
+        Parameters
+        ----------
+
+        time : datetime.datetime
+            The original request time.
+
+        Returns
+        -------
+
+        datetime.datetime
+            The time as manipulated by the adapter
+        """
