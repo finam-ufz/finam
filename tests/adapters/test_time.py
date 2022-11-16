@@ -11,12 +11,12 @@ from numpy.testing import assert_array_equal
 from finam import FinamTimeError, Info, NoGrid, UniformGrid
 from finam import data as tools
 from finam.adapters.time import (
+    DelayFixed,
+    DelayToPull,
+    DelayToPush,
     IntegrateTime,
     LinearTime,
     NextTime,
-    OffsetFixed,
-    OffsetToPull,
-    OffsetToPush,
     PreviousTime,
     StackTime,
 )
@@ -25,7 +25,7 @@ from finam.modules.generators import CallbackGenerator
 reg = pint.UnitRegistry(force_ndarray_like=True)
 
 
-class TestOffsetToPush(unittest.TestCase):
+class TestDelayToPush(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
             callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
@@ -33,7 +33,7 @@ class TestOffsetToPush(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        self.adapter = OffsetToPush()
+        self.adapter = DelayToPush()
 
         self.source.initialize()
 
@@ -55,7 +55,7 @@ class TestOffsetToPush(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 2.0)
 
 
-class TestOffsetToPull(unittest.TestCase):
+class TestDelayToPull(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
             callbacks={"Step": (lambda t: t.day, Info(None, grid=NoGrid()))},
@@ -63,7 +63,7 @@ class TestOffsetToPull(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        self.adapter = OffsetToPull(steps=2, additional_offset=timedelta(days=0.8))
+        self.adapter = DelayToPull(steps=2, additional_delay=timedelta(days=0.8))
 
         self.source.initialize()
 
@@ -87,7 +87,7 @@ class TestOffsetToPull(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 12, 0), None), 3)
 
 
-class TestOffsetFixed(unittest.TestCase):
+class TestDelayFixed(unittest.TestCase):
     def setUp(self):
         self.last_pull = None
 
@@ -100,7 +100,7 @@ class TestOffsetFixed(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        self.adapter = OffsetFixed(offset=timedelta(days=10))
+        self.adapter = DelayFixed(delay=timedelta(days=10))
 
         self.source.initialize()
 

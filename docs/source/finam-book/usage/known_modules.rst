@@ -80,9 +80,9 @@ Time adapters
     NextTime
     PreviousTime
     StackTime
-    OffsetFixed
-    OffsetToPush
-    OffsetToPull
+    DelayFixed
+    DelayToPush
+    DelayToPull
 
 Provided by FINAM developers
 ----------------------------

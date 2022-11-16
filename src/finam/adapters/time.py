@@ -19,15 +19,15 @@ __all__ = [
     "LinearTime",
     "IntegrateTime",
     "StackTime",
-    "OffsetFixed",
-    "OffsetToPush",
-    "OffsetToPull",
+    "DelayFixed",
+    "DelayToPush",
+    "DelayToPull",
     "TimeCachingAdapter",
 ]
 
 
-class OffsetFixed(TimeOffsetAdapter):
-    """Offsets the request time by subtracting a fixed offset.
+class DelayFixed(TimeOffsetAdapter):
+    """Delays/offsets the request time by subtracting a fixed offset.
 
     Offset results that are located before the initial pull/request time are set to this time.
 
@@ -45,18 +45,18 @@ class OffsetFixed(TimeOffsetAdapter):
     Parameters
     ----------
 
-    offset : datetime.timedelta
+    delay : datetime.timedelta
         The offset duration to subtract from the request time.
     """
 
-    def __init__(self, offset):
+    def __init__(self, delay):
         super().__init__()
 
         with ErrorLogger(self.logger):
-            if not isinstance(offset, timedelta):
+            if not isinstance(delay, timedelta):
                 raise ValueError("Step must be of type timedelta")
 
-        self.offset = offset
+        self.offset = delay
 
     def with_offset(self, time):
         off = time - self.offset
@@ -67,8 +67,8 @@ class OffsetFixed(TimeOffsetAdapter):
 
 
 # pylint: disable=too-many-ancestors
-class OffsetToPush(TimeOffsetAdapter, NoDependencyAdapter):
-    """Offsets the request time to the last push time if out of range.
+class DelayToPush(TimeOffsetAdapter, NoDependencyAdapter):
+    """Delays/offsets the request time to the last push time if out of range.
 
     An illustrative example:
     The adapter offsets time to the last available push date.
@@ -95,7 +95,7 @@ class OffsetToPush(TimeOffsetAdapter, NoDependencyAdapter):
         This adapters fully breaks dependency chains and loops.
 
         It is recommended to use other subclasses of :class:`.ITimeOffsetAdapter`,
-        e.g. :class:`.adapters.OffsetFixed` or :class:`.adapters.OffsetToPull`.
+        e.g. :class:`.adapters.DelayFixed` or :class:`.adapters.DelayToPull`.
         These adapters have a more consistent pull interval, and dependencies are still checked.
 
     """
@@ -126,8 +126,8 @@ class OffsetToPush(TimeOffsetAdapter, NoDependencyAdapter):
 
 
 # pylint: disable=too-many-ancestors
-class OffsetToPull(TimeOffsetAdapter, NoBranchAdapter):
-    """Offsets the request time to a previous pull time.
+class DelayToPull(TimeOffsetAdapter, NoBranchAdapter):
+    """Delays/offsets the request time to a previous pull time.
 
     An illustrative example:
     With ``step=2``, the adapter offsets time by two past pulls:
@@ -153,14 +153,14 @@ class OffsetToPull(TimeOffsetAdapter, NoBranchAdapter):
 
     steps : int, optional
         The number of pulls to offset. Defaults to 1.
-    additional_offset : datetime.timedelta
+    additional_delay : datetime.timedelta
         Additional offset in time units. Defaults to no offset.
     """
 
-    def __init__(self, steps=1, additional_offset=timedelta(days=0)):
+    def __init__(self, steps=1, additional_delay=timedelta(days=0)):
         super().__init__()
         self.steps = steps
-        self.additional_offset = additional_offset
+        self.additional_offset = additional_delay
         self._pulls = []
 
     def with_offset(self, time):

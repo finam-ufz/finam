@@ -51,9 +51,9 @@ Time adapters
     NextTime
     PreviousTime
     StackTime
-    OffsetFixed
-    OffsetToPush
-    OffsetToPull
+    DelayFixed
+    DelayToPush
+    DelayToPull
     TimeCachingAdapter
 """
 
@@ -63,12 +63,12 @@ from .probe import CallbackProbe
 from .regrid import RegridLinear, RegridNearest
 from .stats import Histogram
 from .time import (
+    DelayFixed,
+    DelayToPull,
+    DelayToPush,
     IntegrateTime,
     LinearTime,
     NextTime,
-    OffsetFixed,
-    OffsetToPull,
-    OffsetToPush,
     PreviousTime,
     StackTime,
     TimeCachingAdapter,
@@ -93,8 +93,8 @@ __all__ += [
     "LinearTime",
     "IntegrateTime",
     "StackTime",
-    "OffsetFixed",
-    "OffsetToPush",
-    "OffsetToPull",
+    "DelayFixed",
+    "DelayToPush",
+    "DelayToPull",
     "TimeCachingAdapter",
 ]

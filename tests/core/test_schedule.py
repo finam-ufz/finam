@@ -28,7 +28,7 @@ from finam import (
 )
 from finam import data as tools
 from finam.adapters.base import Scale
-from finam.adapters.time import NextTime, OffsetFixed
+from finam.adapters.time import DelayFixed, NextTime
 from finam.modules import CallbackComponent, CallbackGenerator, debug
 from finam.schedule import _check_dead_links, _find_dependencies
 
@@ -518,7 +518,7 @@ class TestComposition(unittest.TestCase):
         (
             module3.outputs["Output"]
             >> Scale(1.0)
-            >> OffsetFixed(timedelta(days=2))
+            >> DelayFixed(timedelta(days=2))
             >> module4.inputs["Input"]
         )
 

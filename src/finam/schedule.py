@@ -212,8 +212,9 @@ class Composition(Loggable):
             chain.append(module)
             with ErrorLogger(self.logger):
                 raise ValueError(
-                    f"Circular dependency: {' >> '.join([c.name for c in reversed(chain)])}. "
-                    f"You may need to insert a NoDependencyAdapter or ITimeOffsetAdapter subclass somewhere."
+                    f"Cyclic dependency: {' >> '.join([c.name for c in reversed(chain)])}. "
+                    f"You may need to insert a NoDependencyAdapter or ITimeOffsetAdapter subclass somewhere,"
+                    f"or increase the adapter's delay."
                 )
 
         chain.append(module)
