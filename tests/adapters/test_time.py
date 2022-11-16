@@ -11,11 +11,11 @@ from numpy.testing import assert_array_equal
 from finam import FinamTimeError, Info, NoGrid, UniformGrid
 from finam import data as tools
 from finam.adapters.time import (
-    ExtrapolateTime,
-    FixedOffset,
     IntegrateTime,
     LinearTime,
     NextTime,
+    OffsetFixed,
+    OffsetToPush,
     PreviousTime,
     StackTime,
 )
@@ -24,7 +24,7 @@ from finam.modules.generators import CallbackGenerator
 reg = pint.UnitRegistry(force_ndarray_like=True)
 
 
-class TestExtrapolateTime(unittest.TestCase):
+class TestOffsetToPush(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
             callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
@@ -32,7 +32,7 @@ class TestExtrapolateTime(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        self.adapter = ExtrapolateTime()
+        self.adapter = OffsetToPush()
 
         self.source.initialize()
 
@@ -44,7 +44,7 @@ class TestExtrapolateTime(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-    def test_extrapolate(self):
+    def test_offset_to_push(self):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0), None), 0.0)
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 0.0)
         self.source.update()
@@ -54,7 +54,7 @@ class TestExtrapolateTime(unittest.TestCase):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 2.0)
 
 
-class TestFixedOffset(unittest.TestCase):
+class TestOffsetFixed(unittest.TestCase):
     def setUp(self):
         self.last_pull = None
 
@@ -67,7 +67,7 @@ class TestFixedOffset(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        self.adapter = FixedOffset(offset=timedelta(days=10))
+        self.adapter = OffsetFixed(offset=timedelta(days=10))
 
         self.source.initialize()
 
@@ -109,52 +109,6 @@ class TestFixedOffset(unittest.TestCase):
         data = self.adapter.get_data(datetime(2000, 1, 20), None)
         self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 10))
         self.assertEqual(tools.get_data(data), 9)
-
-
-class TestExtrapolateTimeFixed(unittest.TestCase):
-    def setUp(self):
-        self.source = CallbackGenerator(
-            callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
-            start=datetime(2000, 1, 1),
-            step=timedelta(days=1),
-        )
-
-        self.adapter = ExtrapolateTime(last_pull=True, force_last=True)
-
-        self.source.initialize()
-
-        self.source.outputs["Step"] >> self.adapter
-
-        self.adapter.get_info(Info(None, grid=NoGrid()))
-
-        self.source.connect()
-        self.source.connect()
-        self.source.validate()
-
-    def test_extrapolate(self):
-        data = self.adapter.get_data(datetime(2000, 1, 5), None)
-        self.source.update()
-        self.source.update()
-
-        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 5))
-
-        self.source.update()
-        self.source.update()
-
-        data = self.adapter.get_data(datetime(2000, 1, 10), None)
-        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 10))
-
-    def test_extrapolate_fail(self):
-        data = self.adapter.get_data(datetime(2000, 1, 5), None)
-        self.source.update()
-        self.source.update()
-
-        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 5))
-
-        self.source.update()
-
-        with self.assertRaises(FinamTimeError):
-            _data = self.adapter.get_data(datetime(2000, 1, 10), None)
 
 
 class TestNextValue(unittest.TestCase):

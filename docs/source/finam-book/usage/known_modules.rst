@@ -75,12 +75,13 @@ Time adapters
 
 .. autosummary::
 
-    ExtrapolateTime
     IntegrateTime
     LinearTime
     NextTime
     PreviousTime
-    TimeCachingAdapter
+    StackTime
+    OffsetFixed
+    OffsetToPush
 
 Provided by FINAM developers
 ----------------------------

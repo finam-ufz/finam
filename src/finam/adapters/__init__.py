@@ -46,13 +46,13 @@ Time adapters
 .. autosummary::
    :toctree: generated
 
-    FixedOffset
-    ExtrapolateTime
     IntegrateTime
     LinearTime
     NextTime
     PreviousTime
     StackTime
+    OffsetFixed
+    OffsetToPush
     TimeCachingAdapter
 """
 
@@ -62,11 +62,11 @@ from .probe import CallbackProbe
 from .regrid import RegridLinear, RegridNearest
 from .stats import Histogram
 from .time import (
-    ExtrapolateTime,
-    FixedOffset,
     IntegrateTime,
     LinearTime,
     NextTime,
+    OffsetFixed,
+    OffsetToPush,
     PreviousTime,
     StackTime,
     TimeCachingAdapter,
@@ -86,11 +86,12 @@ __all__ += [
 ]
 __all__ += ["Histogram"]
 __all__ += [
-    "FixedOffset" "ExtrapolateTime",
     "NextTime",
     "PreviousTime",
     "LinearTime",
     "IntegrateTime",
     "StackTime",
+    "OffsetFixed",
+    "OffsetToPush",
     "TimeCachingAdapter",
 ]
