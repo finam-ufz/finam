@@ -22,7 +22,7 @@ from .interfaces import (
     IInput,
     IOutput,
     ITimeComponent,
-    ITimeOffsetAdapter,
+    ITimeDelayAdapter,
     Loggable,
     NoBranchAdapter,
     NoDependencyAdapter,
@@ -213,7 +213,7 @@ class Composition(Loggable):
             with ErrorLogger(self.logger):
                 raise ValueError(
                     f"Cyclic dependency: {' >> '.join([c.name for c in reversed(chain)])}. "
-                    f"You may need to insert a NoDependencyAdapter or ITimeOffsetAdapter subclass somewhere,"
+                    f"You may need to insert a NoDependencyAdapter or ITimeDelayAdapter subclass somewhere, "
                     f"or increase the adapter's delay."
                 )
 
@@ -457,8 +457,8 @@ def _find_dependencies(module, output_owners, target_time):
             inp = inp.get_source()
             if isinstance(inp, NoDependencyAdapter):
                 break
-            if isinstance(inp, ITimeOffsetAdapter):
-                local_time = inp.with_offset(target_time)
+            if isinstance(inp, ITimeDelayAdapter):
+                local_time = inp.with_delay(target_time)
 
         if not isinstance(inp, NoDependencyAdapter) and not inp.is_static:
             comp = output_owners[inp]

@@ -10,7 +10,7 @@ from finam.interfaces import NoBranchAdapter, NoDependencyAdapter
 
 from ..data import tools as dtools
 from ..errors import FinamNoDataError, FinamTimeError
-from ..sdk import Adapter, TimeOffsetAdapter
+from ..sdk import Adapter, TimeDelayAdapter
 from ..tools.log_helper import ErrorLogger
 
 __all__ = [
@@ -26,7 +26,7 @@ __all__ = [
 ]
 
 
-class DelayFixed(TimeOffsetAdapter):
+class DelayFixed(TimeDelayAdapter):
     """Delays/offsets the request time by subtracting a fixed offset.
 
     Offset results that are located before the initial pull/request time are set to this time.
@@ -58,7 +58,7 @@ class DelayFixed(TimeOffsetAdapter):
 
         self.offset = delay
 
-    def with_offset(self, time):
+    def with_delay(self, time):
         off = time - self.offset
         if off < self.initial_time:
             return self.initial_time
@@ -67,7 +67,7 @@ class DelayFixed(TimeOffsetAdapter):
 
 
 # pylint: disable=too-many-ancestors
-class DelayToPush(TimeOffsetAdapter, NoDependencyAdapter):
+class DelayToPush(TimeDelayAdapter, NoDependencyAdapter):
     """Delays/offsets the request time to the last push time if out of range.
 
     An illustrative example:
@@ -94,7 +94,7 @@ class DelayToPush(TimeOffsetAdapter, NoDependencyAdapter):
     .. note::
         This adapters fully breaks dependency chains and loops.
 
-        It is recommended to use other subclasses of :class:`.ITimeOffsetAdapter`,
+        It is recommended to use other subclasses of :class:`.ITimeDelayAdapter`,
         e.g. :class:`.adapters.DelayFixed` or :class:`.adapters.DelayToPull`.
         These adapters have a more consistent pull interval, and dependencies are still checked.
 
@@ -104,7 +104,7 @@ class DelayToPush(TimeOffsetAdapter, NoDependencyAdapter):
         super().__init__()
         self.push_time = None
 
-    def with_offset(self, time):
+    def with_delay(self, time):
         if self.push_time is None:
             return self.initial_time
 
@@ -126,7 +126,7 @@ class DelayToPush(TimeOffsetAdapter, NoDependencyAdapter):
 
 
 # pylint: disable=too-many-ancestors
-class DelayToPull(TimeOffsetAdapter, NoBranchAdapter):
+class DelayToPull(TimeDelayAdapter, NoBranchAdapter):
     """Delays/offsets the request time to a previous pull time.
 
     An illustrative example:
@@ -163,7 +163,7 @@ class DelayToPull(TimeOffsetAdapter, NoBranchAdapter):
         self.additional_offset = additional_delay
         self._pulls = []
 
-    def with_offset(self, time):
+    def with_delay(self, time):
         if len(self._pulls) == 0:
             self._pulls.append(self.initial_time)
 

@@ -400,11 +400,11 @@ class NoDependencyAdapter:
     """Interface to mark adapters as breaking time dependencies between components."""
 
 
-class ITimeOffsetAdapter(ABC):
+class ITimeDelayAdapter(ABC):
     """Interface for adapters that manipulate the request time."""
 
     @abstractmethod
-    def with_offset(self, time):
+    def with_delay(self, time):
         """Get the manipulated time for a given request time.
 
         Parameters

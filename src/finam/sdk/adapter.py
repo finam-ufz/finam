@@ -9,7 +9,7 @@ from typing import final
 from ..data import tools
 from ..data.tools import Info
 from ..errors import FinamLogError, FinamMetaDataError, FinamTimeError
-from ..interfaces import IAdapter, IOutput, ITimeOffsetAdapter
+from ..interfaces import IAdapter, IOutput, ITimeDelayAdapter
 from ..tools.log_helper import ErrorLogger, is_loggable
 from .input import Input
 from .output import Output
@@ -281,7 +281,7 @@ class Adapter(IAdapter, Input, Output, ABC):
         return ".".join(([base_logger.name, " >> ", self.name]))
 
 
-class TimeOffsetAdapter(Adapter, ITimeOffsetAdapter, ABC):
+class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
     """Base class for adapters that offset time to resolve dependency cycles."""
 
     def __init__(self):
@@ -310,7 +310,7 @@ class TimeOffsetAdapter(Adapter, ITimeOffsetAdapter, ABC):
             with ErrorLogger(self.logger):
                 raise FinamTimeError("Time must be of type datetime")
 
-        new_time = self.with_offset(time)
+        new_time = self.with_delay(time)
         data = self._get_data(new_time, target)
         name = self.get_source().name + "_" + self.name
 

@@ -39,7 +39,7 @@ Implementations of FINAM interfaces for component and adapter development.
     Input
     Output
     TimeComponent
-    TimeOffsetAdapter
+    TimeDelayAdapter
 
 Grids
 =====
@@ -99,7 +99,7 @@ Basic interfaces of the FINAM framework.
     Loggable
     NoBranchAdapter
     NoDependencyAdapter
-    ITimeOffsetAdapter
+    ITimeDelayAdapter
 
 Errors
 ======
@@ -162,7 +162,7 @@ from .interfaces import (
     IInput,
     IOutput,
     ITimeComponent,
-    ITimeOffsetAdapter,
+    ITimeDelayAdapter,
     Loggable,
     NoBranchAdapter,
     NoDependencyAdapter,
@@ -176,7 +176,7 @@ from .sdk import (
     Input,
     Output,
     TimeComponent,
-    TimeOffsetAdapter,
+    TimeDelayAdapter,
 )
 
 try:
@@ -198,14 +198,14 @@ __all__ += [
     "Loggable",
     "NoBranchAdapter",
     "NoDependencyAdapter",
-    "ITimeOffsetAdapter",
+    "ITimeDelayAdapter",
 ]
 __all__ += ["Composition"]
 __all__ += [
     "Adapter",
     "Component",
     "TimeComponent",
-    "TimeOffsetAdapter",
+    "TimeDelayAdapter",
     "CallbackInput",
     "CallbackOutput",
     "Input",

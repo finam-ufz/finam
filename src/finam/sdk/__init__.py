@@ -15,7 +15,7 @@ Software development kit
     :noindex: Input
     :noindex: Output
 """
-from .adapter import Adapter, TimeOffsetAdapter
+from .adapter import Adapter, TimeDelayAdapter
 from .component import Component, TimeComponent
 from .input import CallbackInput, Input
 from .output import CallbackOutput, Output
@@ -24,7 +24,7 @@ __all__ = [
     "Adapter",
     "Component",
     "TimeComponent",
-    "TimeOffsetAdapter",
+    "TimeDelayAdapter",
     "CallbackInput",
     "CallbackOutput",
     "Input",
