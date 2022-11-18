@@ -29,11 +29,11 @@ __all__ = [
 class DelayFixed(TimeDelayAdapter):
     """Delays/offsets the request time by subtracting a fixed offset.
 
-    Offset results that are located before the initial pull/request time are set to this time.
+    Delayed times that are located before the initial pull/request time are set to this time.
 
     An illustrative example:
     Component A has a step of 10 days.
-    The adapter has an offset of 11 days to guarantee data availability in B.
+    The adapter has a delay of 11 days to guarantee data availability in B.
 
     .. code-block:: Text
 
@@ -46,7 +46,7 @@ class DelayFixed(TimeDelayAdapter):
     ----------
 
     delay : datetime.timedelta
-        The offset duration to subtract from the request time.
+        The delay duration to subtract from the request time.
     """
 
     def __init__(self, delay):
@@ -56,10 +56,10 @@ class DelayFixed(TimeDelayAdapter):
             if not isinstance(delay, timedelta):
                 raise ValueError("Step must be of type timedelta")
 
-        self.offset = delay
+        self.delay = delay
 
     def with_delay(self, time):
-        off = time - self.offset
+        off = time - self.delay
         if off < self.initial_time:
             return self.initial_time
 
@@ -71,7 +71,7 @@ class DelayToPush(TimeDelayAdapter, NoDependencyAdapter):
     """Delays/offsets the request time to the last push time if out of range.
 
     An illustrative example:
-    The adapter offsets time to the last available push date.
+    The adapter delays time to the last available push date.
 
     .. code-block:: Text
 
@@ -80,7 +80,7 @@ class DelayToPush(TimeDelayAdapter, NoDependencyAdapter):
         |               |
         B  =O=O=O=O=O=O=O
 
-    However, if data for the requested time is available, time is not  modified:
+    However, if data for the requested time is available, time is not modified:
 
     .. code-block:: Text
 
@@ -130,7 +130,7 @@ class DelayToPull(TimeDelayAdapter, NoBranchAdapter):
     """Delays/offsets the request time to a previous pull time.
 
     An illustrative example:
-    With ``step=2``, the adapter offsets time by two past pulls:
+    With ``step=2``, the adapter delays time by two past pulls:
 
     .. code-block:: Text
 
@@ -139,7 +139,7 @@ class DelayToPull(TimeDelayAdapter, NoBranchAdapter):
         |            |
         B  =O=O=O=O=O=O=O
 
-    Offset can be fine-tuned ba using ``additional_offset`` (e.d. 2 days):
+    Delay can be fine-tuned ba using ``additional_offset`` (e.d. 2 days):
 
     .. code-block:: Text
 
@@ -152,15 +152,15 @@ class DelayToPull(TimeDelayAdapter, NoBranchAdapter):
     ----------
 
     steps : int, optional
-        The number of pulls to offset. Defaults to 1.
+        The number of pulls to delay. Defaults to 1.
     additional_delay : datetime.timedelta
-        Additional offset in time units. Defaults to no offset.
+        Additional delay in time units. Defaults to no delay.
     """
 
     def __init__(self, steps=1, additional_delay=timedelta(days=0)):
         super().__init__()
         self.steps = steps
-        self.additional_offset = additional_delay
+        self.additional_delay = additional_delay
         self._pulls = []
 
     def with_delay(self, time):
@@ -168,7 +168,7 @@ class DelayToPull(TimeDelayAdapter, NoBranchAdapter):
             self._pulls.append(self.initial_time)
 
         t = self._pulls[0]
-        off = t - self.additional_offset
+        off = t - self.additional_delay
         if off < self.initial_time:
             return self.initial_time
 

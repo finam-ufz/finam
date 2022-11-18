@@ -45,7 +45,7 @@ class TestDelayToPush(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-    def test_offset_to_push(self):
+    def test_delay_to_push(self):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0), None), 0.0)
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 0.0)
         self.source.update()
@@ -75,7 +75,7 @@ class TestDelayToPull(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-    def test_offset_to_push(self):
+    def test_delay_to_pull(self):
         for _ in range(10):
             self.source.update()
 
@@ -112,7 +112,7 @@ class TestDelayFixed(unittest.TestCase):
         self.source.connect()
         self.source.validate()
 
-    def test_fixed_offset(self):
+    def test_fixed_delay(self):
         data = self.adapter.get_data(datetime(2000, 1, 1), None)
         self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 1))
         self.assertEqual(tools.get_data(data), 0)
