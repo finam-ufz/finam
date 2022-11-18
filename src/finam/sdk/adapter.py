@@ -282,7 +282,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
 
 class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
-    """Base class for adapters that offset time to resolve dependency cycles."""
+    """Base class for adapters that delay/offset time to resolve dependency cycles."""
 
     def __init__(self):
         super().__init__()
