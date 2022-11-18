@@ -207,17 +207,20 @@ class Composition(Loggable):
         self._finalize_composition()
 
     def _update_recursive(self, module, chain=None, target_time=None):
-        chain = chain or []
+        chain = chain or {}
         if module in chain:
-            chain.append(module)
             with ErrorLogger(self.logger):
-                raise ValueError(
-                    f"Cyclic dependency: {' >> '.join([c.name for c in reversed(chain)])}. "
+                no_time = "-"
+                raise FinamTimeError(
+                    f"Cyclic dependency:\n"
+                    f"{module.name} >> "
+                    f"{' >> '.join([f'({t or no_time}) {c.name}' for c, t in reversed(chain.items())])}\n"
+                    f"(Deltas are time lags of upstream components)\n"
                     f"You may need to insert a NoDependencyAdapter or ITimeDelayAdapter subclass somewhere, "
                     f"or increase the adapter's delay."
                 )
 
-        chain.append(module)
+        chain[module] = None
 
         if isinstance(module, ITimeComponent):
             target_time = module.next_time
@@ -227,6 +230,7 @@ class Composition(Loggable):
         for dep, local_time in deps.items():
             if isinstance(dep, ITimeComponent):
                 if dep.time < local_time:
+                    chain[module] = local_time - dep.time
                     return self._update_recursive(dep, chain)
             else:
                 updated = self._update_recursive(dep, chain, local_time)

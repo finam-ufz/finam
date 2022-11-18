@@ -19,6 +19,7 @@ from finam import (
     Composition,
     FinamConnectError,
     FinamStatusError,
+    FinamTimeError,
     Info,
     Input,
     NoBranchAdapter,
@@ -676,6 +677,41 @@ class TestComposition(unittest.TestCase):
                 "C",  # Update C to 8
             ],
         )
+
+    def test_dependency_fail(self):
+        start = datetime(2000, 1, 1)
+        info = fm.Info(time=start, grid=fm.NoGrid())
+
+        updates = []
+
+        def lambda_component(inp, _t):
+            return {"Out": inp["In"] if inp else 0.0}
+
+        module1 = CallbackComponent(
+            inputs={"In": info},
+            outputs={"Out": info},
+            callback=lambda_component,
+            start=start,
+            step=timedelta(days=5),
+        )
+        module2 = CallbackComponent(
+            inputs={"In": info},
+            outputs={"Out": info},
+            callback=lambda_component,
+            start=start,
+            step=timedelta(days=8),
+            initial_pull=False,
+        )
+        composition = Composition([module1, module2])
+        composition.initialize()
+
+        module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
+        module2.outputs["Out"] >> Scale(1.0) >> module1.inputs["In"]
+
+        composition.connect()
+
+        with self.assertRaises(FinamTimeError):
+            composition.run(datetime(2000, 1, 2))
 
 
 if __name__ == "__main__":
