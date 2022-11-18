@@ -54,9 +54,9 @@ class CsvWriter(TimeComponent):
         Path to the output file.
     inputs : list of str
         List of input names that will be written to file.
-    start : datetime
+    start : :class:`datetime <datetime.datetime>`
         Starting time.
-    step : datetime.timedelta or dateutil.relativedelta.relativedelta
+    step : :class:`timedelta <datetime.timedelta>` or :class:`relativedelta <dateutil.relativedelta.relativedelta>`
         Time step.
     time_column : str
         Time column name. Default "time"

@@ -163,7 +163,7 @@ class Composition(Loggable):
 
         Parameters
         ----------
-        t_max : datetime.datatime or None, optional
+        t_max : :class:`datetime <datetime.datetime>` or None, optional
             Simulation time up to which to simulate.
             Should be ``None`` if no components with time are present.
         """

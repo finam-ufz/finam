@@ -47,7 +47,7 @@ class WeightedSum(Component):
     ----------
     inputs : list(str)
         Base input names; will create two inputs for each entry: "<name>" and "<name>_weight"
-    start : datetime.datetime
+    start : :class:`datetime <datetime.datetime>`
         Starting time, for initial data exchange
     grid : GridBase or None
         Expected input grid specification; tries to obtain grid specs from inputs if set to None

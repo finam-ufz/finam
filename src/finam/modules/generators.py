@@ -46,9 +46,9 @@ class CallbackGenerator(TimeComponent):
     ----------
     callbacks : dict of (str, tuple(callable, Info))
         Dict of tuples (callback, info). ``callback(time) -> data`` per output name, returning the generated data.
-    start : datetime.datatime
+    start : :class:`datetime <datetime.datetime>`
         Starting time.
-    step : datetime.timedelta or dateutil.relativedelta.relativedelta
+    step : :class:`timedelta <datetime.timedelta>` or :class:`relativedelta <dateutil.relativedelta.relativedelta>`
         Time step.
     """
 

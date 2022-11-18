@@ -75,7 +75,7 @@ class Output(IOutput, Loggable):
 
         Parameters
         ----------
-        target : Input
+        target : :class:`.IInput`
             The target to add.
         """
         self.logger.debug("add target")
@@ -113,7 +113,7 @@ class Output(IOutput, Loggable):
         ----------
         data : array_like
             Data set to push.
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time of the data set.
         """
         self.logger.debug("push data")
@@ -147,7 +147,7 @@ class Output(IOutput, Loggable):
 
         Parameters
         ----------
-        info : Info
+        info : :class:`.Info`
             Delivered data info
         """
         self.logger.debug("push info")
@@ -161,7 +161,7 @@ class Output(IOutput, Loggable):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time of the simulation.
         """
         self.logger.debug("notify targets")
@@ -177,9 +177,9 @@ class Output(IOutput, Loggable):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             simulation time to get the data for.
-        target : IInput or None
+        target : :class:`.IInput` or None
             Requesting end point of this pull.
 
         Returns
@@ -258,7 +258,7 @@ class Output(IOutput, Loggable):
 
         Parameters
         ----------
-        info : Info
+        info : :class:`.Info`
             Requested data info
 
         Returns
@@ -325,12 +325,12 @@ class Output(IOutput, Loggable):
 
         Parameters
         ----------
-        other : Input
+        other : :class:`.IInput` or :class:`.IAdapter`
             The adapter or input to add as target to this output.
 
         Returns
         -------
-        Output
+        :class:`.IOutput`
             The last element of the chain.
         """
         self.logger.debug("chain")
@@ -389,9 +389,9 @@ class CallbackOutput(Output):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time to get the data for.
-        target : IInput
+        target : :class:`.IInput`
             Requesting end point of this pull
 
         Returns

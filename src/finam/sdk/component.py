@@ -343,7 +343,7 @@ class Component(IComponent, Loggable, ABC):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             time for data pulls
         exchange_infos : dict of [str, Info]
             currently or newly available input data infos by input name
@@ -376,7 +376,7 @@ class Component(IComponent, Loggable, ABC):
 
         Returns
         -------
-        IInput or IOutput
+        :class:`.IInput` or :class:`.IOutput`
             The slot with the given name
 
         Raises
@@ -460,7 +460,7 @@ class IOList(collections.abc.Mapping):
 
     Parameters
     ----------
-    owner : IComponent
+    owner : :class:`.IComponent`
         The owning component of this IOList
     io_type : int, str, IOType
         IO type. Either "INPUT" or "OUTPUT".
@@ -490,11 +490,11 @@ class IOList(collections.abc.Mapping):
 
         Parameters
         ----------
-        io : Input or Output, optional
+        io : :class:`.IInput` or :class:`.IOutput`, optional
             IO object to add, by default None
         name : str, optional
             Name of the new IO object to add, by default None
-        info : Info, optional
+        info : :class:`.Info`, optional
             Info of the new IO object to add, by default None
         static : bool, optional
             Whether the new IO object in static, by default False
@@ -530,7 +530,7 @@ class IOList(collections.abc.Mapping):
 
         Parameters
         ----------
-        module : IComponent
+        module : :class:`.IComponent`
             Module holding the IOList.
 
         Raises

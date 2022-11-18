@@ -76,7 +76,7 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
         Name of the data.
     info : Info
         Info associated with the data.
-    time : datetime.datatime or None, optional
+    time : :class:`datetime <datetime.datetime>` or None, optional
         Timestamp for the data, by default None
     no_time_check : bool
         Skips the time check for xarray input data. Used internally in adapter outputs.
@@ -430,7 +430,7 @@ def full(value, name, info, time=None):
         Name of the data.
     info : Info
         Info associated with the data.
-    time : datetime.datatime or None, optional
+    time : :class:`datetime <datetime.datetime>` or None, optional
         Timestamp for the data, by default None
 
     Returns
@@ -454,7 +454,7 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
         Name of the data.
     info : Info
         Info associated with the data.
-    time : datetime.datatime or None, optional
+    time : :class:`datetime <datetime.datetime>` or None, optional
         Timestamp for the data, by default None
     ignore_time : bool
         Allows to ignore the time value; still checks presence of time

@@ -337,7 +337,7 @@ class ConnectHelper(Loggable):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             time for data pulls
         exchange_infos : dict
             currently or newly available input data infos by input name

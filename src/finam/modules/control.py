@@ -52,15 +52,15 @@ class TimeTrigger(TimeComponent):
 
     Parameters
     ----------
-    start : datetime.datetime
+    start : :class:`datetime <datetime.datetime>`
         Starting time. Can be ``None`` to retrieve it from linked components.
         See parameter ``start_from_input`` for details.
-    step : datetime.timedelta or dateutil.relativedelta.relativedelta
+    step : :class:`timedelta <datetime.timedelta>` or :class:`relativedelta <dateutil.relativedelta.relativedelta>`
         The component's time step
-    in_info : Info, optional
+    in_info : :class:`.Info`, optional
         Input info, optional. However, one of ``in_info`` or ``out_info`` must be given.
         ``time`` is ignored and can be set to ``None``.
-    out_info : Info, optional
+    out_info : :class:`.Info`, optional
         Output info, optional. However, one of ``in_info`` or ``out_info`` must be given.
         ``time`` is ignored and can be set to ``None``.
     start_from_input : bool, optional
@@ -197,11 +197,13 @@ class UserControl(TimeComponent):
 
         component.initialize()
 
+    .. |relativedelta| replace:: :class:`relativedelta <dateutil.relativedelta.relativedelta>`
+
     Parameters
     ----------
-    start : datetime.datetime
+    start : :class:`datetime <datetime.datetime>`
         Starting time. Can be ``None`` to retrieve it from linked components.
-    step : datetime.timedelta or dateutil.relativedelta.relativedelta, optional
+    step : :class:`timedelta <datetime.timedelta>` or |relativedelta|, optional
         The component's time step. Default 1 day.
     """
 

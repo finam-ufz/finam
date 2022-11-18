@@ -66,7 +66,7 @@ class Adapter(IAdapter, Input, Output, ABC):
         ----------
         data : array_like
             Data set to push.
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time of the data set.
         """
         self.logger.debug("push data")
@@ -82,7 +82,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
@@ -99,7 +99,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time of the simulation.
         """
         self.logger.debug("notify targets")
@@ -120,7 +120,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time of the notification.
         """
 
@@ -131,9 +131,9 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time to get the data for.
-        target : IInput
+        target : :class:`.IInput`
             Requesting end point of this pull.
 
         Returns
@@ -161,9 +161,9 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time to get the data for.
-        target : IInput
+        target : :class:`.IInput`
             Requesting end point of this pull.
 
         Returns
@@ -180,7 +180,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Parameters
         ----------
-        info : Info
+        info : :class:`.Info`
             Requested data info
 
         Returns
@@ -204,7 +204,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Parameters
         ----------
-        info : Info
+        info : :class:`.Info`
             Requested data info
 
         Returns
@@ -224,7 +224,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Parameters
         ----------
-        info : Info
+        info : :class:`.Info`
             request parameters
 
         Returns
@@ -295,9 +295,9 @@ class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time to get the data for.
-        target : IInput
+        target : :class:`.IInput`
             Requesting end point of this pull.
 
         Returns
@@ -326,7 +326,7 @@ class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
 
         Parameters
         ----------
-        time : datetime
+        time : :class:`datetime <datetime.datetime>`
             simulation time to get the data for.
 
         Returns
@@ -348,7 +348,7 @@ class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
         Parameters
         ----------
 
-        time : datetime.datetime
+        time : :class:`datetime <datetime.datetime>`
             The original (requested) time of the current pull.
         """
 
@@ -357,7 +357,7 @@ class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
 
         Parameters
         ----------
-        info : Info
+        info : :class:`.Info`
             Requested data info
 
         Returns

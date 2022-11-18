@@ -58,9 +58,9 @@ class CallbackComponent(TimeComponent):
         Output names and data info.
     callback
         Callback f({inputs}, time) -> {outputs}
-    start : datetime.datatime
+    start : :class:`datetime <datetime.datetime>`
         Start date and time
-    step : datetime.timedelta or dateutil.relativedelta.relativedelta
+    step : :class:`timedelta <datetime.timedelta>` or :class:`relativedelta <dateutil.relativedelta.relativedelta>`
         Time step
     """
 

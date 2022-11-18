@@ -55,9 +55,9 @@ class DebugConsumer(TimeComponent):
         Dictionary of input names and infos.
     callbacks : dict[str, callable]
         Dictionary of optional input callbacks: callable(name, data, time).
-    start : datetime.datetime
+    start : :class:`datetime <datetime.datetime>`
         Starting time
-    step : datetime.timedelta or dateutil.relativedelta.relativedelta
+    step : :class:`timedelta <datetime.timedelta>` or :class:`relativedelta <dateutil.relativedelta.relativedelta>`
         Time step
     log_data : int or str or bool, optional
         Log level for printing received data, like "DEBUG" or "INFO".
@@ -306,12 +306,14 @@ class ScheduleLogger(Component):
 
         schedule.initialize()
 
+    .. |relativedelta| replace:: :class:`relativedelta <dateutil.relativedelta.relativedelta>`
+
     Parameters
     ----------
     inputs : dict of str, bool
         Input names and whether to pull data from them when notified.
         Pulling is useful for correct output behaviour when clearing the data cache.
-    time_step : datetime.timedelta or dateutil.relativedelta.relativedelta, optional
+    time_step : :class:`timedelta <datetime.timedelta>` or |relativedelta|, optional
         Time per character in the ASCII graph. Default 1 day.
     log_level : str or int, optional
         Log level for the ASCII graph. Default "INFO".

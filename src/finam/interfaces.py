@@ -162,7 +162,7 @@ class IInput(ABC):
 
         Parameters
         ----------
-        source :
+        source : :class:`.IOutput`
             source output or adapter
         """
 
@@ -172,7 +172,7 @@ class IInput(ABC):
 
         Returns
         -------
-        Output
+        :class:`.IOutput`
             The input's source.
         """
 
@@ -182,7 +182,7 @@ class IInput(ABC):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time of the notification.
         """
 
@@ -192,9 +192,9 @@ class IInput(ABC):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time to get the data for.
-        target : IInput or None
+        target : :class:`.IInput` or None
             Requesting end point of this pull.
 
         Returns
@@ -216,7 +216,7 @@ class IInput(ABC):
 
         Parameters
         ----------
-        info : Info
+        info : :class:`.Info`
             request parameters
 
         Returns
@@ -268,7 +268,7 @@ class IOutput(ABC):
 
         Parameters
         ----------
-        target : Input
+        target : :class:`.IInput`
             The target to add.
         """
 
@@ -289,7 +289,7 @@ class IOutput(ABC):
         Parameters
         ----------
 
-        source : IInput
+        source : :class:`.IInput`
             Pinging target end point
         """
 
@@ -303,7 +303,7 @@ class IOutput(ABC):
         ----------
         data : array_like
             Data set to push.
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time of the data set.
         """
 
@@ -313,7 +313,7 @@ class IOutput(ABC):
 
         Parameters
         ----------
-        info : Info
+        info : :class:`.Info`
             Delivered data info
         """
 
@@ -323,7 +323,7 @@ class IOutput(ABC):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time of the simulation.
         """
 
@@ -333,9 +333,9 @@ class IOutput(ABC):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time to get the data for.
-        target : IInput
+        target : :class:`.IInput`
             Requesting end point of this pull
 
         Returns
@@ -355,7 +355,7 @@ class IOutput(ABC):
 
         Parameters
         ----------
-        info : Info
+        info : :class:`.Info`
             Requested data info
 
         Returns
@@ -375,12 +375,12 @@ class IOutput(ABC):
 
         Parameters
         ----------
-        other : IInput or IAdapter
+        other : :class:`.IInput` or :class:`.IAdapter`
             The adapter or input to add as target to this output.
 
         Returns
         -------
-        Output
+        :class:`.IOutput`
             The last element of the chain.
         """
 
@@ -410,12 +410,12 @@ class ITimeDelayAdapter(ABC):
         Parameters
         ----------
 
-        time : datetime.datetime
+        time : :class:`datetime <datetime.datetime>`
             The original request time.
 
         Returns
         -------
 
-        datetime.datetime
+        :class:`datetime <datetime.datetime>`
             The time as manipulated by the adapter
         """

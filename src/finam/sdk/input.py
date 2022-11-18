@@ -53,7 +53,7 @@ class Input(IInput, Loggable):
 
         Parameters
         ----------
-        source :
+        source : :class:`.IOutput`
             source output or adapter
         """
         self.logger.debug("set source")
@@ -74,7 +74,7 @@ class Input(IInput, Loggable):
 
         Returns
         -------
-        Output
+        :class:`.IOutput`
             The input's source.
         """
         return self.source
@@ -84,7 +84,7 @@ class Input(IInput, Loggable):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
@@ -94,9 +94,9 @@ class Input(IInput, Loggable):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time to get the data for.
-        target : IInput or None
+        target : :class:`.IInput` or None
             Requesting end point of this pull.
             Should be ``None`` for normal input pulls in components.
             Simple adapters should forward the source in :meth:`.Adapter._get_data`.
@@ -150,7 +150,7 @@ class Input(IInput, Loggable):
 
         Parameters
         ----------
-        info : Info
+        info : :class:`.Info`
             request parameters
 
         Returns
@@ -242,7 +242,7 @@ class CallbackInput(Input):
 
         Parameters
         ----------
-        time : datetime.datatime
+        time : :class:`datetime <datetime.datetime>`
             Simulation time of the notification.
         """
         self.logger.debug("source changed")
