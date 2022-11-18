@@ -9,7 +9,7 @@ from typing import final
 from ..data import tools
 from ..data.tools import Info
 from ..errors import FinamLogError, FinamMetaDataError, FinamTimeError
-from ..interfaces import IAdapter, IOutput
+from ..interfaces import IAdapter, IOutput, ITimeDelayAdapter
 from ..tools.log_helper import ErrorLogger, is_loggable
 from .input import Input
 from .output import Output
@@ -124,7 +124,6 @@ class Adapter(IAdapter, Input, Output, ABC):
             Simulation time of the notification.
         """
 
-    @final
     def get_data(self, time, target):
         """Get the transformed data of this adapter.
 
@@ -176,7 +175,6 @@ class Adapter(IAdapter, Input, Output, ABC):
             f"Method `_get_data` must be implemented by all adapters, but implementation is missing in {self.name}."
         )
 
-    @final
     def get_info(self, info):
         """Exchange and get the output's data info.
 
@@ -281,3 +279,98 @@ class Adapter(IAdapter, Input, Output, ABC):
         """Logger name derived from source logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
         return ".".join(([base_logger.name, " >> ", self.name]))
+
+
+class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
+    """Base class for adapters that offset time to resolve dependency cycles."""
+
+    def __init__(self):
+        super().__init__()
+        self.initial_time = None
+
+    def get_data(self, time, target):
+        """Get the transformed data of this adapter.
+
+        Internally calls :meth:`._get_data`.
+
+        Parameters
+        ----------
+        time : datetime.datatime
+            Simulation time to get the data for.
+        target : IInput
+            Requesting end point of this pull.
+
+        Returns
+        -------
+        :class:`xarray.DataArray`
+            Transformed data-set for the requested time.
+        """
+        self.logger.debug("get data")
+        if time is not None and not isinstance(time, datetime):
+            with ErrorLogger(self.logger):
+                raise FinamTimeError("Time must be of type datetime")
+
+        new_time = self.with_delay(time)
+        data = self._get_data(new_time, target)
+        name = self.get_source().name + "_" + self.name
+
+        self._pulled(time)
+
+        with ErrorLogger(self.logger):
+            return tools.to_xarray(
+                data, name, self._output_info, new_time, no_time_check=True
+            )
+
+    def _get_data(self, time, target):
+        """Get the output's data-set for the given time.
+
+        Parameters
+        ----------
+        time : datetime
+            simulation time to get the data for.
+
+        Returns
+        -------
+        array_like
+            data-set for the requested time.
+        """
+        d = self.pull_data(time, target)
+        return d
+
+    def _pulled(self, time):
+        """This method is called during pulls, with the original pull time.
+
+        Can be overwritten to store the original pull time,
+        as in :meth:`._get_data()` only the manipulated time is available.
+
+        Called after :meth:`._get_data()` (i.e. after the actual pull).
+
+        Parameters
+        ----------
+
+        time : datetime.datetime
+            The original (requested) time of the current pull.
+        """
+
+    def get_info(self, info):
+        """Exchange and get the output's data info.
+
+        Parameters
+        ----------
+        info : Info
+            Requested data info
+
+        Returns
+        -------
+        dict
+            Delivered data info
+
+        Raises
+        ------
+        FinamNoDataError
+            Raises the error if no info is available
+        """
+        self.logger.debug("get info")
+        self._output_info = self._get_info(info)
+        self.initial_time = self._output_info.time
+        return self._output_info

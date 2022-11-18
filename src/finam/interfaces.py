@@ -394,3 +394,28 @@ class IAdapter(IInput, IOutput, ABC):
 
 class NoBranchAdapter:
     """Interface to mark adapters as allowing only a single end point."""
+
+
+class NoDependencyAdapter:
+    """Interface to mark adapters as breaking time dependencies between components."""
+
+
+class ITimeDelayAdapter(ABC):
+    """Interface for adapters that manipulate the request time."""
+
+    @abstractmethod
+    def with_delay(self, time):
+        """Get the manipulated time for a given request time.
+
+        Parameters
+        ----------
+
+        time : datetime.datetime
+            The original request time.
+
+        Returns
+        -------
+
+        datetime.datetime
+            The time as manipulated by the adapter
+        """

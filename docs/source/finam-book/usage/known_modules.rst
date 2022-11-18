@@ -75,12 +75,14 @@ Time adapters
 
 .. autosummary::
 
-    ExtrapolateTime
     IntegrateTime
     LinearTime
     NextTime
     PreviousTime
-    TimeCachingAdapter
+    StackTime
+    DelayFixed
+    DelayToPush
+    DelayToPull
 
 Provided by FINAM developers
 ----------------------------

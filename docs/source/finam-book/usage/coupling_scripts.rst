@@ -189,6 +189,33 @@ Or, in the short slot syntax:
     )
 
 
+Cyclic and bi-directional coupling
+----------------------------------
+
+FINAM allows for bi-directional and cyclic coupling.
+
+For acyclic coupling, the FINAM scheduler updates upstream components first
+to allow downstream components to pull data for the end of their next time step.
+With cyclic dependencies, this would result in an infinite loop.
+The scheduler detects these cases and exits with a respective message.
+
+To resolve cyclic dependencies, one of the models in the cycle must use data from the past (i.e. delayed).
+FINAM provides several adapters for this purpose:
+
+* :class:`.adapters.DelayFixed`
+* :class:`.adapters.DelayToPull`
+* :class:`.adapters.DelayToPush`
+
+The adapters are used on the inputs of the component that is intended to work with delayed data.
+
+For all except :class:`.adapters.DelayToPush`, the adapters must be parametrized with a sensible delay.
+Some rules of thumb for choosing the delay:
+
+* For components where one time step is an integral multiple of other one,
+  a delay equal to the larger step should be sufficient.
+* For components with no such time step ratio,
+  the sum of the (two largest) time steps should be sufficient.
+
 Logging
 -------
 

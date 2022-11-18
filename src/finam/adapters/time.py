@@ -2,57 +2,116 @@
 Adapters that deal with time, like temporal interpolation and integration.
 """
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam.interfaces import NoBranchAdapter
+from finam.interfaces import NoBranchAdapter, NoDependencyAdapter
 
 from ..data import tools as dtools
 from ..errors import FinamNoDataError, FinamTimeError
-from ..sdk import Adapter
+from ..sdk import Adapter, TimeDelayAdapter
 from ..tools.log_helper import ErrorLogger
 
 __all__ = [
-    "ExtrapolateTime",
     "NextTime",
     "PreviousTime",
     "LinearTime",
     "IntegrateTime",
     "StackTime",
+    "DelayFixed",
+    "DelayToPush",
+    "DelayToPull",
     "TimeCachingAdapter",
 ]
 
 
-class ExtrapolateTime(Adapter, NoBranchAdapter):
-    """Time extrapolation (nearest) to break circular dependencies.
+class DelayFixed(TimeDelayAdapter):
+    """Delays/offsets the request time by subtracting a fixed offset.
 
-    Examples
-    --------
+    Offset results that are located before the initial pull/request time are set to this time.
 
-    .. testcode:: constructor
+    An illustrative example:
+    Component A has a step of 10 days.
+    The adapter has an offset of 11 days to guarantee data availability in B.
 
-        import finam as fm
+    .. code-block:: Text
 
-        adapter = fm.adapters.ExtrapolateTime()
+        A  O=========O---------o
+        ^           .<---------'
+        |           V
+        B  =O=O=O=O=O
 
     Parameters
     ----------
-    last_pull : bool, optional
-        Use the last successful pull time instead of the last push time if out of range.
-        Defaults to ``False``.
-    force_last : bool, optional
-        Use the last successful pull time instead of the last push time even if in range.
-        Only used if ``last_pull`` is ``True``.
-        Defaults to ``True``.
+
+    delay : datetime.timedelta
+        The offset duration to subtract from the request time.
     """
 
-    def __init__(self, last_pull=False, force_last=True):
+    def __init__(self, delay):
+        super().__init__()
+
+        with ErrorLogger(self.logger):
+            if not isinstance(delay, timedelta):
+                raise ValueError("Step must be of type timedelta")
+
+        self.offset = delay
+
+    def with_delay(self, time):
+        off = time - self.offset
+        if off < self.initial_time:
+            return self.initial_time
+
+        return off
+
+
+# pylint: disable=too-many-ancestors
+class DelayToPush(TimeDelayAdapter, NoDependencyAdapter):
+    """Delays/offsets the request time to the last push time if out of range.
+
+    An illustrative example:
+    The adapter offsets time to the last available push date.
+
+    .. code-block:: Text
+
+        A  O=========O---------o
+        ^               .<-----'
+        |               |
+        B  =O=O=O=O=O=O=O
+
+    However, if data for the requested time is available, time is not  modified:
+
+    .. code-block:: Text
+
+        A  O=========O---------o
+        ^                      ^
+        |                      |
+        B  =O=O=O=O=O=O=O=O=O=O=O
+
+    If the requested time is before the last push, it is not modified.
+
+    .. note::
+        This adapters fully breaks dependency chains and loops.
+
+        It is recommended to use other subclasses of :class:`.ITimeDelayAdapter`,
+        e.g. :class:`.adapters.DelayFixed` or :class:`.adapters.DelayToPull`.
+        These adapters have a more consistent pull interval, and dependencies are still checked.
+
+    """
+
+    def __init__(self):
         super().__init__()
         self.push_time = None
-        self.pull_time = None
-        self._last_pull = last_pull
-        self._force_last = force_last
+
+    def with_delay(self, time):
+        if self.push_time is None:
+            return self.initial_time
+
+        if time > self.push_time:
+            return self.push_time
+
+        return time
 
     def _source_updated(self, time):
         """Informs the input that a new output is available.
@@ -64,8 +123,61 @@ class ExtrapolateTime(Adapter, NoBranchAdapter):
         """
         _check_time(self.logger, time)
         self.push_time = time
-        if self.pull_time is None:
-            self.pull_time = time
+
+
+# pylint: disable=too-many-ancestors
+class DelayToPull(TimeDelayAdapter, NoBranchAdapter):
+    """Delays/offsets the request time to a previous pull time.
+
+    An illustrative example:
+    With ``step=2``, the adapter offsets time by two past pulls:
+
+    .. code-block:: Text
+
+        A  O====O====O====O----o
+        ^            .<--------'
+        |            |
+        B  =O=O=O=O=O=O=O
+
+    Offset can be fine-tuned ba using ``additional_offset`` (e.d. 2 days):
+
+    .. code-block:: Text
+
+        A  O====O====O====O----o
+        ^          .<----------'
+        |          |
+        B  =O=O=O=O=O=O=O
+
+    Parameters
+    ----------
+
+    steps : int, optional
+        The number of pulls to offset. Defaults to 1.
+    additional_delay : datetime.timedelta
+        Additional offset in time units. Defaults to no offset.
+    """
+
+    def __init__(self, steps=1, additional_delay=timedelta(days=0)):
+        super().__init__()
+        self.steps = steps
+        self.additional_offset = additional_delay
+        self._pulls = []
+
+    def with_delay(self, time):
+        if len(self._pulls) == 0:
+            self._pulls.append(self.initial_time)
+
+        t = self._pulls[0]
+        off = t - self.additional_offset
+        if off < self.initial_time:
+            return self.initial_time
+
+        return off
+
+    def _pulled(self, time):
+        self._pulls.append(time)
+        while len(self._pulls) > self.steps:
+            self._pulls.pop(0)
 
     def _get_data(self, time, target):
         """Get the output's data-set for the given time.
@@ -80,28 +192,8 @@ class ExtrapolateTime(Adapter, NoBranchAdapter):
         array_like
             data-set for the requested time.
         """
-        _check_time(self.logger, time)
-
-        if self.data is None:
-            raise FinamNoDataError(f"No data available in {self.name}")
-
-        if self.push_time is None:
-            t = time
-            self.pull_time = time
-        else:
-            if time <= self.push_time:
-                if self._last_pull and self._force_last:
-                    t = self.pull_time
-                else:
-                    t = time
-            else:
-                if self._last_pull:
-                    t = self.pull_time
-                else:
-                    t = self.push_time
-                self.pull_time = time
-
-        return dtools.strip_data(self.pull_data(t, target))
+        d = self.pull_data(time, target)
+        return d
 
 
 class TimeCachingAdapter(Adapter, NoBranchAdapter, ABC):

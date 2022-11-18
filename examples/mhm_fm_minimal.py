@@ -54,7 +54,7 @@ if __name__ == "__main__":
         mhm.outputs["soil_water"]
         >> fm.adapters.IntegrateTime()
         >> fm.adapters.RegridLinear(fill_with_nearest=True)
-        >> fm.adapters.ExtrapolateTime()
+        >> fm.adapters.DelayToPush()
         >> formind.inputs["soil_water"]
     )
 
