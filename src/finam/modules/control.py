@@ -55,7 +55,7 @@ class TimeTrigger(TimeComponent):
     start : datetime.datetime
         Starting time. Can be ``None`` to retrieve it from linked components.
         See parameter ``start_from_input`` for details.
-    step : datetime.timedelta
+    step : datetime.timedelta or dateutil.relativedelta.relativedelta
         The component's time step
     in_info : Info, optional
         Input info, optional. However, one of ``in_info`` or ``out_info`` must be given.
@@ -201,7 +201,7 @@ class UserControl(TimeComponent):
     ----------
     start : datetime.datetime
         Starting time. Can be ``None`` to retrieve it from linked components.
-    step : datetime.timedelta, optional
+    step : datetime.timedelta or dateutil.relativedelta.relativedelta, optional
         The component's time step. Default 1 day.
     """
 

@@ -48,7 +48,7 @@ class CallbackGenerator(TimeComponent):
         Dict of tuples (callback, info). ``callback(time) -> data`` per output name, returning the generated data.
     start : datetime.datatime
         Starting time.
-    step : datetime.timedelta
+    step : datetime.timedelta or dateutil.relativedelta.relativedelta
         Time step.
     """
 

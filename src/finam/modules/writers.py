@@ -56,7 +56,7 @@ class CsvWriter(TimeComponent):
         List of input names that will be written to file.
     start : datetime
         Starting time.
-    step : datetime.timedelta
+    step : datetime.timedelta or dateutil.relativedelta.relativedelta
         Time step.
     time_column : str
         Time column name. Default "time"

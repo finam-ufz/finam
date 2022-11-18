@@ -60,7 +60,7 @@ class CallbackComponent(TimeComponent):
         Callback f({inputs}, time) -> {outputs}
     start : datetime.datatime
         Start date and time
-    step : datetime.timedelta
+    step : datetime.timedelta or dateutil.relativedelta.relativedelta
         Time step
     """
 

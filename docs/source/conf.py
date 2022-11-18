@@ -130,4 +130,5 @@ intersphinx_mapping = {
     "pint": ("https://pint.readthedocs.io/en/stable/", None),
     "pytest": ("https://docs.pytest.org/en/7.1.x/", None),
     "pyproj": ("https://pyproj4.github.io/pyproj/stable/", None),
+    "dateutil": ("https://dateutil.readthedocs.io/en/stable/", None),
 }
