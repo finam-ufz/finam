@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from ..data import tools
 from ..interfaces import ComponentStatus, IInput
 from ..sdk import CallbackInput, Component, TimeComponent
+from ..tools.date_helper import is_timedelta
 from ..tools.log_helper import ErrorLogger
 
 
@@ -56,7 +57,7 @@ class DebugConsumer(TimeComponent):
         Dictionary of optional input callbacks: callable(name, data, time).
     start : datetime.datetime
         Starting time
-    step : datetime.timedelta
+    step : datetime.timedelta or dateutil.relativedelta.relativedelta
         Time step
     log_data : int or str or bool, optional
         Log level for printing received data, like "DEBUG" or "INFO".
@@ -75,8 +76,8 @@ class DebugConsumer(TimeComponent):
         with ErrorLogger(self.logger):
             if not isinstance(start, datetime):
                 raise ValueError("Start must be of type datetime")
-            if not isinstance(step, timedelta):
-                raise ValueError("Step must be of type timedelta")
+            if not is_timedelta(step):
+                raise ValueError("Step must be of type timedelta or relativedelta")
 
         self._strip_data = strip_data
         self._log_data = None
@@ -310,7 +311,7 @@ class ScheduleLogger(Component):
     inputs : dict of str, bool
         Input names and whether to pull data from them when notified.
         Pulling is useful for correct output behaviour when clearing the data cache.
-    time_step : datetime.timedelta, optional
+    time_step : datetime.timedelta or dateutil.relativedelta.relativedelta, optional
         Time per character in the ASCII graph. Default 1 day.
     log_level : str or int, optional
         Log level for the ASCII graph. Default "INFO".

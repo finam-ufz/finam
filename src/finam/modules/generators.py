@@ -1,10 +1,11 @@
 """Generator definitions."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from finam.interfaces import ComponentStatus
 
 from ..sdk import Component, TimeComponent
+from ..tools.date_helper import is_timedelta
 from ..tools.log_helper import ErrorLogger
 
 
@@ -47,7 +48,7 @@ class CallbackGenerator(TimeComponent):
         Dict of tuples (callback, info). ``callback(time) -> data`` per output name, returning the generated data.
     start : datetime.datatime
         Starting time.
-    step : datetime.timedelta
+    step : datetime.timedelta or dateutil.relativedelta.relativedelta
         Time step.
     """
 
@@ -56,8 +57,8 @@ class CallbackGenerator(TimeComponent):
         with ErrorLogger(self.logger):
             if not isinstance(start, datetime):
                 raise ValueError("Start must be of type datetime")
-            if not isinstance(step, timedelta):
-                raise ValueError("Step must be of type timedelta")
+            if not is_timedelta(step):
+                raise ValueError("Step must be of type timedelta or relativedelta")
 
         self._callbacks = callbacks
         self._step = step
