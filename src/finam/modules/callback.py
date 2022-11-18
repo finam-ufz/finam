@@ -1,8 +1,9 @@
 """Generic component based on a callback."""
 
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from ..sdk import TimeComponent
+from ..tools.date_helper import is_timedelta
 from ..tools.log_helper import ErrorLogger
 
 __all__ = ["CallbackComponent"]
@@ -59,7 +60,7 @@ class CallbackComponent(TimeComponent):
         Callback f({inputs}, time) -> {outputs}
     start : datetime.datatime
         Start date and time
-    step : timedelta
+    step : datetime.timedelta
         Time step
     """
 
@@ -69,8 +70,8 @@ class CallbackComponent(TimeComponent):
         with ErrorLogger(self.logger):
             if not isinstance(start, datetime):
                 raise ValueError("Start must be of type datetime")
-            if not isinstance(step, timedelta):
-                raise ValueError("Step must be of type timedelta")
+            if not is_timedelta(step):
+                raise ValueError("Step must be of type timedelta or relativedelta")
 
         self._input_infos = inputs
         self._output_infos = outputs

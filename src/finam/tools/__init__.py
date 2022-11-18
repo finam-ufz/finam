@@ -13,6 +13,14 @@ Logging helper
     LogWriter
     is_loggable
 
+Datetime helper
+===============
+
+.. autosummary::
+   :toctree: generated
+
+    is_timedelta
+
 CWD helper
 ==========
 
@@ -43,6 +51,7 @@ Connect helper
 """
 from .connect_helper import ConnectHelper, FromInput, FromOutput, FromValue
 from .cwd_helper import execute_in_cwd, set_directory
+from .date_helper import is_timedelta
 from .enum_helper import get_enum_value
 from .log_helper import (
     ErrorLogger,
@@ -53,6 +62,7 @@ from .log_helper import (
 )
 
 __all__ = ["execute_in_cwd", "set_directory"]
+__all__ += ["is_timedelta"]
 __all__ += ["get_enum_value"]
 __all__ += [
     "ErrorLogger",

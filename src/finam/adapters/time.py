@@ -11,6 +11,7 @@ from finam.interfaces import NoBranchAdapter, NoDependencyAdapter
 from ..data import tools as dtools
 from ..errors import FinamNoDataError, FinamTimeError
 from ..sdk import Adapter, TimeDelayAdapter
+from ..tools.date_helper import is_timedelta
 from ..tools.log_helper import ErrorLogger
 
 __all__ = [
@@ -53,8 +54,8 @@ class DelayFixed(TimeDelayAdapter):
         super().__init__()
 
         with ErrorLogger(self.logger):
-            if not isinstance(delay, timedelta):
-                raise ValueError("Step must be of type timedelta")
+            if not is_timedelta(delay):
+                raise ValueError("Step must be of type timedelta or relativedelta")
 
         self.delay = delay
 

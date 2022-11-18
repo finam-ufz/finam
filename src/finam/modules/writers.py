@@ -1,7 +1,7 @@
 """
 Modules for writing data.
 """
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import numpy as np
 
@@ -9,6 +9,7 @@ from ..data import tools as dtools
 from ..data.grid_spec import NoGrid
 from ..interfaces import ComponentStatus
 from ..sdk import TimeComponent
+from ..tools.date_helper import is_timedelta
 from ..tools.log_helper import ErrorLogger
 
 
@@ -55,7 +56,7 @@ class CsvWriter(TimeComponent):
         List of input names that will be written to file.
     start : datetime
         Starting time.
-    step : timedelta
+    step : datetime.timedelta
         Time step.
     time_column : str
         Time column name. Default "time"
@@ -68,8 +69,8 @@ class CsvWriter(TimeComponent):
         with ErrorLogger(self.logger):
             if not isinstance(start, datetime):
                 raise ValueError("Start must be of type datetime")
-            if not isinstance(step, timedelta):
-                raise ValueError("Step must be of type timedelta")
+            if not is_timedelta(step):
+                raise ValueError("Step must be of type timedelta or relativedelta")
 
         self._path = path
         self._step = step

@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from ..data import tools
 from ..interfaces import ComponentStatus, IInput
 from ..sdk import CallbackInput, Component, TimeComponent
+from ..tools.date_helper import is_timedelta
 from ..tools.log_helper import ErrorLogger
 
 
@@ -75,8 +76,8 @@ class DebugConsumer(TimeComponent):
         with ErrorLogger(self.logger):
             if not isinstance(start, datetime):
                 raise ValueError("Start must be of type datetime")
-            if not isinstance(step, timedelta):
-                raise ValueError("Step must be of type timedelta")
+            if not is_timedelta(step):
+                raise ValueError("Step must be of type timedelta or relativedelta")
 
         self._strip_data = strip_data
         self._log_data = None
