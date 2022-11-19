@@ -462,20 +462,22 @@ def _find_dependencies(module, output_owners, target_time):
     deps = {}
     for _, inp in module.inputs.items():
         local_time = target_time
+        delayed = False
         while isinstance(inp, IInput):
             inp = inp.get_source()
             if isinstance(inp, NoDependencyAdapter):
                 break
             if isinstance(inp, ITimeDelayAdapter):
                 local_time = inp.with_delay(target_time)
+                delayed = True
 
         if not isinstance(inp, NoDependencyAdapter) and not inp.is_static:
             comp = output_owners[inp]
             if not isinstance(comp, ITimeComponent) or (
                 isinstance(comp, ITimeComponent) and comp.time < local_time
             ):
-                if comp not in deps or local_time > deps[comp]:
-                    deps[comp] = (local_time, local_time != target_time)
+                if comp not in deps or local_time > deps[comp][0]:
+                    deps[comp] = (local_time, delayed)
 
     return deps
 
