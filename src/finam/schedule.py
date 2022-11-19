@@ -210,12 +210,17 @@ class Composition(Loggable):
         chain = chain or {}
         if module in chain:
             with ErrorLogger(self.logger):
-                no_time = "-"
+                joined = " >> ".join(
+                    [
+                        f"({'*' if delayed else ''}{t or '-'}) {c.name}"
+                        for c, (t, delayed) in reversed(chain.items())
+                    ]
+                )
                 raise FinamTimeError(
                     f"Cyclic dependency:\n"
                     f"{module.name} >> "
-                    f"{' >> '.join([f'({t or no_time}) {c.name}' for c, t in reversed(chain.items())])}\n"
-                    f"(Deltas are time lags of upstream components)\n"
+                    f"{joined}\n"
+                    f"(Deltas are time lags of upstream components, * denotes delayed links)\n"
                     f"You may need to insert a NoDependencyAdapter or ITimeDelayAdapter subclass somewhere, "
                     f"or increase the adapter's delay."
                 )
@@ -227,10 +232,10 @@ class Composition(Loggable):
 
         deps = _find_dependencies(module, self.output_owners, target_time)
 
-        for dep, local_time in deps.items():
+        for dep, (local_time, delayed) in deps.items():
             if isinstance(dep, ITimeComponent):
                 if dep.time < local_time:
-                    chain[module] = local_time - dep.time
+                    chain[module] = (local_time - dep.time, delayed)
                     return self._update_recursive(dep, chain)
             else:
                 updated = self._update_recursive(dep, chain, local_time)
@@ -470,7 +475,7 @@ def _find_dependencies(module, output_owners, target_time):
                 isinstance(comp, ITimeComponent) and comp.time < local_time
             ):
                 if comp not in deps or local_time > deps[comp]:
-                    deps[comp] = local_time
+                    deps[comp] = (local_time, local_time != target_time)
 
     return deps
 
