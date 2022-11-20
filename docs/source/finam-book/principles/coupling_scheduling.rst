@@ -26,7 +26,7 @@ See chapter :doc:`../usage/coupling_scripts` for how to set up coupled models.
 
 The figure illustrates a few important aspects of coupling:
 
-* Cyclic/bi-directional linkage is possible
+* Circular/bi-directional linkage is possible
 * Adapters can be chained
 * Components can be linked directly when no adapter is required
 
@@ -95,9 +95,9 @@ Particularly for components with large time steps, it is also possible to integr
 E.g., component B could use the weighted average of the several steps B has performed since B's last updates.
 
 The update scheme explained so far only works if there are no cycles in the dependencies.
-In the case of cyclic or bi-directional coupling, one of the involved components must use data from the past, or extrapolate in time.
-FINAM provides dedicated adapters that resolve cyclic dependencies through delayed data usage or time extrapolation.
-This gives users full control over how cyclic dependencies are resolved.
+In the case of circular or bi-directional coupling, one of the involved components must use data from the past, or extrapolate in time.
+FINAM provides dedicated adapters that resolve circular dependencies through delayed data usage or time extrapolation.
+This gives users full control over how circular dependencies are resolved.
 
 Initialization
 --------------

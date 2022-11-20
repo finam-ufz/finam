@@ -217,7 +217,7 @@ class Composition(Loggable):
                     ]
                 )
                 raise FinamTimeError(
-                    f"Cyclic dependency:\n"
+                    f"Circular coupling can't be resolved:\n"
                     f"{module.name} >> "
                     f"{joined}\n"
                     f"(Deltas are time lags of upstream components, * denotes delayed links)\n"
