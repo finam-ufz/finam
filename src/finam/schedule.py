@@ -207,26 +207,35 @@ class Composition(Loggable):
         self._finalize_composition()
 
     def _update_recursive(self, module, chain=None, target_time=None):
-        chain = chain or []
+        chain = chain or {}
         if module in chain:
-            chain.append(module)
             with ErrorLogger(self.logger):
-                raise ValueError(
-                    f"Cyclic dependency: {' >> '.join([c.name for c in reversed(chain)])}. "
+                joined = " >> ".join(
+                    [
+                        f"({'*' if delayed else ''}{t or '-'}) {c.name}"
+                        for c, (t, delayed) in reversed(chain.items())
+                    ]
+                )
+                raise FinamTimeError(
+                    f"Cyclic dependency:\n"
+                    f"{module.name} >> "
+                    f"{joined}\n"
+                    f"(Deltas are time lags of upstream components, * denotes delayed links)\n"
                     f"You may need to insert a NoDependencyAdapter or ITimeDelayAdapter subclass somewhere, "
                     f"or increase the adapter's delay."
                 )
 
-        chain.append(module)
+        chain[module] = None
 
         if isinstance(module, ITimeComponent):
             target_time = module.next_time
 
         deps = _find_dependencies(module, self.output_owners, target_time)
 
-        for dep, local_time in deps.items():
+        for dep, (local_time, delayed) in deps.items():
             if isinstance(dep, ITimeComponent):
                 if dep.time < local_time:
+                    chain[module] = (local_time - dep.time, delayed)
                     return self._update_recursive(dep, chain)
             else:
                 updated = self._update_recursive(dep, chain, local_time)
@@ -453,20 +462,22 @@ def _find_dependencies(module, output_owners, target_time):
     deps = {}
     for _, inp in module.inputs.items():
         local_time = target_time
+        delayed = False
         while isinstance(inp, IInput):
             inp = inp.get_source()
             if isinstance(inp, NoDependencyAdapter):
                 break
             if isinstance(inp, ITimeDelayAdapter):
                 local_time = inp.with_delay(target_time)
+                delayed = True
 
         if not isinstance(inp, NoDependencyAdapter) and not inp.is_static:
             comp = output_owners[inp]
             if not isinstance(comp, ITimeComponent) or (
                 isinstance(comp, ITimeComponent) and comp.time < local_time
             ):
-                if comp not in deps or local_time > deps[comp]:
-                    deps[comp] = local_time
+                if comp not in deps or local_time > deps[comp][0]:
+                    deps[comp] = (local_time, delayed)
 
     return deps
 

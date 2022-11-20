@@ -62,9 +62,12 @@ class CallbackComponent(TimeComponent):
         Start date and time
     step : :class:`timedelta <datetime.timedelta>` or :class:`relativedelta <dateutil.relativedelta.relativedelta>`
         Time step
+    initial_pull : bool, optional
+        whether to pull initial data. The first call of the callback with have ``None`` for inputs of disabled.
+        Default ``True``.
     """
 
-    def __init__(self, inputs, outputs, callback, start, step):
+    def __init__(self, inputs, outputs, callback, start, step, initial_pull=True):
         super().__init__()
 
         with ErrorLogger(self.logger):
@@ -78,6 +81,7 @@ class CallbackComponent(TimeComponent):
         self._callback = callback
         self._step = step
         self._time = start
+        self._initial_pull = initial_pull
         self._data_generated = False
 
     @property
@@ -93,13 +97,19 @@ class CallbackComponent(TimeComponent):
             info.time = self.time
             self.outputs.add(name=name, info=info)
 
-        self.create_connector(pull_data=list(self._input_infos))
+        pull_data = list(self._input_infos) if self._initial_pull else {}
+
+        self.create_connector(pull_data=pull_data)
 
     def _connect(self):
         push_data = {}
         if not self._data_generated:
-            if self.connector.all_data_pulled:
-                push_data = self._callback(self.connector.in_data, self.time)
+            if self._initial_pull:
+                if self.connector.all_data_pulled:
+                    push_data = self._callback(self.connector.in_data, self.time)
+                    self._data_generated = True
+            else:
+                push_data = self._callback(None, self.time)
                 self._data_generated = True
 
         self.try_connect(self._time, push_data=push_data)
