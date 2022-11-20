@@ -17,7 +17,7 @@ Errors
 
 
 class FinamStatusError(Exception):
-    """Error for wrong status in Component."""
+    """Error for unexpected status in Components."""
 
 
 class FinamTimeError(Exception):
@@ -37,7 +37,7 @@ class FinamMetaDataError(Exception):
 
 
 class FinamDataError(Exception):
-    """Error for wrong data in FINAM."""
+    """Error for wrong data."""
 
 
 class FinamStaticDataError(Exception):
@@ -45,4 +45,8 @@ class FinamStaticDataError(Exception):
 
 
 class FinamConnectError(Exception):
-    """Error for wrong connection setup in FINAM."""
+    """Error for wrong connection setup."""
+
+
+class FinamCircularCouplingError(Exception):
+    """Error for unresolved circular or bidirectional coupling."""

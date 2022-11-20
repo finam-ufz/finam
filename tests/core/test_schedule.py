@@ -17,6 +17,7 @@ from finam import (
     Component,
     ComponentStatus,
     Composition,
+    FinamCircularCouplingError,
     FinamConnectError,
     FinamStatusError,
     FinamTimeError,
@@ -406,7 +407,7 @@ class TestComposition(unittest.TestCase):
         module1.outputs["Output"] >> module2.inputs["Input"]
         module2.outputs["Output"] >> module1.inputs["Input"]
 
-        with self.assertRaises(FinamStatusError):
+        with self.assertRaises(FinamCircularCouplingError):
             composition.run(t_max=datetime(2000, 1, 31))
 
     def test_no_time_comp(self):
@@ -710,7 +711,7 @@ class TestComposition(unittest.TestCase):
 
         composition.connect()
 
-        with self.assertRaises(FinamTimeError):
+        with self.assertRaises(FinamCircularCouplingError):
             composition.run(datetime(2000, 1, 2))
 
 
