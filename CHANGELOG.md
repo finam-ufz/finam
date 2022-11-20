@@ -5,6 +5,7 @@
 ### New scheduling algorithm
 
 * FINAM uses a new scheduling algorithm that allows components to use future data instead of only past/current (!157, !159)
+* New adapters to resolve circular coupling through the use of delayed data (!187)
 * It is now possible to set up static couplings that run only once and have no explicit time or stepping (!166)
 
 ### Data and metadata rework
@@ -18,6 +19,7 @@
 * `IInput`, `IOutput` and `IAdapter` have new internally used properties `needs_push` and `needs_pull` (!112)
 * `to_xarray` now checks the data shape if the data is not flat (!130)
 * Outputs can be flagged `static` for data that is only used during initialization, or that is constant (!166)
+* Inputs can be flagged `static` for constant data (!171)
 
 ### Components
 
@@ -26,6 +28,13 @@
 * Add `modules.TimeTrigger` to forward data from pull-based to push-based components (!131)
 * Add `modules.ScheduleLogger` to visualize scheduling/module updates through ASCII charts (!160)
 * Add `modules.DebugPushConsumer` as a push-based variant of the debug consumer (!165)
+* Add `modules.UserControl` that lets users control FINAM runs from the terminal (!184)
+* `modules.DebugConsumer` and `modules.DebugPushConsumer` can use optional callbacks for better debugging (!176)
+
+### Adapters
+
+* Add `adapters.Histogram` to extract a histogram from grid values (!182)
+* Add `adapters.DelayFixed`, `adapters.DelayToPull` and `adapters.DelayToPush` to resolve circular coupling through the use of delayed data (!187)
 
 ### Other
 
