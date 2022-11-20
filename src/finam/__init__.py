@@ -110,6 +110,7 @@ FINAM-specific error types.
    :toctree: generated
    :caption: Errors
 
+    FinamCircularCouplingError
     FinamConnectError
     FinamDataError
     FinamLogError
@@ -146,6 +147,7 @@ from .data.grid_spec import (
 from .data.grid_tools import CellType, Location
 from .data.tools import UNITS, Info
 from .errors import (
+    FinamCircularCouplingError,
     FinamConnectError,
     FinamDataError,
     FinamLogError,
@@ -222,6 +224,7 @@ __all__ += [
 __all__ += ["CellType", "Location"]
 __all__ += ["UNITS", "Info"]
 __all__ += [
+    "FinamCircularCouplingError",
     "FinamConnectError",
     "FinamDataError",
     "FinamLogError",

@@ -15,7 +15,12 @@ import time
 from datetime import datetime
 from pathlib import Path
 
-from .errors import FinamConnectError, FinamStatusError, FinamTimeError
+from .errors import (
+    FinamCircularCouplingError,
+    FinamConnectError,
+    FinamStatusError,
+    FinamTimeError,
+)
 from .interfaces import (
     ComponentStatus,
     IComponent,
@@ -216,8 +221,8 @@ class Composition(Loggable):
                         for c, (t, delayed) in reversed(chain.items())
                     ]
                 )
-                raise FinamTimeError(
-                    f"Circular coupling can't be resolved:\n"
+                raise FinamCircularCouplingError(
+                    f"Unresolved circular coupling:\n"
                     f"{module.name} >> "
                     f"{joined}\n"
                     f"(Deltas are time lags of upstream components, * denotes delayed links)\n"
@@ -303,8 +308,8 @@ class Composition(Loggable):
                     if m.status != ComponentStatus.CONNECTED
                 ]
                 with ErrorLogger(self.logger):
-                    raise FinamStatusError(
-                        f"Circular dependency during initial connect. "
+                    raise FinamCircularCouplingError(
+                        f"Unresolved circular coupling during initial connect. "
                         f"Unconnected components: [{', '.join(unconn)}]"
                     )
 
