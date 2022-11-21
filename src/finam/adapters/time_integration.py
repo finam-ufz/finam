@@ -59,6 +59,30 @@ class TimeIntegrationAdapter(TimeCachingAdapter, ABC):
 class AvgOverTime(TimeIntegrationAdapter):
     """Aggregates data over time to form the temporal average over the last pull time step.
 
+    Can use step-wise or linear interpolation between push time steps.
+
+    .. code-block:: Text
+
+        linear (step=None)
+           .o.         .o
+          /   \\       /
+        o'     'o---o'
+
+        step=0.0
+        +---o       +---o
+        |   |       |
+        o   +---o---o
+
+        step=0.5
+          +-o-+       +-o
+          |   |       |
+        o-+   +-o---o-+
+
+        step=1.0
+            o---+       o
+            |   |       |
+        o---+   o---o---+
+
     Examples
     --------
 
@@ -73,12 +97,13 @@ class AvgOverTime(TimeIntegrationAdapter):
 
     step : float, optional
         Value in range [0, 1] that determines the relative step position.
+
         Linear interpolation is used if set to ``None`` (the default).
 
-        For a value of 0.0, the new value is returned for any dt > 0.0.
-        For a value of 1.0, the old value is returned for any dt <= 1.0.
-        Values between 0.0 and 1.0 shift the step between the first and the second time.
-        A value of 0.5 results in nearest interpolation.
+        * For a value of 0.0, the new value is returned for any dt > 0.0.
+        * For a value of 1.0, the old value is returned for any dt <= 1.0.
+        * Values between 0.0 and 1.0 shift the step between the first and the second time.
+        * A value of 0.5 results in nearest interpolation.
     """
 
     def __init__(self, step=None):
@@ -132,7 +157,31 @@ class AvgOverTime(TimeIntegrationAdapter):
 
 # pylint: disable=too-many-ancestors
 class SumOverTime(TimeIntegrationAdapter):
-    """Aggregates data over time to form the temporal sum over the last pull time step.
+    """Aggregates data over time to form the temporal sum (area under curve) over the last pull time step.
+
+    Can use step-wise or linear interpolation between push time steps.
+
+    .. code-block:: Text
+
+        linear (step=None)
+           .o.         .o
+          /   \\       /
+        o'     'o---o'
+
+        step=0.0
+        +---o       +---o
+        |   |       |
+        o   +---o---o
+
+        step=0.5
+          +-o-+       +-o
+          |   |       |
+        o-+   +-o---o-+
+
+        step=1.0
+            o---+       o
+            |   |       |
+        o---+   o---o---+
 
     Examples
     --------
@@ -152,10 +201,10 @@ class SumOverTime(TimeIntegrationAdapter):
 
         Linear interpolation is used if set to ``None``.
 
-        For a value of 0.0, the new value is returned for any dt > 0.0.
-        For a value of 1.0, the old value is returned for any dt <= 1.0.
-        Values between 0.0 and 1.0 shift the step between the first and the second time.
-        A value of 0.5 results in nearest interpolation.
+        * For a value of 0.0, the new value is returned for any dt > 0.0.
+        * For a value of 1.0, the old value is returned for any dt <= 1.0.
+        * Values between 0.0 and 1.0 shift the step between the first and the second time.
+        * A value of 0.5 results in nearest interpolation.
     per_time : bool, optional
         Whether the input data is time-normalized.
 

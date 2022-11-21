@@ -467,10 +467,11 @@ def interpolate_step(old_value, new_value, dt, step):
         Time step between values.
     step : float
         Value in range [0, 1] that determines the relative step position.
-        For a value of 0.0, the new value is returned for any dt > 0.0.
-        For a value of 1.0, the old value is returned for any dt <= 1.0.
-        Values between 0.0 and 1.0 shift the step between the first and the second time.
-        A value of 0.5 results in nearest interpolation.
+
+        * For a value of 0.0, the new value is returned for any dt > 0.0.
+        * For a value of 1.0, the old value is returned for any dt <= 1.0.
+        * Values between 0.0 and 1.0 shift the step between the first and the second time.
+        * A value of 0.5 results in nearest interpolation.
 
     Returns
     -------
