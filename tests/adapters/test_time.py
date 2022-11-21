@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import pint
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_allclose, assert_array_equal
 
 import finam as fm
 from finam import FinamTimeError, Info, NoGrid, UniformGrid
@@ -18,11 +18,11 @@ from finam.adapters.time import (
     IntegrateTime,
     LinearTime,
     NextTime,
-    StepTime,
     PreviousTime,
     StackTime,
-    _interpolate,
-    _interpolate_step,
+    StepTime,
+    interpolate,
+    interpolate_step,
 )
 from finam.modules import CallbackGenerator, DebugConsumer
 
@@ -224,17 +224,17 @@ class TestPreviousValue(unittest.TestCase):
 
 class TestInterpolation(unittest.TestCase):
     def test_linear(self):
-        self.assertEqual(_interpolate(0.0, 10.0, 0.0), 0.0)
-        self.assertEqual(_interpolate(0.0, 10.0, 1.0), 10.0)
-        self.assertEqual(_interpolate(0.0, 10.0, 0.1), 1.0)
+        self.assertEqual(interpolate(0.0, 10.0, 0.0), 0.0)
+        self.assertEqual(interpolate(0.0, 10.0, 1.0), 10.0)
+        self.assertEqual(interpolate(0.0, 10.0, 0.1), 1.0)
 
     def test_step(self):
-        self.assertEqual(_interpolate_step(0.0, 10.0, 0.0, 0.3), 0.0)
-        self.assertEqual(_interpolate_step(0.0, 10.0, 1.0, 0.3), 10.0)
-        self.assertEqual(_interpolate_step(0.0, 10.0, 0.1, 0.3), 0.0)
-        self.assertEqual(_interpolate_step(0.0, 10.0, 0.3, 0.3), 0.0)
-        self.assertEqual(_interpolate_step(0.0, 10.0, 0.31, 0.3), 10.0)
-        self.assertEqual(_interpolate_step(0.0, 10.0, 1.0, 0.3), 10.0)
+        self.assertEqual(interpolate_step(0.0, 10.0, 0.0, 0.3), 0.0)
+        self.assertEqual(interpolate_step(0.0, 10.0, 1.0, 0.3), 10.0)
+        self.assertEqual(interpolate_step(0.0, 10.0, 0.1, 0.3), 0.0)
+        self.assertEqual(interpolate_step(0.0, 10.0, 0.3, 0.3), 0.0)
+        self.assertEqual(interpolate_step(0.0, 10.0, 0.31, 0.3), 10.0)
+        self.assertEqual(interpolate_step(0.0, 10.0, 1.0, 0.3), 10.0)
 
 
 class TestStepInterpolation(unittest.TestCase):
@@ -421,6 +421,99 @@ class TestLinearIntegration(unittest.TestCase):
 
         with self.assertRaises(FinamTimeError):
             self.adapter.get_data(100, None)
+
+
+class TestLinearIntegrationSum(unittest.TestCase):
+    def setUp(self):
+
+        self.data = {
+            "In_lin": [],
+            "In_00": [],
+            "In_05": [],
+            "In_10": [],
+        }
+
+        def callback(n, d, t):
+            self.data[n].append((t, d))
+
+        self.source = CallbackGenerator(
+            callbacks={
+                "Step": (
+                    lambda t: t.day * fm.UNITS.Unit("mm/d"),
+                    Info(None, grid=NoGrid(), units="mm/d"),
+                )
+            },
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+        self.adapter_lin = IntegrateTime(sum=True, initial_interval=timedelta(days=1))
+        self.adapter_00 = IntegrateTime(
+            step=0.0, sum=True, initial_interval=timedelta(days=1)
+        )
+        self.adapter_05 = IntegrateTime(
+            step=0.5, sum=True, initial_interval=timedelta(days=1)
+        )
+        self.adapter_10 = IntegrateTime(
+            step=1.0, sum=True, initial_interval=timedelta(days=1)
+        )
+
+        self.consumer = DebugConsumer(
+            inputs={
+                "In_lin": fm.Info(time=None, grid=NoGrid(), units="mm"),
+                "In_00": fm.Info(time=None, grid=NoGrid(), units="mm"),
+                "In_05": fm.Info(time=None, grid=NoGrid(), units="mm"),
+                "In_10": fm.Info(time=None, grid=NoGrid(), units="mm"),
+            },
+            callbacks={
+                "In_lin": callback,
+                "In_00": callback,
+                "In_05": callback,
+                "In_10": callback,
+            },
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=2),
+        )
+
+        self.comp = fm.Composition([self.source, self.consumer])
+        self.comp.initialize()
+
+        self.source["Step"] >> self.adapter_lin >> self.consumer["In_lin"]
+        self.source["Step"] >> self.adapter_00 >> self.consumer["In_00"]
+        self.source["Step"] >> self.adapter_05 >> self.consumer["In_05"]
+        self.source["Step"] >> self.adapter_10 >> self.consumer["In_10"]
+
+    def test_linear_integration_sum(self):
+        self.comp.run(t_max=datetime(2000, 1, 10))
+
+        mm = fm.UNITS.Unit("mm")
+
+        res = [d.item(0) for t, d in self.data["In_lin"]]
+        exp = [1 * mm, 4 * mm, 8 * mm, 12 * mm, 16 * mm, 20 * mm]
+
+        for r, e in zip(res, exp):
+            self.assertEqual(r.units, e.units)
+            self.assertAlmostEqual(r.magnitude, e.magnitude)
+
+        res = [d.item(0) for t, d in self.data["In_05"]]
+        exp = [1 * mm, 4 * mm, 8 * mm, 12 * mm, 16 * mm, 20 * mm]
+
+        for r, e in zip(res, exp):
+            self.assertEqual(r.units, e.units)
+            self.assertAlmostEqual(r.magnitude, e.magnitude)
+
+        res = [d.item(0) for t, d in self.data["In_00"]]
+        exp = [1 * mm, 5 * mm, 9 * mm, 13 * mm, 17 * mm, 21 * mm]
+
+        for r, e in zip(res, exp):
+            self.assertEqual(r.units, e.units)
+            self.assertAlmostEqual(r.magnitude, e.magnitude)
+
+        res = [d.item(0) for t, d in self.data["In_10"]]
+        exp = [1 * mm, 3 * mm, 7 * mm, 11 * mm, 15 * mm, 19 * mm]
+
+        for r, e in zip(res, exp):
+            self.assertEqual(r.units, e.units)
+            self.assertAlmostEqual(r.magnitude, e.magnitude)
 
 
 class TestLinearGridIntegration(unittest.TestCase):

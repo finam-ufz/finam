@@ -19,11 +19,15 @@ __all__ = [
     "PreviousTime",
     "LinearTime",
     "IntegrateTime",
+    "StepTime",
     "StackTime",
     "DelayFixed",
     "DelayToPush",
     "DelayToPull",
     "TimeCachingAdapter",
+    "check_time",
+    "interpolate",
+    "interpolate_step",
 ]
 
 
@@ -122,7 +126,7 @@ class DelayToPush(TimeDelayAdapter, NoDependencyAdapter):
         time : datetime
             Simulation time of the notification.
         """
-        _check_time(self.logger, time)
+        check_time(self.logger, time)
         self.push_time = time
 
 
@@ -216,7 +220,7 @@ class TimeCachingAdapter(Adapter, NoBranchAdapter, ABC):
         time : datetime
             Simulation time of the notification.
         """
-        _check_time(self.logger, time)
+        check_time(self.logger, time)
 
         data = dtools.strip_data(self.pull_data(time, self))
         self.data.append((time, data))
@@ -237,7 +241,7 @@ class TimeCachingAdapter(Adapter, NoBranchAdapter, ABC):
         if len(self.data) == 0:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
+        check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
 
         data = self._interpolate(time)
         self._clear_cached_data(time)
@@ -369,7 +373,7 @@ class LinearTime(TimeCachingAdapter):
 
             dt = (time - t_prev) / (t - t_prev)
 
-            result = _interpolate(data_prev, data, dt)
+            result = interpolate(data_prev, data, dt)
 
             return result
 
@@ -421,7 +425,7 @@ class StepTime(TimeCachingAdapter):
 
             dt = (time - t_prev) / (t - t_prev)
 
-            result = _interpolate_step(data_prev, data, dt, self.step)
+            result = interpolate_step(data_prev, data, dt, self.step)
 
             return result
 
@@ -447,9 +451,15 @@ class IntegrateTime(TimeCachingAdapter):
 
     """
 
-    def __init__(self):
+    def __init__(self, step=None, sum=False, norm=False, initial_interval=None):
         super().__init__()
-        self.prev_time = None
+        self._prev_time = None
+        self._step = step
+        self._sum = sum
+        self._norm = norm
+        self._initial_interval = initial_interval
+
+        self._info = None
 
     def _source_updated(self, time):
         """Informs the input that a new output is available.
@@ -459,13 +469,13 @@ class IntegrateTime(TimeCachingAdapter):
         time : datetime
             Simulation time of the notification.
         """
-        _check_time(self.logger, time)
+        check_time(self.logger, time)
 
         data = dtools.strip_data(self.pull_data(time, self))
         self.data.append((time, data))
 
-        if self.prev_time is None:
-            self.prev_time = time
+        if self._prev_time is None:
+            self._prev_time = time
 
     def _get_data(self, time, _target):
         """Get the output's data-set for the given time.
@@ -483,19 +493,30 @@ class IntegrateTime(TimeCachingAdapter):
         if len(self.data) == 0:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
+        check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
 
         sum_value = self._interpolate(time)
-        self._clear_cached_data(self.prev_time)
-        self.prev_time = time
+        self._clear_cached_data(self._prev_time)
+        self._prev_time = time
         return sum_value
 
     def _interpolate(self, time):
-
         if len(self.data) == 1:
+            if self._sum and not self._norm:
+                return (
+                    self.data[0][1]
+                    * self._initial_interval.total_seconds()
+                    * dtools.UNITS.Unit("s")
+                ).to_base_units()
             return self.data[0][1]
 
         if time <= self.data[0][0]:
+            if self._sum and not self._norm:
+                return (
+                    self.data[0][1]
+                    * self._initial_interval.total_seconds()
+                    * dtools.UNITS.Unit("s")
+                ).to_base_units()
             return self.data[0][1]
 
         sum_value = None
@@ -504,30 +525,55 @@ class IntegrateTime(TimeCachingAdapter):
             t_old, v_old = self.data[i]
             t_new, v_new = self.data[i + 1]
 
-            if self.prev_time >= t_new:
+            if self._prev_time >= t_new:
                 continue
             if time <= t_old:
                 break
 
-            scale = t_new - t_old
+            time_range = t_new - t_old
 
-            dt1 = max((self.prev_time - t_old) / scale, 0.0)
-            dt2 = min((time - t_old) / scale, 1.0)
+            dt1 = max((self._prev_time - t_old) / time_range, 0.0)
+            dt2 = min((time - t_old) / time_range, 1.0)
 
-            v1 = _interpolate(v_old, v_new, dt1)
-            v2 = _interpolate(v_old, v_new, dt2)
-            value = (dt2 - dt1) * scale.total_seconds() * 0.5 * (v1 + v2)
+            if self._step is None:
+                v1 = interpolate(v_old, v_new, dt1)
+                v2 = interpolate(v_old, v_new, dt2)
+                value = (dt2 - dt1) * 0.5 * (v1 + v2)
+            else:
+                dt1 = min(dt1, self._step)
+                dt2 = max(self._step, dt2)
+                value = (self._step - dt1) * v_old + (dt2 - self._step) * v_new
+
+            if not self._sum or not self._norm:
+                value *= time_range.total_seconds() * dtools.UNITS.Unit("s")
 
             sum_value = value if sum_value is None else sum_value + value
 
-        dt = time - self.prev_time
-        if dt.total_seconds() > 0:
-            sum_value /= dt.total_seconds()
+        dt = time - self._prev_time
+        if not self._sum:
+            if dt.total_seconds() > 0:
+                sum_value /= dt.total_seconds() * dtools.UNITS.Unit("s")
 
-        return sum_value
+        return sum_value.to_base_units()
+
+    def _get_info(self, info):
+        if self._sum and not self._norm:
+            up_info = info.copy_with(units=None)
+        else:
+            up_info = info.copy_with()
+
+        in_info = self.exchange_info(up_info)
+
+        units = dtools.UNITS.Unit(in_info.meta.get("units", ""))
+        if self._sum and not self._norm:
+            units *= dtools.UNITS.Unit("s")
+        out_info = in_info.copy_with(units=(1.0 * units).to_root_units().units)
+
+        self._info = out_info
+        return out_info
 
 
-def _interpolate(old_value, new_value, dt):
+def interpolate(old_value, new_value, dt):
     """Interpolate between old and new value.
 
     Parameters
@@ -547,7 +593,33 @@ def _interpolate(old_value, new_value, dt):
     return old_value + dt * (new_value - old_value)
 
 
-def _check_time(logger, time, time_range=(None, None)):
+def interpolate_step(old_value, new_value, dt, step):
+    """Interpolate step-wise between old and new value.
+
+    Parameters
+    ----------
+    old_value : array_like
+        Old value.
+    new_value : array_like
+        New value.
+    dt : float
+        Time step between values.
+    step : float
+        Value in range [0, 1] that determines the relative step position.
+        For a value of 0.0, the new value is returned for any dt > 0.0.
+        For a value of 1.0, the old value is returned for any dt <= 1.0.
+        Values between 0.0 and 1.0 shift the step between the first and the second time.
+        A value of 0.5 results in nearest interpolation.
+
+    Returns
+    -------
+    array_like
+        Interpolated value.
+    """
+    return new_value if dt > step else old_value
+
+
+def check_time(logger, time, time_range=(None, None)):
     """
     Checks time.
 
