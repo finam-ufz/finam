@@ -243,7 +243,7 @@ class SumOverTime(TimeIntegrationAdapter):
                     self.data[0][1]
                     * self._initial_interval.total_seconds()
                     * tools.UNITS.Unit("s")
-                ).to_base_units()
+                ).to_reduced_units()
 
             return self.data[0][1]
 
@@ -278,7 +278,7 @@ class SumOverTime(TimeIntegrationAdapter):
             sum_value = value if sum_value is None else sum_value + value
 
         if self._per_time:
-            return sum_value.to_base_units()
+            return sum_value.to_reduced_units()
 
         return sum_value
 
@@ -293,7 +293,7 @@ class SumOverTime(TimeIntegrationAdapter):
         units = tools.UNITS.Unit(in_info.meta.get("units", ""))
         if self._per_time:
             units *= tools.UNITS.Unit("s")
-            out_info = in_info.copy_with(units=(1.0 * units).to_root_units().units)
+            out_info = in_info.copy_with(units=(1.0 * units).to_reduced_units().units)
         else:
             out_info = in_info.copy_with()
 
