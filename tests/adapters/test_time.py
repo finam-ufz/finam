@@ -442,7 +442,7 @@ class TestLinearGridIntegration(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Grid"] >> self.adapter
-        self.adapter.get_info(Info(None, grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=grid))
 
         self.source.connect()
         self.source.connect()
@@ -500,7 +500,7 @@ class TestTimeStack(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Grid"] >> self.adapter
-        self.adapter.get_info(Info(None, grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=grid))
 
         self.source.connect()
         self.source.connect()
