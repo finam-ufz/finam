@@ -6,16 +6,14 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import pint
-from numpy.testing import assert_allclose, assert_array_equal
+from numpy.testing import assert_array_equal
 
-import finam as fm
 from finam import FinamTimeError, Info, NoGrid, UniformGrid
 from finam import data as tools
 from finam.adapters.time import (
     DelayFixed,
     DelayToPull,
     DelayToPush,
-    IntegrateTime,
     LinearTime,
     NextTime,
     PreviousTime,
@@ -24,7 +22,7 @@ from finam.adapters.time import (
     interpolate,
     interpolate_step,
 )
-from finam.modules import CallbackGenerator, DebugConsumer
+from finam.modules import CallbackGenerator
 
 reg = pint.UnitRegistry(force_ndarray_like=True)
 
@@ -370,205 +368,6 @@ class TestLinearGridInterpolation(unittest.TestCase):
 
         with self.assertRaises(FinamTimeError):
             self.adapter.get_data(datetime(2000, 1, 4, 0), None)
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(100, None)
-
-
-class TestLinearIntegration(unittest.TestCase):
-    def setUp(self):
-        self.source = CallbackGenerator(
-            callbacks={
-                "Step": (lambda t: t.day - 1, Info(None, grid=NoGrid(), units="m"))
-            },
-            start=datetime(2000, 1, 1),
-            step=timedelta(1.0),
-        )
-
-        self.adapter = IntegrateTime()
-
-        self.source.initialize()
-
-        self.source.outputs["Step"] >> self.adapter
-        self.adapter.get_info(Info(None, grid=NoGrid()))
-
-        self.source.connect()
-        self.source.connect()
-        self.source.validate()
-
-    def test_linear_integration(self):
-        self.source.update()
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12), None)),
-            0.25,
-        )
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0), None)),
-            0.75,
-        )
-        self.source.update()
-        self.source.update()
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 4, 0), None)),
-            2.0,
-        )
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 1, 0), None)
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 5, 0), None)
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(100, None)
-
-
-class TestLinearIntegrationSum(unittest.TestCase):
-    def setUp(self):
-
-        self.data = {
-            "In_lin": [],
-            "In_00": [],
-            "In_05": [],
-            "In_10": [],
-        }
-
-        def callback(n, d, t):
-            self.data[n].append((t, d))
-
-        self.source = CallbackGenerator(
-            callbacks={
-                "Step": (
-                    lambda t: t.day * fm.UNITS.Unit("mm/d"),
-                    Info(None, grid=NoGrid(), units="mm/d"),
-                )
-            },
-            start=datetime(2000, 1, 1),
-            step=timedelta(days=1),
-        )
-        self.adapter_lin = IntegrateTime(sum=True, initial_interval=timedelta(days=1))
-        self.adapter_00 = IntegrateTime(
-            step=0.0, sum=True, initial_interval=timedelta(days=1)
-        )
-        self.adapter_05 = IntegrateTime(
-            step=0.5, sum=True, initial_interval=timedelta(days=1)
-        )
-        self.adapter_10 = IntegrateTime(
-            step=1.0, sum=True, initial_interval=timedelta(days=1)
-        )
-
-        self.consumer = DebugConsumer(
-            inputs={
-                "In_lin": fm.Info(time=None, grid=NoGrid(), units="mm"),
-                "In_00": fm.Info(time=None, grid=NoGrid(), units="mm"),
-                "In_05": fm.Info(time=None, grid=NoGrid(), units="mm"),
-                "In_10": fm.Info(time=None, grid=NoGrid(), units="mm"),
-            },
-            callbacks={
-                "In_lin": callback,
-                "In_00": callback,
-                "In_05": callback,
-                "In_10": callback,
-            },
-            start=datetime(2000, 1, 1),
-            step=timedelta(days=2),
-        )
-
-        self.comp = fm.Composition([self.source, self.consumer])
-        self.comp.initialize()
-
-        self.source["Step"] >> self.adapter_lin >> self.consumer["In_lin"]
-        self.source["Step"] >> self.adapter_00 >> self.consumer["In_00"]
-        self.source["Step"] >> self.adapter_05 >> self.consumer["In_05"]
-        self.source["Step"] >> self.adapter_10 >> self.consumer["In_10"]
-
-    def test_linear_integration_sum(self):
-        self.comp.run(t_max=datetime(2000, 1, 10))
-
-        mm = fm.UNITS.Unit("mm")
-
-        res = [d.item(0) for t, d in self.data["In_lin"]]
-        exp = [1 * mm, 4 * mm, 8 * mm, 12 * mm, 16 * mm, 20 * mm]
-
-        for r, e in zip(res, exp):
-            self.assertEqual(r.units, e.units)
-            self.assertAlmostEqual(r.magnitude, e.magnitude)
-
-        res = [d.item(0) for t, d in self.data["In_05"]]
-        exp = [1 * mm, 4 * mm, 8 * mm, 12 * mm, 16 * mm, 20 * mm]
-
-        for r, e in zip(res, exp):
-            self.assertEqual(r.units, e.units)
-            self.assertAlmostEqual(r.magnitude, e.magnitude)
-
-        res = [d.item(0) for t, d in self.data["In_00"]]
-        exp = [1 * mm, 5 * mm, 9 * mm, 13 * mm, 17 * mm, 21 * mm]
-
-        for r, e in zip(res, exp):
-            self.assertEqual(r.units, e.units)
-            self.assertAlmostEqual(r.magnitude, e.magnitude)
-
-        res = [d.item(0) for t, d in self.data["In_10"]]
-        exp = [1 * mm, 3 * mm, 7 * mm, 11 * mm, 15 * mm, 19 * mm]
-
-        for r, e in zip(res, exp):
-            self.assertEqual(r.units, e.units)
-            self.assertAlmostEqual(r.magnitude, e.magnitude)
-
-
-class TestLinearGridIntegration(unittest.TestCase):
-    def setUp(self):
-        grid, _ = create_grid(10, 15, 0)
-        self.source = CallbackGenerator(
-            callbacks={
-                "Grid": (
-                    lambda t: create_grid(10, 15, t.day - 1)[1],
-                    Info(None, grid=grid),
-                )
-            },
-            start=datetime(2000, 1, 1),
-            step=timedelta(1.0),
-        )
-
-        self.adapter = IntegrateTime()
-
-        self.source.initialize()
-
-        self.source.outputs["Grid"] >> self.adapter
-        self.adapter.get_info(Info(None, grid=grid))
-
-        self.source.connect()
-        self.source.connect()
-        self.source.validate()
-
-    def test_linear_grid_integration(self):
-        self.source.update()
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12), None))[
-                0, 2, 3
-            ],
-            0.25,
-        )
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0), None))[
-                0, 2, 3
-            ],
-            0.75,
-        )
-        self.source.update()
-        self.source.update()
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 4, 0), None))[
-                0, 2, 3
-            ],
-            2.0,
-        )
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 1, 0), None)
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 5, 0), None)
 
         with self.assertRaises(FinamTimeError):
             self.adapter.get_data(100, None)

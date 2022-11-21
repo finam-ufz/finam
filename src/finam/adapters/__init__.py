@@ -46,12 +46,13 @@ Time adapters
 .. autosummary::
    :toctree: generated
 
-    IntegrateTime
     LinearTime
     NextTime
     PreviousTime
     StackTime
-    StepTimeTime
+    StepTime
+    AvgOverTime
+    SumOverTime
     DelayFixed
     DelayToPush
     DelayToPull
@@ -67,7 +68,6 @@ from .time import (
     DelayFixed,
     DelayToPull,
     DelayToPush,
-    IntegrateTime,
     LinearTime,
     NextTime,
     PreviousTime,
@@ -75,6 +75,7 @@ from .time import (
     StepTime,
     TimeCachingAdapter,
 )
+from .time_integration import AvgOverTime, SumOverTime
 
 __all__ = ["base", "probe", "regrid", "stats", "time"]
 __all__ += [
@@ -100,4 +101,8 @@ __all__ += [
     "DelayToPush",
     "DelayToPull",
     "TimeCachingAdapter",
+]
+__all__ += [
+    "AvgOverTime",
+    "SumOverTime",
 ]
