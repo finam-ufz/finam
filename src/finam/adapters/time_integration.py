@@ -208,12 +208,12 @@ class SumOverTime(TimeIntegrationAdapter):
     per_time : bool, optional
         Whether the input data is time-normalized.
 
-        Use ``True`` for input units like mm/d e.g. for precipitation.
+        Use ``True`` for input units like mm/d, e.g. for precipitation.
         Data per step is multiplied with step length, with time cancelling out:
         mm/d becomes mm.
 
         Use ``False`` for absolute amount, e.g. mm for the precipitation of the last time step.
-        Output will be the same as input units. Duration of time steps is not explicitly taken into account.
+        Output units will be the same as input units. Duration of time steps is not explicitly taken into account.
 
         Examples:
 
