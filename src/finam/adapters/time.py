@@ -379,6 +379,58 @@ class LinearTime(TimeCachingAdapter):
         )
 
 
+class StepTime(TimeCachingAdapter):
+    """Step-wise time interpolation.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.StepTime(step=0.0)
+
+    Parameters
+    ----------
+
+    step : float
+        Value in range [0, 1] that determines the relative step position.
+        For a value of 0.0, the new value is returned for any dt > 0.0.
+        For a value of 1.0, the old value is returned for any dt <= 1.0.
+        Values between 0.0 and 1.0 shift the step between the first and the second time.
+        A value of 0.5 results in nearest interpolation.
+    """
+
+    def __init__(self, step=0.5):
+        super().__init__()
+        self.step = step
+
+    def _interpolate(self, time):
+
+        if len(self.data) == 1:
+            return self.data[0][1]
+
+        for i, (t, data) in enumerate(self.data):
+            if time > t:
+                continue
+            if time == t:
+                return data
+
+            t_prev, data_prev = self.data[i - 1]
+
+            dt = (time - t_prev) / (t - t_prev)
+
+            result = _interpolate_step(data_prev, data, dt, self.step)
+
+            return result
+
+        raise FinamTimeError(
+            f"Time interpolation failed. This should not happen and is probably a bug. "
+            f"Time is {time}."
+        )
+
+
 class IntegrateTime(TimeCachingAdapter):
     """Time integration over the last time step of the requester.
 

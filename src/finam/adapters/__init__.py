@@ -51,6 +51,7 @@ Time adapters
     NextTime
     PreviousTime
     StackTime
+    StepTimeTime
     DelayFixed
     DelayToPush
     DelayToPull
@@ -71,6 +72,7 @@ from .time import (
     NextTime,
     PreviousTime,
     StackTime,
+    StepTime,
     TimeCachingAdapter,
 )
 
@@ -93,6 +95,7 @@ __all__ += [
     "LinearTime",
     "IntegrateTime",
     "StackTime",
+    "StepTime",
     "DelayFixed",
     "DelayToPush",
     "DelayToPull",
