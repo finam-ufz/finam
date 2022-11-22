@@ -60,6 +60,13 @@ class TimeIntegrationAdapter(TimeCachingAdapter, ABC):
 class AvgOverTime(TimeIntegrationAdapter):
     """Aggregates data over time to form the temporal average over the last pull time step.
 
+    Output is the average height of the Area under Curve (AuC)
+    between the last and the current pull (vertical lines):
+
+    .. plot:: api/plots/integration-methods.py
+
+        Illustration of time integration.
+
     Can use step-wise or linear interpolation between push time steps.
 
     .. plot:: api/plots/interpolation-methods.py
@@ -155,6 +162,12 @@ class AvgOverTime(TimeIntegrationAdapter):
 # pylint: disable=too-many-ancestors
 class SumOverTime(TimeIntegrationAdapter):
     """Aggregates data over time to form the temporal sum (area under curve) over the last pull time step.
+
+    Output is the Area under Curve (AuC) between the last and the current pull (vertical lines):
+
+    .. plot:: api/plots/integration-methods.py
+
+        Illustration of time integration.
 
     Can use step-wise or linear interpolation between push time steps.
 

@@ -21,4 +21,5 @@ ax.set_xticklabels([])
 legend = ax.legend(loc=1, framealpha=1.0)
 legend.set_zorder(100)
 
+plt.tight_layout()
 plt.show()

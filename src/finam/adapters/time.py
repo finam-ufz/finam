@@ -143,7 +143,7 @@ class DelayToPull(TimeDelayAdapter, NoBranchAdapter):
         |            |
         B  =O=O=O=O=O=O=O
 
-    Delay can be fine-tuned ba using ``additional_offset`` (e.d. 2 days):
+    Delay can be fine-tuned by using ``additional_offset`` (e.d. 2 days):
 
     .. code-block:: Text
 
@@ -346,6 +346,10 @@ class StackTime(TimeCachingAdapter):
 
 class LinearTime(TimeCachingAdapter):
     """Linear time interpolation.
+
+    .. plot:: api/plots/interpolation-methods.py
+
+        Illustration of interpolation methods.
 
     See also
     --------
