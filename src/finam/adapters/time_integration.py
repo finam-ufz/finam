@@ -140,9 +140,11 @@ class AvgOverTime(TimeIntegrationAdapter):
                 v2 = interpolate(v_old, v_new, dt2)
                 value = (dt2 - dt1) * 0.5 * (v1 + v2)
             else:
-                dt1 = min(dt1, self._step)
-                dt2 = max(self._step, dt2)
-                value = (self._step - dt1) * v_old + (dt2 - self._step) * v_new
+                dt1_c = min(dt1, self._step)
+                dt2_c = max(self._step, dt2)
+                value = (min(self._step, dt2) - dt1_c) * v_old + (
+                    dt2_c - max(self._step, dt1)
+                ) * v_new
 
             value *= time_range.total_seconds() * tools.UNITS.Unit("s")
 
@@ -268,9 +270,11 @@ class SumOverTime(TimeIntegrationAdapter):
                 v2 = interpolate(v_old, v_new, dt2)
                 value = (dt2 - dt1) * 0.5 * (v1 + v2)
             else:
-                dt1 = min(dt1, self._step)
-                dt2 = max(self._step, dt2)
-                value = (self._step - dt1) * v_old + (dt2 - self._step) * v_new
+                dt1_c = min(dt1, self._step)
+                dt2_c = max(self._step, dt2)
+                value = (min(self._step, dt2) - dt1_c) * v_old + (
+                    dt2_c - max(self._step, dt1)
+                ) * v_new
 
             if self._per_time:
                 value *= time_range.total_seconds() * tools.UNITS.Unit("s")
