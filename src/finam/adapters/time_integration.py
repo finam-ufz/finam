@@ -66,15 +66,6 @@ class AvgOverTime(TimeIntegrationAdapter):
 
         Illustration of interpolation methods.
 
-    Examples
-    --------
-
-    .. testcode:: constructor
-
-        import finam as fm
-
-        adapter = fm.adapters.AvgOverTime()
-
     Parameters
     ----------
 
@@ -87,6 +78,22 @@ class AvgOverTime(TimeIntegrationAdapter):
         * For a value of 1.0, the old value is returned for any dt <= 1.0.
         * Values between 0.0 and 1.0 shift the step between the first and the second time.
         * A value of 0.5 results in nearest interpolation.
+
+    See also
+    --------
+
+    .adapters.LinearTime : Linear time interpolation.
+    .adapters.StepTime : Step-wise time interpolation.
+    .adapters.SumOverTime : Sum aggregation over time.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.AvgOverTime()
     """
 
     def __init__(self, step=None):
@@ -155,15 +162,6 @@ class SumOverTime(TimeIntegrationAdapter):
 
         Illustration of interpolation methods.
 
-    Examples
-    --------
-
-    .. testcode:: constructor
-
-        import finam as fm
-
-        adapter = fm.adapters.SumOverTime()
-
     Parameters
     ----------
 
@@ -196,6 +194,22 @@ class SumOverTime(TimeIntegrationAdapter):
 
     initial_interval: :class:`datetime <datetime.datetime>`, optional
         Time scaling duration for the initial data. Defaults to 0 days.
+
+    See also
+    --------
+
+    .adapters.LinearTime : Linear time interpolation.
+    .adapters.StepTime : Step-wise time interpolation.
+    .adapters.AvgOverTime : Average aggregation over time.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.SumOverTime()
 
     """
 
