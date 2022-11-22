@@ -30,6 +30,7 @@ extensions = [
     "sphinx.ext.napoleon",  # parameters look better than with numpydoc only
     "numpydoc",
     "sphinxcontrib.mermaid",
+    "matplotlib.sphinxext.plot_directive",
     "ablog",
 ]
 
@@ -47,6 +48,7 @@ napoleon_use_ivar = True
 # keep "Other Parameters" section
 # https://github.com/sphinx-doc/sphinx/issues/10330
 napoleon_use_param = False
+
 # this is a nice class-doc layout
 numpydoc_show_class_members = True
 # class members have no separate file, so they are not in a toctree
@@ -55,6 +57,13 @@ numpydoc_class_members_toctree = False
 numpydoc_show_inherited_class_members = True
 # add refs to types also in parameter lists
 numpydoc_xref_param_type = True
+
+# Whether to show a link to the source in HTML (default: True).
+plot_html_show_source_link = False
+# Whether to show links to the files in HTML (default: True).
+plot_html_show_formats = False
+# File formats to generate.
+plot_formats = ["svg"]
 
 myst_enable_extensions = [
     "colon_fence",
