@@ -1,7 +1,7 @@
 """Parametric grid generator components"""
 import numpy as np
 
-from finam.data.grid_spec import NoGrid
+from finam.data.grid_spec import NoGrid, StructuredGrid
 from finam.data.grid_tools import Grid
 from finam.data.tools import Info
 from finam.errors import FinamMetaDataError
@@ -198,5 +198,8 @@ def _generate_grid(grid, time, cell_func):
     else:
         for i, p in enumerate(points):
             data[i] = cell_func(time, *p)
+
+    if isinstance(grid, StructuredGrid):
+        data = np.reshape(data, newshape=grid.data_shape, order=grid.order)
 
     return data
