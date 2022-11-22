@@ -1,6 +1,4 @@
 """Parametric grid generator components"""
-import datetime as dt
-
 import numpy as np
 
 from finam.data.grid_spec import NoGrid
@@ -14,6 +12,8 @@ from finam.tools import ErrorLogger
 
 class ParametricGrid(Component):
     """Pull-based parametric grid generator.
+
+    Generates grids with values filled from a function of time and cell coordinates.
 
     .. code-block:: text
 
@@ -32,7 +32,7 @@ class ParametricGrid(Component):
 
         component = fm.modules.ParametricGrid(
             info=fm.Info(time=None, grid=fm.UniformGrid((20, 15))),
-            function=lambda t, x, y: x * y,
+            func=lambda t, x, y: x * y,
         )
 
     .. testcode:: constructor
@@ -101,7 +101,9 @@ class ParametricGrid(Component):
 
 
 class StaticParametricGrid(Component):
-    """Pull-based static parametric grid generator.
+    """Static parametric grid generator.
+
+    Generates a grid with values filled from a function of cell coordinates.
 
     .. code-block:: text
 
@@ -120,7 +122,7 @@ class StaticParametricGrid(Component):
 
         component = fm.modules.StaticParametricGrid(
             info=fm.Info(time=None, grid=fm.UniformGrid((20, 15))),
-            function=lambda x, y: x * y,
+            func=lambda x, y: x * y,
         )
 
     .. testcode:: constructor
