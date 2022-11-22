@@ -38,6 +38,14 @@ ENUM helper
 
     get_enum_value
 
+Inspection helper
+=================
+
+.. autosummary::
+   :toctree: generated
+
+    inspect
+
 Connect helper
 ==============
 
@@ -53,6 +61,7 @@ from .connect_helper import ConnectHelper, FromInput, FromOutput, FromValue
 from .cwd_helper import execute_in_cwd, set_directory
 from .date_helper import is_timedelta
 from .enum_helper import get_enum_value
+from .inspect_helper import inspect
 from .log_helper import (
     ErrorLogger,
     LogCStdOutStdErr,
@@ -64,6 +73,7 @@ from .log_helper import (
 __all__ = ["execute_in_cwd", "set_directory"]
 __all__ += ["is_timedelta"]
 __all__ += ["get_enum_value"]
+__all__ += ["inspect"]
 __all__ += [
     "ErrorLogger",
     "is_loggable",
