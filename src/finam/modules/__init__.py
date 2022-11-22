@@ -17,9 +17,11 @@ Modules
     CsvWriter
     DebugConsumer
     DebugPushConsumer
+    ParametricGrid
     ScheduleLogger
     SimplexNoise
     StaticCallbackGenerator
+    StaticParametricGrid
     StaticSimplexNoise
     TimeTrigger
     UserControl
@@ -33,6 +35,7 @@ from .debug import DebugConsumer, DebugPushConsumer, ScheduleLogger
 from .generators import CallbackGenerator, StaticCallbackGenerator
 from .mergers import WeightedSum
 from .noise import SimplexNoise, StaticSimplexNoise
+from .parametric import ParametricGrid, StaticParametricGrid
 from .readers import CsvReader
 from .writers import CsvWriter
 
@@ -53,9 +56,11 @@ __all__ += [
     "CsvWriter",
     "DebugConsumer",
     "DebugPushConsumer",
+    "ParametricGrid",
     "ScheduleLogger",
     "SimplexNoise",
     "StaticCallbackGenerator",
+    "StaticParametricGrid",
     "StaticSimplexNoise",
     "TimeTrigger",
     "UserControl",

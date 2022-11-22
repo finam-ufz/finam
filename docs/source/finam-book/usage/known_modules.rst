@@ -21,8 +21,11 @@ Several components, primarily for testing and debugging, are provided in module 
     CsvWriter
     DebugConsumer
     DebugPushConsumer
+    ParametricGrid
     ScheduleLogger
     SimplexNoise
+    StaticCallbackGenerator
+    StaticParametricGrid
     StaticSimplexNoise
     TimeTrigger
     UserControl
