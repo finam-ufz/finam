@@ -3,7 +3,8 @@ from abc import ABC
 from datetime import timedelta
 
 from ..data import tools
-from ..errors import FinamNoDataError
+from ..errors import FinamNoDataError, FinamTimeError
+from ..tools.log_helper import ErrorLogger
 from .time import TimeCachingAdapter, check_time, interpolate
 
 
@@ -153,6 +154,11 @@ class AvgOverTime(TimeIntegrationAdapter):
         dt = time - self._prev_time
         if dt.total_seconds() > 0:
             sum_value /= dt.total_seconds() * tools.UNITS.Unit("s")
+        else:
+            with ErrorLogger(self.logger):
+                raise FinamTimeError(
+                    "Can't calculate average over zero-length time duration."
+                )
 
         return sum_value
 

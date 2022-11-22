@@ -17,7 +17,7 @@ reg = pint.UnitRegistry(force_ndarray_like=True)
 
 
 class TestAvgOverTime(unittest.TestCase):
-    def setUp(self):
+    def init(self, step):
         self.source = CallbackGenerator(
             callbacks={
                 "Step": (lambda t: t.day - 1, Info(None, grid=NoGrid(), units="m"))
@@ -26,7 +26,7 @@ class TestAvgOverTime(unittest.TestCase):
             step=timedelta(1.0),
         )
 
-        self.adapter = AvgOverTime()
+        self.adapter = AvgOverTime(step=step)
 
         self.source.initialize()
 
@@ -38,6 +38,8 @@ class TestAvgOverTime(unittest.TestCase):
         self.source.validate()
 
     def test_avg_over_time(self):
+        self.init(None)
+
         self.source.update()
         self.assertEqual(
             tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12), None)),
@@ -62,6 +64,27 @@ class TestAvgOverTime(unittest.TestCase):
 
         with self.assertRaises(FinamTimeError):
             self.adapter.get_data(100, None)
+
+    def test_avg_step_over_time(self):
+        self.init(0.25)
+
+        self.source.update()
+        self.source.update()
+
+        data = self.adapter.get_data(datetime(2000, 1, 1, 4), None)
+        self.assertAlmostEqual(tools.get_magnitude(data).item(), 0.0)
+
+        data = self.adapter.get_data(datetime(2000, 1, 1, 7), None)
+        self.assertAlmostEqual(tools.get_magnitude(data).item(), 1 / 3)
+
+        data = self.adapter.get_data(datetime(2000, 1, 1, 20), None)
+        self.assertAlmostEqual(tools.get_magnitude(data).item(), 1)
+
+        data = self.adapter.get_data(datetime(2000, 1, 2, 4), None)
+        self.assertAlmostEqual(tools.get_magnitude(data).item(), 1)
+
+        data = self.adapter.get_data(datetime(2000, 1, 2, 8), None)
+        self.assertAlmostEqual(tools.get_magnitude(data).item(), 1.5)
 
 
 class TestGridAvgOverTime(unittest.TestCase):
