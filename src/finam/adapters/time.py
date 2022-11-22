@@ -51,6 +51,13 @@ class DelayFixed(TimeDelayAdapter):
 
     delay : datetime.timedelta
         The delay duration to subtract from the request time.
+
+    See also
+    --------
+
+    .adapters.DelayToPull : Delays to use data from a previous pull.
+    .adapters.DelayToPush : Delays to use data from the last push.
+
     """
 
     def __init__(self, delay):
@@ -102,6 +109,11 @@ class DelayToPush(TimeDelayAdapter, NoDependencyAdapter):
         e.g. :class:`.adapters.DelayFixed` or :class:`.adapters.DelayToPull`.
         These adapters have a more consistent pull interval, and dependencies are still checked.
 
+    See also
+    --------
+
+    .adapters.DelayFixed : Delays to use data with a fixed offset.
+    .adapters.DelayToPull : Delays to use data from a previous pull.
     """
 
     def __init__(self):
@@ -159,6 +171,13 @@ class DelayToPull(TimeDelayAdapter, NoBranchAdapter):
         The number of pulls to delay. Defaults to 1.
     additional_delay : datetime.timedelta
         Additional delay in time units. Defaults to no delay.
+
+    See also
+    --------
+
+    .adapters.DelayFixed : Delays to use data with a fixed offset.
+    .adapters.DelayToPush : Delays to use data from the last push.
+
     """
 
     def __init__(self, steps=1, additional_delay=timedelta(days=0)):
