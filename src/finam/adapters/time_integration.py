@@ -62,27 +62,9 @@ class AvgOverTime(TimeIntegrationAdapter):
 
     Can use step-wise or linear interpolation between push time steps.
 
-    .. code-block:: Text
+    .. plot:: api/plots/interpolation-methods.py
 
-        linear (step=None)
-           .o.         .o
-          /   \\       /
-        o'     'o---o'
-
-        step=0.0
-        +---o       +---o
-        |   |       |
-        o   +---o---o
-
-        step=0.5
-          +-o-+       +-o
-          |   |       |
-        o-+   +-o---o-+
-
-        step=1.0
-            o---+       o
-            |   |       |
-        o---+   o---o---+
+        Illustration of interpolation methods.
 
     Examples
     --------
@@ -169,27 +151,9 @@ class SumOverTime(TimeIntegrationAdapter):
 
     Can use step-wise or linear interpolation between push time steps.
 
-    .. code-block:: Text
+    .. plot:: api/plots/interpolation-methods.py
 
-        linear (step=None)
-           .o.         .o
-          /   \\       /
-        o'     'o---o'
-
-        step=0.0
-        +---o       +---o
-        |   |       |
-        o   +---o---o
-
-        step=0.5
-          +-o-+       +-o
-          |   |       |
-        o-+   +-o---o-+
-
-        step=1.0
-            o---+       o
-            |   |       |
-        o---+   o---o---+
+        Illustration of interpolation methods.
 
     Examples
     --------

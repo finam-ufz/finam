@@ -385,6 +385,10 @@ class LinearTime(TimeCachingAdapter):
 class StepTime(TimeCachingAdapter):
     """Step-wise time interpolation.
 
+    .. plot:: api/plots/interpolation-methods.py
+
+        Illustration of interpolation methods.
+
     Examples
     --------
 
