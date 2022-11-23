@@ -276,19 +276,18 @@ class Output(IOutput, Loggable):
         if self._output_info is None:
             raise FinamNoDataError("No data info available")
 
-        if self._out_infos_exchanged > 0:
-            fail_info = {}
-            if not self._output_info.accepts(info, fail_info, ignore_none=True):
-                fail_info = "\n".join(
-                    [
-                        f"{name} - got {got}, expected {exp}"
-                        for name, (got, exp) in fail_info.items()
-                    ]
+        fail_info = {}
+        if not self._output_info.accepts(info, fail_info, ignore_none=True):
+            fail_info = "\n".join(
+                [
+                    f"{name} - got {got}, expected {exp}"
+                    for name, (got, exp) in fail_info.items()
+                ]
+            )
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError(
+                    f"Can't accept conflicting data infos. Failed entries:\n{fail_info}"
                 )
-                with ErrorLogger(self.logger):
-                    raise FinamMetaDataError(
-                        f"Can't accept multiple conflicting data infos. Failed entries:\n{fail_info}"
-                    )
 
         with ErrorLogger(self.logger):
             if self._output_info.grid is None:

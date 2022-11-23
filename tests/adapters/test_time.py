@@ -14,13 +14,15 @@ from finam.adapters.time import (
     DelayFixed,
     DelayToPull,
     DelayToPush,
-    IntegrateTime,
     LinearTime,
     NextTime,
     PreviousTime,
     StackTime,
+    StepTime,
+    interpolate,
+    interpolate_step,
 )
-from finam.modules.generators import CallbackGenerator
+from finam.modules import CallbackGenerator
 
 reg = pint.UnitRegistry(force_ndarray_like=True)
 
@@ -218,6 +220,54 @@ class TestPreviousValue(unittest.TestCase):
             self.adapter.get_data(100, None)
 
 
+class TestInterpolation(unittest.TestCase):
+    def test_linear(self):
+        self.assertEqual(interpolate(0.0, 10.0, 0.0), 0.0)
+        self.assertEqual(interpolate(0.0, 10.0, 1.0), 10.0)
+        self.assertEqual(interpolate(0.0, 10.0, 0.1), 1.0)
+
+    def test_step(self):
+        self.assertEqual(interpolate_step(0.0, 10.0, 0.0, 0.3), 0.0)
+        self.assertEqual(interpolate_step(0.0, 10.0, 1.0, 0.3), 10.0)
+        self.assertEqual(interpolate_step(0.0, 10.0, 0.1, 0.3), 0.0)
+        self.assertEqual(interpolate_step(0.0, 10.0, 0.3, 0.3), 0.0)
+        self.assertEqual(interpolate_step(0.0, 10.0, 0.31, 0.3), 10.0)
+        self.assertEqual(interpolate_step(0.0, 10.0, 1.0, 0.3), 10.0)
+
+
+class TestStepInterpolation(unittest.TestCase):
+    def setUp(self):
+        self.source = CallbackGenerator(
+            callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=10.0),
+        )
+
+        self.adapter = StepTime(step=0.3)
+
+        self.source.initialize()
+        self.source.outputs["Step"] >> self.adapter
+        self.adapter.get_info(Info(None, grid=NoGrid()))
+
+        self.source.connect()
+        self.source.connect()
+        self.source.validate()
+
+    def test_step_interpolation(self):
+        self.source.update()
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1, 0), None), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2, 0), None), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3, 0), None), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 4, 0), None), 0.0)
+        self.assertEqual(self.adapter.get_data(datetime(2000, 1, 5, 0), None), 10.0)
+
+        with self.assertRaises(FinamTimeError):
+            self.adapter.get_data(datetime(2000, 1, 12, 0), None)
+
+        with self.assertRaises(FinamTimeError):
+            self.adapter.get_data(100, None)
+
+
 class TestLinearInterpolation(unittest.TestCase):
     def setUp(self):
         self.source = CallbackGenerator(
@@ -323,112 +373,6 @@ class TestLinearGridInterpolation(unittest.TestCase):
             self.adapter.get_data(100, None)
 
 
-class TestLinearIntegration(unittest.TestCase):
-    def setUp(self):
-        self.source = CallbackGenerator(
-            callbacks={
-                "Step": (lambda t: t.day - 1, Info(None, grid=NoGrid(), units="m"))
-            },
-            start=datetime(2000, 1, 1),
-            step=timedelta(1.0),
-        )
-
-        self.adapter = IntegrateTime()
-
-        self.source.initialize()
-
-        self.source.outputs["Step"] >> self.adapter
-        self.adapter.get_info(Info(None, grid=NoGrid()))
-
-        self.source.connect()
-        self.source.connect()
-        self.source.validate()
-
-    def test_linear_integration(self):
-        self.source.update()
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12), None)),
-            0.25,
-        )
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0), None)),
-            0.75,
-        )
-        self.source.update()
-        self.source.update()
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 4, 0), None)),
-            2.0,
-        )
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 1, 0), None)
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 5, 0), None)
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(100, None)
-
-
-class TestLinearGridIntegration(unittest.TestCase):
-    def setUp(self):
-        grid, _ = create_grid(10, 15, 0)
-        self.source = CallbackGenerator(
-            callbacks={
-                "Grid": (
-                    lambda t: create_grid(10, 15, t.day - 1)[1],
-                    Info(None, grid=grid),
-                )
-            },
-            start=datetime(2000, 1, 1),
-            step=timedelta(1.0),
-        )
-
-        self.adapter = IntegrateTime()
-
-        self.source.initialize()
-
-        self.source.outputs["Grid"] >> self.adapter
-        self.adapter.get_info(Info(None, grid=NoGrid()))
-
-        self.source.connect()
-        self.source.connect()
-        self.source.validate()
-
-    def test_linear_grid_integration(self):
-        self.source.update()
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 1, 12), None))[
-                0, 2, 3
-            ],
-            0.25,
-        )
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 2, 0), None))[
-                0, 2, 3
-            ],
-            0.75,
-        )
-        self.source.update()
-        self.source.update()
-        self.assertEqual(
-            tools.get_magnitude(self.adapter.get_data(datetime(2000, 1, 4, 0), None))[
-                0, 2, 3
-            ],
-            2.0,
-        )
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 1, 0), None)
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(datetime(2000, 1, 5, 0), None)
-
-        with self.assertRaises(FinamTimeError):
-            self.adapter.get_data(100, None)
-
-
 class TestTimeStack(unittest.TestCase):
     def setUp(self):
         grid, _ = create_grid(10, 15, 0)
@@ -448,7 +392,7 @@ class TestTimeStack(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Grid"] >> self.adapter
-        self.adapter.get_info(Info(None, grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=grid))
 
         self.source.connect()
         self.source.connect()

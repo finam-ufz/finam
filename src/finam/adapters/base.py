@@ -144,7 +144,8 @@ class ValueToGrid(Adapter):
         ) * get_units(value)
 
     def _get_info(self, info):
-        in_info = self.exchange_info(info)
+        up_info = info.copy_with(grid=NoGrid())
+        in_info = self.exchange_info(up_info)
         out_info = in_info.copy_with(grid=self.grid or info.grid, use_none=False)
 
         if info.grid is not None and info.grid != out_info.grid:

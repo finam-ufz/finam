@@ -18,12 +18,15 @@ __all__ = [
     "NextTime",
     "PreviousTime",
     "LinearTime",
-    "IntegrateTime",
+    "StepTime",
     "StackTime",
     "DelayFixed",
     "DelayToPush",
     "DelayToPull",
     "TimeCachingAdapter",
+    "check_time",
+    "interpolate",
+    "interpolate_step",
 ]
 
 
@@ -122,7 +125,7 @@ class DelayToPush(TimeDelayAdapter, NoDependencyAdapter):
         time : datetime
             Simulation time of the notification.
         """
-        _check_time(self.logger, time)
+        check_time(self.logger, time)
         self.push_time = time
 
 
@@ -216,7 +219,7 @@ class TimeCachingAdapter(Adapter, NoBranchAdapter, ABC):
         time : datetime
             Simulation time of the notification.
         """
-        _check_time(self.logger, time)
+        check_time(self.logger, time)
 
         data = dtools.strip_data(self.pull_data(time, self))
         self.data.append((time, data))
@@ -237,7 +240,7 @@ class TimeCachingAdapter(Adapter, NoBranchAdapter, ABC):
         if len(self.data) == 0:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
+        check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
 
         data = self._interpolate(time)
         self._clear_cached_data(time)
@@ -369,7 +372,7 @@ class LinearTime(TimeCachingAdapter):
 
             dt = (time - t_prev) / (t - t_prev)
 
-            result = _interpolate(data_prev, data, dt)
+            result = interpolate(data_prev, data, dt)
 
             return result
 
@@ -379,10 +382,8 @@ class LinearTime(TimeCachingAdapter):
         )
 
 
-class IntegrateTime(TimeCachingAdapter):
-    """Time integration over the last time step of the requester.
-
-    Calculates the temporal average.
+class StepTime(TimeCachingAdapter):
+    """Step-wise time interpolation.
 
     Examples
     --------
@@ -391,91 +392,49 @@ class IntegrateTime(TimeCachingAdapter):
 
         import finam as fm
 
-        adapter = fm.adapters.IntegrateTime()
+        adapter = fm.adapters.StepTime(step=0.0)
 
+    Parameters
+    ----------
+
+    step : float
+        Value in range [0, 1] that determines the relative step position.
+        For a value of 0.0, the new value is returned for any dt > 0.0.
+        For a value of 1.0, the old value is returned for any dt <= 1.0.
+        Values between 0.0 and 1.0 shift the step between the first and the second time.
+        A value of 0.5 results in nearest interpolation.
     """
 
-    def __init__(self):
+    def __init__(self, step=0.5):
         super().__init__()
-        self.prev_time = None
-
-    def _source_updated(self, time):
-        """Informs the input that a new output is available.
-
-        Parameters
-        ----------
-        time : datetime
-            Simulation time of the notification.
-        """
-        _check_time(self.logger, time)
-
-        data = dtools.strip_data(self.pull_data(time, self))
-        self.data.append((time, data))
-
-        if self.prev_time is None:
-            self.prev_time = time
-
-    def _get_data(self, time, _target):
-        """Get the output's data-set for the given time.
-
-        Parameters
-        ----------
-        time : datetime
-            simulation time to get the data for.
-
-        Returns
-        -------
-        array_like
-            data-set for the requested time.
-        """
-        if len(self.data) == 0:
-            raise FinamNoDataError(f"No data available in {self.name}")
-
-        _check_time(self.logger, time, (self.data[0][0], self.data[-1][0]))
-
-        sum_value = self._interpolate(time)
-        self._clear_cached_data(self.prev_time)
-        self.prev_time = time
-        return sum_value
+        self.step = step
 
     def _interpolate(self, time):
 
         if len(self.data) == 1:
             return self.data[0][1]
 
-        if time <= self.data[0][0]:
-            return self.data[0][1]
-
-        sum_value = None
-
-        for i in range(len(self.data) - 1):
-            t_old, v_old = self.data[i]
-            t_new, v_new = self.data[i + 1]
-
-            if self.prev_time >= t_new:
+        for i, (t, data) in enumerate(self.data):
+            if time > t:
                 continue
-            if time <= t_old:
-                break
+            if time == t:
+                return data
 
-            scale = t_new - t_old
+            t_prev, data_prev = self.data[i - 1]
 
-            dt1 = max((self.prev_time - t_old) / scale, 0.0)
-            dt2 = min((time - t_old) / scale, 1.0)
+            dt = (time - t_prev) / (t - t_prev)
 
-            v1 = _interpolate(v_old, v_new, dt1)
-            v2 = _interpolate(v_old, v_new, dt2)
-            value = (dt2 - dt1) * scale.total_seconds() * 0.5 * (v1 + v2)
+            result = interpolate_step(data_prev, data, dt, self.step)
 
-            sum_value = value if sum_value is None else sum_value + value
+            return result
 
-        dt = time - self.prev_time
-        if dt.total_seconds() > 0:
-            sum_value /= dt.total_seconds()
-
-        return sum_value
+        raise FinamTimeError(
+            f"Time interpolation failed. This should not happen and is probably a bug. "
+            f"Time is {time}."
+        )
 
 
-def _interpolate(old_value, new_value, dt):
+def interpolate(old_value, new_value, dt):
     """Interpolate between old and new value.
 
     Parameters
@@ -495,7 +454,34 @@ def _interpolate(old_value, new_value, dt):
     return old_value + dt * (new_value - old_value)
 
 
-def _check_time(logger, time, time_range=(None, None)):
+def interpolate_step(old_value, new_value, dt, step):
+    """Interpolate step-wise between old and new value.
+
+    Parameters
+    ----------
+    old_value : array_like
+        Old value.
+    new_value : array_like
+        New value.
+    dt : float
+        Time step between values.
+    step : float
+        Value in range [0, 1] that determines the relative step position.
+
+        * For a value of 0.0, the new value is returned for any dt > 0.0.
+        * For a value of 1.0, the old value is returned for any dt <= 1.0.
+        * Values between 0.0 and 1.0 shift the step between the first and the second time.
+        * A value of 0.5 results in nearest interpolation.
+
+    Returns
+    -------
+    array_like
+        Interpolated value.
+    """
+    return new_value if dt > step else old_value
+
+
+def check_time(logger, time, time_range=(None, None)):
     """
     Checks time.
 
