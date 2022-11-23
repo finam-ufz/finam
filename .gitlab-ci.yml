@@ -63,6 +63,6 @@ pypi_release:
   script:
     - pip install build twine
     - python -m build
-    - python -m twine upload -u __token__ -p ${PYPI_TOKEN} dist/*
+    - python -m twine upload -r testpypi -u __token__ -p ${TEST_PYPI_TOKEN} dist/*
   only:
     - tags
