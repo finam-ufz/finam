@@ -60,6 +60,8 @@ pages:
 
 pypi_test_release:
   stage: release
+  variables:
+    GIT_DEPTH: 0  # to have all tags
   script:
     - pip install build twine
     - python -m build
