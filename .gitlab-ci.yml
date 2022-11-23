@@ -42,6 +42,9 @@ doctest:
 
 documentation:
   stage: docs
+  variables:
+    GIT_STRATEGY: clone
+    GIT_DEPTH: 0  # to have all tags
   script:
     - pip3 install --editable .[doc]
     - sphinx-build docs/source docs/build
