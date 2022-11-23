@@ -4,6 +4,7 @@ stages:
   - test
   - build
   - deploy
+  - release
 
 check:
   stage: test
@@ -56,3 +57,12 @@ pages:
       - public
   only:
     - main
+
+pypi_release:
+  stage: release
+  script:
+    - pip install build twine
+    - python -m build
+    - python -m twine upload -u __token__ -p ${PYPI_TOKEN} dist/*
+  only:
+    - tags
