@@ -51,7 +51,7 @@ Homepage = "https://FINAM.pages.ufz.de/"
 Documentation = "https://FINAM.pages.ufz.de/finam/"
 Source = "https://git.ufz.de/FINAM/finam"
 Tracker = "https://git.ufz.de/FINAM/finam/-/issues"
-Changelog = "https://git.ufz.de/FINAM/finam/-/blob/main/finam/CHANGELOG.md"
+Changelog = "https://git.ufz.de/FINAM/finam/-/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 doc = [
