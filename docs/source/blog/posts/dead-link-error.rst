@@ -1,5 +1,5 @@
 .. post:: 25 Oct, 2022
-    :tags: cookbook, usage
+    :tags: cookbook, usage, v0.4
     :category: How to
     :author: Martin Lange
     :excerpt: 1

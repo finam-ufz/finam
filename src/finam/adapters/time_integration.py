@@ -206,7 +206,7 @@ class SumOverTime(TimeIntegrationAdapter):
         * ``per_time=False``, value=1mm, step=2x5d --> 2mm
 
     initial_interval: :class:`datetime <datetime.datetime>`, optional
-        Time scaling duration for the initial data. Defaults to 0 days.
+        Time scaling duration for the initial data, if ``per_time=True``. Defaults to 0 days.
 
     See also
     --------

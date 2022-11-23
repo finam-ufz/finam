@@ -46,7 +46,7 @@ Data
 
 After metadata was exchanged along a link in both directions, data can be passed.
 Components must provide initial data for all outputs.
-Further, components can pull data from inputs during The Connect Phase &trade;.
+Further, components can pull data from inputs during The Connect Phase.
 
 Iterative connect
 -----------------
@@ -60,7 +60,7 @@ Components indicate their connect progress via their :attr:`status <.Component.s
 * :attr:`.ComponentStatus.CONNECTING_IDLE` if nothing was exchanged that was not already in a previous call
 
 The status is managed internally by the component's :meth:`.Component.try_connect` method.
-It can, however, be used to check in :meth:`.Component._connect` if The Connect Phase &trade; was completed.
+It can, however, be used to check in :meth:`.Component._connect` if The Connect Phase was completed.
 
 Circular dependencies
 ---------------------

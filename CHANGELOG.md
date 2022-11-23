@@ -35,6 +35,10 @@
 
 * Add `adapters.Histogram` to extract a histogram from grid values (!182)
 * Add `adapters.DelayFixed`, `adapters.DelayToPull` and `adapters.DelayToPush` to resolve circular coupling through the use of delayed data (!187)
+* Add `adapters.StepTime` for step-wise interpolation (!194)
+* Restructuring of time integration adapters (!194)
+  * `adapters.IntegrateTime` renamed to `adapters.AvgOverTime`
+  * Add `adapters.SumOverTime` for sum/Area under Curve integration
 
 ### Other
 
@@ -53,6 +57,8 @@
 * Overwriting `_validate()` and `_finalize()` in components is now mandatory (!156)
 * Input and output slots can be accessed from components directly, e.g. `comp["A"]` instead of `comp.inputs["A"]` (!147)
 * Inputs and outputs can be marked as `static` for constant data without time information (!166, !171)
+* New helper function `tools.inspect()` to inspect components, adapters and I/O slots (!197)
+* Publish on PyPI, starting with the next release (!198, !200, !201)
 
 ## [v0.4.0-rc.2]
 
