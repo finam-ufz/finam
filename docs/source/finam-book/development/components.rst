@@ -14,6 +14,10 @@ For implementing components without internal time, see chapter :doc:`./special_c
 
 It is assumed that you have FINAM :doc:`installed <../usage/installation>`, as well as :mod:`pytest`.
 
+For component implementation examples, see the `FINAM Examples repository <https://git.ufz.de/FINAM/finam-examples>`_,
+or browse the source code of the included components in module :mod:`.modules`.
+The source code of each API entry is linked in it's upper right corner under ``[source]``.
+
 Set up a Python project
 -----------------------
 
