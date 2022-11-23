@@ -12,7 +12,11 @@ Finally, it will have two input slots and one output slot, and will calculate th
 The component will have internal time stepping, like a simulation model would have.
 For implementing components without internal time, see chapter :doc:`./special_components`.
 
-It is assumed that you have FINAM :doc:`../usage/installation`, as well as :mod:`pytest`.
+It is assumed that you have FINAM :doc:`installed <../usage/installation>`, as well as :mod:`pytest`.
+
+For component implementation examples, see the `FINAM Examples repository <https://git.ufz.de/FINAM/finam-examples>`_,
+or browse the source code of the included components in module :mod:`.modules`.
+The source code of each API entry is linked in it's upper right corner under ``[source]``.
 
 Set up a Python project
 -----------------------

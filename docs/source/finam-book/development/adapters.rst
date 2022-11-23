@@ -10,6 +10,9 @@ We will build up the adapters step by step, accompanied by some test code.
 
 It is assumed that you have FINAM :doc:`installed <../usage/installation>`, as well as :mod:`pytest`.
 
+For adapter implementation examples, browse the source code of the included adapters in module :mod:`.adapters`.
+The source code of each API entry is linked in it's upper right corner under ``[source]``.
+
 Set up a Python project
 -----------------------
 
