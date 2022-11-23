@@ -4,11 +4,9 @@ Using FINAM
 
 The following chapters target users that want to couple models that are already prepared for FINAM.
 
-Chapter :doc:`installation` covers how to install the FINAM Python package.
-
-Chapter :doc:`coupling_scripts` covers how to write Python scripts that compose and run model coupling setups.
-
-Chapter :doc:`known_modules` provides a list of known FINAM components and adapters for the use in coupling scripts.
+* :doc:`installation` on how to install the FINAM Python package.
+* How :doc:`coupling_scripts` are written that compose and run model coupling setups.
+* :doc:`known_modules` to get started with using FINAM's provided components and adapters.
 
 .. toctree::
     :hidden:
