@@ -73,6 +73,8 @@ build:
 
 pypi_test_release:
   stage: release
+  dependencies:
+    - build
   script:
     - pip install twine
     - python -m twine upload -r testpypi -u __token__ -p ${TEST_PYPI_TOKEN} dist/*
@@ -81,9 +83,12 @@ pypi_test_release:
       - dist
   only:
     - main
+    - tags
 
 pypi_release:
   stage: release
+  dependencies:
+    - build
   script:
     - pip install twine
     - python -m twine upload -u __token__ -p ${PYPI_TOKEN} dist/*
