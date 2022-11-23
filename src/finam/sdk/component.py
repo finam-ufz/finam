@@ -223,7 +223,7 @@ class Component(IComponent, Loggable, ABC):
         pull_data : arraylike
             Names of the inputs that are to be pulled.
         in_info_rules : dict
-            Info transfer rules for inputs.See the examples for details.
+            Info transfer rules for inputs. See the examples for details.
 
             See also :class:`.tools.FromInput`, :class:`.tools.FromOutput` and :class:`.tools.FromValue`.
         out_info_rules : dict
