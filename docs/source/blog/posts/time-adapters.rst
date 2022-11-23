@@ -73,3 +73,15 @@ FINAM provides these time integration adapters:
 .. note::
     The :class:`SumOverTime <.adapters.SumOverTime>` adapter may change units, depending on the setup.
     This also allows to transform rates into amounts, like *mm/d* to total *mm*.
+
+Caveats
+^^^^^^^
+
+During the initial pull in :doc:`/finam-book/development/connect_phase`, time integration adapters cannot provide sensible output.
+This is because there is only a single data entry available, and the time span of the previous step is not defined.
+
+* For :class:`.adapters.AvgOverTime`, the available data entry is simply returned and interpreted as the average.
+* For :class:`.adapters.SumOverTime`, treatment depends on whether the incoming data is on a per-time basis.
+  See the API docs for details.
+
+Ideally, components don't rely on the initial data if it is foreseeable to be aggregated by a time integration adapter.
