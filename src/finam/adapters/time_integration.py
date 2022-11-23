@@ -60,38 +60,18 @@ class TimeIntegrationAdapter(TimeCachingAdapter, ABC):
 class AvgOverTime(TimeIntegrationAdapter):
     """Aggregates data over time to form the temporal average over the last pull time step.
 
+    Output is the average height of the Area under Curve (AuC)
+    between the last and the current pull (vertical lines):
+
+    .. plot:: api/plots/integration-methods.py
+
+        Illustration of time integration.
+
     Can use step-wise or linear interpolation between push time steps.
 
-    .. code-block:: Text
+    .. plot:: api/plots/interpolation-methods.py
 
-        linear (step=None)
-           .o.         .o
-          /   \\       /
-        o'     'o---o'
-
-        step=0.0
-        +---o       +---o
-        |   |       |
-        o   +---o---o
-
-        step=0.5
-          +-o-+       +-o
-          |   |       |
-        o-+   +-o---o-+
-
-        step=1.0
-            o---+       o
-            |   |       |
-        o---+   o---o---+
-
-    Examples
-    --------
-
-    .. testcode:: constructor
-
-        import finam as fm
-
-        adapter = fm.adapters.AvgOverTime()
+        Illustration of interpolation methods.
 
     Parameters
     ----------
@@ -105,6 +85,22 @@ class AvgOverTime(TimeIntegrationAdapter):
         * For a value of 1.0, the old value is returned for any dt <= 1.0.
         * Values between 0.0 and 1.0 shift the step between the first and the second time.
         * A value of 0.5 results in nearest interpolation.
+
+    See also
+    --------
+
+    .adapters.LinearTime : Linear time interpolation.
+    .adapters.StepTime : Step-wise time interpolation.
+    .adapters.SumOverTime : Sum aggregation over time.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.AvgOverTime()
     """
 
     def __init__(self, step=None):
@@ -167,38 +163,17 @@ class AvgOverTime(TimeIntegrationAdapter):
 class SumOverTime(TimeIntegrationAdapter):
     """Aggregates data over time to form the temporal sum (area under curve) over the last pull time step.
 
+    Output is the Area under Curve (AuC) between the last and the current pull (vertical lines):
+
+    .. plot:: api/plots/integration-methods.py
+
+        Illustration of time integration.
+
     Can use step-wise or linear interpolation between push time steps.
 
-    .. code-block:: Text
+    .. plot:: api/plots/interpolation-methods.py
 
-        linear (step=None)
-           .o.         .o
-          /   \\       /
-        o'     'o---o'
-
-        step=0.0
-        +---o       +---o
-        |   |       |
-        o   +---o---o
-
-        step=0.5
-          +-o-+       +-o
-          |   |       |
-        o-+   +-o---o-+
-
-        step=1.0
-            o---+       o
-            |   |       |
-        o---+   o---o---+
-
-    Examples
-    --------
-
-    .. testcode:: constructor
-
-        import finam as fm
-
-        adapter = fm.adapters.SumOverTime()
+        Illustration of interpolation methods.
 
     Parameters
     ----------
@@ -232,6 +207,22 @@ class SumOverTime(TimeIntegrationAdapter):
 
     initial_interval: :class:`datetime <datetime.datetime>`, optional
         Time scaling duration for the initial data. Defaults to 0 days.
+
+    See also
+    --------
+
+    .adapters.LinearTime : Linear time interpolation.
+    .adapters.StepTime : Step-wise time interpolation.
+    .adapters.AvgOverTime : Average aggregation over time.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.SumOverTime()
 
     """
 

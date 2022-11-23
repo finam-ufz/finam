@@ -51,6 +51,13 @@ class DelayFixed(TimeDelayAdapter):
 
     delay : datetime.timedelta
         The delay duration to subtract from the request time.
+
+    See also
+    --------
+
+    .adapters.DelayToPull : Delays to use data from a previous pull.
+    .adapters.DelayToPush : Delays to use data from the last push.
+
     """
 
     def __init__(self, delay):
@@ -102,6 +109,11 @@ class DelayToPush(TimeDelayAdapter, NoDependencyAdapter):
         e.g. :class:`.adapters.DelayFixed` or :class:`.adapters.DelayToPull`.
         These adapters have a more consistent pull interval, and dependencies are still checked.
 
+    See also
+    --------
+
+    .adapters.DelayFixed : Delays to use data with a fixed offset.
+    .adapters.DelayToPull : Delays to use data from a previous pull.
     """
 
     def __init__(self):
@@ -143,7 +155,7 @@ class DelayToPull(TimeDelayAdapter, NoBranchAdapter):
         |            |
         B  =O=O=O=O=O=O=O
 
-    Delay can be fine-tuned ba using ``additional_offset`` (e.d. 2 days):
+    Delay can be fine-tuned by using ``additional_offset`` (e.d. 2 days):
 
     .. code-block:: Text
 
@@ -159,6 +171,13 @@ class DelayToPull(TimeDelayAdapter, NoBranchAdapter):
         The number of pulls to delay. Defaults to 1.
     additional_delay : datetime.timedelta
         Additional delay in time units. Defaults to no delay.
+
+    See also
+    --------
+
+    .adapters.DelayFixed : Delays to use data with a fixed offset.
+    .adapters.DelayToPush : Delays to use data from the last push.
+
     """
 
     def __init__(self, steps=1, additional_delay=timedelta(days=0)):
@@ -347,6 +366,17 @@ class StackTime(TimeCachingAdapter):
 class LinearTime(TimeCachingAdapter):
     """Linear time interpolation.
 
+    .. plot:: api/plots/interpolation-methods.py
+
+        Illustration of interpolation methods.
+
+    See also
+    --------
+
+    .adapters.StepTime : Step-wise time interpolation.
+    .adapters.AvgOverTime : Average aggregation over time.
+    .adapters.SumOverTime : Sum aggregation over time.
+
     Examples
     --------
 
@@ -385,14 +415,9 @@ class LinearTime(TimeCachingAdapter):
 class StepTime(TimeCachingAdapter):
     """Step-wise time interpolation.
 
-    Examples
-    --------
+    .. plot:: api/plots/interpolation-methods.py
 
-    .. testcode:: constructor
-
-        import finam as fm
-
-        adapter = fm.adapters.StepTime(step=0.0)
+        Illustration of interpolation methods.
 
     Parameters
     ----------
@@ -403,6 +428,22 @@ class StepTime(TimeCachingAdapter):
         For a value of 1.0, the old value is returned for any dt <= 1.0.
         Values between 0.0 and 1.0 shift the step between the first and the second time.
         A value of 0.5 results in nearest interpolation.
+
+    See also
+    --------
+
+    .adapters.LinearTime : Linear time interpolation.
+    .adapters.AvgOverTime : Average aggregation over time.
+    .adapters.SumOverTime : Sum aggregation over time.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.StepTime(step=0.0)
     """
 
     def __init__(self, step=0.5):
