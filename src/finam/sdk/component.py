@@ -1,6 +1,7 @@
 """
 Abstract base implementations for components with and without time step.
 """
+import datetime
 import collections
 import logging
 from abc import ABC
@@ -8,7 +9,7 @@ from datetime import datetime
 from enum import IntEnum
 from typing import final
 
-from ..errors import FinamLogError, FinamStatusError
+from ..errors import FinamLogError, FinamStatusError, FinamTimeError
 from ..interfaces import (
     ComponentStatus,
     IComponent,
@@ -74,7 +75,7 @@ class Component(IComponent, Loggable, ABC):
         )
 
     @final
-    def connect(self):
+    def connect(self, start_time):
         """Connect exchange data and metadata with linked components.
 
         The method can be called multiple times if there are failed pull attempts.
@@ -83,6 +84,8 @@ class Component(IComponent, Loggable, ABC):
         connecting was completed, :attr:`.ComponentStatus.CONNECTING` if some but not all required initial input(s)
         could be pulled, and :attr:`.ComponentStatus.CONNECTING_IDLE` if nothing could be pulled.
         """
+        if start_time is not None and not isinstance(start_time, datetime):
+            raise FinamTimeError("Time in connect must be either None or a datetime")
 
         if self.status == ComponentStatus.INITIALIZED:
             self.logger.debug("connect: ping phase")
@@ -91,9 +94,9 @@ class Component(IComponent, Loggable, ABC):
             self.status = ComponentStatus.CONNECTING
         else:
             self.logger.debug("connect")
-            self._connect()
+            self._connect(start_time)
 
-    def _connect(self):
+    def _connect(self, start_time):
         """Connect exchange data and metadata with linked components.
 
         Components must overwrite this method.

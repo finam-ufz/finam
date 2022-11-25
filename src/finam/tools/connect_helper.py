@@ -511,7 +511,9 @@ class ConnectHelper(Loggable):
                 info = self.out_infos[name]
                 if info is not None:
                     try:
-                        self.outputs[name].push_data(data, time or info.time)
+                        self.outputs[name].push_data(data, time)
+                        if info.time != time:
+                            self.outputs[name].push_data(data, info.time)
                         self.data_pushed[name] = True
                         any_done = True
                         self._out_data_cache.pop(name)
