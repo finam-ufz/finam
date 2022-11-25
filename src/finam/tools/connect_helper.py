@@ -3,9 +3,11 @@ import copy
 import logging
 from abc import ABC
 
+import xarray as xr
+
 from finam.interfaces import ComponentStatus, Loggable
 
-from ..data.tools import Info
+from ..data.tools import Info, assign_time
 from ..errors import FinamNoDataError
 from ..tools.log_helper import ErrorLogger
 
@@ -510,20 +512,37 @@ class ConnectHelper(Loggable):
             if not self.data_pushed[name] and self.infos_pushed[name]:
                 info = self.out_infos[name]
                 if info is not None:
-                    try:
-                        self.outputs[name].push_data(data, time)
-                        if info.time != time:
-                            self.outputs[name].push_data(data, info.time)
-                        self.data_pushed[name] = True
+                    if self._push_data(name, data, time, info.time):
                         any_done = True
-                        self._out_data_cache.pop(name)
-                        self.logger.debug(
-                            "Successfully pushed output data for %s", name
-                        )
-                    except FinamNoDataError:
+                    else:
                         self.logger.debug("Failed to push output data for %s", name)
 
         return any_done
+
+    def _push_data(self, name, data, time, info_time):
+        # TODO: Cleanup. Try/catch should not be required
+        # try:
+        if info_time != time:
+            # TODO Can we do better here?
+            if isinstance(data, xr.DataArray):
+                data_1 = data if time is None else assign_time(data, time)
+                data_2 = (
+                    copy.copy(data) if info_time is None else assign_time(data, time)
+                )
+                self.outputs[name].push_data(data_1, time)
+                self.outputs[name].push_data(data_2, info_time)
+            else:
+                self.outputs[name].push_data(data, time)
+                self.outputs[name].push_data(copy.copy(data), info_time)
+        else:
+            self.outputs[name].push_data(data, info_time)
+
+        self.data_pushed[name] = True
+        self._out_data_cache.pop(name)
+        self.logger.debug("Successfully pushed output data for %s", name)
+        return True
+        # except FinamNoDataError:
+        #    return False
 
 
 def _transfer_fields(source_info, target_info, fields):
