@@ -106,7 +106,7 @@ class TestPropagate(unittest.TestCase):
 
         (source.outputs["Output"] >> SpecAdapter() >> sink.inputs["Input"])
 
-        composition.run(t=time, t_max=datetime(2000, 1, 2))
+        composition.run(t_max=datetime(2000, 1, 2))
 
         self.assertEqual(
             sink.inputs["Input"].info,

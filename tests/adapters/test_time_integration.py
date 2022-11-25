@@ -18,11 +18,13 @@ reg = pint.UnitRegistry(force_ndarray_like=True)
 
 class TestAvgOverTime(unittest.TestCase):
     def init(self, step):
+        start = datetime(2000, 1, 1)
+
         self.source = CallbackGenerator(
             callbacks={
                 "Step": (lambda t: t.day - 1, Info(None, grid=NoGrid(), units="m"))
             },
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(1.0),
         )
 
@@ -33,8 +35,8 @@ class TestAvgOverTime(unittest.TestCase):
         self.source.outputs["Step"] >> self.adapter
         self.adapter.get_info(Info(None, grid=NoGrid()))
 
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_avg_over_time(self):
@@ -89,6 +91,8 @@ class TestAvgOverTime(unittest.TestCase):
 
 class TestGridAvgOverTime(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
+
         grid, _ = create_grid(10, 15, 0)
         self.source = CallbackGenerator(
             callbacks={
@@ -97,7 +101,7 @@ class TestGridAvgOverTime(unittest.TestCase):
                     Info(None, grid=grid),
                 )
             },
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(1.0),
         )
 
@@ -108,8 +112,8 @@ class TestGridAvgOverTime(unittest.TestCase):
         self.source.outputs["Grid"] >> self.adapter
         self.adapter.get_info(Info(None, grid=grid))
 
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_linear_grid_integration(self):
@@ -147,6 +151,7 @@ class TestGridAvgOverTime(unittest.TestCase):
 
 class TestSumOverTime(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
 
         self.data = {
             "In_lin": [],
@@ -165,7 +170,7 @@ class TestSumOverTime(unittest.TestCase):
                     Info(None, grid=NoGrid(), units="mm/d"),
                 )
             },
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=1),
         )
         self.adapter_lin = SumOverTime(step=None)
@@ -186,7 +191,7 @@ class TestSumOverTime(unittest.TestCase):
                 "In_05": callback,
                 "In_10": callback,
             },
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=2),
         )
 
@@ -234,6 +239,7 @@ class TestSumOverTime(unittest.TestCase):
 
 class TestAbsSumOverTime(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
 
         self.data = {
             "In_lin": [],
@@ -252,7 +258,7 @@ class TestAbsSumOverTime(unittest.TestCase):
                     Info(None, grid=NoGrid(), units="mm"),
                 )
             },
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=2),
         )
         self.adapter_lin = SumOverTime(step=None, per_time=False)
@@ -273,7 +279,7 @@ class TestAbsSumOverTime(unittest.TestCase):
                 "In_05": callback,
                 "In_10": callback,
             },
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=4),
         )
 

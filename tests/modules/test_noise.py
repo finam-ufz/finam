@@ -33,7 +33,7 @@ class TestNoise(unittest.TestCase):
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect(time)
+        composition.connect()
         composition.run(t_max=datetime(2000, 1, 2))
 
         data = fm.data.strip_data(sink.data["Input"])

@@ -437,7 +437,9 @@ class TimeComponent(ITimeComponent, Component, ABC):
     @property
     def time(self):
         """The component's current simulation time."""
-        if self._time is None and self.status in (ComponentStatus.CREATED or ComponentStatus.INITIALIZED):
+        if self._time is None and self.status in (
+            ComponentStatus.CREATED or ComponentStatus.INITIALIZED
+        ):
             """A time of None is ok before the connect phase"""
         if not isinstance(self._time, datetime):
             with ErrorLogger(self.logger):

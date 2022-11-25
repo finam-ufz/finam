@@ -248,7 +248,7 @@ class TestConnectHelper(unittest.TestCase):
         sources[0].push_info(Info(time=time, grid=UniformGrid((10, 10))))
         sources[1].push_info(Info(time=time, grid=NoGrid(), units="m"))
 
-        connector.connect(time=None)
+        connector.connect(time=time)
 
         self.assertEqual(
             connector.in_infos,
@@ -260,12 +260,12 @@ class TestConnectHelper(unittest.TestCase):
         self.assertEqual(connector.out_infos, {"Out1": None})
         self.assertEqual(connector.infos_pushed, {"Out1": False})
 
-        connector.connect(time=None)
+        connector.connect(time=time)
         self.assertEqual(connector.infos_pushed, {"Out1": True})
         self.assertEqual(connector.out_infos, {"Out1": None})
 
         sink.exchange_info(Info(time=time, grid=None, units=None))
-        connector.connect(time=None)
+        connector.connect(time=time)
 
         self.assertEqual(
             connector.out_infos,
@@ -309,17 +309,17 @@ class TestConnectHelper(unittest.TestCase):
         connector.add_in_info_rule("In2", FromValue("grid", NoGrid()))
         connector.add_in_info_rule("In2", FromValue("time", time))
         connector.connect(
-            time=None,
+            time=time,
             push_data={"Out1": np.zeros((9, 9))},
         )
 
         sink.exchange_info(Info(time=time, grid=UniformGrid((10, 10)), units="m"))
-        connector.connect(time=None)
+        connector.connect(time=time)
 
         sources[0].push_info(Info(time=time, grid=UniformGrid((10, 10))))
         sources[1].push_info(Info(time=time, grid=NoGrid(), units="m"))
 
-        connector.connect(time=None)
+        connector.connect(time=time)
 
         self.assertEqual(
             connector.in_infos,

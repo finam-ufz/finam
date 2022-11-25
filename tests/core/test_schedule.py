@@ -456,7 +456,9 @@ class TestComposition(unittest.TestCase):
         module1.outputs["Output"] >> Scale(1.0) >> Scale(1.0) >> module2.inputs["Input"]
 
         with self.assertRaises(FinamConnectError):
-            composition.connect(datetime(2000, 1, 1), )
+            composition.connect(
+                datetime(2000, 1, 1),
+            )
 
     def test_missing_component_downstream(self):
         module1 = MockupComponent(
