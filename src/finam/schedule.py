@@ -11,9 +11,9 @@ Composition
 """
 import logging
 import sys
-from time import strftime
 from datetime import datetime
 from pathlib import Path
+from time import strftime
 
 from .errors import (
     FinamCircularCouplingError,

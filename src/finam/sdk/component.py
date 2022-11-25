@@ -1,8 +1,8 @@
 """
 Abstract base implementations for components with and without time step.
 """
-import datetime
 import collections
+import datetime
 import logging
 from abc import ABC
 from datetime import datetime
@@ -440,7 +440,8 @@ class TimeComponent(ITimeComponent, Component, ABC):
         if self._time is None and self.status in (
             ComponentStatus.CREATED or ComponentStatus.INITIALIZED
         ):
-            """A time of None is ok before the connect phase"""
+            return None
+
         if not isinstance(self._time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
