@@ -104,8 +104,8 @@ class SimplexNoise(Component):
         )
         self.create_connector()
 
-    def _connect(self):
-        self.try_connect()
+    def _connect(self, start_time):
+        self.try_connect(start_time)
 
         info = self.connector.out_infos["Noise"]
         if info is not None:
@@ -233,12 +233,12 @@ class StaticSimplexNoise(Component):
         self.outputs.add(io=Output(name="Noise", static=True, info=self._info))
         self.create_connector()
 
-    def _connect(self):
+    def _connect(self, start_time):
         push_data = {}
         if self.connector.out_infos["Noise"] is not None:
             push_data["Noise"] = self._generate_noise()
 
-        self.try_connect(push_data=push_data)
+        self.try_connect(start_time, push_data=push_data)
 
         info = self.connector.out_infos["Noise"]
         if info is not None:

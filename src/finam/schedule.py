@@ -154,12 +154,12 @@ class Composition(Loggable):
             if len(time_modules) == 0:
                 if time is not None:
                     raise ValueError(
-                        "t_max must be None for a composition without time components"
+                        "t must be None for a composition without time components"
                     )
             else:
                 if not isinstance(time, datetime):
                     raise ValueError(
-                        "t_max must be of type datetime for a composition with time components"
+                        "t must be of type datetime for a composition with time components"
                     )
 
         self._validate_composition()

@@ -18,6 +18,8 @@ def consume(_inputs, _time):
 
 class TestCallback(unittest.TestCase):
     def test_callback(self):
+        start = datetime(2000, 1, 1)
+
         source = CallbackGenerator(
             callbacks={
                 "Out1": (
@@ -25,7 +27,7 @@ class TestCallback(unittest.TestCase):
                     Info(None, grid=NoGrid()),
                 )
             },
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=7),
         )
 
@@ -33,13 +35,13 @@ class TestCallback(unittest.TestCase):
             inputs={"In1": Info(None, grid=NoGrid())},
             outputs={"Out1": Info(None, grid=NoGrid())},
             callback=transform,
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=7),
         )
 
         consumer = DebugConsumer(
             inputs={"In1": Info(None, grid=NoGrid())},
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=7),
             log_data="DEBUG",
         )
@@ -50,13 +52,13 @@ class TestCallback(unittest.TestCase):
         _ = source.outputs["Out1"] >> trans.inputs["In1"]
         _ = trans.outputs["Out1"] >> consumer.inputs["In1"]
 
-        composition.connect()
+        composition.connect(start)
 
         out_data = consumer.data["In1"]
         self.assertGreaterEqual(out_data, 2.0)
         self.assertLessEqual(out_data, 4.0)
 
-        composition.run(datetime(2000, 3, 1))
+        composition.run(t_max=datetime(2000, 3, 1))
 
         out_data = consumer.data["In1"]
         self.assertGreaterEqual(out_data, 2.0)

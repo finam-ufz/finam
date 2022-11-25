@@ -37,8 +37,8 @@ class TestParametricGrid(unittest.TestCase):
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(t_max=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 19))
@@ -73,8 +73,8 @@ class TestParametricGrid(unittest.TestCase):
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(t_max=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 19, 14))
@@ -111,8 +111,8 @@ class TestParametricGrid(unittest.TestCase):
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(t_max=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 19, 14, 9))
@@ -146,8 +146,8 @@ class TestParametricGrid(unittest.TestCase):
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(t_max=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 100))
@@ -182,8 +182,8 @@ class TestParametricGrid(unittest.TestCase):
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(t_max=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 100))
@@ -218,8 +218,8 @@ class TestParametricGrid(unittest.TestCase):
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(t_max=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 100))
@@ -255,7 +255,7 @@ class TestParametricGrid(unittest.TestCase):
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         with self.assertRaises(fm.FinamMetaDataError):
-            composition.connect()
+            composition.connect(time)
 
 
 class TestStaticParametricGrid(unittest.TestCase):
@@ -282,7 +282,7 @@ class TestStaticParametricGrid(unittest.TestCase):
 
         source.outputs["Grid"] >> sink.inputs["Input"]
 
-        composition.connect()
+        composition.connect(None)
         data_1 = fm.data.strip_data(sink.data["Input"])
 
         self.assertEqual(data_1.shape, (19, 14))

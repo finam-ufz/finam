@@ -97,12 +97,12 @@ class CsvWriter(TimeComponent):
 
         self.create_connector(pull_data=self._input_names)
 
-    def _connect(self):
+    def _connect(self, start_time):
         """Push initial values to outputs.
 
         After the method call, the component should have status CONNECTED.
         """
-        self.try_connect()
+        self.try_connect(start_time)
 
         if self.status == ComponentStatus.CONNECTED:
             values = [

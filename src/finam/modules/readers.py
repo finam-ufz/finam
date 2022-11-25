@@ -90,7 +90,7 @@ class CsvReader(TimeComponent):
 
         self.create_connector()
 
-    def _connect(self):
+    def _connect(self, start_time):
         """Push initial values to outputs.
 
         After the method call, the component should have status CONNECTED.
@@ -112,7 +112,7 @@ class CsvReader(TimeComponent):
                 self._data_generated = True
 
         self.try_connect(
-            time=self._time,
+            time=start_time,
             push_infos={
                 name: Info(self.time, grid=NoGrid(), units=units)
                 for name, units in self._output_units.items()

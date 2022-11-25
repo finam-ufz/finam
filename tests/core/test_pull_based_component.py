@@ -21,8 +21,8 @@ class PullComponent(fm.Component):
         )
         self.create_connector()
 
-    def _connect(self):
-        self.try_connect()
+    def _connect(self, start_time):
+        self.try_connect(start_time)
 
     def _validate(self):
         pass
@@ -53,6 +53,6 @@ class TestPullBasedComponent(unittest.TestCase):
 
         pull_comp.outputs["Out"] >> consumer.inputs["In"]
 
-        composition.run(t_max=datetime(2000, 1, 12))
+        composition.run(t=time, t_max=datetime(2000, 1, 12))
 
         self.assertEqual(consumer.data, {"In": 12})

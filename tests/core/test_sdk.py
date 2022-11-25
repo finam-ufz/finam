@@ -727,9 +727,9 @@ class TestNotImplemented(unittest.TestCase):
             comp._initialize()
 
         with self.assertRaises(NotImplementedError):
-            comp.connect()
+            comp.connect(datetime(2000, 1, 1))
         with self.assertRaises(NotImplementedError):
-            comp._connect()
+            comp._connect(datetime(2000, 1, 1))
 
         # check that the debug log for not implementing _validate is there
         with self.assertLogs(level=logging.DEBUG) as captured:

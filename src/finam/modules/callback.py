@@ -101,7 +101,7 @@ class CallbackComponent(TimeComponent):
 
         self.create_connector(pull_data=pull_data)
 
-    def _connect(self):
+    def _connect(self, start_time):
         push_data = {}
         if not self._data_generated:
             if self._initial_pull:
@@ -112,7 +112,7 @@ class CallbackComponent(TimeComponent):
                 push_data = self._callback(None, self.time)
                 self._data_generated = True
 
-        self.try_connect(self._time, push_data=push_data)
+        self.try_connect(start_time, push_data=push_data)
 
     def _validate(self):
         pass
