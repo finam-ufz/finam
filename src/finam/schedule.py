@@ -140,7 +140,7 @@ class Composition(Loggable):
 
         self.is_initialized = True
 
-    def connect(self, time):
+    def connect(self, time=None):
         """Performs the connect and validate phases of the composition
 
         If this was not called by the user, it is called at the start of :meth:`.run`.
@@ -157,6 +157,18 @@ class Composition(Loggable):
                         "t must be None for a composition without time components"
                     )
             else:
+                if time is None:
+                    t_min = None
+                    for mod in time_modules:
+                        if mod.time is not None:
+                            if t_min is None or mod.time < t_min:
+                                t_min = mod.time
+                    if t_min is None:
+                        raise ValueError(
+                            "Unable to determine starting time of the composition."
+                            "Please provide a starting time in ``run()`` or ``connect()``"
+                        )
+                    time = t_min
                 if not isinstance(time, datetime):
                     raise ValueError(
                         "t must be of type datetime for a composition with time components"
