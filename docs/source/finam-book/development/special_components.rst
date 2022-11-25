@@ -50,8 +50,8 @@ Push-based components can use :class:`.CallbackInput` to get informed about inco
             data = caller.pull_data(time)
             self.data.append((time, data))
 
-        def _connect(self):
-            self.try_connect()
+        def _connect(self, start_time):
+            self.try_connect(start_time)
 
         def _validate(self):
             pass
@@ -82,7 +82,7 @@ Push-based components can use :class:`.CallbackInput` to get informed about inco
 
     generator.outputs["Value"] >> push_comp.inputs["Input"]
 
-    comp.run(datetime(2000, 1, 15))
+    comp.run(t_max=datetime(2000, 1, 15))
 
 
 In ``_initialize()``, a :class:`.CallbackInput` is added that calls ``_data_changed()`` when notified about new data.
@@ -123,8 +123,8 @@ Push-based components can use :class:`.CallbackOutput` to intercept data pulls.
         def _get_data(self, _caller, time):
             return time.day
 
-        def _connect(self):
-            self.try_connect()
+        def _connect(self, start_time):
+            self.try_connect(start_time)
 
         def _validate(self):
             pass
@@ -153,7 +153,7 @@ Push-based components can use :class:`.CallbackOutput` to intercept data pulls.
 
     pull_comp.outputs["Output"] >> consumer.inputs["Input"]
 
-    comp.run(datetime(2000, 1, 15))
+    comp.run(t_max=datetime(2000, 1, 15))
 
 In ``_initialize()``, a :class:`.CallbackOutput` is added that calls ``_get_data()`` when pulled.
 ``_get_data()`` must return the data that would normally be pushed to the output.

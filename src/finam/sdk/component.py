@@ -344,9 +344,7 @@ class Component(IComponent, Loggable, ABC):
         self.inputs.frozen = True
         self.outputs.frozen = True
 
-    def try_connect(
-        self, time, exchange_infos=None, push_infos=None, push_data=None
-    ):
+    def try_connect(self, time, exchange_infos=None, push_infos=None, push_data=None):
         """Exchange the info and data with linked components.
 
         Values passed by the arguments are cached internally for later calls to the method

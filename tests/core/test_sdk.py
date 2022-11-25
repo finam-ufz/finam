@@ -100,7 +100,7 @@ class TestComponent(unittest.TestCase):
         self.assertEqual(component.connector._inputs, component.inputs)
         self.assertEqual(component.connector._outputs, component.outputs)
 
-        component.try_connect()
+        component.try_connect(None)
 
         self.assertEqual(component.status, ComponentStatus.CONNECTING_IDLE)
 
@@ -546,7 +546,7 @@ class TestComponentFails(unittest.TestCase):
     def test_try_connect_fail(self):
         comp = MockupComponent()
         with self.assertRaises(FinamStatusError):
-            comp.try_connect()
+            comp.try_connect(None)
 
     def test_time_fail(self):
         comp = MockupComponent()

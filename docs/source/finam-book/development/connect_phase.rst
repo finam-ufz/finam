@@ -159,9 +159,9 @@ In the most simple case, all metadata is known in :meth:`.Component._initialize`
 
             self.create_connector()
 
-        def _connect(self):
+        def _connect(self, start_time):
             push_data = {"Area": 0}
-            self.try_connect(push_data=push_data)
+            self.try_connect(start_time, push_data=push_data)
 
         def _validate(self):
             pass
@@ -233,7 +233,7 @@ and the initial data should be generated from it.
 
             self.create_connector()
 
-        def _connect(self):
+        def _connect(self, start_time):
             push_infos = {}
             push_data = {}
 
@@ -243,7 +243,7 @@ and the initial data should be generated from it.
                 push_infos["Area"] = info
                 push_data["Area"] = _generate_data(info)
 
-            self.try_connect(time=self.time,
+            self.try_connect(time=start_time,
                              push_infos=push_infos,
                              push_data=push_data)
 
