@@ -7,7 +7,7 @@ import xarray as xr
 
 from finam.interfaces import ComponentStatus, Loggable
 
-from ..data.tools import Info, assign_time
+from ..data.tools import Info, strip_time
 from ..errors import FinamNoDataError
 from ..tools.log_helper import ErrorLogger
 
@@ -520,17 +520,11 @@ class ConnectHelper(Loggable):
         return any_done
 
     def _push_data(self, name, data, time, info_time):
-        # TODO: Cleanup. Try/catch should not be required
-        # try:
         if info_time != time:
-            # TODO Can we do better here?
             if isinstance(data, xr.DataArray):
-                data_1 = data if time is None else assign_time(data, time)
-                data_2 = (
-                    copy.copy(data) if info_time is None else assign_time(data, time)
-                )
-                self.outputs[name].push_data(data_1, time)
-                self.outputs[name].push_data(data_2, info_time)
+                data_plain = strip_time(data)
+                self.outputs[name].push_data(data_plain, time)
+                self.outputs[name].push_data(copy.copy(data_plain), info_time)
             else:
                 self.outputs[name].push_data(data, time)
                 self.outputs[name].push_data(copy.copy(data), info_time)
@@ -541,8 +535,6 @@ class ConnectHelper(Loggable):
         self._out_data_cache.pop(name)
         self.logger.debug("Successfully pushed output data for %s", name)
         return True
-        # except FinamNoDataError:
-        #    return False
 
 
 def _transfer_fields(source_info, target_info, fields):
