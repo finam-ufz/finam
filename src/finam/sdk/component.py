@@ -83,6 +83,12 @@ class Component(IComponent, Loggable, ABC):
         After each method call, the component should have :attr:`.status` :attr:`.ComponentStatus.CONNECTED` if
         connecting was completed, :attr:`.ComponentStatus.CONNECTING` if some but not all required initial input(s)
         could be pulled, and :attr:`.ComponentStatus.CONNECTING_IDLE` if nothing could be pulled.
+
+        Parameters
+        ----------
+        start_time : :class:`datetime <datetime.datetime>`
+            The composition's starting time.
+            Can be before the component's actual time.
         """
         if start_time is not None and not isinstance(start_time, datetime):
             raise FinamTimeError("Time in connect must be either None or a datetime")
@@ -100,6 +106,14 @@ class Component(IComponent, Loggable, ABC):
         """Connect exchange data and metadata with linked components.
 
         Components must overwrite this method.
+
+        Parameters
+        ----------
+        start_time : :class:`datetime <datetime.datetime>`
+            The composition's starting time.
+            Can be before the component's actual time.
+
+            Should be passed to :meth:`.try_connect` calls.
         """
         raise NotImplementedError(
             f"Method `_connect` must be implemented by all components, but implementation is missing in {self.name}."
@@ -347,7 +361,7 @@ class Component(IComponent, Loggable, ABC):
         Parameters
         ----------
         time : :class:`datetime <datetime.datetime>`
-            time for data pulls
+            the composition's starting time as passed to :meth:`.Component.try_connect`
         exchange_infos : dict of [str, Info]
             currently or newly available input data infos by input name
         push_infos : dict of [str, Info]

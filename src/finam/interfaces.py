@@ -75,6 +75,12 @@ class IComponent(ABC):
         After each method call, the component should have :attr:`.status` :attr:`.ComponentStatus.CONNECTED` if
         connecting was completed, :attr:`.ComponentStatus.CONNECTING` if some but not all required initial input(s)
         could be pulled, and :attr:`.ComponentStatus.CONNECTING_IDLE` if nothing could be pulled.
+
+        Parameters
+        ----------
+        start_time : :class:`datetime <datetime.datetime>`
+            The composition's starting time.
+            Can be before the component's actual time.
         """
 
     @abstractmethod

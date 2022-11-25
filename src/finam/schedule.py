@@ -144,6 +144,13 @@ class Composition(Loggable):
         """Performs the connect and validate phases of the composition
 
         If this was not called by the user, it is called at the start of :meth:`.run`.
+
+        Parameters
+        ----------
+        time : :class:`datetime <datetime.datetime>`, optional
+            Starting time of the composition.
+            If provided, it should be the starting time of the earliest component.
+            If not provided, the composition tries to determine the starting time automatically.
         """
         if self.is_connected:
             raise FinamStatusError("Composition was already connected.")
@@ -194,7 +201,12 @@ class Composition(Loggable):
 
         Parameters
         ----------
-        t_max : :class:`datetime <datetime.datetime>` or None, optional
+        t : :class:`datetime <datetime.datetime>`, optional
+            Starting time of the composition.
+            If provided, it should be the starting time of the earliest component.
+            If not provided, the composition tries to determine the starting time automatically.
+            Ignored if :meth:`.connect` was already called.
+        t_max : :class:`datetime <datetime.datetime>`, optional
             Simulation time up to which to simulate.
             Should be ``None`` if no components with time are present.
         """

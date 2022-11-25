@@ -340,7 +340,7 @@ class ConnectHelper(Loggable):
         Parameters
         ----------
         time : :class:`datetime <datetime.datetime>`
-            time for data pulls
+            the composition's starting time as passed to :meth:`.Component.try_connect`
         exchange_infos : dict
             currently or newly available input data infos by input name
         push_infos : dict
