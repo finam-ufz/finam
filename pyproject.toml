@@ -65,7 +65,10 @@ doc = [
     "docutils>=0.18", # mdinclude with myst
     "matplotlib>=3",
 ]
-test = ["pytest-cov>=3"]
+test = [
+    "pytest-cov>=3",
+    "pytest-benchmark>=4.0",
+]
 
 [tool.setuptools]
 license-files = ["LICENSE"]

@@ -31,6 +31,12 @@ test:
     paths:
       - cov
 
+benchmark:
+  stage: test
+  script:
+    - pip3 install --editable .[test]
+    - python -m pytest -v benchmarks/
+
 doctest:
   stage: test
   script:
