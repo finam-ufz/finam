@@ -67,7 +67,7 @@ doc = [
 ]
 test = [
     "pytest-cov>=3",
-    "pytest-benchmark>=4.0",
+    "pytest-benchmark[histogram]>=4.0",
 ]
 
 [tool.setuptools]
