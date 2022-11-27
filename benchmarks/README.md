@@ -42,4 +42,9 @@ Regridding adapters, dependent on grid size.
 
 Regridding from a uniform grid to another uniform grid of the same size, with slightly offset origin.
 
+For more performant regridding, see the
+[ESMPy](https://earthsystemmodeling.org/esmpy/)-based regridding adapter in
+[`finam-regrid`](https://git.ufz.de/FINAM/finam-regrid/)
+([benchmarks](https://git.ufz.de/FINAM/finam-regrid/-/tree/main/benchmarks))
+
 ![adapters-regrid](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-adapters-regrid.svg?job=benchmark)
