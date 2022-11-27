@@ -35,7 +35,7 @@ benchmark:
   stage: test
   script:
     - pip3 install --editable .[test]
-    - python -m pytest -v benchmarks/ --benchmark-histogram bench/bench
+    - python -m pytest -v benchmarks/ --benchmark-histogram bench/bench  --benchmark-sort name
   artifacts:
     paths:
       - bench
