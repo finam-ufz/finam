@@ -81,19 +81,19 @@ class TestFull(unittest.TestCase):
     def setupBenchmark(self, benchmark):
         self.benchmark = benchmark
 
-    @pytest.mark.benchmark(group="data-tools")
+    @pytest.mark.benchmark(group="data-tools-slow")
     def test_full_01_2x1(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
         _result = self.benchmark(full, value=0.0, name="test", info=info, time=time)
 
-    @pytest.mark.benchmark(group="data-tools")
+    @pytest.mark.benchmark(group="data-tools-slow")
     def test_full_02_512x256(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
         _result = self.benchmark(full, value=0.0, name="test", info=info, time=time)
 
-    @pytest.mark.benchmark(group="data-tools")
+    @pytest.mark.benchmark(group="data-tools-slow")
     def test_full_03_2048x1024(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
@@ -105,21 +105,21 @@ class TestFullLike(unittest.TestCase):
     def setupBenchmark(self, benchmark):
         self.benchmark = benchmark
 
-    @pytest.mark.benchmark(group="data-tools")
+    @pytest.mark.benchmark(group="data-tools-slow")
     def test_full_like_01_2x1(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
         xdata = full(0.0, "test", info, time)
         _result = self.benchmark(full_like, xdata=xdata, value=0.0)
 
-    @pytest.mark.benchmark(group="data-tools")
+    @pytest.mark.benchmark(group="data-tools-slow")
     def test_full_like_02_512x256(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
         xdata = full(0.0, "test", info, time)
         _result = self.benchmark(full_like, xdata=xdata, value=0.0)
 
-    @pytest.mark.benchmark(group="data-tools")
+    @pytest.mark.benchmark(group="data-tools-slow")
     def test_full_like_03_2048x1024(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
@@ -181,21 +181,21 @@ class TestUnitsTools(unittest.TestCase):
         xdata = full(0.0, "test", info, time)
         _result = self.benchmark(get_units, xdata=xdata)
 
-    @pytest.mark.benchmark(group="data-tools")
+    @pytest.mark.benchmark(group="data-tools-slow")
     def test_to_units_01_2x1(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
         xdata = full(0.0, "test", info, time)
         _result = self.benchmark(to_units, xdata=xdata, units="in")
 
-    @pytest.mark.benchmark(group="data-tools")
+    @pytest.mark.benchmark(group="data-tools-slow")
     def test_to_units_02_512x256(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
         xdata = full(0.0, "test", info, time)
         _result = self.benchmark(to_units, xdata=xdata, units="in")
 
-    @pytest.mark.benchmark(group="data-tools")
+    @pytest.mark.benchmark(group="data-tools-slow")
     def test_to_units_03_2048x1024(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
