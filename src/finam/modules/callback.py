@@ -123,7 +123,8 @@ class CallbackComponent(TimeComponent):
         inp = {n: self.inputs[n].pull_data(self.time) for n in self._input_infos.keys()}
         outp = self._callback(inp, self.time)
         for name, val in outp.items():
-            self.outputs[name].push_data(val, self.time)
+            if val is not None:
+                self.outputs[name].push_data(val, self.time)
 
     def _finalize(self):
         pass
