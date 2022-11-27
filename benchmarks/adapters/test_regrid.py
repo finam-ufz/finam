@@ -25,8 +25,8 @@ class TestRegrid(unittest.TestCase):
         self.source.outputs["Step"] >> self.adapter
 
         self.adapter.get_info(fm.Info(None, grid=grid2))
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(time)
+        self.source.connect(time)
         self.source.validate()
 
     @pytest.mark.benchmark(group="adapters-regrid")
