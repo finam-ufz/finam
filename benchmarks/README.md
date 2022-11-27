@@ -4,7 +4,7 @@
 
 ### Push & pull
 
-Push & pull using numpy arrays:
+Push & pull using numpy arrays
 
 ![tools](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-sdk-io.svg?job=benchmark)
 
@@ -12,11 +12,11 @@ Push & pull using numpy arrays:
 
 ### Tools
 
-Functions in `data/tools`:
+Functions in `data/tools`
 
 ![tools](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-data-tools.svg?job=benchmark)
 
-Functions in `data/tools` with longer run time:
+Functions in `data/tools` with longer run time
 
 ![tools-slow](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-data-tools-slow.svg?job=benchmark)
 
@@ -29,3 +29,17 @@ Grid creation
 Grid functions
 
 ![grid-functions](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-data-grid-functions.svg?job=benchmark)
+
+Grid functions with longer run time
+
+![grid-functions-slow](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-data-grid-functions-slow.svg?job=benchmark)
+
+## Adapters
+
+### Regridding
+
+Regridding adapters, dependent on grid size.
+
+Regridding from a uniform grid to another uniform grid of the same size, with slightly offset origin.
+
+![adapters-regrid](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-adapters-regrid.svg?job=benchmark)
