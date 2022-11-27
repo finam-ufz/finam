@@ -38,6 +38,11 @@ class Adapter(IAdapter, Input, Output, ABC):
         self.targets = []
 
     @property
+    def time(self):
+        """The output's time of the latest available data"""
+        return None
+
+    @property
     def is_static(self):
         return False
 

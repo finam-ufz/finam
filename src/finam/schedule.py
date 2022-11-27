@@ -238,12 +238,13 @@ class Composition(Loggable):
         deps = _find_dependencies(module, self.output_owners, target_time)
 
         for dep, (local_time, delayed) in deps.items():
-            if isinstance(dep, ITimeComponent):
+            comp = self.output_owners[dep]
+            if isinstance(comp, ITimeComponent):
                 if dep.time < local_time:
                     chain[module] = (local_time - dep.time, delayed)
-                    return self._update_recursive(dep, chain)
+                    return self._update_recursive(comp, chain)
             else:
-                updated = self._update_recursive(dep, chain, local_time)
+                updated = self._update_recursive(comp, chain, local_time)
                 if updated is not None:
                     return updated
 
@@ -479,10 +480,10 @@ def _find_dependencies(module, output_owners, target_time):
         if not isinstance(inp, NoDependencyAdapter) and not inp.is_static:
             comp = output_owners[inp]
             if not isinstance(comp, ITimeComponent) or (
-                isinstance(comp, ITimeComponent) and comp.time < local_time
+                isinstance(comp, ITimeComponent) and inp.time < local_time
             ):
-                if comp not in deps or local_time > deps[comp][0]:
-                    deps[comp] = (local_time, delayed)
+                if inp not in deps or local_time > deps[inp][0]:
+                    deps[inp] = (local_time, delayed)
 
     return deps
 

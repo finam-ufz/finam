@@ -500,7 +500,7 @@ class TestComposition(unittest.TestCase):
             _find_dependencies(
                 module2, composition.output_owners, datetime(2000, 1, 5)
             ),
-            {module1: (datetime(2000, 1, 5), False)},
+            {module1.outputs["Output"]: (datetime(2000, 1, 5), False)},
         )
 
     def test_dependencies_multi(self):
@@ -536,13 +536,13 @@ class TestComposition(unittest.TestCase):
             _find_dependencies(
                 module2, composition.output_owners, datetime(2000, 1, 5)
             ),
-            {module1: (datetime(2000, 1, 5), False)},
+            {module1.outputs["Output"]: (datetime(2000, 1, 5), False)},
         )
         self.assertEqual(
             _find_dependencies(
                 module3, composition.output_owners, datetime(2000, 1, 5)
             ),
-            {module1: (datetime(2000, 1, 5), False)},
+            {module1.outputs["Output"]: (datetime(2000, 1, 5), False)},
         )
 
         self.assertEqual(
@@ -561,7 +561,7 @@ class TestComposition(unittest.TestCase):
             _find_dependencies(
                 module4, composition.output_owners, datetime(2000, 1, 5)
             ),
-            {module3: (datetime(2000, 1, 3), True)},
+            {module3.outputs["Output"]: (datetime(2000, 1, 3), True)},
         )
 
     def test_static_run(self):

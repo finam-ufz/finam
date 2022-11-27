@@ -39,8 +39,16 @@ class Output(IOutput, Loggable):
         self._connected_inputs = {}
         self._out_infos_exchanged = 0
 
+        self._time = None
+
+    @property
+    def time(self):
+        """The output's time of the latest available data"""
+        return self._time
+
     @property
     def is_static(self):
+        """Whether the output is static"""
         return self._static
 
     @property
@@ -138,6 +146,8 @@ class Output(IOutput, Loggable):
         with ErrorLogger(self.logger):
             self.data.append((time, tools.to_xarray(data, self.name, self.info, time)))
 
+        self._time = time
+
         self.logger.debug("data cache: %d", len(self.data))
 
         self.notify_targets(time)
@@ -204,7 +214,8 @@ class Output(IOutput, Loggable):
         if len(self.data) == 0:
             raise FinamNoDataError(f"No data available in {self.name}")
 
-        data = self.data[0][1] if self.is_static else self._interpolate(time)
+        with ErrorLogger(self.logger):
+            data = self.data[0][1] if self.is_static else self._interpolate(time)
 
         if not self.is_static:
             data_count = len(self.data)
