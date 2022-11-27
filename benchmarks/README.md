@@ -1,5 +1,7 @@
 # FINAM benchmarks
 
-## Tools
+## Data
 
-![tools](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-tools.svg?job=benchmark)
+### Tools
+
+![tools](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-data-tools.svg?job=benchmark)
