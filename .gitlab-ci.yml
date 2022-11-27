@@ -31,6 +31,15 @@ test:
     paths:
       - cov
 
+benchmark:
+  stage: test
+  script:
+    - pip3 install --editable .[test]
+    - python -m pytest -v benchmarks/ --benchmark-histogram bench/bench  --benchmark-sort name
+  artifacts:
+    paths:
+      - bench
+
 doctest:
   stage: test
   script:
