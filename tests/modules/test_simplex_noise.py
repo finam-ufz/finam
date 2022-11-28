@@ -8,13 +8,14 @@ import finam as fm
 
 class TestSimplexNoise(unittest.TestCase):
     def test_simplex_uniform(self):
+        time = datetime(2000, 1, 1)
         grid = fm.UniformGrid((25, 15), origin=(10.0, 5.0))
 
         source = fm.modules.SimplexNoise(octaves=3, frequency=0.01, seed=4)
 
         consumer = fm.modules.DebugConsumer(
             inputs={"Noise": fm.Info(None, grid=grid, units="")},
-            start=datetime(2000, 1, 1),
+            start=time,
             step=timedelta(days=7),
         )
 
@@ -23,20 +24,21 @@ class TestSimplexNoise(unittest.TestCase):
 
         _ = source.outputs["Noise"] >> consumer.inputs["Noise"]
 
-        composition.connect()
+        composition.connect(time)
 
-        composition.run(datetime(2000, 3, 1))
+        composition.run(end_time=datetime(2000, 3, 1))
 
         print(consumer.data["Noise"])
 
     def test_simplex_unstructured(self):
+        time = datetime(2000, 1, 1)
         grid = fm.UnstructuredPoints(np.random.random((100, 2)) * 100)
 
         source = fm.modules.SimplexNoise(octaves=3, frequency=0.01, seed=4)
 
         consumer = fm.modules.DebugConsumer(
             inputs={"Noise": fm.Info(None, grid=grid, units="")},
-            start=datetime(2000, 1, 1),
+            start=time,
             step=timedelta(days=7),
         )
 
@@ -45,8 +47,7 @@ class TestSimplexNoise(unittest.TestCase):
 
         _ = source.outputs["Noise"] >> consumer.inputs["Noise"]
 
-        composition.connect()
-
-        composition.run(datetime(2000, 3, 1))
+        composition.connect(time)
+        composition.run(end_time=datetime(2000, 3, 1))
 
         print(consumer.data["Noise"])

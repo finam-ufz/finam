@@ -24,8 +24,8 @@ class MockupConsumer(TimeComponent):
         self.inputs.add(name="Input", info=self.info)
         self.create_connector()
 
-    def _connect(self):
-        self.try_connect(self.time)
+    def _connect(self, start_time):
+        self.try_connect(start_time)
 
     def _validate(self):
         pass
@@ -55,8 +55,8 @@ class MockupProducer(TimeComponent):
         self.outputs.add(name="Output", info=self.info)
         self.create_connector()
 
-    def _connect(self):
-        self.try_connect(self.time, push_data={"Output": 1})
+    def _connect(self, start_time):
+        self.try_connect(start_time, push_data={"Output": 1})
         self.out_info = self.connector.out_infos["Output"]
 
     def _validate(self):
@@ -106,7 +106,7 @@ class TestPropagate(unittest.TestCase):
 
         (source.outputs["Output"] >> SpecAdapter() >> sink.inputs["Input"])
 
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(end_time=datetime(2000, 1, 2))
 
         self.assertEqual(
             sink.inputs["Input"].info,
@@ -136,7 +136,7 @@ class TestPropagate(unittest.TestCase):
         source.outputs["Output"] >> sink.inputs["Input"]
 
         with self.assertRaises(FinamMetaDataError):
-            composition.run(t_max=datetime(2000, 1, 2))
+            composition.run(start_time=time, end_time=datetime(2000, 1, 2))
 
     def test_propagate_info_from_source(self):
         time = datetime(2000, 1, 1)
@@ -160,7 +160,7 @@ class TestPropagate(unittest.TestCase):
 
         source.outputs["Output"] >> sink.inputs["Input"]
 
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(start_time=time, end_time=datetime(2000, 1, 2))
 
         self.assertEqual(
             sink.inputs["Input"].info,
@@ -187,7 +187,7 @@ class TestPropagate(unittest.TestCase):
 
         source.outputs["Output"] >> sink.inputs["Input"]
 
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(start_time=time, end_time=datetime(2000, 1, 2))
 
         self.assertEqual(
             source.outputs["Output"].info,

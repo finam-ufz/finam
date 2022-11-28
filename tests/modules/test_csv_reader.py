@@ -12,6 +12,7 @@ class TestCsvReader(unittest.TestCase):
         import pandas
 
         with TemporaryDirectory() as tmp:
+            start = datetime(2000, 1, 1)
             file = path.join(tmp, "test.csv")
 
             data = pandas.DataFrame()
@@ -47,8 +48,8 @@ class TestCsvReader(unittest.TestCase):
             sink1.ping()
             sink2.ping()
 
-            reader.connect()
-            reader.connect()
+            reader.connect(start)
+            reader.connect(start)
 
             sink1.exchange_info(Info(None, grid=NoGrid()))
             sink2.exchange_info(Info(None, grid=NoGrid()))
@@ -56,8 +57,8 @@ class TestCsvReader(unittest.TestCase):
             reader.outputs["X"].get_info(Info(None, grid=NoGrid()))
             reader.outputs["Y"].get_info(Info(None, grid=NoGrid()))
 
-            reader.connect()
-            reader.connect()
+            reader.connect(start)
+            reader.connect(start)
             reader.validate()
 
             self.assertEqual(reader.time, datetime(2000, 1, 1))

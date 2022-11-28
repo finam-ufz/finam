@@ -2,13 +2,14 @@
 Abstract base implementations for components with and without time step.
 """
 import collections
+import datetime
 import logging
 from abc import ABC
 from datetime import datetime
 from enum import IntEnum
 from typing import final
 
-from ..errors import FinamLogError, FinamStatusError
+from ..errors import FinamLogError, FinamStatusError, FinamTimeError
 from ..interfaces import (
     ComponentStatus,
     IComponent,
@@ -74,7 +75,7 @@ class Component(IComponent, Loggable, ABC):
         )
 
     @final
-    def connect(self):
+    def connect(self, start_time):
         """Connect exchange data and metadata with linked components.
 
         The method can be called multiple times if there are failed pull attempts.
@@ -82,7 +83,15 @@ class Component(IComponent, Loggable, ABC):
         After each method call, the component should have :attr:`.status` :attr:`.ComponentStatus.CONNECTED` if
         connecting was completed, :attr:`.ComponentStatus.CONNECTING` if some but not all required initial input(s)
         could be pulled, and :attr:`.ComponentStatus.CONNECTING_IDLE` if nothing could be pulled.
+
+        Parameters
+        ----------
+        start_time : :class:`datetime <datetime.datetime>`
+            The composition's starting time.
+            Can be before the component's actual time.
         """
+        if start_time is not None and not isinstance(start_time, datetime):
+            raise FinamTimeError("Time in connect must be either None or a datetime")
 
         if self.status == ComponentStatus.INITIALIZED:
             self.logger.debug("connect: ping phase")
@@ -91,12 +100,20 @@ class Component(IComponent, Loggable, ABC):
             self.status = ComponentStatus.CONNECTING
         else:
             self.logger.debug("connect")
-            self._connect()
+            self._connect(start_time)
 
-    def _connect(self):
+    def _connect(self, start_time):
         """Connect exchange data and metadata with linked components.
 
         Components must overwrite this method.
+
+        Parameters
+        ----------
+        start_time : :class:`datetime <datetime.datetime>`
+            The composition's starting time.
+            Can be before the component's actual time.
+
+            Should be passed to :meth:`.try_connect` calls.
         """
         raise NotImplementedError(
             f"Method `_connect` must be implemented by all components, but implementation is missing in {self.name}."
@@ -328,7 +345,7 @@ class Component(IComponent, Loggable, ABC):
         self.outputs.frozen = True
 
     def try_connect(
-        self, time=None, exchange_infos=None, push_infos=None, push_data=None
+        self, start_time, exchange_infos=None, push_infos=None, push_data=None
     ):
         """Exchange the info and data with linked components.
 
@@ -343,8 +360,8 @@ class Component(IComponent, Loggable, ABC):
 
         Parameters
         ----------
-        time : :class:`datetime <datetime.datetime>`
-            time for data pulls
+        start_time : :class:`datetime <datetime.datetime>`
+            the composition's starting time as passed to :meth:`.Component.try_connect`
         exchange_infos : dict of [str, Info]
             currently or newly available input data infos by input name
         push_infos : dict of [str, Info]
@@ -360,7 +377,7 @@ class Component(IComponent, Loggable, ABC):
             )
 
         self.status = self._connector.connect(
-            time,
+            start_time,
             exchange_infos=exchange_infos,
             push_infos=push_infos,
             push_data=push_data,
@@ -434,6 +451,11 @@ class TimeComponent(ITimeComponent, Component, ABC):
     @property
     def time(self):
         """The component's current simulation time."""
+        if self._time is None and self.status in (
+            ComponentStatus.CREATED or ComponentStatus.INITIALIZED
+        ):
+            return None
+
         if not isinstance(self._time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")

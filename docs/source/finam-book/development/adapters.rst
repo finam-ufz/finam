@@ -70,7 +70,7 @@ File ``src/scale.py``:
 
     generator.outputs["Value"] >> adapter >> consumer.inputs["Input"]
 
-    comp.run(datetime(2000, 1, 2))
+    comp.run(end_time=datetime(2000, 1, 2))
 
     print(fm.data.strip_data(consumer.data["Input"]))
 
@@ -244,7 +244,7 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
 
     generator.outputs["Value"] >> adapter >> consumer.inputs["Input"]
 
-    comp.run(datetime(2000, 1, 15))
+    comp.run(end_time=datetime(2000, 1, 15))
 
     print(fm.data.strip_data(consumer.data["Input"]))
 

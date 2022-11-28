@@ -20,7 +20,6 @@ from finam import (
     FinamCircularCouplingError,
     FinamConnectError,
     FinamStatusError,
-    FinamTimeError,
     Info,
     Input,
     NoBranchAdapter,
@@ -31,7 +30,7 @@ from finam import (
 from finam import data as tools
 from finam.adapters.base import Scale
 from finam.adapters.time import DelayFixed, NextTime
-from finam.modules import CallbackComponent, CallbackGenerator, debug
+from finam.modules import CallbackComponent, CallbackGenerator, DebugPushConsumer, debug
 from finam.schedule import _check_dead_links, _find_dependencies
 
 
@@ -42,8 +41,8 @@ class NoTimeComponent(Component):
     def _initialize(self):
         self.create_connector()
 
-    def _connect(self):
-        self.try_connect()
+    def _connect(self, start_time):
+        self.try_connect(start_time)
 
     def _validate(self):
         pass
@@ -76,12 +75,12 @@ class MockupComponent(TimeComponent):
     def _initialize(self):
         self.create_connector()
 
-    def _connect(self):
+    def _connect(self, start_time):
         push_data = {}
         for key, callback in self._callbacks.items():
             push_data[key] = callback(self._time)
 
-        self.try_connect(push_data=push_data)
+        self.try_connect(start_time, push_data=push_data)
 
     def _validate(self):
         pass
@@ -112,9 +111,9 @@ class MockupDependentComponent(TimeComponent):
     def _initialize(self):
         self.create_connector(pull_data=["Input"])
 
-    def _connect(self):
+    def _connect(self, start_time):
         self.try_connect(
-            self.time, exchange_infos={"Input": Info(time=self.time, grid=NoGrid())}
+            start_time, exchange_infos={"Input": Info(time=self.time, grid=NoGrid())}
         )
 
     def _validate(self):
@@ -145,13 +144,14 @@ class MockupCircularComponent(TimeComponent):
         self.outputs.add(name="Output", time=self.time, grid=NoGrid())
         self.create_connector(pull_data=["Input"])
 
-    def _connect(self):
+    def _connect(self, start_time):
         push_data = {}
         pulled_data = self.connector.in_data["Input"]
         if pulled_data is not None:
             push_data["Output"] = tools.get_data(tools.strip_time(pulled_data))
 
         self.try_connect(
+            start_time,
             exchange_infos={"Input": Info(time=self.time, grid=NoGrid())},
             push_data=push_data,
         )
@@ -302,7 +302,9 @@ class TestComposition(unittest.TestCase):
 
             module1.outputs["Output"] >> module2.inputs["Input"]
 
-            composition.run(t_max=datetime(2000, 1, 2))
+            composition.run(
+                start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 2)
+            )
 
             with open(log_file) as f:
                 lines = f.readlines()
@@ -316,7 +318,7 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         with self.assertRaises(ValueError):
-            composition.run(t_max=100)
+            composition.run(start_time=0, end_time=100)
 
     def test_fail_double_initialize(self):
         module1 = MockupComponent(
@@ -334,10 +336,10 @@ class TestComposition(unittest.TestCase):
         )
         composition = Composition([module1])
         composition.initialize()
-        composition.connect()
+        composition.connect(datetime(2000, 1, 1))
 
         with self.assertRaises(FinamStatusError):
-            composition.connect()
+            composition.connect(datetime(2000, 1, 1))
 
     def test_base_logger(self):
         composition = Composition([])
@@ -354,7 +356,7 @@ class TestComposition(unittest.TestCase):
 
         module1.outputs["Output"] >> module2.inputs["Input"]
 
-        composition.run(t_max=datetime(2000, 1, 31))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 31))
 
     def test_iterative_connect_multi(self):
         module1 = MockupComponent(
@@ -369,7 +371,7 @@ class TestComposition(unittest.TestCase):
         module1.outputs["Output"] >> module2.inputs["Input"]
         module2.outputs["Output"] >> module3.inputs["Input"]
 
-        composition.run(t_max=datetime(2000, 1, 31))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 31))
 
     def test_iterative_connect_adapter(self):
         module1 = MockupComponent(
@@ -382,7 +384,7 @@ class TestComposition(unittest.TestCase):
 
         module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
 
-        composition.run(t_max=datetime(2000, 1, 31))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 31))
 
     def test_iterative_connect_multi_adapter(self):
         module1 = MockupComponent(
@@ -395,7 +397,7 @@ class TestComposition(unittest.TestCase):
 
         module1.outputs["Output"] >> Scale(1.0) >> Scale(1.0) >> module2.inputs["Input"]
 
-        composition.run(t_max=datetime(2000, 1, 31))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 31))
 
     def test_iterative_connect_blocked(self):
         module1 = MockupCircularComponent(step=timedelta(1.0))
@@ -408,7 +410,9 @@ class TestComposition(unittest.TestCase):
         module2.outputs["Output"] >> module1.inputs["Input"]
 
         with self.assertRaises(FinamCircularCouplingError):
-            composition.run(t_max=datetime(2000, 1, 31))
+            composition.run(
+                start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 31)
+            )
 
     def test_no_time_comp(self):
         module = NoTimeComponent()
@@ -417,9 +421,9 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         with self.assertRaises(ValueError):
-            composition.run(t_max=datetime(2000, 1, 31))
+            composition.run(end_time=datetime(2000, 1, 31))
 
-        composition.run(t_max=None)
+        composition.run(end_time=None)
 
     def test_time_comp(self):
         module = MockupComponent(callbacks={"Output": lambda t: t}, step=timedelta(1.0))
@@ -428,9 +432,9 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         with self.assertRaises(ValueError):
-            composition.run(t_max=None)
+            composition.run(end_time=None)
 
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 2))
 
     def test_no_update(self):
         module1 = MockupComponent(
@@ -441,7 +445,7 @@ class TestComposition(unittest.TestCase):
         )
         composition = Composition([module1, module2])
         composition.initialize()
-        composition.run(t_max=datetime(2000, 1, 1))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 1))
 
     def test_missing_component_upstream(self):
         module1 = MockupComponent(
@@ -455,7 +459,9 @@ class TestComposition(unittest.TestCase):
         module1.outputs["Output"] >> Scale(1.0) >> Scale(1.0) >> module2.inputs["Input"]
 
         with self.assertRaises(FinamConnectError):
-            composition.connect()
+            composition.connect(
+                datetime(2000, 1, 1),
+            )
 
     def test_missing_component_downstream(self):
         module1 = MockupComponent(
@@ -469,7 +475,7 @@ class TestComposition(unittest.TestCase):
         module1.outputs["Output"] >> Scale(1.0) >> Scale(1.0) >> module2.inputs["Input"]
 
         with self.assertRaises(FinamConnectError):
-            composition.connect()
+            composition.connect(datetime(2000, 1, 1))
 
     def test_dependencies_simple(self):
         module1 = MockupComponent(
@@ -482,7 +488,7 @@ class TestComposition(unittest.TestCase):
 
         module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
 
-        composition.connect()
+        composition.connect(datetime(2000, 1, 1))
 
         self.assertEqual(
             _find_dependencies(
@@ -524,7 +530,7 @@ class TestComposition(unittest.TestCase):
             >> module4.inputs["Input"]
         )
 
-        composition.connect()
+        composition.connect(datetime(2000, 1, 1))
 
         self.assertEqual(
             _find_dependencies(
@@ -580,7 +586,7 @@ class TestComposition(unittest.TestCase):
         source.outputs["Noise"] >> Scale(1.0) >> sink.inputs["In"]
 
         with self.assertRaises(ValueError):
-            composition.run(t_max=datetime(2000, 1, 1))
+            composition.run(end_time=datetime(2000, 1, 1))
 
         composition.run()
 
@@ -600,7 +606,7 @@ class TestComposition(unittest.TestCase):
         source.outputs["Noise"] >> Scale(1.0) >> sink.inputs["Input"]
 
         with self.assertRaises(FinamConnectError):
-            composition.connect()
+            composition.connect(datetime(2000, 1, 1))
 
     def test_dependencies_schedule(self):
         start = datetime(2000, 1, 1)
@@ -653,10 +659,10 @@ class TestComposition(unittest.TestCase):
         module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
         module2.outputs["Out"] >> Scale(1.0) >> module3.inputs["In"]
 
-        composition.connect()
+        composition.connect(datetime(2000, 1, 1))
         self.assertEqual(updates, ["A", "B", "C"])
 
-        composition.run(datetime(2000, 1, 2))
+        composition.run(end_time=datetime(2000, 1, 2))
         self.assertEqual(
             updates,
             [
@@ -719,7 +725,7 @@ class TestComposition(unittest.TestCase):
         composition.connect()
         self.assertEqual(updates, ["A", "B"])
 
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(end_time=datetime(2000, 1, 2))
         self.assertEqual(
             updates,
             [
@@ -783,7 +789,7 @@ class TestComposition(unittest.TestCase):
         composition.connect()
         self.assertEqual(updates, ["A1", "A2", "B"])
 
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(end_time=datetime(2000, 1, 2))
         self.assertEqual(
             updates,
             [
@@ -830,10 +836,66 @@ class TestComposition(unittest.TestCase):
         module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
         module2.outputs["Out"] >> Scale(1.0) >> module1.inputs["In"]
 
-        composition.connect()
+        composition.connect(start)
 
         with self.assertRaises(FinamCircularCouplingError):
-            composition.run(datetime(2000, 1, 2))
+            composition.run(end_time=datetime(2000, 1, 2))
+
+    def test_starting_time(self):
+        start_1 = datetime(2000, 1, 1)
+        start_2 = datetime(2000, 1, 8)
+
+        updates = {"A": [], "B": []}
+
+        def lambda_generator(t):
+            return t.day
+
+        def lambda_component(inp, t):
+            return {"Out": fm.data.strip_data(inp["In"])}
+
+        def lambda_debugger(name, data, t):
+            updates[name].append(t.day)
+
+        module1 = CallbackGenerator(
+            callbacks={"Out": (lambda_generator, fm.Info(time=None, grid=fm.NoGrid()))},
+            start=start_2,
+            step=timedelta(days=5),
+        )
+        module2 = CallbackComponent(
+            inputs={
+                "In": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            outputs={
+                "Out": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            callback=lambda_component,
+            start=start_1,
+            step=timedelta(days=3),
+        )
+        module3 = DebugPushConsumer(
+            inputs={
+                "A": fm.Info(time=None, grid=None),
+                "B": fm.Info(time=None, grid=None),
+            },
+            callbacks={
+                "A": lambda_debugger,
+                "B": lambda_debugger,
+            },
+        )
+
+        composition = Composition([module1, module2, module3])
+        composition.initialize()
+
+        module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
+        module1.outputs["Out"] >> Scale(1.0) >> module3.inputs["A"]
+        module2.outputs["Out"] >> Scale(1.0) >> module3.inputs["B"]
+
+        composition.connect()
+
+        composition.run(end_time=datetime(2000, 1, 10))
+
+        self.assertEqual([1, 8, 13], updates["A"])
+        self.assertEqual([1, 4, 7, 10], updates["B"])
 
 
 if __name__ == "__main__":

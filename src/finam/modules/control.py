@@ -136,7 +136,7 @@ class TimeTrigger(TimeComponent):
             out_info_rules=out_info_rules,
         )
 
-    def _connect(self):
+    def _connect(self, start_time):
         out_data = {}
         if (
             not self.connector.data_pushed["Out"]
@@ -144,7 +144,7 @@ class TimeTrigger(TimeComponent):
         ):
             out_data["Out"] = self.connector.in_data["In"]
 
-        self.try_connect(push_data=out_data)
+        self.try_connect(start_time, push_data=out_data)
 
         in_info = self.connector.in_infos["In"]
         if in_info is not None:
@@ -223,12 +223,12 @@ class UserControl(TimeComponent):
 
         self.create_connector()
 
-    def _connect(self):
+    def _connect(self, start_time):
         push_data = {}
         if self.connector.data_required["Counter"]:
             push_data["Counter"] = self._counter
 
-        self.try_connect(push_data=push_data)
+        self.try_connect(start_time, push_data=push_data)
 
     def _validate(self):
         pass

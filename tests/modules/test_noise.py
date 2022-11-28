@@ -34,7 +34,7 @@ class TestNoise(unittest.TestCase):
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.run(end_time=datetime(2000, 1, 2))
 
         data = fm.data.strip_data(sink.data["Input"])
         self.assertEqual(data.shape, ())
@@ -65,8 +65,8 @@ class TestNoise(unittest.TestCase):
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(end_time=datetime(2000, 1, 2))
 
         data = fm.data.strip_data(sink.data["Input"])
         self.assertEqual(data.shape, (19,))
@@ -97,8 +97,8 @@ class TestNoise(unittest.TestCase):
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(end_time=datetime(2000, 1, 2))
 
         data = fm.data.strip_data(sink.data["Input"])
         self.assertEqual(data.shape, (19, 14))
@@ -129,8 +129,8 @@ class TestNoise(unittest.TestCase):
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(end_time=datetime(2000, 1, 2))
 
         data = fm.data.strip_data(sink.data["Input"])
         self.assertEqual(data.shape, (19, 14, 9))
@@ -161,8 +161,8 @@ class TestNoise(unittest.TestCase):
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(end_time=datetime(2000, 1, 2))
 
         data = fm.data.strip_data(sink.data["Input"])
         self.assertEqual(data.shape, (100,))
@@ -193,8 +193,8 @@ class TestNoise(unittest.TestCase):
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(end_time=datetime(2000, 1, 2))
 
         data = fm.data.strip_data(sink.data["Input"])
         self.assertEqual(data.shape, (100,))
@@ -225,8 +225,8 @@ class TestNoise(unittest.TestCase):
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 2))
+        composition.connect(time)
+        composition.run(end_time=datetime(2000, 1, 2))
 
         data = fm.data.strip_data(sink.data["Input"])
         self.assertEqual(data.shape, (100,))
@@ -258,7 +258,7 @@ class TestNoise(unittest.TestCase):
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         with self.assertRaises(fm.FinamMetaDataError):
-            composition.connect()
+            composition.connect(time)
 
     def test_noise_fail(self):
         with self.assertRaises(ValueError):
@@ -297,12 +297,12 @@ class TestStaticNoise(unittest.TestCase):
 
         source.outputs["Noise"] >> sink.inputs["Input"]
 
-        composition.connect()
+        composition.connect(None)
         data_1 = fm.data.strip_data(sink.data["Input"])
 
         self.assertEqual(data_1.shape, ())
 
-        composition.run(t_max=None)
+        composition.run(end_time=None)
 
         data_2 = fm.data.strip_data(sink.data["Input"])
         self.assertEqual(data_1, data_2)

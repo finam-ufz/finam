@@ -72,9 +72,9 @@ class WeightedSum(Component):
         self.outputs.add(CallbackOutput(callback=self._get_data, name="WeightedSum"))
         self.create_connector(pull_data=list(self.inputs))
 
-    def _connect(self):
+    def _connect(self, start_time):
         push_infos = self._check_infos()
-        self.try_connect(push_infos=push_infos)
+        self.try_connect(start_time, push_infos=push_infos)
 
         if self.status == ComponentStatus.CONNECTED:
             # just to check for all inputs equal

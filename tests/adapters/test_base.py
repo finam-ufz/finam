@@ -17,9 +17,11 @@ from finam.modules.generators import CallbackGenerator
 
 class TestCallback(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
+
         self.source = CallbackGenerator(
             callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(1.0),
         )
 
@@ -30,8 +32,8 @@ class TestCallback(unittest.TestCase):
         self.source.outputs["Step"] >> self.adapter
 
         self.adapter.get_info(Info(None, grid=NoGrid()))
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_callback_adapter(self):
@@ -44,9 +46,10 @@ class TestCallback(unittest.TestCase):
 
 class TestScale(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
         self.source = CallbackGenerator(
             callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(1.0),
         )
 
@@ -57,8 +60,8 @@ class TestScale(unittest.TestCase):
         self.source.outputs["Step"] >> self.adapter
 
         self.adapter.get_info(Info(None, grid=NoGrid()))
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_callback_adapter(self):
@@ -86,8 +89,8 @@ class TestGridToValue(unittest.TestCase):
         self.source.outputs["Grid"] >> self.adapter
 
         self.adapter.get_info(Info(None, grid=NoGrid()))
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(datetime(2000, 1, 1))
+        self.source.connect(datetime(2000, 1, 1))
         self.source.validate()
 
         result = self.adapter.get_data(datetime(2000, 1, 1), None)
@@ -98,8 +101,8 @@ class TestGridToValue(unittest.TestCase):
         self.source.outputs["Grid"] >> self.adapter
 
         self.adapter.get_info(Info(None, grid=NoGrid()))
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(datetime(2000, 1, 1))
+        self.source.connect(datetime(2000, 1, 1))
         self.source.validate()
 
         result = self.adapter.get_data(datetime(2000, 1, 1), None)
@@ -129,8 +132,8 @@ class TestValueToGrid(unittest.TestCase):
         self.source.outputs["Value"] >> self.adapter
 
         self.adapter.get_info(Info(None, grid=grid))
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(datetime(2000, 1, 1))
+        self.source.connect(datetime(2000, 1, 1))
         self.source.validate()
 
         _reference_grid, reference_data = create_grid(10, 10, 1.0)
@@ -155,8 +158,8 @@ class TestValueToGrid(unittest.TestCase):
         self.source.outputs["Value"] >> self.adapter
 
         self.adapter.get_info(Info(None, grid=grid))
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(datetime(2000, 1, 1))
+        self.source.connect(datetime(2000, 1, 1))
         self.source.validate()
 
         _reference_grid, reference_data = create_grid(10, 10, 1.0)

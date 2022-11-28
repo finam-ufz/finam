@@ -32,7 +32,7 @@ class TestStaticCallbackGenerator(unittest.TestCase):
 
         _ = source.outputs["Out1"] >> fm.adapters.Scale(2.0) >> consumer.inputs["In1"]
 
-        composition.connect()
+        composition.connect(None)
 
         out_data_1 = consumer.data["In1"]
 

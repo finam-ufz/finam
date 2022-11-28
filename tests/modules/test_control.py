@@ -31,8 +31,8 @@ class TestTimeTrigger(unittest.TestCase):
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
-        composition.run(datetime(2000, 1, 5))
+        composition.connect(time)
+        composition.run(end_time=datetime(2000, 1, 5))
 
     def test_time_trigger_from_source(self):
         time = datetime(2000, 1, 1)
@@ -71,11 +71,11 @@ class TestTimeTrigger(unittest.TestCase):
         source.outputs["Out"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
+        composition.connect(time)
 
         self.assertEqual(trigger._time, datetime(2000, 1, 1))
 
-        composition.run(datetime(2000, 1, 5))
+        composition.run(end_time=datetime(2000, 1, 5))
 
     def test_time_trigger_from_source_with_info(self):
         time = datetime(2000, 1, 1)
@@ -114,13 +114,15 @@ class TestTimeTrigger(unittest.TestCase):
         source.outputs["Out"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
+        composition.connect(time)
 
         self.assertEqual(trigger._time, datetime(2000, 1, 1))
 
-        composition.run(datetime(2000, 1, 5))
+        composition.run(end_time=datetime(2000, 1, 5))
 
     def test_time_trigger_from_target(self):
+        time = datetime(2000, 1, 1)
+
         out_info = fm.Info(
             time=None,
             grid=fm.UniformGrid((20, 15)),
@@ -136,7 +138,7 @@ class TestTimeTrigger(unittest.TestCase):
         )
         sink = fm.modules.DebugConsumer(
             {"Input": out_info},
-            start=datetime(2000, 1, 1),
+            start=time,
             step=timedelta(days=1),
         )
 
@@ -146,13 +148,15 @@ class TestTimeTrigger(unittest.TestCase):
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
+        composition.connect(time)
 
         self.assertEqual(trigger._time, datetime(2000, 1, 1))
 
-        composition.run(datetime(2000, 1, 5))
+        composition.run(end_time=datetime(2000, 1, 5))
 
     def test_time_trigger_from_target_with_info(self):
+        time = datetime(2000, 1, 1)
+
         out_info = fm.Info(
             time=None,
             grid=fm.UniformGrid((20, 15)),
@@ -169,7 +173,7 @@ class TestTimeTrigger(unittest.TestCase):
         )
         sink = fm.modules.DebugConsumer(
             {"Input": out_info},
-            start=datetime(2000, 1, 1),
+            start=time,
             step=timedelta(days=1),
         )
 
@@ -179,11 +183,11 @@ class TestTimeTrigger(unittest.TestCase):
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
-        composition.connect()
+        composition.connect(time)
 
         self.assertEqual(trigger._time, datetime(2000, 1, 1))
 
-        composition.run(datetime(2000, 1, 5))
+        composition.run(end_time=datetime(2000, 1, 5))
 
     def test_time_trigger_fail(self):
         time = datetime(2000, 1, 1)

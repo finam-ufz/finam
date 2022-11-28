@@ -218,8 +218,8 @@ After this connection phase, models can validate their state in :meth:`.TimeComp
         def _initialize(self):
             # ...
 
-        def _connect(self):                                                      # <--
-            self.try_connect(push_data={"Sum": 0})                               # <--
+        def _connect(self, start_time):                                                      # <--
+            self.try_connect(start_time, push_data={"Sum": 0})                               # <--
 
         def _validate(self):                                                     # <--
             pass                                                                 # <--
@@ -295,7 +295,7 @@ In :meth:`.TimeComponent._update`, we get the component's input data, do a "mode
         def _initialize(self):
             # ...
 
-        def _connect(self):
+        def _connect(self, start_time):
             # ...
 
         def _validate(self):
@@ -320,7 +320,7 @@ In :meth:`.TimeComponent._update`, we get the component's input data, do a "mode
         def test_dummy_model(self):
             # ...
 
-            composition.run(t_max=datetime(2000, 12, 31))
+            composition.run(end_time=datetime(2000, 12, 31))
 
 The test should fail, as we still need to implement the :meth:`.TimeComponent._finalize()` method.
 
@@ -348,7 +348,7 @@ We do nothing special here.
         def _initialize(self):
             # ...
 
-        def _connect(self):
+        def _connect(self, start_time):
             # ...
 
         def _validate(self):
@@ -390,8 +390,8 @@ Here is the final code of the completed component.
 
             self.create_connector()
 
-        def _connect(self):
-            self.try_connect(push_data={"Sum": 0})
+        def _connect(self, start_time):
+            self.try_connect(start_time, push_data={"Sum": 0})
 
         def _validate(self):
             pass
@@ -442,7 +442,7 @@ Here is the final code of the completed component.
 
             self.assertEqual(consumer.data, {"Sum": 0})
 
-            composition.run(t_max=datetime(2000, 12, 31))
+            composition.run(end_time=datetime(2000, 12, 31))
 
     if __name__ == "__main__":
         unittest.main()

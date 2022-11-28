@@ -3,10 +3,12 @@ import copy
 import logging
 from abc import ABC
 
+import xarray as xr
+
 from finam.interfaces import ComponentStatus, Loggable
 
-from ..data.tools import Info
-from ..errors import FinamNoDataError
+from ..data.tools import Info, assign_time
+from ..errors import FinamNoDataError, FinamTimeError
 from ..tools.log_helper import ErrorLogger
 
 
@@ -327,7 +329,7 @@ class ConnectHelper(Loggable):
             for name, pushed in self.infos_pushed.items()
         }
 
-    def connect(self, time, exchange_infos=None, push_infos=None, push_data=None):
+    def connect(self, start_time, exchange_infos=None, push_infos=None, push_data=None):
         """Exchange the info and data with linked components.
 
         Values passed by the arguments are cached internally for later calls to the method
@@ -337,8 +339,8 @@ class ConnectHelper(Loggable):
 
         Parameters
         ----------
-        time : :class:`datetime <datetime.datetime>`
-            time for data pulls
+        start_time : :class:`datetime <datetime.datetime>`
+            the composition's starting time as passed to :meth:`.Component.try_connect`
         exchange_infos : dict
             currently or newly available input data infos by input name
         push_infos : dict
@@ -391,7 +393,7 @@ class ConnectHelper(Loggable):
                 except FinamNoDataError:
                     self.logger.debug("Failed to pull output info for %s", name)
 
-        any_done += self._push(time)
+        any_done += self._push(start_time)
 
         for name, data in self.in_data.items():
             if data is None:
@@ -399,7 +401,7 @@ class ConnectHelper(Loggable):
                 if info is not None:
                     try:
                         self.in_data[name] = self.inputs[name].pull_data(
-                            time or info.time
+                            start_time or info.time
                         )
                         any_done = True
                         self.logger.debug("Successfully pulled input data for %s", name)
@@ -413,6 +415,9 @@ class ConnectHelper(Loggable):
             and all(v for v in self.infos_pushed.values())
             and all(v for v in self.data_pushed.values())
         ):
+            with ErrorLogger(self.logger):
+                _check_times(self.out_infos)
+
             return ComponentStatus.CONNECTED
 
         if any_done:
@@ -510,18 +515,39 @@ class ConnectHelper(Loggable):
             if not self.data_pushed[name] and self.infos_pushed[name]:
                 info = self.out_infos[name]
                 if info is not None:
-                    try:
-                        self.outputs[name].push_data(data, time or info.time)
-                        self.data_pushed[name] = True
-                        any_done = True
-                        self._out_data_cache.pop(name)
-                        self.logger.debug(
-                            "Successfully pushed output data for %s", name
-                        )
-                    except FinamNoDataError:
-                        self.logger.debug("Failed to push output data for %s", name)
+                    self._push_data(name, data, time, info.time)
+                    any_done = True
 
         return any_done
+
+    def _push_data(self, name, data, time, info_time):
+        out = self.outputs[name]
+        if out.is_static:
+            out.push_data(data, None)
+        elif info_time != time:
+            if isinstance(data, xr.DataArray):
+                data_1 = assign_time(data, time)
+                out.push_data(data_1, time)
+                data_2 = assign_time(data, info_time)
+                out.push_data(copy.copy(data_2), info_time)
+            else:
+                out.push_data(data, time)
+                out.push_data(copy.copy(data), info_time)
+        else:
+            out.push_data(data, info_time)
+
+        self.data_pushed[name] = True
+        self._out_data_cache.pop(name)
+        self.logger.debug("Successfully pushed output data for %s", name)
+
+
+def _check_times(infos):
+    t = None
+    for _, info in infos.items():
+        if t is None:
+            t = info.time
+        elif t != info.time:
+            raise FinamTimeError("Input infos have different starting times.")
 
 
 def _transfer_fields(source_info, target_info, fields):

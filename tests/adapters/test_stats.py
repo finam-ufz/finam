@@ -39,4 +39,4 @@ class TestHistogram(unittest.TestCase):
         self.assertEqual(data.data.sum(), 11 * 14)
         self.assertEqual(fm.data.get_units(data), fm.UNITS.dimensionless)
 
-        composition.run(datetime(2000, 1, 10))
+        composition.run(end_time=datetime(2000, 1, 10))

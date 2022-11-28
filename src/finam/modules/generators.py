@@ -81,7 +81,7 @@ class CallbackGenerator(TimeComponent):
 
         self.create_connector()
 
-    def _connect(self):
+    def _connect(self, start_time):
         """Push initial values to outputs.
 
         After the method call, the component should have status CONNECTED.
@@ -97,7 +97,7 @@ class CallbackGenerator(TimeComponent):
             if not pushed:
                 push_data[name] = self._initial_data[name]
 
-        self.try_connect(self._time, push_data=push_data)
+        self.try_connect(start_time, push_data=push_data)
 
         if self.status == ComponentStatus.CONNECTED:
             del self._initial_data
@@ -181,7 +181,7 @@ class StaticCallbackGenerator(Component):
 
         self.create_connector()
 
-    def _connect(self):
+    def _connect(self, start_time):
         """Push initial values to outputs.
 
         After the method call, the component should have status CONNECTED.
@@ -196,7 +196,7 @@ class StaticCallbackGenerator(Component):
             if not pushed:
                 push_data[name] = self._initial_data[name]
 
-        self.try_connect(push_data=push_data)
+        self.try_connect(start_time, push_data=push_data)
 
         if self.status == ComponentStatus.CONNECTED:
             del self._initial_data

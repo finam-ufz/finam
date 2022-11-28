@@ -108,8 +108,8 @@ class DebugConsumer(TimeComponent):
             self.inputs.add(name=name, info=info)
         self.create_connector(pull_data=list(self._input_infos.keys()))
 
-    def _connect(self):
-        self.try_connect(self._time)
+    def _connect(self, start_time):
+        self.try_connect(start_time)
         for name, info in self.connector.in_infos.items():
             if info is not None:
                 self.logger.debug("Exchanged input info for %s", name)
@@ -237,8 +237,8 @@ class DebugPushConsumer(Component):
             )
         self.create_connector()
 
-    def _connect(self):
-        self.try_connect()
+    def _connect(self, start_time):
+        self.try_connect(start_time)
         for name, info in self.connector.in_infos.items():
             if info is not None:
                 self.logger.debug("Exchanged input info for %s", name)
@@ -343,8 +343,8 @@ class ScheduleLogger(Component):
             pull_data=[inp for inp, pull in self._pull_inputs.items() if pull]
         )
 
-    def _connect(self):
-        self.try_connect()
+    def _connect(self, start_time):
+        self.try_connect(start_time)
 
     def _validate(self):
         pass

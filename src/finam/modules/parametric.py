@@ -67,8 +67,8 @@ class ParametricGrid(Component):
         )
         self.create_connector()
 
-    def _connect(self):
-        self.try_connect()
+    def _connect(self, start_time):
+        self.try_connect(start_time)
 
         info = self.connector.out_infos["Grid"]
         if info is not None:
@@ -154,12 +154,12 @@ class StaticParametricGrid(Component):
         self.outputs.add(io=Output(name="Grid", static=True, info=self._info))
         self.create_connector()
 
-    def _connect(self):
+    def _connect(self, start_time):
         push_data = {}
         if self.connector.out_infos["Grid"] is not None:
             push_data["Grid"] = self._generate_grid()
 
-        self.try_connect(push_data=push_data)
+        self.try_connect(start_time, push_data=push_data)
 
         info = self.connector.out_infos["Grid"]
         if info is not None:

@@ -29,9 +29,11 @@ reg = pint.UnitRegistry(force_ndarray_like=True)
 
 class TestDelayToPush(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
+
         self.source = CallbackGenerator(
             callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=1),
         )
 
@@ -43,8 +45,8 @@ class TestDelayToPush(unittest.TestCase):
 
         self.adapter.get_info(Info(None, grid=NoGrid()))
 
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_delay_to_push(self):
@@ -59,9 +61,11 @@ class TestDelayToPush(unittest.TestCase):
 
 class TestDelayToPull(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
+
         self.source = CallbackGenerator(
             callbacks={"Step": (lambda t: t.day, Info(None, grid=NoGrid()))},
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=1),
         )
 
@@ -73,8 +77,8 @@ class TestDelayToPull(unittest.TestCase):
 
         self.adapter.get_info(Info(None, grid=NoGrid()))
 
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_delay_to_pull(self):
@@ -91,6 +95,7 @@ class TestDelayToPull(unittest.TestCase):
 
 class TestDelayFixed(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
         self.last_pull = None
 
         def callback(t):
@@ -98,7 +103,7 @@ class TestDelayFixed(unittest.TestCase):
 
         self.source = CallbackGenerator(
             callbacks={"Step": (callback, Info(None, grid=NoGrid()))},
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=1),
         )
 
@@ -110,8 +115,8 @@ class TestDelayFixed(unittest.TestCase):
 
         self.adapter.get_info(Info(None, grid=NoGrid()))
 
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_fixed_delay(self):
@@ -148,9 +153,10 @@ class TestDelayFixed(unittest.TestCase):
 
 class TestNextValue(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
         self.source = CallbackGenerator(
             callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(1.0),
         )
 
@@ -162,8 +168,8 @@ class TestNextValue(unittest.TestCase):
 
         self.adapter.get_info(Info(None, grid=NoGrid()))
 
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_next_value(self):
@@ -184,9 +190,10 @@ class TestNextValue(unittest.TestCase):
 
 class TestPreviousValue(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
         self.source = CallbackGenerator(
             callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=1),
         )
 
@@ -197,8 +204,8 @@ class TestPreviousValue(unittest.TestCase):
         self.source.outputs["Step"] >> self.adapter
         self.adapter.get_info(Info(None, grid=NoGrid()))
 
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_previous_value(self):
@@ -237,9 +244,10 @@ class TestInterpolation(unittest.TestCase):
 
 class TestStepInterpolation(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
         self.source = CallbackGenerator(
             callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(days=10.0),
         )
 
@@ -249,8 +257,8 @@ class TestStepInterpolation(unittest.TestCase):
         self.source.outputs["Step"] >> self.adapter
         self.adapter.get_info(Info(None, grid=NoGrid()))
 
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_step_interpolation(self):
@@ -270,9 +278,10 @@ class TestStepInterpolation(unittest.TestCase):
 
 class TestLinearInterpolation(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
         self.source = CallbackGenerator(
             callbacks={"Step": (lambda t: t.day - 1, Info(None, grid=NoGrid()))},
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(1.0),
         )
 
@@ -282,8 +291,8 @@ class TestLinearInterpolation(unittest.TestCase):
         self.source.outputs["Step"] >> self.adapter
         self.adapter.get_info(Info(None, grid=NoGrid()))
 
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_linear_interpolation(self):
@@ -307,6 +316,7 @@ class TestLinearInterpolation(unittest.TestCase):
 
 class TestLinearGridInterpolation(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
         grid, _ = create_grid(10, 15, 0)
         self.source = CallbackGenerator(
             callbacks={
@@ -315,7 +325,7 @@ class TestLinearGridInterpolation(unittest.TestCase):
                     Info(None, grid=grid),
                 )
             },
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(1.0),
         )
 
@@ -325,8 +335,8 @@ class TestLinearGridInterpolation(unittest.TestCase):
         self.source.outputs["Grid"] >> self.adapter
         self.adapter.get_info(Info(None, grid=grid))
 
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_linear_grid_interpolation(self):
@@ -375,6 +385,7 @@ class TestLinearGridInterpolation(unittest.TestCase):
 
 class TestTimeStack(unittest.TestCase):
     def setUp(self):
+        start = datetime(2000, 1, 1)
         grid, _ = create_grid(10, 15, 0)
         self.source = CallbackGenerator(
             callbacks={
@@ -383,7 +394,7 @@ class TestTimeStack(unittest.TestCase):
                     Info(None, grid=grid),
                 )
             },
-            start=datetime(2000, 1, 1),
+            start=start,
             step=timedelta(1.0),
         )
 
@@ -394,8 +405,8 @@ class TestTimeStack(unittest.TestCase):
         self.source.outputs["Grid"] >> self.adapter
         self.adapter.get_info(Info(None, grid=grid))
 
-        self.source.connect()
-        self.source.connect()
+        self.source.connect(start)
+        self.source.connect(start)
         self.source.validate()
 
     def test_stack_time(self):

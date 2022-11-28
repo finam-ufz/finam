@@ -11,9 +11,9 @@ Composition
 """
 import logging
 import sys
-import time
 from datetime import datetime
 from pathlib import Path
+from time import strftime
 
 from .errors import (
     FinamCircularCouplingError,
@@ -55,7 +55,7 @@ class Composition(Loggable):
 
         comp_b.outputs["Out"] >> SomeAdapter() >> comp_b.inputs["In"]
 
-        composition.run(t_max=...)
+        composition.run(end_time=...)
 
     Parameters
     ----------
@@ -97,7 +97,7 @@ class Composition(Loggable):
         if log_file:
             # for log_file=True use a default name
             if isinstance(log_file, bool):
-                log_file = f"./{logger_name}_{time.strftime('%Y-%m-%d_%H-%M-%S')}.log"
+                log_file = f"./{logger_name}_{strftime('%Y-%m-%d_%H-%M-%S')}.log"
             fh = logging.FileHandler(Path(log_file), mode="w")
             fh.setFormatter(formatter)
             self.logger.addHandler(fh)
@@ -140,17 +140,50 @@ class Composition(Loggable):
 
         self.is_initialized = True
 
-    def connect(self):
+    def connect(self, start_time=None):
         """Performs the connect and validate phases of the composition
 
         If this was not called by the user, it is called at the start of :meth:`.run`.
+
+        Parameters
+        ----------
+        start_time : :class:`datetime <datetime.datetime>`, optional
+            Starting time of the composition.
+            If provided, it should be the starting time of the earliest component.
+            If not provided, the composition tries to determine the starting time automatically.
         """
         if self.is_connected:
             raise FinamStatusError("Composition was already connected.")
 
+        time_modules = [m for m in self.modules if isinstance(m, ITimeComponent)]
+
+        with ErrorLogger(self.logger):
+            if len(time_modules) == 0:
+                if start_time is not None:
+                    raise ValueError(
+                        "start must be None for a composition without time components"
+                    )
+            else:
+                if start_time is None:
+                    t_min = None
+                    for mod in time_modules:
+                        if mod.time is not None:
+                            if t_min is None or mod.time < t_min:
+                                t_min = mod.time
+                    if t_min is None:
+                        raise ValueError(
+                            "Unable to determine starting time of the composition."
+                            "Please provide a starting time in ``run()`` or ``connect()``"
+                        )
+                    start_time = t_min
+                if not isinstance(start_time, datetime):
+                    raise ValueError(
+                        "start must be of type datetime for a composition with time components"
+                    )
+
         self._validate_composition()
 
-        self._connect_components()
+        self._connect_components(start_time)
 
         self.logger.debug("validate components")
         for mod in self.modules:
@@ -161,14 +194,19 @@ class Composition(Loggable):
 
         self.is_connected = True
 
-    def run(self, t_max=None):
+    def run(self, start_time=None, end_time=None):
         """Run this composition using the loop-based update strategy.
 
         Performs the connect phase if it ``connect()`` was not already called.
 
         Parameters
         ----------
-        t_max : :class:`datetime <datetime.datetime>` or None, optional
+        start_time : :class:`datetime <datetime.datetime>`, optional
+            Starting time of the composition.
+            If provided, it should be the starting time of the earliest component.
+            If not provided, the composition tries to determine the starting time automatically.
+            Ignored if :meth:`.connect` was already called.
+        end_time : :class:`datetime <datetime.datetime>`, optional
             Simulation time up to which to simulate.
             Should be ``None`` if no components with time are present.
         """
@@ -176,18 +214,18 @@ class Composition(Loggable):
 
         with ErrorLogger(self.logger):
             if len(time_modules) == 0:
-                if t_max is not None:
+                if end_time is not None:
                     raise ValueError(
-                        "t_max must be None for a composition without time components"
+                        "end must be None for a composition without time components"
                     )
             else:
-                if not isinstance(t_max, datetime):
+                if not isinstance(end_time, datetime):
                     raise ValueError(
-                        "t_max must be of type datetime for a composition with time components"
+                        "end must be of type datetime for a composition with time components"
                     )
 
         if not self.is_connected:
-            self.connect()
+            self.connect(start_time)
 
         self.logger.debug("running composition")
         while len(time_modules) > 0:
@@ -201,7 +239,7 @@ class Composition(Loggable):
 
             any_running = False
             for mod in time_modules:
-                if mod.status != ComponentStatus.FINISHED and mod.time < t_max:
+                if mod.status != ComponentStatus.FINISHED and mod.time < end_time:
                     any_running = True
                     break
 
@@ -274,7 +312,7 @@ class Composition(Loggable):
         with ErrorLogger(self.logger):
             _check_missing_modules(self.modules)
 
-    def _connect_components(self):
+    def _connect_components(self, time):
         self.logger.debug("connect components")
         counter = 0
         while True:
@@ -283,7 +321,7 @@ class Composition(Loggable):
             any_new_connection = False
             for mod in self.modules:
                 if mod.status != ComponentStatus.CONNECTED:
-                    mod.connect()
+                    mod.connect(time)
                     self._check_status(
                         mod,
                         [
