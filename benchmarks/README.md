@@ -4,7 +4,8 @@
 
 ### Push & pull
 
-Push & pull using numpy arrays
+Push & pull using numpy arrays (`np`) and xarray arrays (`xr`).  
+(xarray benchmarks include a call to `fm.tools.assign_time`)
 
 ![tools](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-sdk-io.svg?job=benchmark)
 
