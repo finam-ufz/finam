@@ -1,5 +1,10 @@
 # FINAM benchmarks
 
+Micro-benchmarks for important FINAM functions and functionality.
+
+Note that plot panels have different units!
+`ms` is milliseconds (1/1,000 second), `us` is microseconds (1/1,000,000 second).
+
 ## SDK
 
 ### Push & pull
