@@ -62,7 +62,7 @@ class TestWeightedSum(unittest.TestCase):
 
         merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
 
-        composition.run(t=start, t_max=start + timedelta(days=30))
+        composition.run(start=start, end=start + timedelta(days=30))
 
         self.assertEqual(consumer.data["WeightedSum"], 1.75 * fm.UNITS.millimeter)
         self.assertEqual(
@@ -121,7 +121,7 @@ class TestWeightedSum(unittest.TestCase):
 
         merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
 
-        composition.run(t=start, t_max=start + timedelta(days=30))
+        composition.run(start=start, end=start + timedelta(days=30))
 
         self.assertEqual(
             fm.data.get_units(consumer.data["WeightedSum"]), fm.UNITS("mm")
@@ -181,7 +181,7 @@ class TestWeightedSum(unittest.TestCase):
         merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
 
         with self.assertRaises(finam.errors.FinamMetaDataError):
-            composition.run(t=start, t_max=start + timedelta(days=30))
+            composition.run(start=start, end=start + timedelta(days=30))
 
     def test_weighted_sum_fail_grid_weights(self):
         start = datetime(2000, 1, 1)
@@ -237,7 +237,7 @@ class TestWeightedSum(unittest.TestCase):
         merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
 
         with self.assertRaises(finam.errors.FinamMetaDataError):
-            composition.run(t=start, t_max=start + timedelta(days=30))
+            composition.run(start=start, end=start + timedelta(days=30))
 
     def test_weighted_sum_fail_units(self):
         start = datetime(2000, 1, 1)
@@ -292,7 +292,7 @@ class TestWeightedSum(unittest.TestCase):
         merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
 
         with self.assertRaises(finam.errors.FinamMetaDataError):
-            composition.run(t=start, t_max=start + timedelta(days=30))
+            composition.run(start=start, end=start + timedelta(days=30))
 
     def test_weighted_sum_fail_units_weights(self):
         start = datetime(2000, 1, 1)
@@ -347,4 +347,4 @@ class TestWeightedSum(unittest.TestCase):
         merger.outputs["WeightedSum"] >> consumer.inputs["WeightedSum"]
 
         with self.assertRaises(finam.errors.FinamMetaDataError):
-            composition.run(t=start, t_max=start + timedelta(days=30))
+            composition.run(start=start, end=start + timedelta(days=30))

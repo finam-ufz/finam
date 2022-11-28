@@ -58,7 +58,7 @@ class TestScheduleLogger(unittest.TestCase):
         module3.outputs["Out"] >> schedule.inputs["M3"]
 
         composition.connect(start)
-        composition.run(t_max=datetime(2000, 1, 30))
+        composition.run(end=datetime(2000, 1, 30))
 
 
 class TestPushDebugConsumer(unittest.TestCase):
@@ -89,6 +89,6 @@ class TestPushDebugConsumer(unittest.TestCase):
         composition.connect(start)
         self.assertEqual(fm.data.strip_data(consumer.data["In"]), 1)
 
-        composition.run(t=start, t_max=datetime(2000, 1, 10))
+        composition.run(start=start, end=datetime(2000, 1, 10))
 
         self.assertEqual(fm.data.strip_data(consumer.data["In"]), 11)

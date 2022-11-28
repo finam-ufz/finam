@@ -38,7 +38,7 @@ class TestParametricGrid(unittest.TestCase):
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(end=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 19))
@@ -74,7 +74,7 @@ class TestParametricGrid(unittest.TestCase):
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(end=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 19, 14))
@@ -112,7 +112,7 @@ class TestParametricGrid(unittest.TestCase):
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(end=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 19, 14, 9))
@@ -147,7 +147,7 @@ class TestParametricGrid(unittest.TestCase):
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(end=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 100))
@@ -183,7 +183,7 @@ class TestParametricGrid(unittest.TestCase):
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(end=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 100))
@@ -219,7 +219,7 @@ class TestParametricGrid(unittest.TestCase):
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(end=datetime(2000, 1, 2))
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 100))
@@ -287,7 +287,7 @@ class TestStaticParametricGrid(unittest.TestCase):
 
         self.assertEqual(data_1.shape, (19, 14))
 
-        composition.run(t_max=None)
+        composition.run(end=None)
 
         data_2 = fm.data.strip_data(sink.data["Input"])
         assert_allclose(data_1, data_2)

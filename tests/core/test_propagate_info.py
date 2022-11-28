@@ -106,7 +106,7 @@ class TestPropagate(unittest.TestCase):
 
         (source.outputs["Output"] >> SpecAdapter() >> sink.inputs["Input"])
 
-        composition.run(t_max=datetime(2000, 1, 2))
+        composition.run(end=datetime(2000, 1, 2))
 
         self.assertEqual(
             sink.inputs["Input"].info,
@@ -136,7 +136,7 @@ class TestPropagate(unittest.TestCase):
         source.outputs["Output"] >> sink.inputs["Input"]
 
         with self.assertRaises(FinamMetaDataError):
-            composition.run(t=time, t_max=datetime(2000, 1, 2))
+            composition.run(start=time, end=datetime(2000, 1, 2))
 
     def test_propagate_info_from_source(self):
         time = datetime(2000, 1, 1)
@@ -160,7 +160,7 @@ class TestPropagate(unittest.TestCase):
 
         source.outputs["Output"] >> sink.inputs["Input"]
 
-        composition.run(t=time, t_max=datetime(2000, 1, 2))
+        composition.run(start=time, end=datetime(2000, 1, 2))
 
         self.assertEqual(
             sink.inputs["Input"].info,
@@ -187,7 +187,7 @@ class TestPropagate(unittest.TestCase):
 
         source.outputs["Output"] >> sink.inputs["Input"]
 
-        composition.run(t=time, t_max=datetime(2000, 1, 2))
+        composition.run(start=time, end=datetime(2000, 1, 2))
 
         self.assertEqual(
             source.outputs["Output"].info,

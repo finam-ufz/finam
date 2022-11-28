@@ -329,7 +329,7 @@ class ConnectHelper(Loggable):
             for name, pushed in self.infos_pushed.items()
         }
 
-    def connect(self, time, exchange_infos=None, push_infos=None, push_data=None):
+    def connect(self, start_time, exchange_infos=None, push_infos=None, push_data=None):
         """Exchange the info and data with linked components.
 
         Values passed by the arguments are cached internally for later calls to the method
@@ -339,7 +339,7 @@ class ConnectHelper(Loggable):
 
         Parameters
         ----------
-        time : :class:`datetime <datetime.datetime>`
+        start_time : :class:`datetime <datetime.datetime>`
             the composition's starting time as passed to :meth:`.Component.try_connect`
         exchange_infos : dict
             currently or newly available input data infos by input name
@@ -393,7 +393,7 @@ class ConnectHelper(Loggable):
                 except FinamNoDataError:
                     self.logger.debug("Failed to pull output info for %s", name)
 
-        any_done += self._push(time)
+        any_done += self._push(start_time)
 
         for name, data in self.in_data.items():
             if data is None:
@@ -401,7 +401,7 @@ class ConnectHelper(Loggable):
                 if info is not None:
                     try:
                         self.in_data[name] = self.inputs[name].pull_data(
-                            time or info.time
+                            start_time or info.time
                         )
                         any_done = True
                         self.logger.debug("Successfully pulled input data for %s", name)
@@ -515,10 +515,8 @@ class ConnectHelper(Loggable):
             if not self.data_pushed[name] and self.infos_pushed[name]:
                 info = self.out_infos[name]
                 if info is not None:
-                    if self._push_data(name, data, time, info.time):
-                        any_done = True
-                    else:
-                        self.logger.debug("Failed to push output data for %s", name)
+                    self._push_data(name, data, time, info.time)
+                    any_done = True
 
         return any_done
 
@@ -541,7 +539,6 @@ class ConnectHelper(Loggable):
         self.data_pushed[name] = True
         self._out_data_cache.pop(name)
         self.logger.debug("Successfully pushed output data for %s", name)
-        return True
 
 
 def _check_times(infos):

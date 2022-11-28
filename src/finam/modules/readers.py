@@ -112,7 +112,7 @@ class CsvReader(TimeComponent):
                 self._data_generated = True
 
         self.try_connect(
-            time=start_time,
+            start_time=start_time,
             push_infos={
                 name: Info(self.time, grid=NoGrid(), units=units)
                 for name, units in self._output_units.items()
