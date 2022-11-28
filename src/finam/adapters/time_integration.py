@@ -291,7 +291,7 @@ class SumOverTime(TimeIntegrationAdapter):
 
         in_info = self.exchange_info(up_info)
 
-        units = tools.UNITS.Unit(in_info.meta.get("units", ""))
+        units = tools.UNITS.Unit(in_info.units)
         if self._per_time:
             units *= tools.UNITS.Unit("s")
             out_info = in_info.copy_with(units=(1.0 * units).to_reduced_units().units)
