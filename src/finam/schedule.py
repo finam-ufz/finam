@@ -55,7 +55,7 @@ class Composition(Loggable):
 
         comp_b.outputs["Out"] >> SomeAdapter() >> comp_b.inputs["In"]
 
-        composition.run(t_max=...)
+        composition.run(end=...)
 
     Parameters
     ----------
@@ -161,7 +161,7 @@ class Composition(Loggable):
             if len(time_modules) == 0:
                 if start_time is not None:
                     raise ValueError(
-                        "t must be None for a composition without time components"
+                        "start must be None for a composition without time components"
                     )
             else:
                 if start_time is None:
@@ -178,7 +178,7 @@ class Composition(Loggable):
                     start_time = t_min
                 if not isinstance(start_time, datetime):
                     raise ValueError(
-                        "t must be of type datetime for a composition with time components"
+                        "start must be of type datetime for a composition with time components"
                     )
 
         self._validate_composition()
@@ -216,12 +216,12 @@ class Composition(Loggable):
             if len(time_modules) == 0:
                 if end is not None:
                     raise ValueError(
-                        "t_max must be None for a composition without time components"
+                        "end must be None for a composition without time components"
                     )
             else:
                 if not isinstance(end, datetime):
                     raise ValueError(
-                        "t_max must be of type datetime for a composition with time components"
+                        "end must be of type datetime for a composition with time components"
                     )
 
         if not self.is_connected:

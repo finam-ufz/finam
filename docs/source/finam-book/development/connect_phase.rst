@@ -243,7 +243,7 @@ and the initial data should be generated from it.
                 push_infos["Area"] = info
                 push_data["Area"] = _generate_data(info)
 
-            self.try_connect(time=start_time,
+            self.try_connect(start_time=start_time,
                              push_infos=push_infos,
                              push_data=push_data)
 

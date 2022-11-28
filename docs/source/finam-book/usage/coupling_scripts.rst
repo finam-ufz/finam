@@ -43,7 +43,7 @@ Here is a simple example coupling two components:
     generator.outputs["Noise"] >> consumer.inputs["Value"]
 
     # Run the composition until June 2000
-    composition.run(t_max=datetime(2000, 6, 30))    # doctest: +ELLIPSIS
+    composition.run(end=datetime(2000, 6, 30))    # doctest: +ELLIPSIS
 
 .. testoutput:: simple-example
     :hide:
@@ -149,7 +149,7 @@ time steps and an adapter:
     )
 
     # Run the composition until June 2000
-    composition.run(t_max=datetime(2000, 6, 30))    # doctest: +ELLIPSIS
+    composition.run(end=datetime(2000, 6, 30))    # doctest: +ELLIPSIS
 
 .. testoutput:: adapter-example
     :hide:
