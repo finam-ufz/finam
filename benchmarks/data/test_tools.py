@@ -46,7 +46,7 @@ class TestToXarray(unittest.TestCase):
         self.benchmark = benchmark
 
     @pytest.mark.benchmark(group="data-tools")
-    def test_to_xarray_01_2x1(self):
+    def test_to_xarray_np_01_2x1(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
         xdata = full(0.0, "test", info, time)
@@ -56,7 +56,7 @@ class TestToXarray(unittest.TestCase):
         )
 
     @pytest.mark.benchmark(group="data-tools")
-    def test_to_xarray_02_512x256(self):
+    def test_to_xarray_np_02_512x256(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
         xdata = full(0.0, "test", info, time)
@@ -66,13 +66,40 @@ class TestToXarray(unittest.TestCase):
         )
 
     @pytest.mark.benchmark(group="data-tools")
-    def test_to_xarray_03_2048x1024(self):
+    def test_to_xarray_np_03_2048x1024(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
         xdata = full(0.0, "test", info, time)
         data = strip_data(xdata)
         _result = self.benchmark(
             to_xarray, data=data, name="test", info=info, time=time
+        )
+
+    @pytest.mark.benchmark(group="data-tools")
+    def test_to_xarray_xr_01_2x1(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
+        xdata = full(0.0, "test", info, time)
+        _result = self.benchmark(
+            to_xarray, data=xdata, name="test", info=info, time=time
+        )
+
+    @pytest.mark.benchmark(group="data-tools")
+    def test_to_xarray_xr_02_512x256(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
+        xdata = full(0.0, "test", info, time)
+        _result = self.benchmark(
+            to_xarray, data=xdata, name="test", info=info, time=time
+        )
+
+    @pytest.mark.benchmark(group="data-tools")
+    def test_to_xarray_xr_03_2048x1024(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
+        xdata = full(0.0, "test", info, time)
+        _result = self.benchmark(
+            to_xarray, data=xdata, name="test", info=info, time=time
         )
 
 
