@@ -500,7 +500,7 @@ class TestComposition(unittest.TestCase):
             _find_dependencies(
                 module2, composition.output_owners, datetime(2000, 1, 5)
             ),
-            {module1: (datetime(2000, 1, 5), False)},
+            {module1.outputs["Output"]: (datetime(2000, 1, 5), False)},
         )
 
     def test_dependencies_multi(self):
@@ -536,13 +536,13 @@ class TestComposition(unittest.TestCase):
             _find_dependencies(
                 module2, composition.output_owners, datetime(2000, 1, 5)
             ),
-            {module1: (datetime(2000, 1, 5), False)},
+            {module1.outputs["Output"]: (datetime(2000, 1, 5), False)},
         )
         self.assertEqual(
             _find_dependencies(
                 module3, composition.output_owners, datetime(2000, 1, 5)
             ),
-            {module1: (datetime(2000, 1, 5), False)},
+            {module1.outputs["Output"]: (datetime(2000, 1, 5), False)},
         )
 
         self.assertEqual(
@@ -561,7 +561,7 @@ class TestComposition(unittest.TestCase):
             _find_dependencies(
                 module4, composition.output_owners, datetime(2000, 1, 5)
             ),
-            {module3: (datetime(2000, 1, 3), True)},
+            {module3.outputs["Output"]: (datetime(2000, 1, 3), True)},
         )
 
     def test_static_run(self):
@@ -676,6 +676,127 @@ class TestComposition(unittest.TestCase):
                 "A",
                 "B",  # Update B to 10
                 "C",  # Update C to 8
+            ],
+        )
+
+    def test_dependencies_schedule_no_push(self):
+        start = datetime(2000, 1, 1)
+        info = fm.Info(time=start, grid=fm.NoGrid())
+
+        updates = []
+
+        def lambda_generator(t):
+            updates.append("A")
+            if (t.day - 1) % 5 != 0:
+                return None
+            return t.day
+
+        def lambda_component(inp, t):
+            updates.append("B")
+            return {"Out": inp["In"]}
+
+        module1 = CallbackGenerator(
+            callbacks={"Out": (lambda_generator, info)},
+            start=start,
+            step=timedelta(days=1),
+        )
+        module2 = CallbackComponent(
+            inputs={
+                "In": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            outputs={
+                "Out": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            callback=lambda_component,
+            start=start,
+            step=timedelta(days=1),
+        )
+        composition = Composition([module1, module2])
+        composition.initialize()
+
+        module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
+
+        composition.connect()
+        self.assertEqual(updates, ["A", "B"])
+
+        composition.run(t_max=datetime(2000, 1, 2))
+        self.assertEqual(
+            updates,
+            [
+                "A",
+                "B",  # Connect
+                "A",
+                "A",
+                "A",
+                "A",
+                "A",
+                "B",  # Update B to 5
+            ],
+        )
+
+    def test_dependencies_schedule_no_push_double(self):
+        start = datetime(2000, 1, 1)
+        info = fm.Info(time=start, grid=fm.NoGrid())
+
+        updates = []
+
+        def lambda_generator_1(t):
+            updates.append("A1")
+            return t.day
+
+        def lambda_generator_2(t):
+            if (t.day - 1) % 5 != 0:
+                return None
+            updates.append("A2")
+            return t.day
+
+        def lambda_component(inp, t):
+            updates.append("B")
+            return {"Out": inp["In1"]}
+
+        module1 = CallbackGenerator(
+            callbacks={
+                "Out1": (lambda_generator_1, info),
+                "Out2": (lambda_generator_2, info),
+            },
+            start=start,
+            step=timedelta(days=1),
+        )
+        module2 = CallbackComponent(
+            inputs={
+                "In1": fm.Info(time=None, grid=fm.NoGrid()),
+                "In2": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            outputs={
+                "Out": fm.Info(time=None, grid=fm.NoGrid()),
+            },
+            callback=lambda_component,
+            start=start,
+            step=timedelta(days=1),
+        )
+        composition = Composition([module1, module2])
+        composition.initialize()
+
+        module1.outputs["Out1"] >> Scale(1.0) >> module2.inputs["In1"]
+        module1.outputs["Out2"] >> Scale(1.0) >> module2.inputs["In2"]
+
+        composition.connect()
+        self.assertEqual(updates, ["A1", "A2", "B"])
+
+        composition.run(t_max=datetime(2000, 1, 2))
+        self.assertEqual(
+            updates,
+            [
+                "A1",
+                "A2",
+                "B",  # Connect
+                "A1",
+                "A1",
+                "A1",
+                "A1",
+                "A1",
+                "A2",
+                "B",  # Update B to 5
             ],
         )
 

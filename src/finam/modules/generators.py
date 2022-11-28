@@ -118,7 +118,9 @@ class CallbackGenerator(TimeComponent):
         self._time += self._step
 
         for key, (callback, _) in self._callbacks.items():
-            self.outputs[key].push_data(callback(self._time), self.time)
+            data = callback(self._time)
+            if data is not None:
+                self.outputs[key].push_data(data, self.time)
 
     def _finalize(self):
         """Finalize and clean up the component.

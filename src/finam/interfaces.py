@@ -231,6 +231,11 @@ class IOutput(ABC):
 
     @property
     @abstractmethod
+    def time(self):
+        """The output's time of the latest available data"""
+
+    @property
+    @abstractmethod
     def is_static(self):
         """Whether the output is static"""
 
