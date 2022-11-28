@@ -26,7 +26,7 @@ class TestParametricGrid(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -62,7 +62,7 @@ class TestParametricGrid(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -100,7 +100,7 @@ class TestParametricGrid(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -135,7 +135,7 @@ class TestParametricGrid(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -171,7 +171,7 @@ class TestParametricGrid(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -207,7 +207,7 @@ class TestParametricGrid(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -243,7 +243,7 @@ class TestParametricGrid(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -272,7 +272,7 @@ class TestStaticParametricGrid(unittest.TestCase):
         )
         sink = fm.modules.DebugPushConsumer(
             inputs={
-                "Input": fm.Info(time=None, grid=in_info.grid),
+                "Input": fm.Info(time=None, grid=in_info.grid, units=None),
             },
             log_data="INFO",
         )

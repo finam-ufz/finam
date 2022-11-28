@@ -51,11 +51,11 @@ class TestCsvReader(unittest.TestCase):
             reader.connect(start)
             reader.connect(start)
 
-            sink1.exchange_info(Info(None, grid=NoGrid()))
-            sink2.exchange_info(Info(None, grid=NoGrid()))
+            sink1.exchange_info(Info(None, grid=NoGrid(), units=None))
+            sink2.exchange_info(Info(None, grid=NoGrid(), units=None))
 
-            reader.outputs["X"].get_info(Info(None, grid=NoGrid()))
-            reader.outputs["Y"].get_info(Info(None, grid=NoGrid()))
+            reader.outputs["X"].get_info(Info(None, grid=NoGrid(), units=None))
+            reader.outputs["Y"].get_info(Info(None, grid=NoGrid(), units=None))
 
             reader.connect(start)
             reader.connect(start)

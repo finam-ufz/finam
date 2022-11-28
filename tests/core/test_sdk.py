@@ -687,7 +687,7 @@ class TestIOFails(unittest.TestCase):
             out.get_info(Info(time=t, grid=None))
 
         with self.assertRaises(FinamMetaDataError):
-            out.get_info(Info(time=t, grid=NoGrid()))
+            out.get_info(Info(time=t, grid=NoGrid(), units=None))
 
         with self.assertRaises(FinamMetaDataError):
             out.get_info(Info(time=t, grid=NoGrid(), units=None))
