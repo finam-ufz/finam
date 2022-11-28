@@ -7,6 +7,9 @@
 * FINAM uses a new scheduling algorithm that allows components to use future data instead of only past/current (!157, !159)
 * New adapters to resolve circular coupling through the use of delayed data (!187)
 * It is now possible to set up static couplings that run only once and have no explicit time or stepping (!166)
+* FINAM can handle different starting times of components by pushing initial data twice (!206):  
+  Once for the common starting time, and once for the actual component time
+* Components are no longer required to push all outputs on every step (!208)
 
 ### Data and metadata rework
 
@@ -20,6 +23,7 @@
 * `to_xarray` now checks the data shape if the data is not flat (!130)
 * Outputs can be flagged `static` for data that is only used during initialization, or that is constant (!166)
 * Inputs can be flagged `static` for constant data (!171)
+* Outputs accept and convert compatible units, not only exactly equal units (!215)
 
 ### Components
 
@@ -59,6 +63,7 @@
 * Inputs and outputs can be marked as `static` for constant data without time information (!166, !171)
 * New helper function `tools.inspect()` to inspect components, adapters and I/O slots (!197)
 * Publish on PyPI, starting with the next release (!198, !200, !201)
+* Added benchmarks for the most important FINAM functions
 
 ## [v0.4.0-rc.2]
 
