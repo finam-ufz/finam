@@ -202,6 +202,27 @@ class TestUnitsTools(unittest.TestCase):
         xdata = full(0.0, "test", info, time)
         _result = self.benchmark(to_units, xdata=xdata, units="in")
 
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_to_units_noop_01_2x1(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
+        xdata = full(0.0, "test", info, time)
+        _result = self.benchmark(to_units, xdata=xdata, units="m")
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_to_units_noop_02_512x256(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
+        xdata = full(0.0, "test", info, time)
+        _result = self.benchmark(to_units, xdata=xdata, units="m")
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_to_units_noop_03_2048x1024(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
+        xdata = full(0.0, "test", info, time)
+        _result = self.benchmark(to_units, xdata=xdata, units="m")
+
     @pytest.mark.benchmark(group="data-tools")
     def test_get_magnitude_01_2x1(self):
         time = dt.datetime(2000, 1, 1)
