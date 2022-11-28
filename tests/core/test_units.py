@@ -8,7 +8,6 @@ import numpy as np
 
 from finam import (
     UNITS,
-    ComponentStatus,
     Composition,
     FinamMetaDataError,
     Info,
@@ -74,7 +73,6 @@ class TestUnits(unittest.TestCase):
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
-
         sink = MockupConsumer(datetime(2000, 1, 1), UNITS.kilometer)
 
         composition = Composition([source, sink])

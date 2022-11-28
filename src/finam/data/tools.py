@@ -103,13 +103,14 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
         )
         return to_units(data, info.units)
 
+    units = UNITS.Unit(info.units)
     if isinstance(data, pint.Quantity):
-        if not compatible_units(data.units, info.units):
+        if not compatible_units(data.units, units):
             raise FinamDataError(
                 f"Given data has incompatible units. "
-                f"Got {data.units}, expected {UNITS.Unit(info.units)}."
+                f"Got {data.units}, expected {units}."
             )
-        data = np.asarray(data.m_as(info.units))
+        data = np.asarray(data.m_as(units))
     else:
         data = np.asarray(data)
 
@@ -509,15 +510,16 @@ def check(
             f"check: given data has wrong meta data.\nData: {xdata.attrs}\nMeta: {meta}"
         )
     # check units
-    if not compatible_units(info.units, xdata):
+    units = UNITS.Unit(info.units)
+    if not compatible_units(units, xdata):
         raise FinamDataError(
             f"check: given data has incompatible units. "
-            f"Got {get_units(xdata)}, expected {UNITS.Unit(info.units)}."
+            f"Got {get_units(xdata)}, expected {units}."
         )
-    if check_units_equivalent and not equivalent_units(info.units, xdata):
+    if check_units_equivalent and not equivalent_units(units, xdata):
         raise FinamDataError(
             f"check: given data has non-equivalent units. "
-            f"Got {get_units(xdata)}, expected {UNITS.Unit(info.units)}."
+            f"Got {get_units(xdata)}, expected {units}."
         )
 
 
@@ -591,11 +593,7 @@ def quantify(xdata):
     xarray.DataArray
         The quantified array.
     """
-    return (
-        xdata.pint.quantify(unit_registry=UNITS)
-        if "units" in xdata.attrs
-        else xdata.pint.quantify("", unit_registry=UNITS)
-    )
+    return xdata.pint.quantify() if "units" in xdata.attrs else xdata.pint.quantify("")
 
 
 def check_quantified(xdata, routine="check_quantified"):
@@ -620,7 +618,7 @@ def check_quantified(xdata, routine="check_quantified"):
 
 def _get_pint_units(var):
     if var is None:
-        raise FinamDataError(f"Can't extract units from 'None'.")
+        raise FinamDataError("Can't extract units from 'None'.")
     return get_units(var) if is_quantified(var) else UNITS.Unit(var)
 
 
