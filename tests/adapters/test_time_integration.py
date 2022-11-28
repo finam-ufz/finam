@@ -33,7 +33,7 @@ class TestAvgOverTime(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Step"] >> self.adapter
-        self.adapter.get_info(Info(None, grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid(), units=None))
 
         self.source.connect(start)
         self.source.connect(start)
@@ -110,7 +110,7 @@ class TestGridAvgOverTime(unittest.TestCase):
         self.source.initialize()
 
         self.source.outputs["Grid"] >> self.adapter
-        self.adapter.get_info(Info(None, grid=grid))
+        self.adapter.get_info(Info(None, grid=grid, units=None))
 
         self.source.connect(start)
         self.source.connect(start)

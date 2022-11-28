@@ -22,7 +22,7 @@ class TestNoise(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -54,7 +54,7 @@ class TestNoise(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -86,7 +86,7 @@ class TestNoise(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -118,7 +118,7 @@ class TestNoise(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -150,7 +150,7 @@ class TestNoise(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -182,7 +182,7 @@ class TestNoise(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -214,7 +214,7 @@ class TestNoise(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -246,7 +246,7 @@ class TestNoise(unittest.TestCase):
             step=timedelta(days=1),
         )
         sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
+            {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -287,7 +287,7 @@ class TestStaticNoise(unittest.TestCase):
         # We want to get to a point where this works
         sink = fm.modules.DebugPushConsumer(
             inputs={
-                "Input": fm.Info(time=None, grid=fm.NoGrid()),
+                "Input": fm.Info(time=None, grid=fm.NoGrid(), units="m"),
             },
             log_data="INFO",
         )

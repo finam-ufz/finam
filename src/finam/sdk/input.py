@@ -121,8 +121,7 @@ class Input(IInput, Loggable):
             data = self.source.get_data(time, target or self)
 
         with ErrorLogger(self.logger):
-            if "units" in self._input_info.meta:
-                data = tools.to_units(data, self._input_info.units)
+            data = tools.to_units(data, self._input_info.units)
             tools.check(data, data.name, self._input_info, time, ignore_time=True)
 
         if self.is_static:

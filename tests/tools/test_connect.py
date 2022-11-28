@@ -320,7 +320,7 @@ class TestConnectHelper(unittest.TestCase):
         sink.exchange_info(Info(time=time, grid=UniformGrid((10, 10)), units="m"))
         connector.connect(start_time=time)
 
-        sources[0].push_info(Info(time=time, grid=UniformGrid((10, 10))))
+        sources[0].push_info(Info(time=time, grid=UniformGrid((10, 10)), units="m"))
         sources[1].push_info(Info(time=time, grid=NoGrid(), units="m"))
 
         connector.connect(start_time=time)
@@ -328,7 +328,7 @@ class TestConnectHelper(unittest.TestCase):
         self.assertEqual(
             connector.in_infos,
             {
-                "In1": Info(time=time, grid=UniformGrid((10, 10))),
+                "In1": Info(time=time, grid=UniformGrid((10, 10)), units="m"),
                 "In2": Info(time=time, grid=NoGrid(), units="m"),
             },
         )

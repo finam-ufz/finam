@@ -1,7 +1,7 @@
 """Pull-based components for merging multiple inputs into a single output"""
 from finam.interfaces import ComponentStatus
 
-from ..data.tools import check_units, strip_data
+from ..data.tools import compatible_units, strip_data
 from ..errors import FinamMetaDataError
 from ..sdk import CallbackOutput, Component
 from ..tools.log_helper import ErrorLogger
@@ -92,7 +92,7 @@ class WeightedSum(Component):
                     push_infos["WeightedSum"] = info.copy_with()
 
                 self._check_grid(info)
-                self._check_units(info)
+                self._compatible_units(info)
 
             weight_info = self.connector.in_infos[name + "_weight"]
             if weight_info is not None:
@@ -108,16 +108,15 @@ class WeightedSum(Component):
                 with ErrorLogger(self.logger):
                     raise FinamMetaDataError("All inputs must have the same grid.")
 
-    def _check_units(self, info):
-        if "units" in info.meta:
-            if self._units is None:
-                self._units = info.units
-            else:
-                if not check_units(self._units, info.units):
-                    with ErrorLogger(self.logger):
-                        raise FinamMetaDataError(
-                            "All value inputs must have the same dimensions."
-                        )
+    def _compatible_units(self, info):
+        if self._units is None:
+            self._units = info.units
+        else:
+            if not compatible_units(self._units, info.units):
+                with ErrorLogger(self.logger):
+                    raise FinamMetaDataError(
+                        "All value inputs must have the same dimensions."
+                    )
 
     def _validate(self):
         pass

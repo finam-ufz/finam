@@ -88,7 +88,7 @@ class TestGridToValue(unittest.TestCase):
         self.adapter = GridToValue(func=np.ma.mean)
         self.source.outputs["Grid"] >> self.adapter
 
-        self.adapter.get_info(Info(None, grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid(), units=None))
         self.source.connect(datetime(2000, 1, 1))
         self.source.connect(datetime(2000, 1, 1))
         self.source.validate()
@@ -100,7 +100,7 @@ class TestGridToValue(unittest.TestCase):
         self.adapter = GridToValue(func=np.ma.sum)
         self.source.outputs["Grid"] >> self.adapter
 
-        self.adapter.get_info(Info(None, grid=NoGrid()))
+        self.adapter.get_info(Info(None, grid=NoGrid(), units=None))
         self.source.connect(datetime(2000, 1, 1))
         self.source.connect(datetime(2000, 1, 1))
         self.source.validate()
@@ -131,7 +131,7 @@ class TestValueToGrid(unittest.TestCase):
         self.adapter = ValueToGrid(grid)
         self.source.outputs["Value"] >> self.adapter
 
-        self.adapter.get_info(Info(None, grid=grid))
+        self.adapter.get_info(Info(None, grid=grid, units=None))
         self.source.connect(datetime(2000, 1, 1))
         self.source.connect(datetime(2000, 1, 1))
         self.source.validate()
@@ -149,7 +149,7 @@ class TestValueToGrid(unittest.TestCase):
         self.source.outputs["Value"] >> self.adapter
 
         with self.assertRaises(fm.FinamMetaDataError):
-            self.adapter.get_info(Info(None, grid=UniformGrid((2, 2))))
+            self.adapter.get_info(Info(None, grid=UniformGrid((2, 2)), units=None))
 
     def test_value_to_grid_from_target(self):
         grid, data = create_grid(10, 10, 1.0)
@@ -157,7 +157,7 @@ class TestValueToGrid(unittest.TestCase):
         self.adapter = ValueToGrid(None)
         self.source.outputs["Value"] >> self.adapter
 
-        self.adapter.get_info(Info(None, grid=grid))
+        self.adapter.get_info(Info(None, grid=grid, units=None))
         self.source.connect(datetime(2000, 1, 1))
         self.source.connect(datetime(2000, 1, 1))
         self.source.validate()

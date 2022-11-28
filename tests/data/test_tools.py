@@ -240,7 +240,7 @@ class TestDataTools(unittest.TestCase):
             finam.data.to_xarray(
                 1.0 * finam.UNITS.meter,
                 "A",
-                finam.Info(time, grid=finam.NoGrid(), units="km"),
+                finam.Info(time, grid=finam.NoGrid(), units="m^3"),
             )
 
     def test_assert_type(self):

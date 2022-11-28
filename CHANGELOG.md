@@ -11,7 +11,7 @@
 ### Data and metadata rework
 
 * Outputs check compatibility between metadata of inputs if there is more than one target input (!104)
-* Add data tools function `check_units(lhs, rhs)` to check for convertibility (!105)
+* Add data tools function `compatible_units` to check for convertibility (!105)
 * Components can exchange their starting time through the `Info` object (!111)
 * Info exchange is automated by the `ConnectHelper` by specifying transfer rules at initialization (!154)
 * `Info` now requires time in constructor (can be `None`) (!111)

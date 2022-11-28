@@ -51,7 +51,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(None, grid=out_spec)},
+            {"Input": Info(None, grid=out_spec, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -104,7 +104,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(None, grid=out_spec)},
+            {"Input": Info(None, grid=out_spec, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -148,7 +148,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(None, grid=out_spec)},
+            {"Input": Info(None, grid=out_spec, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -192,7 +192,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(None, grid=out_spec)},
+            {"Input": Info(None, grid=out_spec, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -237,7 +237,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(None, grid=None)},
+            {"Input": Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -281,7 +281,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(None, grid=out_spec)},
+            {"Input": Info(None, grid=out_spec, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -321,12 +321,12 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink_1 = debug.DebugConsumer(
-            {"Input": Info(None, grid=out_spec_1)},
+            {"Input": Info(None, grid=out_spec_1, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
         sink_2 = debug.DebugConsumer(
-            {"Input": Info(None, grid=out_spec_2)},
+            {"Input": Info(None, grid=out_spec_2, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -376,12 +376,12 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink_1 = debug.DebugConsumer(
-            {"Input": Info(None, grid=out_spec_1)},
+            {"Input": Info(None, grid=out_spec_1, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
         sink_2 = debug.DebugConsumer(
-            {"Input": Info(None, grid=out_spec_2)},
+            {"Input": Info(None, grid=out_spec_2, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
@@ -434,7 +434,7 @@ class TestRegrid(unittest.TestCase):
         )
 
         sink = debug.DebugConsumer(
-            {"Input": Info(None, grid=out_spec)},
+            {"Input": Info(None, grid=out_spec, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )

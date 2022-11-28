@@ -92,13 +92,25 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
         If the data doesn't match its info.
     """
     if isinstance(data, xr.DataArray):
-        check(data, name, info, time, overwrite_name=True, ignore_time=no_time_check)
-        return data
+        check(
+            xdata=data,
+            name=name,
+            info=info,
+            time=time,
+            overwrite_name=True,
+            ignore_time=no_time_check,
+            check_units_equivalent=False,
+        )
+        return to_units(data, info.units)
 
-    units = None
+    units = UNITS.Unit(info.units)
     if isinstance(data, pint.Quantity):
-        units = data.units
-        data = np.asarray(data.magnitude)
+        if not compatible_units(data.units, units):
+            raise FinamDataError(
+                f"Given data has incompatible units. "
+                f"Got {data.units}, expected {units}."
+            )
+        data = np.asarray(data.m_as(units))
     else:
         data = np.asarray(data)
 
@@ -107,15 +119,6 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
     )
 
     data = _check_input_shape(data, info, time_entries)
-
-    if units is not None:
-        if "units" not in info.meta and units != UNITS.dimensionless:
-            raise FinamDataError("Given data has units, but metadata has none.")
-        if "units" in info.meta and UNITS.Unit(info.units) != units:
-            raise FinamDataError(
-                f"Given data has wrong units. Got {str(units)}, expected {str(info.units)}"
-            )
-
     time_coords = (
         [pd.Timestamp(time) if time else pd.NaT]
         if time_entries <= 1
@@ -129,11 +132,7 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
         coords=dict(time=time_coords),
         attrs=info.meta,
     )
-    return (
-        out_array.pint.quantify()
-        if "units" in info.meta
-        else out_array.pint.quantify("")
-    )
+    return quantify(out_array)
 
 
 def _check_input_shape(data, info, time_entries):
@@ -442,7 +441,15 @@ def full(value, name, info, time=None):
     return to_xarray(np.full(shape, value), name, info, time)
 
 
-def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False):
+def check(
+    xdata,
+    name,
+    info,
+    time=None,
+    ignore_time=False,
+    overwrite_name=False,
+    check_units_equivalent=True,
+):
     """
     Check if data matches given info.
 
@@ -460,6 +467,8 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
         Allows to ignore the time value; still checks presence of time
     overwrite_name : bool
         Overwrites the name in the data instead of comparing both names
+    check_units_equivalent : bool
+        Check equivalence of data and info units.
 
     Raises
     ------
@@ -501,10 +510,16 @@ def check(xdata, name, info, time=None, ignore_time=False, overwrite_name=False)
             f"check: given data has wrong meta data.\nData: {xdata.attrs}\nMeta: {meta}"
         )
     # check units
-    if "units" in info.meta and UNITS.Unit(info.units) != get_units(xdata):
+    units = UNITS.Unit(info.units)
+    if not compatible_units(units, xdata):
         raise FinamDataError(
-            f"check: given data has wrong units. "
-            f"Got {get_units(xdata)}, expected {UNITS.Unit(info.units)}."
+            f"check: given data has incompatible units. "
+            f"Got {get_units(xdata)}, expected {units}."
+        )
+    if check_units_equivalent and not equivalent_units(units, xdata):
+        raise FinamDataError(
+            f"check: given data has non-equivalent units. "
+            f"Got {get_units(xdata)}, expected {units}."
         )
 
 
@@ -578,22 +593,7 @@ def quantify(xdata):
     xarray.DataArray
         The quantified array.
     """
-    return (
-        xdata.pint.quantify(unit_registry=UNITS)
-        if "units" in xdata.attrs
-        else xdata.pint.quantify("", unit_registry=UNITS)
-    )
-
-
-def check_units(lhs, rhs):
-    """Checks if two units are compatible/convertible
-
-    Returns
-    -------
-    bool
-        If the units are compatible.
-    """
-    return UNITS.Unit(lhs).is_compatible_with(rhs)
+    return xdata.pint.quantify() if "units" in xdata.attrs else xdata.pint.quantify("")
 
 
 def check_quantified(xdata, routine="check_quantified"):
@@ -614,6 +614,53 @@ def check_quantified(xdata, routine="check_quantified"):
     """
     if not is_quantified(xdata):
         raise FinamDataError(f"{routine}: given data is not quantified.")
+
+
+def _get_pint_units(var):
+    if var is None:
+        raise FinamDataError("Can't extract units from 'None'.")
+    return get_units(var) if is_quantified(var) else UNITS.Unit(var)
+
+
+def compatible_units(unit1, unit2):
+    """
+    Checks if two units are compatible/convertible.
+
+    Parameters
+    ----------
+    unit1 : UnitLike or Quantified
+        First unit to compare.
+    unit2 : UnitLike or Quantified
+        Second unit to compare.
+
+    Returns
+    -------
+    bool
+        Uint compatibility.
+    """
+    unit1, unit2 = _get_pint_units(unit1), _get_pint_units(unit2)
+    return unit1.is_compatible_with(unit2)
+
+
+def equivalent_units(unit1, unit2):
+    """
+    Check if two given units are equivalent.
+
+    Parameters
+    ----------
+    unit1 : UnitLike or Quantified
+        First unit to compare.
+    unit2 : UnitLike or Quantified
+        Second unit to compare.
+
+    Returns
+    -------
+    bool
+        Unit equivalence.
+    """
+    unit1, unit2 = _get_pint_units(unit1), _get_pint_units(unit2)
+    ratio = ((1 * unit1) / (1 * unit2)).to_base_units()
+    return ratio.dimensionless and np.isclose(ratio.magnitude, 1)
 
 
 def assert_type(cls, slot, obj, types):
@@ -661,6 +708,7 @@ class Info:
         self.grid = grid
         self.meta = meta or {}
         self.meta.update(meta_kwargs)
+        self.meta.setdefault("units", "")
 
     def copy(self):
         """Copies the info object"""
@@ -721,7 +769,7 @@ class Info:
             if v is not None and k in incoming.meta:
                 in_value = incoming.meta[k]
                 if k == "units":
-                    if not (ignore_none and in_value is None) and not check_units(
+                    if not (ignore_none and in_value is None) and not compatible_units(
                         v, in_value
                     ):
                         fail_info["meta." + k] = (in_value, v)
