@@ -26,7 +26,7 @@ class TestSimplexNoise(unittest.TestCase):
 
         composition.connect(time)
 
-        composition.run(end=datetime(2000, 3, 1))
+        composition.run(end_time=datetime(2000, 3, 1))
 
         print(consumer.data["Noise"])
 
@@ -48,6 +48,6 @@ class TestSimplexNoise(unittest.TestCase):
         _ = source.outputs["Noise"] >> consumer.inputs["Noise"]
 
         composition.connect(time)
-        composition.run(end=datetime(2000, 3, 1))
+        composition.run(end_time=datetime(2000, 3, 1))
 
         print(consumer.data["Noise"])

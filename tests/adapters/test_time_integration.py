@@ -204,7 +204,7 @@ class TestSumOverTime(unittest.TestCase):
         self.source["Step"] >> self.adapter_10 >> self.consumer["In_10"]
 
     def test_sum_over_time(self):
-        self.comp.run(end=datetime(2000, 1, 10))
+        self.comp.run(end_time=datetime(2000, 1, 10))
 
         mm = fm.UNITS.Unit("mm")
 
@@ -292,7 +292,7 @@ class TestAbsSumOverTime(unittest.TestCase):
         self.source["Step"] >> self.adapter_10 >> self.consumer["In_10"]
 
     def test_sum_over_time(self):
-        self.comp.run(end=datetime(2000, 1, 20))
+        self.comp.run(end_time=datetime(2000, 1, 20))
 
         mm = fm.UNITS.Unit("mm")
 

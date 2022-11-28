@@ -55,7 +55,7 @@ class Composition(Loggable):
 
         comp_b.outputs["Out"] >> SomeAdapter() >> comp_b.inputs["In"]
 
-        composition.run(end=...)
+        composition.run(end_time=...)
 
     Parameters
     ----------
@@ -194,19 +194,19 @@ class Composition(Loggable):
 
         self.is_connected = True
 
-    def run(self, start=None, end=None):
+    def run(self, start_time=None, end_time=None):
         """Run this composition using the loop-based update strategy.
 
         Performs the connect phase if it ``connect()`` was not already called.
 
         Parameters
         ----------
-        start : :class:`datetime <datetime.datetime>`, optional
+        start_time : :class:`datetime <datetime.datetime>`, optional
             Starting time of the composition.
             If provided, it should be the starting time of the earliest component.
             If not provided, the composition tries to determine the starting time automatically.
             Ignored if :meth:`.connect` was already called.
-        end : :class:`datetime <datetime.datetime>`, optional
+        end_time : :class:`datetime <datetime.datetime>`, optional
             Simulation time up to which to simulate.
             Should be ``None`` if no components with time are present.
         """
@@ -214,18 +214,18 @@ class Composition(Loggable):
 
         with ErrorLogger(self.logger):
             if len(time_modules) == 0:
-                if end is not None:
+                if end_time is not None:
                     raise ValueError(
                         "end must be None for a composition without time components"
                     )
             else:
-                if not isinstance(end, datetime):
+                if not isinstance(end_time, datetime):
                     raise ValueError(
                         "end must be of type datetime for a composition with time components"
                     )
 
         if not self.is_connected:
-            self.connect(start)
+            self.connect(start_time)
 
         self.logger.debug("running composition")
         while len(time_modules) > 0:
@@ -239,7 +239,7 @@ class Composition(Loggable):
 
             any_running = False
             for mod in time_modules:
-                if mod.status != ComponentStatus.FINISHED and mod.time < end:
+                if mod.status != ComponentStatus.FINISHED and mod.time < end_time:
                     any_running = True
                     break
 

@@ -43,7 +43,7 @@ class TestCsvWriter(unittest.TestCase):
             generator.outputs["B"] >> writer.inputs["B"]
             generator.outputs["C"] >> writer.inputs["C"]
 
-            comp.run(start=start, end=datetime(2000, 1, 31))
+            comp.run(start_time=start, end_time=datetime(2000, 1, 31))
 
             csv = pd.read_csv(file_path)
 

@@ -320,7 +320,7 @@ In :meth:`.TimeComponent._update`, we get the component's input data, do a "mode
         def test_dummy_model(self):
             # ...
 
-            composition.run(end=datetime(2000, 12, 31))
+            composition.run(end_time=datetime(2000, 12, 31))
 
 The test should fail, as we still need to implement the :meth:`.TimeComponent._finalize()` method.
 
@@ -442,7 +442,7 @@ Here is the final code of the completed component.
 
             self.assertEqual(consumer.data, {"Sum": 0})
 
-            composition.run(end=datetime(2000, 12, 31))
+            composition.run(end_time=datetime(2000, 12, 31))
 
     if __name__ == "__main__":
         unittest.main()

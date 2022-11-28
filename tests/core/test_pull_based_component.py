@@ -53,6 +53,6 @@ class TestPullBasedComponent(unittest.TestCase):
 
         pull_comp.outputs["Out"] >> consumer.inputs["In"]
 
-        composition.run(start=time, end=datetime(2000, 1, 12))
+        composition.run(start_time=time, end_time=datetime(2000, 1, 12))
 
         self.assertEqual(consumer.data, {"In": 12})

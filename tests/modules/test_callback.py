@@ -58,7 +58,7 @@ class TestCallback(unittest.TestCase):
         self.assertGreaterEqual(out_data, 2.0)
         self.assertLessEqual(out_data, 4.0)
 
-        composition.run(end=datetime(2000, 3, 1))
+        composition.run(end_time=datetime(2000, 3, 1))
 
         out_data = consumer.data["In1"]
         self.assertGreaterEqual(out_data, 2.0)

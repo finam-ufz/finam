@@ -82,7 +82,7 @@ class TestUnits(unittest.TestCase):
 
         (source.outputs["Output"] >> sink.inputs["Input"])
 
-        composition.run(start=time, end=datetime(2000, 1, 2))
+        composition.run(start_time=time, end_time=datetime(2000, 1, 2))
 
         self.assertEqual(sink.inputs["Input"].info.meta, {"units": UNITS.kilometer})
         self.assertEqual(tools.get_units(sink.data), UNITS.kilometer)
@@ -116,4 +116,4 @@ class TestUnits(unittest.TestCase):
         (source.outputs["Output"] >> sink.inputs["Input"])
 
         with self.assertRaises(FinamMetaDataError):
-            composition.run(start=time, end=datetime(2000, 1, 2))
+            composition.run(start_time=time, end_time=datetime(2000, 1, 2))

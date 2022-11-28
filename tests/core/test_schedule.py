@@ -302,7 +302,9 @@ class TestComposition(unittest.TestCase):
 
             module1.outputs["Output"] >> module2.inputs["Input"]
 
-            composition.run(start=datetime(2000, 1, 1), end=datetime(2000, 1, 2))
+            composition.run(
+                start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 2)
+            )
 
             with open(log_file) as f:
                 lines = f.readlines()
@@ -316,7 +318,7 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         with self.assertRaises(ValueError):
-            composition.run(start=0, end=100)
+            composition.run(start_time=0, end_time=100)
 
     def test_fail_double_initialize(self):
         module1 = MockupComponent(
@@ -354,7 +356,7 @@ class TestComposition(unittest.TestCase):
 
         module1.outputs["Output"] >> module2.inputs["Input"]
 
-        composition.run(start=datetime(2000, 1, 1), end=datetime(2000, 1, 31))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 31))
 
     def test_iterative_connect_multi(self):
         module1 = MockupComponent(
@@ -369,7 +371,7 @@ class TestComposition(unittest.TestCase):
         module1.outputs["Output"] >> module2.inputs["Input"]
         module2.outputs["Output"] >> module3.inputs["Input"]
 
-        composition.run(start=datetime(2000, 1, 1), end=datetime(2000, 1, 31))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 31))
 
     def test_iterative_connect_adapter(self):
         module1 = MockupComponent(
@@ -382,7 +384,7 @@ class TestComposition(unittest.TestCase):
 
         module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
 
-        composition.run(start=datetime(2000, 1, 1), end=datetime(2000, 1, 31))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 31))
 
     def test_iterative_connect_multi_adapter(self):
         module1 = MockupComponent(
@@ -395,7 +397,7 @@ class TestComposition(unittest.TestCase):
 
         module1.outputs["Output"] >> Scale(1.0) >> Scale(1.0) >> module2.inputs["Input"]
 
-        composition.run(start=datetime(2000, 1, 1), end=datetime(2000, 1, 31))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 31))
 
     def test_iterative_connect_blocked(self):
         module1 = MockupCircularComponent(step=timedelta(1.0))
@@ -408,7 +410,9 @@ class TestComposition(unittest.TestCase):
         module2.outputs["Output"] >> module1.inputs["Input"]
 
         with self.assertRaises(FinamCircularCouplingError):
-            composition.run(start=datetime(2000, 1, 1), end=datetime(2000, 1, 31))
+            composition.run(
+                start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 31)
+            )
 
     def test_no_time_comp(self):
         module = NoTimeComponent()
@@ -417,9 +421,9 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         with self.assertRaises(ValueError):
-            composition.run(end=datetime(2000, 1, 31))
+            composition.run(end_time=datetime(2000, 1, 31))
 
-        composition.run(end=None)
+        composition.run(end_time=None)
 
     def test_time_comp(self):
         module = MockupComponent(callbacks={"Output": lambda t: t}, step=timedelta(1.0))
@@ -428,9 +432,9 @@ class TestComposition(unittest.TestCase):
         composition.initialize()
 
         with self.assertRaises(ValueError):
-            composition.run(end=None)
+            composition.run(end_time=None)
 
-        composition.run(start=datetime(2000, 1, 1), end=datetime(2000, 1, 2))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 2))
 
     def test_no_update(self):
         module1 = MockupComponent(
@@ -441,7 +445,7 @@ class TestComposition(unittest.TestCase):
         )
         composition = Composition([module1, module2])
         composition.initialize()
-        composition.run(start=datetime(2000, 1, 1), end=datetime(2000, 1, 1))
+        composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 1))
 
     def test_missing_component_upstream(self):
         module1 = MockupComponent(
@@ -582,7 +586,7 @@ class TestComposition(unittest.TestCase):
         source.outputs["Noise"] >> Scale(1.0) >> sink.inputs["In"]
 
         with self.assertRaises(ValueError):
-            composition.run(end=datetime(2000, 1, 1))
+            composition.run(end_time=datetime(2000, 1, 1))
 
         composition.run()
 
@@ -658,7 +662,7 @@ class TestComposition(unittest.TestCase):
         composition.connect(datetime(2000, 1, 1))
         self.assertEqual(updates, ["A", "B", "C"])
 
-        composition.run(end=datetime(2000, 1, 2))
+        composition.run(end_time=datetime(2000, 1, 2))
         self.assertEqual(
             updates,
             [
@@ -721,7 +725,7 @@ class TestComposition(unittest.TestCase):
         composition.connect()
         self.assertEqual(updates, ["A", "B"])
 
-        composition.run(end=datetime(2000, 1, 2))
+        composition.run(end_time=datetime(2000, 1, 2))
         self.assertEqual(
             updates,
             [
@@ -785,7 +789,7 @@ class TestComposition(unittest.TestCase):
         composition.connect()
         self.assertEqual(updates, ["A1", "A2", "B"])
 
-        composition.run(end=datetime(2000, 1, 2))
+        composition.run(end_time=datetime(2000, 1, 2))
         self.assertEqual(
             updates,
             [
@@ -835,7 +839,7 @@ class TestComposition(unittest.TestCase):
         composition.connect(start)
 
         with self.assertRaises(FinamCircularCouplingError):
-            composition.run(end=datetime(2000, 1, 2))
+            composition.run(end_time=datetime(2000, 1, 2))
 
     def test_starting_time(self):
         start_1 = datetime(2000, 1, 1)
@@ -888,7 +892,7 @@ class TestComposition(unittest.TestCase):
 
         composition.connect()
 
-        composition.run(end=datetime(2000, 1, 10))
+        composition.run(end_time=datetime(2000, 1, 10))
 
         self.assertEqual([1, 8, 13], updates["A"])
         self.assertEqual([1, 4, 7, 10], updates["B"])

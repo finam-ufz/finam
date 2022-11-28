@@ -32,7 +32,7 @@ class TestTimeTrigger(unittest.TestCase):
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
-        composition.run(end=datetime(2000, 1, 5))
+        composition.run(end_time=datetime(2000, 1, 5))
 
     def test_time_trigger_from_source(self):
         time = datetime(2000, 1, 1)
@@ -75,7 +75,7 @@ class TestTimeTrigger(unittest.TestCase):
 
         self.assertEqual(trigger._time, datetime(2000, 1, 1))
 
-        composition.run(end=datetime(2000, 1, 5))
+        composition.run(end_time=datetime(2000, 1, 5))
 
     def test_time_trigger_from_source_with_info(self):
         time = datetime(2000, 1, 1)
@@ -118,7 +118,7 @@ class TestTimeTrigger(unittest.TestCase):
 
         self.assertEqual(trigger._time, datetime(2000, 1, 1))
 
-        composition.run(end=datetime(2000, 1, 5))
+        composition.run(end_time=datetime(2000, 1, 5))
 
     def test_time_trigger_from_target(self):
         time = datetime(2000, 1, 1)
@@ -152,7 +152,7 @@ class TestTimeTrigger(unittest.TestCase):
 
         self.assertEqual(trigger._time, datetime(2000, 1, 1))
 
-        composition.run(end=datetime(2000, 1, 5))
+        composition.run(end_time=datetime(2000, 1, 5))
 
     def test_time_trigger_from_target_with_info(self):
         time = datetime(2000, 1, 1)
@@ -187,7 +187,7 @@ class TestTimeTrigger(unittest.TestCase):
 
         self.assertEqual(trigger._time, datetime(2000, 1, 1))
 
-        composition.run(end=datetime(2000, 1, 5))
+        composition.run(end_time=datetime(2000, 1, 5))
 
     def test_time_trigger_fail(self):
         time = datetime(2000, 1, 1)
