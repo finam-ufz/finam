@@ -5,6 +5,15 @@ Micro-benchmarks for important FINAM functions and functionality.
 Note that plot panels have different units!
 `ms` is milliseconds (1/1,000 second), `us` is microseconds (1/1,000,000 second).
 
+## Full runs
+
+Simple run over one year with two coupled components with daily time step.
+
+The source component copies the data array and assigns time each step.
+Remaining time is data exchange and scheduling (negligible).
+
+![tools](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-run-sim.svg?job=benchmark)
+
 ## SDK
 
 ### Push & pull
