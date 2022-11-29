@@ -393,6 +393,7 @@ class CallbackOutput(Output):
     def __init__(self, callback, name, info=None, **info_kwargs):
         super().__init__(name=name, info=info, static=False, **info_kwargs)
         self.callback = callback
+        self.last_data = None
 
     @property
     def needs_push(self):
@@ -443,7 +444,15 @@ class CallbackOutput(Output):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         with ErrorLogger(self.logger):
-            return tools.to_xarray(data, self.name, self.info, time)
+            xdata = tools.to_xarray(data, self.name, self.info, time)
+            if self.last_data is not None and np.may_share_memory(
+                tools.get_magnitude(self.last_data), tools.get_magnitude(xdata)
+            ):
+                raise FinamDataError(
+                    "Received data that shares memory with previously received data."
+                )
+            self.last_data = xdata
+            return xdata
 
 
 def _check_time(time, is_static):
