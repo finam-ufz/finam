@@ -168,6 +168,12 @@ class TestDataTools(unittest.TestCase):
         self.assertTrue(finam.data.has_time_axis(xdata))
         self.assertFalse(finam.data.has_time(xdata))
 
+        xdata = finam.data.to_xarray(1.0, "data", finam.Info(None, grid=finam.NoGrid()))
+        xdata = finam.data.strip_time(xdata)
+        self.assertFalse(finam.data.has_time_axis(xdata))
+        self.assertFalse(finam.data.has_time(xdata))
+        self.assertIsNone(finam.data.get_time(xdata))
+
     def test_strip_time(self):
         time = dt(2000, 1, 1)
 
@@ -195,6 +201,8 @@ class TestDataTools(unittest.TestCase):
         self.assertEqual(xdata.shape, (1, 3))
         stripped = finam.data.strip_time(xdata)
         self.assertEqual(stripped.shape, (3,))
+        stripped2 = finam.data.strip_time(xdata)
+        self.assertEqual(stripped2.shape, stripped.shape)
 
         with self.assertRaises(finam.errors.FinamDataError):
             stripped_ = finam.data.strip_time(np.asarray([1.0, 2.0]))
@@ -242,6 +250,49 @@ class TestDataTools(unittest.TestCase):
                 "A",
                 finam.Info(time, grid=finam.NoGrid(), units="m^3"),
             )
+
+    def test_to_xarray_copy(self):
+        time = dt(2000, 1, 1)
+        info_1 = finam.Info(time, grid=finam.NoGrid(1), units="m")
+        info_2 = finam.Info(time, grid=finam.NoGrid(1), units="km")
+
+        # using numpy arrays without units
+        data = np.asarray([1, 2])
+        xdata = finam.data.to_xarray(data, "test", info_1, time, force_copy=True)
+        data[0] = 0
+        self.assertNotEqual(xdata[0, 0], data[0])
+
+        # using numpy arrays with units
+        data = np.asarray([1, 2]) * finam.UNITS("m")
+        xdata = finam.data.to_xarray(data, "test", info_1, time)
+        data[0] = 0 * finam.UNITS("m")
+        self.assertEqual(xdata[0, 0], data[0])
+
+        data = np.asarray([1, 2]) * finam.UNITS("m")
+        xdata = finam.data.to_xarray(data, "test", info_1, time, force_copy=True)
+        data[0] = 0 * finam.UNITS("m")
+        self.assertNotEqual(xdata[0, 0], data[0])
+
+        data = np.asarray([1, 2]) * finam.UNITS("m")
+        xdata = finam.data.to_xarray(data, "test", info_2, time)
+        data[0] = 0 * finam.UNITS("m")
+        self.assertNotEqual(finam.data.get_magnitude(xdata[0, 0]), 0.0)
+
+        # using xarray arrays
+        xdata = finam.data.to_xarray(np.asarray([1, 2]), "test", info_1, time)
+        xdata2 = finam.data.to_xarray(xdata, "test", info_1, time)
+        xdata[0, 0] = 0 * finam.UNITS("m")
+        self.assertEqual(xdata2[0, 0], xdata[0, 0])
+
+        xdata = finam.data.to_xarray(np.asarray([1, 2]), "test", info_1, time)
+        xdata2 = finam.data.to_xarray(xdata, "test", info_1, time, force_copy=True)
+        xdata[0, 0] = 0 * finam.UNITS("m")
+        self.assertNotEqual(xdata2[0, 0], xdata[0, 0])
+
+        xdata = finam.data.to_xarray(np.asarray([1, 2]), "test", info_1, time)
+        xdata2 = finam.data.to_xarray(xdata, "test", info_2, time)
+        xdata[0, 0] = 0 * finam.UNITS("m")
+        self.assertNotEqual(finam.data.get_magnitude(xdata2[0, 0]), 0.0)
 
     def test_assert_type(self):
         finam.data.assert_type(self, "A", 1, [int, float])
