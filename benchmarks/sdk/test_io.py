@@ -10,23 +10,34 @@ class TestPushPull(unittest.TestCase):
     @pytest.fixture(autouse=True)
     def setupBenchmark(self, benchmark):
         self.benchmark = benchmark
+        self.counter = 0
 
     def push_pull(self, xr=False):
+        # Trick the shared memory check in the output
+        data = self.data[self.counter % 2]
         if xr:
-            self.data = fm.data.assign_time(self.data, self.time)
+            data = fm.data.assign_time(data, self.time)
 
-        self.out.push_data(self.data, self.time)
+        self.out.push_data(data, self.time)
         _ = self.inp.pull_data(self.time)
         self.time += dt.timedelta(days=1)
+        self.counter += 1
 
     def setup_link(self, grid, target_units, xr=False):
         self.time = dt.datetime(2000, 1, 1)
         info1 = fm.Info(time=self.time, grid=grid, units="m")
         info2 = fm.Info(time=self.time, grid=grid, units=target_units)
-        self.data = fm.data.full(0.0, "test", info1, self.time)
+
+        self.data = [
+            fm.data.full(0.0, "test", info1, self.time),
+            fm.data.full(0.0, "test", info1, self.time),
+        ]
 
         if not xr:
-            self.data = fm.data.strip_data(self.data)
+            self.data = [
+                fm.data.strip_data(self.data[0]),
+                fm.data.strip_data(self.data[1]),
+            ]
 
         self.out = fm.Output(name="Output")
         self.inp = fm.Input(name="Input")
