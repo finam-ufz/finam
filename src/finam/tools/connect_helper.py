@@ -529,7 +529,7 @@ class ConnectHelper(Loggable):
                 data_1 = assign_time(data, time)
                 out.push_data(data_1, time)
                 data_2 = assign_time(data, info_time)
-                out.push_data(copy.copy(data_2), info_time)
+                out.push_data(data_2.copy(), info_time)
             else:
                 out.push_data(data, time)
                 out.push_data(copy.copy(data), info_time)
