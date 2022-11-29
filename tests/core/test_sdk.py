@@ -184,7 +184,7 @@ class TestOutput(unittest.TestCase):
         with self.assertRaises(FinamNoDataError):
             out.push_data(100, t)
 
-        self._out_infos_exchanged = 1
+        out._out_infos_exchanged = 1
 
         out.get_info(info)
 
@@ -374,11 +374,8 @@ class TestOutput(unittest.TestCase):
 
         in_data = fm.data.full(0.0, "test", info, t)
         out.push_data(in_data, t)
-        out_data = in1.pull_data(t, in1)
-
-        self.assertEqual(out_data[0, 0, 0], 0.0)
-        in_data[0, 0, 0] = 1.0
-        self.assertEqual(out_data[0, 0, 0], 0.0)
+        with self.assertRaises(FinamDataError):
+            out.push_data(in_data, t)
 
     def test_data_copied_xarray_units(self):
         t = datetime(2000, 1, 1)
@@ -419,11 +416,8 @@ class TestOutput(unittest.TestCase):
 
         in_data = fm.data.strip_data(fm.data.full(0.0, "test", info, t))
         out.push_data(in_data, t)
-        out_data = in1.pull_data(t, in1)
-
-        self.assertEqual(out_data[0, 0, 0], 0.0)
-        in_data[0, 0] = 1.0
-        self.assertEqual(out_data[0, 0, 0], 0.0)
+        with self.assertRaises(FinamDataError):
+            out.push_data(in_data, t)
 
     def test_data_copied_numpy_units(self):
         t = datetime(2000, 1, 1)

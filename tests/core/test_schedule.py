@@ -160,8 +160,8 @@ class MockupCircularComponent(TimeComponent):
         pass
 
     def _update(self):
-        pulled = self.inputs["Input"].pull_data(self.time)
         self._time += self._step
+        pulled = self.inputs["Input"].pull_data(self.time)
         self.outputs["Output"].push_data(
             tools.get_data(tools.strip_time(pulled)), self.time
         )

@@ -61,7 +61,7 @@ class TestRegrid(unittest.TestCase):
 
         (source.outputs["Output"] >> RegridNearest() >> sink.inputs["Input"])
 
-        composition.run(end_time=datetime(2000, 1, 5))
+        composition.connect()
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
         self.assertEqual(sink.data["Input"][0, 0, 0], 1.0 * UNITS.meter)
@@ -114,7 +114,7 @@ class TestRegrid(unittest.TestCase):
 
         (source.outputs["Output"] >> RegridNearest() >> sink.inputs["Input"])
 
-        composition.run(end_time=datetime(2000, 1, 2))
+        composition.connect()
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
         self.assertEqual(sink.data["Input"][0, 0, 0], 1.0 * UNITS.meter)
@@ -158,7 +158,7 @@ class TestRegrid(unittest.TestCase):
 
         (source.outputs["Output"] >> RegridLinear() >> sink.inputs["Input"])
 
-        composition.run(end_time=datetime(2000, 1, 2))
+        composition.connect()
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
         self.assertEqual(sink.data["Input"][0, 0, 0], 1.0 * UNITS.meter)
@@ -206,7 +206,7 @@ class TestRegrid(unittest.TestCase):
             >> sink.inputs["Input"]
         )
 
-        composition.run(end_time=datetime(2000, 1, 2))
+        composition.connect()
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
         self.assertAlmostEqual(fdata.get_magnitude(sink.data["Input"])[0, 0, 0], 1.0)
@@ -251,7 +251,7 @@ class TestRegrid(unittest.TestCase):
             >> sink.inputs["Input"]
         )
 
-        composition.run(end_time=datetime(2000, 1, 2))
+        composition.connect()
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
         self.assertEqual(sink.data["Input"][0, 0, 0], 1.0 * UNITS.meter)
@@ -291,7 +291,7 @@ class TestRegrid(unittest.TestCase):
 
         (source.outputs["Output"] >> RegridLinear() >> sink.inputs["Input"])
 
-        composition.run(end_time=datetime(2000, 1, 2))
+        composition.connect()
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
         self.assertEqual(sink.data["Input"][0, 0, 0], 1.0 * UNITS.meter)
@@ -340,7 +340,7 @@ class TestRegrid(unittest.TestCase):
         regrid >> sink_1.inputs["Input"]
         regrid >> sink_2.inputs["Input"]
 
-        composition.run(end_time=datetime(2000, 1, 2))
+        composition.connect()
 
         self.assertEqual(sink_1.inputs["Input"].info.grid, out_spec_1)
         self.assertEqual(sink_1.data["Input"][0, 0, 0], 1.0 * UNITS.meter)
@@ -448,7 +448,7 @@ class TestRegrid(unittest.TestCase):
             >> sink.inputs["Input"]
         )
 
-        composition.run(end_time=datetime(2000, 1, 2))
+        composition.connect()
 
         self.assertEqual(sink.inputs["Input"].info.grid, out_spec)
         self.assertEqual(sink.data["Input"][0, 0], 1.0 * UNITS.meter)
