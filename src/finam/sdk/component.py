@@ -452,7 +452,8 @@ class TimeComponent(ITimeComponent, Component, ABC):
     def time(self):
         """The component's current simulation time."""
         if self._time is None and self.status in (
-            ComponentStatus.CREATED or ComponentStatus.INITIALIZED
+            ComponentStatus.CREATED,
+            ComponentStatus.INITIALIZED,
         ):
             return None
 
