@@ -407,7 +407,10 @@ def to_units(xdata, units):
         Converted data.
     """
     check_quantified(xdata, "to_units")
-    return xdata.pint.to(pint.Unit(units))
+    units = UNITS.Unit(units)
+    if units == xdata.pint.units:
+        return xdata
+    return xdata.pint.to(units)
 
 
 def full_like(xdata, value):
