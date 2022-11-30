@@ -1,9 +1,23 @@
 # FINAM benchmarks
 
-Micro-benchmarks for important FINAM functions and functionality.
+Micro-benchmarks and profiling for important FINAM runs functions.
 
 Note that plot panels have different units!
 `ms` is milliseconds (1/1,000 second), `us` is microseconds (1/1,000,000 second).
+
+## Full runs
+
+**Profiling data** for full runs can be found in the latest [job artifacts](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/browse/prof?job=profile).
+
+### Simple link, 365 steps
+
+Simple run over one year with two coupled components with daily time step.
+Left without, right with units conversion.
+
+The source component assigns time to a data array each step.
+Remaining time is data exchange and scheduling (negligible).
+
+![tools](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-run-sim.svg?job=benchmark)
 
 ## SDK
 
