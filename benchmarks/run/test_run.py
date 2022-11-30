@@ -7,15 +7,17 @@ import finam as fm
 
 
 class SimpleRunBase(unittest.TestCase):
+    def setup(self, benchmark):
+        self.benchmark = benchmark
+        self.start_time = dt.datetime(2000, 1, 1)
+        self.end_time = dt.datetime(2000, 12, 31)
+        self.counter = 0
+
     def gen_data(self, t):
-        d = self.data.copy()
+        d = self.data[self.counter % 2]
+        self.counter += 1
         d = fm.data.assign_time(d, t)
         return d
-
-    def setup_data(self, size):
-        self.info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
-        self.info2 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
-        self.data = fm.data.full(0.0, "input", self.info1, self.start_time)
 
     def run_simulation(self):
         source = fm.modules.CallbackGenerator(
@@ -46,9 +48,15 @@ class SimpleRunBase(unittest.TestCase):
 class TestSimpleRun(SimpleRunBase):
     @pytest.fixture(autouse=True)
     def setupBenchmark(self, benchmark):
-        self.benchmark = benchmark
-        self.start_time = dt.datetime(2000, 1, 1)
-        self.end_time = dt.datetime(2000, 12, 31)
+        self.setup(benchmark)
+
+    def setup_data(self, size):
+        self.info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
+        self.info2 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
+        self.data = [
+            fm.data.full(0.0, "input", self.info1, self.start_time),
+            fm.data.full(0.0, "input", self.info1, self.start_time),
+        ]
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_simple_01_2x1(self):
@@ -86,14 +94,15 @@ class TestSimpleRun(SimpleRunBase):
 class TestSimpleRunUnits(SimpleRunBase):
     @pytest.fixture(autouse=True)
     def setupBenchmark(self, benchmark):
-        self.benchmark = benchmark
-        self.start_time = dt.datetime(2000, 1, 1)
-        self.end_time = dt.datetime(2000, 12, 31)
+        self.setup(benchmark)
 
     def setup_data(self, size):
         self.info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
         self.info2 = fm.Info(time=None, grid=fm.UniformGrid(size), units="km")
-        self.data = fm.data.full(0.0, "input", self.info1, self.start_time)
+        self.data = [
+            fm.data.full(0.0, "input", self.info1, self.start_time),
+            fm.data.full(0.0, "input", self.info1, self.start_time),
+        ]
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_units_01_2x1(self):

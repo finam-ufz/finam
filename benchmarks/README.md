@@ -12,7 +12,7 @@ Note that plot panels have different units!
 Simple run over one year with two coupled components with daily time step.
 Left without, right with units conversion.
 
-The source component copies the data array and assigns time each step.
+The source component assigns time to a data array each step.
 Remaining time is data exchange and scheduling (negligible).
 
 ![tools](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-run-sim.svg?job=benchmark)
