@@ -226,11 +226,20 @@ class TestUnitsTools(unittest.TestCase):
         _result = self.benchmark(is_quantified, xdata=xdata)
 
     @pytest.mark.benchmark(group="data-tools")
-    def test_equivalent_units(self):
+    def test_equivalent_units_true(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="mm")
         xdata = full(0.0, "test", info, time)
-        _result = self.benchmark(equivalent_units, unit1=xdata, unit2="L/m^2")
+        result = self.benchmark(equivalent_units, unit1=xdata, unit2="L/m^2")
+        self.assertTrue(result)
+
+    @pytest.mark.benchmark(group="data-tools")
+    def test_equivalent_units_False(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="mm")
+        xdata = full(0.0, "test", info, time)
+        result = self.benchmark(equivalent_units, unit1=xdata, unit2="m")
+        self.assertFalse(result)
 
     @pytest.mark.benchmark(group="data-tools")
     def test_compatible_units(self):

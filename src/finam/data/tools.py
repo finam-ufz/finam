@@ -686,8 +686,10 @@ def equivalent_units(unit1, unit2):
         Unit equivalence.
     """
     unit1, unit2 = _get_pint_units(unit1), _get_pint_units(unit2)
-    ratio = ((1 * unit1) / (1 * unit2)).to_base_units()
-    return ratio.dimensionless and np.isclose(ratio.magnitude, 1)
+    try:
+        return np.isclose((1.0 * unit1).to(unit2).magnitude, 1.0)
+    except pint.errors.DimensionalityError:
+        return False
 
 
 def assert_type(cls, slot, obj, types):
