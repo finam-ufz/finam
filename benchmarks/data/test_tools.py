@@ -189,6 +189,13 @@ class TestTimeTools(unittest.TestCase):
         _result = self.benchmark(get_time, xdata=xdata)
 
     @pytest.mark.benchmark(group="data-tools")
+    def test_get_time_neg(self):
+        time = dt.datetime(1800, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
+        xdata = full(0.0, "test", info, time)
+        _result = self.benchmark(get_time, xdata=xdata)
+
+    @pytest.mark.benchmark(group="data-tools")
     def test_has_time(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")

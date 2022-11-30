@@ -192,7 +192,6 @@ def has_time_axis(xdata):
     bool
         Whether the data has a time axis.
     """
-    check_quantified(xdata, "has_time")
     return "time" in xdata.coords
 
 
@@ -261,9 +260,27 @@ def get_time(xdata):
     if has_time_axis(xdata):
         time = xdata["time"]
         if time.size == 1:
-            time = [time.item()]
-        return list(pd.to_datetime(time).to_pydatetime())
+            return [to_datetime(time.data[0])]
+        return [to_datetime(t) for t in time.data]
     return None
+
+
+_BASE_DATETIME = datetime.datetime(1970, 1, 1)
+_BASE_TIME = np.datetime64("1970-01-01T00:00:00")
+_BASE_DELTA = np.timedelta64(1, "s")
+
+
+def to_datetime(date):
+    """Converts a numpy datetime64 object to a python datetime object"""
+    if np.isnan(date):
+        return pd.NaT
+
+    timestamp = (date - _BASE_TIME) / _BASE_DELTA
+
+    if timestamp < 0:
+        return _BASE_DATETIME + datetime.timedelta(seconds=timestamp)
+
+    return datetime.datetime.utcfromtimestamp(timestamp)
 
 
 def get_magnitude(xdata):
