@@ -963,7 +963,7 @@ class TestComposition(unittest.TestCase):
             return t.day
 
         def lambda_component(inp, t):
-            return {"Out": fm.data.assign_time(inp["In"], t)}
+            return {"Out": fm.data.assign_time(inp["In"].copy(), t)}
 
         def lambda_debugger(name, data, t):
             updates[name].append(t.day)

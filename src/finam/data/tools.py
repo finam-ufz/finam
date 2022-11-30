@@ -248,7 +248,8 @@ def assign_time(xdata, time):
     if isinstance(time, datetime.datetime):
         time = [time]
     if has_time_axis(xdata):
-        return xdata.assign_coords(dict(time=[pd.Timestamp(t) for t in time]))
+        xdata.coords["time"].data[:] = [pd.Timestamp(t) for t in time]
+        return xdata
 
     return xdata.expand_dims(dim="time", axis=0).assign_coords(
         dict(time=[pd.Timestamp(t) for t in time])
