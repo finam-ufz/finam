@@ -26,18 +26,6 @@ pint_xarray.unit_registry.default_format = "cf"
 UNITS = pint_xarray.unit_registry
 
 
-def _extract_units(xdata):
-    """
-    extract the units of an array
-
-    If ``xdata.data`` is not a quantity, the units are ``None``
-    """
-    try:
-        return xdata.data.units
-    except AttributeError:
-        return None
-
-
 def _gen_dims(ndim, info):
     """
     Generate dimension names.
@@ -369,7 +357,6 @@ def get_units(xdata):
     pint.Unit
         Units of the data.
     """
-    check_quantified(xdata, "get_units")
     return xdata.pint.units
 
 
@@ -595,7 +582,7 @@ def is_quantified(xdata):
     bool
         Wether the data is a quantified DataArray.
     """
-    return isinstance(xdata, xr.DataArray) and _extract_units(xdata) is not None
+    return isinstance(xdata, xr.DataArray) and xdata.pint.units is not None
 
 
 def quantify(xdata):
@@ -638,7 +625,11 @@ def check_quantified(xdata, routine="check_quantified"):
 def _get_pint_units(var):
     if var is None:
         raise FinamDataError("Can't extract units from 'None'.")
-    return get_units(var) if is_quantified(var) else UNITS.Unit(var)
+
+    if isinstance(var, xr.DataArray):
+        return var.pint.units or UNITS.dimensionless
+
+    return UNITS.Unit(var)
 
 
 def compatible_units(unit1, unit2):
