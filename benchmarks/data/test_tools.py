@@ -4,15 +4,18 @@ import unittest
 import pytest
 
 import finam as fm
-from finam.data import (
+from finam.data.tools import (
     assign_time,
     check,
+    compatible_units,
+    equivalent_units,
     full,
     full_like,
     get_magnitude,
     get_time,
     get_units,
     has_time,
+    is_quantified,
     strip_data,
     strip_time,
     to_units,
@@ -215,6 +218,27 @@ class TestUnitsTools(unittest.TestCase):
         xdata = full(0.0, "test", info, time)
         _result = self.benchmark(get_units, xdata=xdata)
 
+    @pytest.mark.benchmark(group="data-tools")
+    def test_is_quantified(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
+        xdata = full(0.0, "test", info, time)
+        _result = self.benchmark(is_quantified, xdata=xdata)
+
+    @pytest.mark.benchmark(group="data-tools")
+    def test_equivalent_units(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="mm")
+        xdata = full(0.0, "test", info, time)
+        _result = self.benchmark(equivalent_units, unit1=xdata, unit2="L/m^2")
+
+    @pytest.mark.benchmark(group="data-tools")
+    def test_compatible_units(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="mm")
+        xdata = full(0.0, "test", info, time)
+        _result = self.benchmark(compatible_units, unit1=xdata, unit2="km")
+
     @pytest.mark.benchmark(group="data-tools-slow")
     def test_to_units_01_2x1(self):
         time = dt.datetime(2000, 1, 1)
@@ -236,21 +260,21 @@ class TestUnitsTools(unittest.TestCase):
         xdata = full(0.0, "test", info, time)
         _result = self.benchmark(to_units, xdata=xdata, units="in")
 
-    @pytest.mark.benchmark(group="data-tools-slow")
+    @pytest.mark.benchmark(group="data-tools")
     def test_to_units_noop_01_2x1(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
         xdata = full(0.0, "test", info, time)
         _result = self.benchmark(to_units, xdata=xdata, units="m")
 
-    @pytest.mark.benchmark(group="data-tools-slow")
+    @pytest.mark.benchmark(group="data-tools")
     def test_to_units_noop_02_512x256(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
         xdata = full(0.0, "test", info, time)
         _result = self.benchmark(to_units, xdata=xdata, units="m")
 
-    @pytest.mark.benchmark(group="data-tools-slow")
+    @pytest.mark.benchmark(group="data-tools")
     def test_to_units_noop_03_2048x1024(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
