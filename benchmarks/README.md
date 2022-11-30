@@ -7,7 +7,10 @@ Note that plot panels have different units!
 
 ## Full runs
 
+### Simple link, 365 steps
+
 Simple run over one year with two coupled components with daily time step.
+Left without, right with units conversion.
 
 The source component copies the data array and assigns time each step.
 Remaining time is data exchange and scheduling (negligible).
