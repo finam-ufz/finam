@@ -40,6 +40,19 @@ benchmark:
     paths:
       - bench
 
+profile:
+  stage: test
+  before_script:
+    - apt-get update -y
+    - apt-get install -y graphviz
+    - pip3 install graphviz gprof2dot
+  script:
+    - pip3 install --editable .[test]
+    - ./benchmarks/run_profiling.sh
+  artifacts:
+    paths:
+      - prof
+
 doctest:
   stage: test
   script:

@@ -1,0 +1,51 @@
+import datetime as dt
+
+import finam as fm
+
+
+def run_model():
+    start_time = dt.datetime(2000, 1, 1)
+    end_time = dt.datetime(2000, 12, 31)
+
+    counter = 0
+
+    size = (128, 64)
+
+    info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
+    info2 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
+    data = [
+        fm.data.full(0.0, "input", info1, start_time),
+        fm.data.full(0.0, "input", info1, start_time),
+    ]
+
+    def gen_data(t):
+        nonlocal counter
+        d = data[counter % 2]
+        counter += 1
+        d = fm.data.assign_time(d, t)
+        return d
+
+    source = fm.modules.CallbackGenerator(
+        callbacks={"Out": (gen_data, info1.copy())},
+        start=start_time,
+        step=dt.timedelta(days=1),
+    )
+    sink = fm.modules.DebugConsumer(
+        inputs={
+            "In": info2.copy(),
+        },
+        start=start_time,
+        step=dt.timedelta(days=1),
+    )
+
+    composition = fm.Composition([source, sink])
+    composition.initialize()
+
+    source["Out"] >> sink["In"]
+
+    composition.run(end_time=end_time)
+
+
+if __name__ == "__main__":
+    for i in range(10):
+        run_model()
