@@ -1,3 +1,10 @@
+"""Simple coupling setup for profiling.
+
+Two components, coupled via a single link.
+
+Simulation runs for 1 year with a daily step in both components.
+Components exchange a 128x64 uniform grid.
+"""
 import datetime as dt
 
 import finam as fm
