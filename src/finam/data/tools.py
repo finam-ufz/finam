@@ -239,7 +239,7 @@ def strip_time(xdata):
             raise FinamDataError(
                 "Can't strip time of a data array with multiple time entries"
             )
-        return xdata[0, ...].drop_vars("time")
+        return xdata[0, ...]
 
     return xdata
 
@@ -337,7 +337,7 @@ def full_like(xdata, value):
     return xr.full_like(xdata.pint.dequantify(), value).pint.quantify()
 
 
-def full(value, name, info, time=None):
+def full(value, name, info):
     """
     Return a new DataArray of given info, filled with given value.
 
@@ -349,8 +349,6 @@ def full(value, name, info, time=None):
         Name of the data.
     info : Info
         Info associated with the data.
-    time : :class:`datetime <datetime.datetime>` or None, optional
-        Timestamp for the data, by default None
 
     Returns
     -------
@@ -358,7 +356,7 @@ def full(value, name, info, time=None):
         The converted data.
     """
     shape = info.grid.data_shape if isinstance(info.grid, Grid) else tuple()
-    return to_xarray(np.full(shape, value), name, info, time)
+    return to_xarray(np.full(shape, value), name, info)
 
 
 def check(

@@ -5,16 +5,13 @@ import pytest
 
 import finam as fm
 from finam.data.tools import (
-    assign_time,
     check,
     compatible_units,
     equivalent_units,
     full,
     full_like,
     get_magnitude,
-    get_time,
     get_units,
-    has_time,
     is_quantified,
     strip_data,
     strip_time,
@@ -168,42 +165,6 @@ class TestTimeTools(unittest.TestCase):
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
         xdata = full(0.0, "test", info, time)
         _result = self.benchmark(strip_time, xdata=xdata)
-
-    @pytest.mark.benchmark(group="data-tools")
-    def test_assign_time_update(self):
-        time = dt.datetime(2000, 1, 1)
-        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
-        xdata = full(0.0, "test", info, time)
-        _result = self.benchmark(assign_time, xdata=xdata, time=dt.datetime(2000, 1, 2))
-
-    @pytest.mark.benchmark(group="data-tools")
-    def test_assign_time_add(self):
-        time = dt.datetime(2000, 1, 1)
-        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
-        xdata = full(0.0, "test", info, time)
-        xdata = strip_time(xdata)
-        _result = self.benchmark(assign_time, xdata=xdata, time=dt.datetime(2000, 1, 2))
-
-    @pytest.mark.benchmark(group="data-tools")
-    def test_get_time(self):
-        time = dt.datetime(2000, 1, 1)
-        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
-        xdata = full(0.0, "test", info, time)
-        _result = self.benchmark(get_time, xdata=xdata)
-
-    @pytest.mark.benchmark(group="data-tools")
-    def test_get_time_neg(self):
-        time = dt.datetime(1800, 1, 1)
-        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
-        xdata = full(0.0, "test", info, time)
-        _result = self.benchmark(get_time, xdata=xdata)
-
-    @pytest.mark.benchmark(group="data-tools")
-    def test_has_time(self):
-        time = dt.datetime(2000, 1, 1)
-        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
-        xdata = full(0.0, "test", info, time)
-        _result = self.benchmark(has_time, xdata=xdata)
 
 
 class TestUnitsTools(unittest.TestCase):

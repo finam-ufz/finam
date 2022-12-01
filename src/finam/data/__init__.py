@@ -40,7 +40,6 @@ Data tools
     :noindex: UNITS
     :noindex: Info
     assert_type
-    assign_time
     check
     check_quantified
     full
@@ -48,9 +47,7 @@ Data tools
     get_data
     get_dimensionality
     get_magnitude
-    get_time
     get_units
-    has_time
     has_time_axis
     is_quantified
     quantify
@@ -85,7 +82,6 @@ from .tools import (
     UNITS,
     Info,
     assert_type,
-    assign_time,
     check,
     check_quantified,
     full,
@@ -93,9 +89,7 @@ from .tools import (
     get_data,
     get_dimensionality,
     get_magnitude,
-    get_time,
     get_units,
-    has_time,
     has_time_axis,
     is_quantified,
     quantify,
@@ -130,7 +124,6 @@ __all__ += [
     "FinamDataError",
     "Info",
     "assert_type",
-    "assign_time",
     "check",
     "check_quantified",
     "full",
@@ -138,9 +131,7 @@ __all__ += [
     "get_data",
     "get_dimensionality",
     "get_magnitude",
-    "get_time",
     "get_units",
-    "has_time",
     "has_time_axis",
     "quantify",
     "is_quantified",

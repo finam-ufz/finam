@@ -5,8 +5,8 @@ import logging
 from datetime import datetime
 
 from ..data import tools
-from ..data.tools import Info, assign_time, has_time, strip_time
-from ..errors import FinamMetaDataError, FinamStaticDataError
+from ..data.tools import Info
+from ..errors import FinamMetaDataError
 from ..interfaces import IInput, IOutput, Loggable
 from ..tools.log_helper import ErrorLogger
 
@@ -122,18 +122,7 @@ class Input(IInput, Loggable):
 
         with ErrorLogger(self.logger):
             data = tools.to_units(data, self._input_info.units)
-            tools.check(data, data.name, self._input_info, time, ignore_time=True)
-
-        if self.is_static:
-            if has_time(data):
-                with ErrorLogger(self.logger):
-                    raise FinamStaticDataError(
-                        "Static input received data with a timestamp."
-                    )
-            return strip_time(data)
-
-        if time is not None and not has_time(data):
-            data = assign_time(data, time)
+            tools.check(data, data.name, self._input_info)
 
         return data
 

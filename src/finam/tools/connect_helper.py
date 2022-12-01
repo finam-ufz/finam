@@ -7,7 +7,7 @@ import xarray as xr
 
 from finam.interfaces import ComponentStatus, Loggable
 
-from ..data.tools import Info, assign_time
+from ..data.tools import Info
 from ..errors import FinamNoDataError, FinamTimeError
 from ..tools.log_helper import ErrorLogger
 
@@ -526,10 +526,8 @@ class ConnectHelper(Loggable):
             out.push_data(data, None)
         elif info_time != time:
             if isinstance(data, xr.DataArray):
-                data_1 = assign_time(data.copy(), time)
-                out.push_data(data_1, time)
-                data_2 = assign_time(data, info_time)
-                out.push_data(data_2, info_time)
+                out.push_data(data.copy(), time)
+                out.push_data(data, info_time)
             else:
                 out.push_data(data, time)
                 out.push_data(copy.copy(data), info_time)
