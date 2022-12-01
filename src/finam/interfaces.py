@@ -57,6 +57,12 @@ class Loggable(ABC):
     def logger(self):
         """Logger for this component."""
         if self._logger is None:
+            if (
+                self.uses_base_logger_name
+                and hasattr(self, "base_logger_name")
+                and getattr(self, "base_logger_name") is None
+            ):
+                return logging.getLogger(self.logger_name)
             self._logger = logging.getLogger(self.logger_name)
         return self._logger
 
