@@ -53,6 +53,7 @@ Data tools
     quantify
     strip_data
     strip_time
+    to_datetime
     to_units
     to_xarray
 """
@@ -95,6 +96,7 @@ from .tools import (
     quantify,
     strip_data,
     strip_time,
+    to_datetime,
     to_units,
     to_xarray,
 )
@@ -137,6 +139,7 @@ __all__ += [
     "is_quantified",
     "strip_data",
     "strip_time",
+    "to_datetime",
     "to_units",
     "to_xarray",
 ]

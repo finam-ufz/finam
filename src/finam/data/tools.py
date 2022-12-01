@@ -3,6 +3,7 @@ import copy
 import datetime
 
 import numpy as np
+import pandas as pd
 
 # isort: off
 import xarray as xr
@@ -178,6 +179,24 @@ def has_time_axis(xdata):
         Whether the data has a time axis.
     """
     return "time" in xdata.dims
+
+
+_BASE_DATETIME = datetime.datetime(1970, 1, 1)
+_BASE_TIME = np.datetime64("1970-01-01T00:00:00")
+_BASE_DELTA = np.timedelta64(1, "s")
+
+
+def to_datetime(date):
+    """Converts a numpy datetime64 object to a python datetime object"""
+    if np.isnan(date):
+        return pd.NaT
+
+    timestamp = (date - _BASE_TIME) / _BASE_DELTA
+
+    if timestamp < 0:
+        return _BASE_DATETIME + datetime.timedelta(seconds=timestamp)
+
+    return datetime.datetime.utcfromtimestamp(timestamp)
 
 
 def get_magnitude(xdata):
