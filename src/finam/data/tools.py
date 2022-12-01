@@ -64,7 +64,7 @@ def _gen_dims(ndim, info):
     return dims
 
 
-def to_xarray(data, name, info, time=None, no_time_check=False):
+def to_xarray(data, name, info, time=None, force_copy=False, no_time_check=False):
     """
     Convert data to a xarray.DataArray.
 
@@ -78,7 +78,11 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
         Info associated with the data.
     time : :class:`datetime <datetime.datetime>` or None, optional
         Timestamp for the data, by default None
-    no_time_check : bool
+    force_copy : bool, optional
+        Forces the result to be a copy of the passed data. Default `False`.
+
+        If not used, the result is a view of the data if no units conversion needs to be done.
+    no_time_check : bool, optional
         Skips the time check for xarray input data. Used internally in adapter outputs.
 
     Returns
@@ -101,6 +105,12 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
             ignore_time=no_time_check,
             check_units_equivalent=False,
         )
+        if equivalent_units(info.units, data):
+            if force_copy:
+                return data.copy()
+
+            return data
+
         return to_units(data, info.units)
 
     units = UNITS.Unit(info.units)
@@ -110,9 +120,14 @@ def to_xarray(data, name, info, time=None, no_time_check=False):
                 f"Given data has incompatible units. "
                 f"Got {data.units}, expected {units}."
             )
-        data = np.asarray(data.m_as(units))
+        if force_copy and equivalent_units(data.units, units):
+            data = np.asarray(data.m_as(units)).copy()
+        else:
+            data = np.asarray(data.m_as(units))
     else:
         data = np.asarray(data)
+        if force_copy:
+            data = data.copy()
 
     time_entries = (
         len(time) if time is not None and not isinstance(time, datetime.datetime) else 1

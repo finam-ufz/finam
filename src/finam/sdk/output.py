@@ -4,9 +4,12 @@ Implementations of IOutput
 import logging
 from datetime import datetime
 
+import numpy as np
+
 from ..data import tools
 from ..data.tools import Info
 from ..errors import (
+    FinamDataError,
     FinamMetaDataError,
     FinamNoDataError,
     FinamStaticDataError,
@@ -144,7 +147,17 @@ class Output(IOutput, Loggable):
             time = None
 
         with ErrorLogger(self.logger):
-            self.data.append((time, tools.to_xarray(data, self.name, self.info, time)))
+            xdata = tools.to_xarray(data, self.name, self.info, time)
+            if len(self.data) > 0:
+                d = self.data[-1][1]
+                if np.may_share_memory(
+                    tools.get_magnitude(d), tools.get_magnitude(xdata)
+                ):
+                    raise FinamDataError(
+                        "Received data that shares memory with previously received data."
+                    )
+
+            self.data.append((time, xdata))
 
         self._time = time
 
@@ -380,6 +393,7 @@ class CallbackOutput(Output):
     def __init__(self, callback, name, info=None, **info_kwargs):
         super().__init__(name=name, info=info, static=False, **info_kwargs)
         self.callback = callback
+        self.last_data = None
 
     @property
     def needs_push(self):
@@ -430,7 +444,15 @@ class CallbackOutput(Output):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         with ErrorLogger(self.logger):
-            return tools.to_xarray(data, self.name, self.info, time)
+            xdata = tools.to_xarray(data, self.name, self.info, time)
+            if self.last_data is not None and np.may_share_memory(
+                tools.get_magnitude(self.last_data), tools.get_magnitude(xdata)
+            ):
+                raise FinamDataError(
+                    "Received data that shares memory with previously received data."
+                )
+            self.last_data = xdata
+            return xdata
 
 
 def _check_time(time, is_static):
