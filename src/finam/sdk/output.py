@@ -23,6 +23,7 @@ class Output(IOutput, Loggable):
     """Default output implementation."""
 
     def __init__(self, name=None, info=None, static=False, **info_kwargs):
+        Loggable.__init__(self)
         self.targets = []
         self.data = []
         self._output_info = None

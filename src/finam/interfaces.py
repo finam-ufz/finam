@@ -39,6 +39,10 @@ class ComponentStatus(Enum):
 class Loggable(ABC):
     """Loggable component."""
 
+    @abstractmethod
+    def __init__(self):
+        self._logger = None
+
     @property
     @abstractmethod
     def uses_base_logger_name(self):
@@ -52,7 +56,9 @@ class Loggable(ABC):
     @property
     def logger(self):
         """Logger for this component."""
-        return logging.getLogger(self.logger_name)
+        if self._logger is None:
+            self._logger = logging.getLogger(self.logger_name)
+        return self._logger
 
 
 class IComponent(ABC):

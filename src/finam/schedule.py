@@ -83,6 +83,7 @@ class Composition(Loggable):
         log_level=logging.INFO,
         mpi_rank=0,
     ):
+        super().__init__()
         # setup logger
         self._logger_name = logger_name
         self.logger.setLevel(log_level)
