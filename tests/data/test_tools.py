@@ -40,7 +40,7 @@ class TestDataTools(unittest.TestCase):
         )
 
         # should work
-        finam.data.to_xarray(dar0, "data", info, time)
+        finam.data.to_xarray(dar0, "data", info)
         finam.data.to_xarray(dar1, "data", info)
         finam.data.check(dar0, "data", info)
         finam.data.check(dar1, "data", info)
