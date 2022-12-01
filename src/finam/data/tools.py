@@ -3,7 +3,6 @@ import copy
 import datetime
 
 import numpy as np
-import pandas as pd
 
 # isort: off
 import xarray as xr
@@ -52,7 +51,7 @@ def _gen_dims(ndim, info):
     return dims
 
 
-def to_xarray(data, name, info, time=None, force_copy=False, no_time_check=False):
+def to_xarray(data, name, info, time_entries=1, force_copy=False):
     """
     Convert data to a xarray.DataArray.
 
@@ -64,14 +63,12 @@ def to_xarray(data, name, info, time=None, force_copy=False, no_time_check=False
         Name of the data.
     info : Info
         Info associated with the data.
-    time : :class:`datetime <datetime.datetime>` or None, optional
-        Timestamp for the data, by default None
+    time_entries : int, optional
+        Number of time slices in the data. Default 1.
     force_copy : bool, optional
         Forces the result to be a copy of the passed data. Default `False`.
 
         If not used, the result is a view of the data if no units conversion needs to be done.
-    no_time_check : bool, optional
-        Skips the time check for xarray input data. Used internally in adapter outputs.
 
     Returns
     -------
@@ -88,9 +85,7 @@ def to_xarray(data, name, info, time=None, force_copy=False, no_time_check=False
             xdata=data,
             name=name,
             info=info,
-            time=time,
             overwrite_name=True,
-            ignore_time=no_time_check,
             check_units_equivalent=False,
         )
         if equivalent_units(info.units, data):
@@ -117,22 +112,12 @@ def to_xarray(data, name, info, time=None, force_copy=False, no_time_check=False
         if force_copy:
             data = data.copy()
 
-    time_entries = (
-        len(time) if time is not None and not isinstance(time, datetime.datetime) else 1
-    )
-
     data = _check_input_shape(data, info, time_entries)
-    time_coords = (
-        [pd.Timestamp(time) if time else pd.NaT]
-        if time_entries <= 1
-        else [pd.Timestamp(t) for t in time]
-    )
     # generate quantified DataArray
     out_array = xr.DataArray(
         name=name,
         data=data[np.newaxis, ...] if time_entries <= 1 else data,
         dims=_gen_dims(np.ndim(data), info),
-        coords=dict(time=time_coords),
         attrs=info.meta,
     )
     return quantify(out_array)
@@ -192,95 +177,7 @@ def has_time_axis(xdata):
     bool
         Whether the data has a time axis.
     """
-    return "time" in xdata.coords
-
-
-def has_time(xdata):
-    """
-    Check if the data array has a timestamp that is not NaT.
-
-    Parameters
-    ----------
-    xdata : xarray.DataArray
-        The given data array.
-
-    Returns
-    -------
-    bool
-        Whether the data has a timestamp that is not NaT.
-    """
-    if has_time_axis(xdata):
-        time = xdata["time"]
-        return time.size > 1 or (time.size > 0 and not pd.isnull(time.item()))
-
-    return False
-
-
-def assign_time(xdata, time):
-    """
-    Replace the time coordinate values of the data, or adds a new axis.
-
-    Parameters
-    ----------
-    xdata : xarray.DataArray
-        The given data array.
-    time : datetime.datetime or array_like of datetime.datetime
-        The time value(s) to set the time coordinates to
-
-    Returns
-    -------
-    xarray.DataArray
-        The data with replaced time coordinate values.
-    """
-    if isinstance(time, datetime.datetime):
-        time = [time]
-    if has_time_axis(xdata):
-        xdata.coords["time"].data[:] = [pd.Timestamp(t) for t in time]
-        return xdata
-
-    return xdata.expand_dims(dim="time", axis=0).assign_coords(
-        dict(time=[pd.Timestamp(t) for t in time])
-    )
-
-
-def get_time(xdata):
-    """
-    Get the timestamps of a data array.
-
-    Parameters
-    ----------
-    xdata : xarray.DataArray
-        The given data array.
-
-    Returns
-    -------
-    list of datetime.datetime or None
-        timestamps of the data array.
-    """
-    if has_time_axis(xdata):
-        time = xdata["time"]
-        if time.size == 1:
-            return [to_datetime(time.data[0])]
-        return [to_datetime(t) for t in time.data]
-    return None
-
-
-_BASE_DATETIME = datetime.datetime(1970, 1, 1)
-_BASE_TIME = np.datetime64("1970-01-01T00:00:00")
-_BASE_DELTA = np.timedelta64(1, "s")
-
-
-def to_datetime(date):
-    """Converts a numpy datetime64 object to a python datetime object"""
-    if np.isnan(date):
-        return pd.NaT
-
-    timestamp = (date - _BASE_TIME) / _BASE_DELTA
-
-    if timestamp < 0:
-        return _BASE_DATETIME + datetime.timedelta(seconds=timestamp)
-
-    return datetime.datetime.utcfromtimestamp(timestamp)
+    return "time" in xdata.dims
 
 
 def get_magnitude(xdata):
@@ -468,8 +365,6 @@ def check(
     xdata,
     name,
     info,
-    time=None,
-    ignore_time=False,
     overwrite_name=False,
     check_units_equivalent=True,
 ):
@@ -484,10 +379,6 @@ def check(
         Name of the data.
     info : Info
         Info associated with the data.
-    time : :class:`datetime <datetime.datetime>` or None, optional
-        Timestamp for the data, by default None
-    ignore_time : bool
-        Allows to ignore the time value; still checks presence of time
     overwrite_name : bool
         Overwrites the name in the data instead of comparing both names
     check_units_equivalent : bool
@@ -510,11 +401,7 @@ def check(
             )
 
     if not has_time_axis(xdata):
-        raise FinamDataError("check: given data should hold a time.")
-
-    if not ignore_time:
-        data_time = get_time(xdata)
-        _check_time(time, data_time)
+        raise FinamDataError("check: given data should have a time dimension.")
 
     _check_shape(xdata, info.grid)
 
@@ -558,31 +445,6 @@ def _check_shape(xdata, grid):
             f"check: given data has wrong number of dimensions. "
             f"Got {len(in_shape)}, expected {grid.dim}"
         )
-
-
-def _check_time(time, data_time):
-    if time is None:
-        if not pd.isnull(data_time[0]):
-            raise FinamDataError(
-                f"check: given data has a time, but should have NaT. Got {data_time[0]}, expected NaT"
-            )
-    elif isinstance(time, datetime.datetime):
-        if time != data_time[0]:
-            raise FinamDataError(
-                f"check: given data has wrong time. Got {data_time[0]}, expected {time}"
-            )
-    else:
-        if len(time) != len(data_time):
-            raise FinamDataError(
-                f"check: given data has wrong number of time entries. "
-                f"Got {len(data_time)}, expected {len(time)}"
-            )
-
-        for i, (t1, t2) in enumerate(zip(time, data_time)):
-            if t1 != t2:
-                raise FinamDataError(
-                    f"check: given data has wrong time at index {i}. Got {t2}, expected {t1}"
-                )
 
 
 def is_quantified(xdata):
