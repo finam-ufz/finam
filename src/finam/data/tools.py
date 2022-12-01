@@ -26,18 +26,6 @@ pint_xarray.unit_registry.default_format = "cf"
 UNITS = pint_xarray.unit_registry
 
 
-def _extract_units(xdata):
-    """
-    extract the units of an array
-
-    If ``xdata.data`` is not a quantity, the units are ``None``
-    """
-    try:
-        return xdata.data.units
-    except AttributeError:
-        return None
-
-
 def _gen_dims(ndim, info):
     """
     Generate dimension names.
@@ -204,7 +192,6 @@ def has_time_axis(xdata):
     bool
         Whether the data has a time axis.
     """
-    check_quantified(xdata, "has_time")
     return "time" in xdata.coords
 
 
@@ -248,7 +235,8 @@ def assign_time(xdata, time):
     if isinstance(time, datetime.datetime):
         time = [time]
     if has_time_axis(xdata):
-        return xdata.assign_coords(dict(time=[pd.Timestamp(t) for t in time]))
+        xdata.coords["time"].data[:] = [pd.Timestamp(t) for t in time]
+        return xdata
 
     return xdata.expand_dims(dim="time", axis=0).assign_coords(
         dict(time=[pd.Timestamp(t) for t in time])
@@ -272,9 +260,27 @@ def get_time(xdata):
     if has_time_axis(xdata):
         time = xdata["time"]
         if time.size == 1:
-            time = [time.item()]
-        return list(pd.to_datetime(time).to_pydatetime())
+            return [to_datetime(time.data[0])]
+        return [to_datetime(t) for t in time.data]
     return None
+
+
+_BASE_DATETIME = datetime.datetime(1970, 1, 1)
+_BASE_TIME = np.datetime64("1970-01-01T00:00:00")
+_BASE_DELTA = np.timedelta64(1, "s")
+
+
+def to_datetime(date):
+    """Converts a numpy datetime64 object to a python datetime object"""
+    if np.isnan(date):
+        return pd.NaT
+
+    timestamp = (date - _BASE_TIME) / _BASE_DELTA
+
+    if timestamp < 0:
+        return _BASE_DATETIME + datetime.timedelta(seconds=timestamp)
+
+    return datetime.datetime.utcfromtimestamp(timestamp)
 
 
 def get_magnitude(xdata):
@@ -368,7 +374,6 @@ def get_units(xdata):
     pint.Unit
         Units of the data.
     """
-    check_quantified(xdata, "get_units")
     return xdata.pint.units
 
 
@@ -407,7 +412,10 @@ def to_units(xdata, units):
         Converted data.
     """
     check_quantified(xdata, "to_units")
-    return xdata.pint.to(pint.Unit(units))
+    units = UNITS.Unit(units)
+    if units == xdata.pint.units:
+        return xdata
+    return xdata.pint.to(units)
 
 
 def full_like(xdata, value):
@@ -591,7 +599,7 @@ def is_quantified(xdata):
     bool
         Wether the data is a quantified DataArray.
     """
-    return isinstance(xdata, xr.DataArray) and _extract_units(xdata) is not None
+    return isinstance(xdata, xr.DataArray) and xdata.pint.units is not None
 
 
 def quantify(xdata):
@@ -634,7 +642,11 @@ def check_quantified(xdata, routine="check_quantified"):
 def _get_pint_units(var):
     if var is None:
         raise FinamDataError("Can't extract units from 'None'.")
-    return get_units(var) if is_quantified(var) else UNITS.Unit(var)
+
+    if isinstance(var, xr.DataArray):
+        return var.pint.units or UNITS.dimensionless
+
+    return UNITS.Unit(var)
 
 
 def compatible_units(unit1, unit2):
@@ -674,8 +686,10 @@ def equivalent_units(unit1, unit2):
         Unit equivalence.
     """
     unit1, unit2 = _get_pint_units(unit1), _get_pint_units(unit2)
-    ratio = ((1 * unit1) / (1 * unit2)).to_base_units()
-    return ratio.dimensionless and np.isclose(ratio.magnitude, 1)
+    try:
+        return np.isclose((1.0 * unit1).to(unit2).magnitude, 1.0)
+    except pint.errors.DimensionalityError:
+        return False
 
 
 def assert_type(cls, slot, obj, types):

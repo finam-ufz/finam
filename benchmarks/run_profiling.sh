@@ -1,10 +1,16 @@
+#!/bin/bash
 echo Profiling...
 
 mkdir -p prof
 
-python -m cProfile -o prof/simple_run.pstats benchmarks/profiling/simple_run.py
-gprof2dot --colour-nodes-by-selftime -f pstats prof/simple_run.pstats > prof/simple_run.dot
-dot -Tsvg -o prof/simple_run.svg prof/simple_run.dot
-dot -Tpng -o prof/simple_run.png prof/simple_run.dot
+for filename in benchmarks/profiling/*.py; do
+  fn=$(basename -- "$filename")
+  fn="${fn%.*}"
+  echo "$fn"
+  python -m cProfile -o prof/"$fn".pstats benchmarks/profiling/"$fn".py
+  gprof2dot --colour-nodes-by-selftime -f pstats prof/"$fn".pstats > prof/"$fn".dot
+  dot -Tsvg -o prof/"$fn".svg prof/"$fn".dot
+  dot -Tpng -o prof/"$fn".png prof/"$fn".dot
+done
 
 python benchmarks/pstats_to_csv.py

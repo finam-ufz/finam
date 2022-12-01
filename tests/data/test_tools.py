@@ -147,6 +147,7 @@ class TestDataTools(unittest.TestCase):
         self.assertEqual(xdata.shape, (1,))
         self.assertTrue(finam.data.has_time_axis(xdata))
         self.assertTrue(finam.data.has_time(xdata))
+        self.assertEqual(finam.data.get_time(xdata), [time])
 
         xdata = xr.concat(
             [
@@ -162,6 +163,7 @@ class TestDataTools(unittest.TestCase):
         )
         self.assertTrue(finam.data.has_time_axis(xdata))
         self.assertTrue(finam.data.has_time(xdata))
+        self.assertEqual(finam.data.get_time(xdata), [time, dt(2000, 1, 2)])
 
         xdata = finam.data.to_xarray(1.0, "data", finam.Info(None, grid=finam.NoGrid()))
         self.assertEqual(xdata.shape, (1,))
