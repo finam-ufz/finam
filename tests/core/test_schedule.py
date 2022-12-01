@@ -592,7 +592,6 @@ class TestComposition(unittest.TestCase):
 
         # We get data without the time dimension here
         self.assertEqual(sink.data["In"].shape, (1,))
-        self.assertTrue(np.isnat(sink.data["In"].coords["time"][0]))
 
     def test_static_fail(self):
         info = fm.Info(time=None, grid=fm.NoGrid())
@@ -963,7 +962,7 @@ class TestComposition(unittest.TestCase):
             return t.day
 
         def lambda_component(inp, t):
-            return {"Out": fm.data.assign_time(inp["In"].copy(), t)}
+            return {"Out": inp["In"].copy()}
 
         def lambda_debugger(name, data, t):
             updates[name].append(t.day)

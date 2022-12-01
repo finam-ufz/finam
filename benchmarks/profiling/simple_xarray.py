@@ -21,15 +21,14 @@ def run_model():
     info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
     info2 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
     data = [
-        fm.data.full(0.0, "input", info1, start_time),
-        fm.data.full(0.0, "input", info1, start_time),
+        fm.data.full(0.0, "input", info1),
+        fm.data.full(0.0, "input", info1),
     ]
 
     def gen_data(t):
         nonlocal counter
         d = data[counter % 2]
         counter += 1
-        d = fm.data.assign_time(d, t)
         return d
 
     source = fm.modules.CallbackGenerator(

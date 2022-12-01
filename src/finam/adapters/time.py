@@ -360,7 +360,7 @@ class StackTime(TimeCachingAdapter):
             break
 
         arr = np.stack([d[1] for d in extract])
-        return dtools.to_xarray(arr, self.name, self.info, [d[0] for d in extract])
+        return dtools.to_xarray(arr, self.name, self.info, time_entries=len(extract))
 
 
 class LinearTime(TimeCachingAdapter):

@@ -16,7 +16,6 @@ class SimpleRunBase(unittest.TestCase):
     def gen_data(self, t):
         d = self.data[self.counter % 2]
         self.counter += 1
-        d = fm.data.assign_time(d, t)
         return d
 
     def run_simulation(self):
@@ -54,8 +53,8 @@ class TestSimpleRun(SimpleRunBase):
         self.info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
         self.info2 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
         self.data = [
-            fm.data.full(0.0, "input", self.info1, self.start_time),
-            fm.data.full(0.0, "input", self.info1, self.start_time),
+            fm.data.full(0.0, "input", self.info1),
+            fm.data.full(0.0, "input", self.info1),
         ]
 
     @pytest.mark.benchmark(group="run-sim")
@@ -100,8 +99,8 @@ class TestSimpleRunUnits(SimpleRunBase):
         self.info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
         self.info2 = fm.Info(time=None, grid=fm.UniformGrid(size), units="km")
         self.data = [
-            fm.data.full(0.0, "input", self.info1, self.start_time),
-            fm.data.full(0.0, "input", self.info1, self.start_time),
+            fm.data.full(0.0, "input", self.info1),
+            fm.data.full(0.0, "input", self.info1),
         ]
 
     @pytest.mark.benchmark(group="run-sim")
@@ -146,14 +145,9 @@ class TestSimpleRunNumpy(SimpleRunBase):
         self.info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
         self.info2 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
         self.data = [
-            fm.data.strip_data(fm.data.full(0.0, "input", self.info1, self.start_time)),
-            fm.data.strip_data(fm.data.full(0.0, "input", self.info1, self.start_time)),
+            fm.data.strip_data(fm.data.full(0.0, "input", self.info1)),
+            fm.data.strip_data(fm.data.full(0.0, "input", self.info1)),
         ]
-
-    def gen_data(self, t):
-        d = self.data[self.counter % 2]
-        self.counter += 1
-        return d
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_numpy_01_2x1(self):

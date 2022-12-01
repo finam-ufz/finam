@@ -3,7 +3,6 @@ import unittest
 from datetime import datetime as dt
 
 import numpy as np
-import pandas as pd
 import pint
 import xarray as xr
 
@@ -30,11 +29,10 @@ class TestDataTools(unittest.TestCase):
         tim0 = dt(year=2021, month=10, day=12)
 
         data = np.arange(6).reshape(3, 2)
-        dar0 = finam.data.to_xarray(data, "data", info, time)
+        dar0 = finam.data.to_xarray(data, "data", info)
         dar1 = finam.data.to_xarray(data, "data", info)
 
         # assert stuff
-        self.assertEqual(finam.data.get_time(dar1), [pd.NaT])
         self.assertIsInstance(finam.data.get_magnitude(dar0), np.ndarray)
         self.assertIsInstance(finam.data.get_data(dar0), pint.Quantity)
         self.assertIsInstance(
@@ -42,70 +40,57 @@ class TestDataTools(unittest.TestCase):
         )
 
         # should work
-        finam.data.to_xarray(dar0, "data", info, time)
+        finam.data.to_xarray(dar0, "data", info)
         finam.data.to_xarray(dar1, "data", info)
-        finam.data.check(dar0, "data", info, time)
+        finam.data.check(dar0, "data", info)
         finam.data.check(dar1, "data", info)
         finam.data.to_units(dar0, "km")
 
         # wrong shape
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.to_xarray(1, "data", info, time)
+            finam.data.to_xarray(1, "data", info)
 
         # no DataArray
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.check(None, "data", info, time)
+            finam.data.check(None, "data", info)
 
         # not qunatified
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.check(dar0.pint.dequantify(), "data", info, time)
+            finam.data.check(dar0.pint.dequantify(), "data", info)
 
         # wrong name
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.check(dar0, "wrong", info, time)
+            finam.data.check(dar0, "wrong", info)
 
-        # wrong time
-        with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.check(dar0, "data", info, tim0)
-
-        # no time to check
-        with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.check(dar0, "data", info)
-
-        # no time in xdata
-        with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.check(dar1, "data", info, time)
-
-        # should work for no-time data
         finam.data.check(dar1, "data", inf0)
 
         # other units format should work
-        finam.data.check(dar0, "data", inf0, time)
+        finam.data.check(dar0, "data", inf0)
 
         # wrong meta
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.check(dar0, "data", inf1, time)
+            finam.data.check(dar0, "data", inf1)
 
         # wrong units
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.check(dar0, "data", inf2, time)
+            finam.data.check(dar0, "data", inf2)
 
         # wrong dims
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.check(dar0, "data", inf3, time)
+            finam.data.check(dar0, "data", inf3)
 
         # wrong shape
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.check(dar0, "data", inf4, time)
+            finam.data.check(dar0, "data", inf4)
         with self.assertRaises(finam.errors.FinamDataError):
             finam.data.check(dar1, "data", inf4)
 
         # check full_like
         dar2 = finam.data.full_like(dar0, 0)
-        finam.data.check(dar2, "data", info, time)
+        finam.data.check(dar2, "data", info)
 
-        dar3 = finam.data.full(0, "data", info, time)
-        finam.data.check(dar3, "data", info, time)
+        dar3 = finam.data.full(0, "data", info)
+        finam.data.check(dar3, "data", info)
 
     def test_other_grids(self):
         time = dt(2000, 1, 1)
@@ -120,62 +105,6 @@ class TestDataTools(unittest.TestCase):
         self.assertTrue("dim_0" in dar0.dims)
         self.assertTrue("id" in dar1.dims)
 
-    def test_assign_time(self):
-        t1 = dt(1900, 1, 1)
-        t2 = dt(2000, 1, 1)
-        xdata = finam.data.to_xarray(
-            1.0, "data", finam.Info(t1, grid=finam.NoGrid()), t1
-        )
-
-        self.assertEqual(finam.data.get_time(xdata)[0], t1)
-
-        xdata = finam.data.assign_time(xdata, t2)
-
-        self.assertEqual(finam.data.get_time(xdata)[0], t2)
-
-        xdata = finam.data.strip_time(xdata)
-        self.assertFalse(finam.data.has_time_axis(xdata))
-
-        xdata = finam.data.assign_time(xdata, t2)
-        self.assertEqual(finam.data.get_time(xdata)[0], t2)
-
-    def test_has_time(self):
-        time = dt(2000, 1, 1)
-        xdata = finam.data.to_xarray(
-            1.0, "data", finam.Info(time, grid=finam.NoGrid()), time
-        )
-        self.assertEqual(xdata.shape, (1,))
-        self.assertTrue(finam.data.has_time_axis(xdata))
-        self.assertTrue(finam.data.has_time(xdata))
-        self.assertEqual(finam.data.get_time(xdata), [time])
-
-        xdata = xr.concat(
-            [
-                xdata,
-                finam.data.to_xarray(
-                    1.0,
-                    "data",
-                    finam.Info(dt(2000, 1, 2), grid=finam.NoGrid()),
-                    dt(2000, 1, 2),
-                ),
-            ],
-            dim="time",
-        )
-        self.assertTrue(finam.data.has_time_axis(xdata))
-        self.assertTrue(finam.data.has_time(xdata))
-        self.assertEqual(finam.data.get_time(xdata), [time, dt(2000, 1, 2)])
-
-        xdata = finam.data.to_xarray(1.0, "data", finam.Info(None, grid=finam.NoGrid()))
-        self.assertEqual(xdata.shape, (1,))
-        self.assertTrue(finam.data.has_time_axis(xdata))
-        self.assertFalse(finam.data.has_time(xdata))
-
-        xdata = finam.data.to_xarray(1.0, "data", finam.Info(None, grid=finam.NoGrid()))
-        xdata = finam.data.strip_time(xdata)
-        self.assertFalse(finam.data.has_time_axis(xdata))
-        self.assertFalse(finam.data.has_time(xdata))
-        self.assertIsNone(finam.data.get_time(xdata))
-
     def test_strip_time(self):
         time = dt(2000, 1, 1)
 
@@ -188,7 +117,6 @@ class TestDataTools(unittest.TestCase):
             1.0,
             "data",
             finam.Info(time, grid=finam.NoGrid()),
-            datetime.datetime(2000, 1, 1),
         )
         self.assertEqual(xdata.shape, (1,))
         stripped = finam.data.strip_time(xdata)
@@ -198,7 +126,6 @@ class TestDataTools(unittest.TestCase):
             [1.0, 2.0, 3.0],
             "data",
             finam.Info(time, grid=finam.NoGrid(dim=1)),
-            datetime.datetime(2000, 1, 1),
         )
         self.assertEqual(xdata.shape, (1, 3))
         stripped = finam.data.strip_time(xdata)
@@ -213,13 +140,11 @@ class TestDataTools(unittest.TestCase):
             1.0,
             "A",
             finam.Info(time, grid=finam.NoGrid()),
-            time=datetime.datetime(2000, 1, 1),
         )
         arr2 = finam.data.to_xarray(
             1.0,
             "A",
             finam.Info(time, grid=finam.NoGrid()),
-            time=datetime.datetime(2000, 1, 2),
         )
         data = xr.concat([arr1, arr2], dim="time")
         with self.assertRaises(finam.errors.FinamDataError):
@@ -260,39 +185,39 @@ class TestDataTools(unittest.TestCase):
 
         # using numpy arrays without units
         data = np.asarray([1, 2])
-        xdata = finam.data.to_xarray(data, "test", info_1, time, force_copy=True)
+        xdata = finam.data.to_xarray(data, "test", info_1, force_copy=True)
         data[0] = 0
         self.assertNotEqual(xdata[0, 0], data[0])
 
         # using numpy arrays with units
         data = np.asarray([1, 2]) * finam.UNITS("m")
-        xdata = finam.data.to_xarray(data, "test", info_1, time)
+        xdata = finam.data.to_xarray(data, "test", info_1)
         data[0] = 0 * finam.UNITS("m")
         self.assertEqual(xdata[0, 0], data[0])
 
         data = np.asarray([1, 2]) * finam.UNITS("m")
-        xdata = finam.data.to_xarray(data, "test", info_1, time, force_copy=True)
+        xdata = finam.data.to_xarray(data, "test", info_1, force_copy=True)
         data[0] = 0 * finam.UNITS("m")
         self.assertNotEqual(xdata[0, 0], data[0])
 
         data = np.asarray([1, 2]) * finam.UNITS("m")
-        xdata = finam.data.to_xarray(data, "test", info_2, time)
+        xdata = finam.data.to_xarray(data, "test", info_2)
         data[0] = 0 * finam.UNITS("m")
         self.assertNotEqual(finam.data.get_magnitude(xdata[0, 0]), 0.0)
 
         # using xarray arrays
-        xdata = finam.data.to_xarray(np.asarray([1, 2]), "test", info_1, time)
-        xdata2 = finam.data.to_xarray(xdata, "test", info_1, time)
+        xdata = finam.data.to_xarray(np.asarray([1, 2]), "test", info_1)
+        xdata2 = finam.data.to_xarray(xdata, "test", info_1)
         xdata[0, 0] = 0 * finam.UNITS("m")
         self.assertEqual(xdata2[0, 0], xdata[0, 0])
 
-        xdata = finam.data.to_xarray(np.asarray([1, 2]), "test", info_1, time)
-        xdata2 = finam.data.to_xarray(xdata, "test", info_1, time, force_copy=True)
+        xdata = finam.data.to_xarray(np.asarray([1, 2]), "test", info_1)
+        xdata2 = finam.data.to_xarray(xdata, "test", info_1, force_copy=True)
         xdata[0, 0] = 0 * finam.UNITS("m")
         self.assertNotEqual(xdata2[0, 0], xdata[0, 0])
 
-        xdata = finam.data.to_xarray(np.asarray([1, 2]), "test", info_1, time)
-        xdata2 = finam.data.to_xarray(xdata, "test", info_2, time)
+        xdata = finam.data.to_xarray(np.asarray([1, 2]), "test", info_1)
+        xdata2 = finam.data.to_xarray(xdata, "test", info_2)
         xdata[0, 0] = 0 * finam.UNITS("m")
         self.assertNotEqual(finam.data.get_magnitude(xdata2[0, 0]), 0.0)
 
@@ -349,7 +274,6 @@ class TestDataTools(unittest.TestCase):
             1.0,
             "data",
             finam.Info(time, grid=finam.NoGrid()),
-            datetime.datetime(2000, 1, 1),
         )
 
         finam.data.tools._check_shape(xdata, finam.NoGrid())

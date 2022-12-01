@@ -121,33 +121,27 @@ class TestDelayFixed(unittest.TestCase):
 
     def test_fixed_delay(self):
         data = self.adapter.get_data(datetime(2000, 1, 1), None)
-        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 1))
         self.assertEqual(tools.get_data(data), 0)
 
         self.source.update()
         self.source.update()
 
         data = self.adapter.get_data(datetime(2000, 1, 5), None)
-        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 1))
         self.assertEqual(tools.get_data(data), 0)
 
         for _ in range(20):
             self.source.update()
 
         data = self.adapter.get_data(datetime(2000, 1, 10), None)
-        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 1))
         self.assertEqual(tools.get_data(data), 0)
 
         data = self.adapter.get_data(datetime(2000, 1, 11), None)
-        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 1))
         self.assertEqual(tools.get_data(data), 0)
 
         data = self.adapter.get_data(datetime(2000, 1, 12), None)
-        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 2))
         self.assertEqual(tools.get_data(data), 1)
 
         data = self.adapter.get_data(datetime(2000, 1, 20), None)
-        self.assertEqual(tools.get_time(data)[0], datetime(2000, 1, 10))
         self.assertEqual(tools.get_data(data), 9)
 
 
@@ -416,18 +410,6 @@ class TestTimeStack(unittest.TestCase):
 
         data = self.adapter.get_data(datetime(2000, 1, 4), None)
         self.assertEqual(data.shape, (4, 10, 15))
-        assert_array_equal(
-            data["time"],
-            np.asarray(
-                [
-                    datetime(2000, 1, 1),
-                    datetime(2000, 1, 2),
-                    datetime(2000, 1, 3),
-                    datetime(2000, 1, 4),
-                ],
-                dtype="datetime64[ns]",
-            ),
-        )
 
         self.source.update()
         self.source.update()
