@@ -283,6 +283,14 @@ class Adapter(IAdapter, Input, Output, ABC):
         base_logger = logging.getLogger(self.base_logger_name)
         return ".".join(([base_logger.name, " >> ", self.name]))
 
+    def finalize(self):
+        """Called at the end of each run. Calls :meth:`._finalize`."""
+        self.logger.debug("finalize")
+        self._finalize()
+
+    def _finalize(self):
+        """Called at the end of each run. Overwrite this for cleanup."""
+
 
 class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
     """Base class for adapters that delay/offset time to resolve dependency cycles."""

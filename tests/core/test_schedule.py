@@ -310,6 +310,22 @@ class TestComposition(unittest.TestCase):
                 lines = f.readlines()
                 self.assertNotEqual(len(lines), 0)
 
+    def test_collect_adapters(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: t.day}, step=timedelta(1.0)
+        )
+        module2 = MockupDependentComponent(step=timedelta(1.0))
+
+        composition = Composition([module2, module1])
+        composition.initialize()
+
+        ada = fm.adapters.Scale(1.0)
+        module1.outputs["Output"] >> ada >> module2.inputs["Input"]
+
+        composition.connect()
+
+        self.assertEqual({ada}, composition.adapters)
+
     def test_fail_time(self):
         module1 = MockupComponent(
             callbacks={"Output": lambda t: t}, step=timedelta(1.0)

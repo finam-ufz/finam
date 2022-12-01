@@ -402,6 +402,10 @@ class IOutput(ABC):
 class IAdapter(IInput, IOutput, ABC):
     """Interface for adapters."""
 
+    @abstractmethod
+    def finalize(self):
+        """Called at the end of each run. Can be used for cleanup."""
+
 
 class NoBranchAdapter:
     """Interface to mark adapters as allowing only a single end point."""
