@@ -23,6 +23,7 @@ from .errors import (
 )
 from .interfaces import (
     ComponentStatus,
+    IAdapter,
     IComponent,
     IInput,
     IOutput,
@@ -109,6 +110,7 @@ class Composition(Loggable):
                         "Composition: modules need to be instances of 'IComponent'."
                     )
         self.modules = modules
+        self.adapters = set()
         self.dependencies = None
         self.output_owners = None
         self.is_initialized = False
@@ -181,6 +183,7 @@ class Composition(Loggable):
                         "start must be of type datetime for a composition with time components"
                     )
 
+        self._collect_adapters()
         self._validate_composition()
 
         self._connect_components(start_time)
@@ -297,6 +300,13 @@ class Composition(Loggable):
 
         return None
 
+    def _collect_adapters(self):
+        for mod in self.modules:
+            for _, inp in mod.inputs.items():
+                _collect_adapters_input(inp, self.adapters)
+            for _, out in mod.outputs.items():
+                _collect_adapters_output(out, self.adapters)
+
     def _validate_composition(self):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
         self.logger.debug("validate composition")
@@ -375,6 +385,9 @@ class Composition(Loggable):
             mod.finalize()
             self._check_status(mod, [ComponentStatus.FINALIZED])
 
+        for ada in self.adapters:
+            ada.finalize()
+
     def _finalize_composition(self):
         self.logger.debug("finalize composition")
         handlers = self.logger.handlers[:]
@@ -399,6 +412,23 @@ class Composition(Loggable):
                     f"Unexpected model state {module.status} in {module.name}. "
                     f"Expecting one of [{', '.join(map(str, desired_list))}]"
                 )
+
+
+def _collect_adapters_input(inp: IInput, out_adapters: set):
+    src = inp.get_source()
+    if src is None:
+        return
+
+    if isinstance(src, IAdapter):
+        out_adapters.add(src)
+        _collect_adapters_input(src, out_adapters)
+
+
+def _collect_adapters_output(out: IOutput, out_adapters: set):
+    for trg in out.get_targets():
+        if isinstance(trg, IAdapter):
+            out_adapters.add(trg)
+            _collect_adapters_output(trg, out_adapters)
 
 
 def _check_missing_modules(modules):
