@@ -15,6 +15,7 @@ class Input(IInput, Loggable):
     """Default input implementation."""
 
     def __init__(self, name, info=None, static=False, **info_kwargs):
+        Loggable.__init__(self)
         self.source = None
         self.base_logger_name = None
         if name is None:

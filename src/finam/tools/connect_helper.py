@@ -119,6 +119,7 @@ class ConnectHelper(Loggable):
         out_info_rules=None,
         cache=True,
     ):
+        super().__init__()
 
         self.base_logger_name = logger_name
         self._inputs = inputs

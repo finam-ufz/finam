@@ -42,6 +42,7 @@ class Component(IComponent, Loggable, ABC):
     """
 
     def __init__(self):
+        Loggable.__init__(self)
         self._status = ComponentStatus.CREATED
         self._inputs = IOList(self, "INPUT")
         self._outputs = IOList(self, "OUTPUT")
@@ -445,7 +446,7 @@ class TimeComponent(ITimeComponent, Component, ABC):
     """
 
     def __init__(self):
-        super().__init__()
+        Component.__init__(self)
         self._time = None
 
     @property
