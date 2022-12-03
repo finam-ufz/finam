@@ -250,7 +250,7 @@ class TestUnitsTools(unittest.TestCase):
         self.assertTrue(result)
 
     @pytest.mark.benchmark(group="data-tools")
-    def test_equivalent_units_False(self):
+    def test_equivalent_units_false(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="mm")
         xdata = full(0.0, "test", info)
