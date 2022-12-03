@@ -12,10 +12,13 @@ Note that plot panels have different units!
 ### Simple link, 365 steps
 
 Simple run over one year with two coupled components with daily time step.
-Left without, right with units conversion.
 
-The source component assigns time to a data array each step.
-Remaining time is data exchange and scheduling (negligible).
+Groups left to right:
+* Using numpy arrays, no data copy, no units conversion
+* Using numpy arrays, with data copy, no units conversion
+* Using xarray arrays, no data copy, no units conversion
+* Using xarray arrays, with data copy, no units conversion
+* Using xarray arrays, no data copy, with units conversion
 
 ![tools](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/raw/bench/bench-run-sim.svg?job=benchmark)
 

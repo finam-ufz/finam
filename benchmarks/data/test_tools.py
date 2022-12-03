@@ -1,6 +1,7 @@
 import datetime as dt
 import unittest
 
+import numpy as np
 import pytest
 
 import finam as fm
@@ -45,6 +46,12 @@ class TestToXarray(unittest.TestCase):
     def setupBenchmark(self, benchmark):
         self.benchmark = benchmark
 
+    def copy_xarray_to_xarray(self, data, info):
+        return to_xarray(data.copy(), name="data", info=info)
+
+    def copy_numpy_to_xarray(self, data, info):
+        return to_xarray(np.copy(data), name="data", info=info)
+
     @pytest.mark.benchmark(group="data-tools")
     def test_to_xarray_np_01_2x1(self):
         time = dt.datetime(2000, 1, 1)
@@ -69,6 +76,38 @@ class TestToXarray(unittest.TestCase):
         data = strip_data(xdata)
         _result = self.benchmark(to_xarray, data=data, name="test", info=info)
 
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_cp_to_xarray_np_01_2x1(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
+        xdata = full(0.0, "test", info)
+        data = strip_data(xdata)
+        _result = self.benchmark(self.copy_numpy_to_xarray, data=data, info=info)
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_cp_to_xarray_np_02_512x256(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
+        xdata = full(0.0, "test", info)
+        data = strip_data(xdata)
+        _result = self.benchmark(self.copy_numpy_to_xarray, data=data, info=info)
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_cp_to_xarray_np_03_1024x512(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((1024, 512)), units="m")
+        xdata = full(0.0, "test", info)
+        data = strip_data(xdata)
+        _result = self.benchmark(self.copy_numpy_to_xarray, data=data, info=info)
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_cp_to_xarray_np_04_2048x1024(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
+        xdata = full(0.0, "test", info)
+        data = strip_data(xdata)
+        _result = self.benchmark(self.copy_numpy_to_xarray, data=data, info=info)
+
     @pytest.mark.benchmark(group="data-tools")
     def test_to_xarray_xr_01_2x1(self):
         time = dt.datetime(2000, 1, 1)
@@ -89,6 +128,34 @@ class TestToXarray(unittest.TestCase):
         info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
         xdata = full(0.0, "test", info)
         _result = self.benchmark(to_xarray, data=xdata, name="test", info=info)
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_cp_to_xarray_xr_01_2x1(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
+        xdata = full(0.0, "test", info)
+        _result = self.benchmark(self.copy_xarray_to_xarray, data=xdata, info=info)
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_cp_to_xarray_xr_02_512x256(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
+        xdata = full(0.0, "test", info)
+        _result = self.benchmark(self.copy_xarray_to_xarray, data=xdata, info=info)
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_cp_to_xarray_xr_03_1024x512(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((1024, 512)), units="m")
+        xdata = full(0.0, "test", info)
+        _result = self.benchmark(self.copy_xarray_to_xarray, data=xdata, info=info)
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_cp_to_xarray_xr_04_2048x1024(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
+        xdata = full(0.0, "test", info)
+        _result = self.benchmark(self.copy_xarray_to_xarray, data=xdata, info=info)
 
 
 class TestFull(unittest.TestCase):
@@ -183,7 +250,7 @@ class TestUnitsTools(unittest.TestCase):
         self.assertTrue(result)
 
     @pytest.mark.benchmark(group="data-tools")
-    def test_equivalent_units_False(self):
+    def test_equivalent_units_false(self):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="mm")
         xdata = full(0.0, "test", info)

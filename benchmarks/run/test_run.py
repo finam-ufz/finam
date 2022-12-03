@@ -1,6 +1,7 @@
 import datetime as dt
 import unittest
 
+import numpy as np
 import pytest
 
 import finam as fm
@@ -18,9 +19,19 @@ class SimpleRunBase(unittest.TestCase):
         self.counter += 1
         return d
 
-    def run_simulation(self):
+    def gen_data_copy_numpy(self, t):
+        d = self.data[self.counter % 2]
+        self.counter += 1
+        return np.copy(d)
+
+    def gen_data_copy_xarray(self, t):
+        d = self.data[self.counter % 2]
+        self.counter += 1
+        return d.copy()
+
+    def run_simulation(self, gen_func):
         source = fm.modules.CallbackGenerator(
-            callbacks={"Out": (self.gen_data, self.info1.copy())},
+            callbacks={"Out": (gen_func, self.info1.copy())},
             start=self.start_time,
             step=dt.timedelta(days=1),
         )
@@ -39,9 +50,9 @@ class SimpleRunBase(unittest.TestCase):
 
         self.composition.run(end_time=self.end_time)
 
-    def run_test(self, sx, sy):
+    def run_test(self, sx, sy, gen_func):
         self.setup_data(size=(sx, sy))
-        self.benchmark(self.run_simulation)
+        self.benchmark(self.run_simulation, gen_func=gen_func)
 
 
 class TestSimpleRun(SimpleRunBase):
@@ -59,35 +70,35 @@ class TestSimpleRun(SimpleRunBase):
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_simple_01_2x1(self):
-        self.run_test(2, 1)
+        self.run_test(2, 1, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_simple_02_32x16(self):
-        self.run_test(32, 16)
+        self.run_test(32, 16, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_simple_03_64x32(self):
-        self.run_test(64, 32)
+        self.run_test(64, 32, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_simple_04_128x64(self):
-        self.run_test(128, 64)
+        self.run_test(128, 64, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_simple_05_256x128(self):
-        self.run_test(256, 128)
+        self.run_test(256, 128, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_simple_06_512x256(self):
-        self.run_test(512, 256)
+        self.run_test(512, 256, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_simple_07_1024x512(self):
-        self.run_test(1024, 512)
+        self.run_test(1024, 512, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_simple_08_2048x1024(self):
-        self.run_test(2048, 1024)
+        self.run_test(2048, 1024, self.gen_data)
 
 
 class TestSimpleRunUnits(SimpleRunBase):
@@ -105,35 +116,35 @@ class TestSimpleRunUnits(SimpleRunBase):
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_units_01_2x1(self):
-        self.run_test(2, 1)
+        self.run_test(2, 1, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_units_02_32x16(self):
-        self.run_test(32, 16)
+        self.run_test(32, 16, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_units_03_64x32(self):
-        self.run_test(64, 32)
+        self.run_test(64, 32, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_units_04_128x64(self):
-        self.run_test(128, 64)
+        self.run_test(128, 64, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_units_05_256x128(self):
-        self.run_test(256, 128)
+        self.run_test(256, 128, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_units_06_512x256(self):
-        self.run_test(512, 256)
+        self.run_test(512, 256, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_units_07_1024x512(self):
-        self.run_test(1024, 512)
+        self.run_test(1024, 512, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_units_08_2048x1024(self):
-        self.run_test(2048, 1024)
+        self.run_test(2048, 1024, self.gen_data)
 
 
 class TestSimpleRunNumpy(SimpleRunBase):
@@ -151,32 +162,124 @@ class TestSimpleRunNumpy(SimpleRunBase):
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_numpy_01_2x1(self):
-        self.run_test(2, 1)
+        self.run_test(2, 1, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_numpy_02_32x16(self):
-        self.run_test(32, 16)
+        self.run_test(32, 16, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_numpy_03_64x32(self):
-        self.run_test(64, 32)
+        self.run_test(64, 32, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_numpy_04_128x64(self):
-        self.run_test(128, 64)
+        self.run_test(128, 64, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_numpy_05_256x128(self):
-        self.run_test(256, 128)
+        self.run_test(256, 128, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_numpy_06_512x256(self):
-        self.run_test(512, 256)
+        self.run_test(512, 256, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_numpy_07_1024x512(self):
-        self.run_test(1024, 512)
+        self.run_test(1024, 512, self.gen_data)
 
     @pytest.mark.benchmark(group="run-sim")
     def test_run_numpy_08_2048x1024(self):
-        self.run_test(2048, 1024)
+        self.run_test(2048, 1024, self.gen_data)
+
+
+class TestSimpleRunCopy(SimpleRunBase):
+    @pytest.fixture(autouse=True)
+    def setupBenchmark(self, benchmark):
+        self.setup(benchmark)
+
+    def setup_data(self, size):
+        self.info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
+        self.info2 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
+        self.data = [
+            fm.data.full(0.0, "input", self.info1),
+            fm.data.full(0.0, "input", self.info1),
+        ]
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_simple_cp_01_2x1(self):
+        self.run_test(2, 1, self.gen_data_copy_xarray)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_simple_cp_02_32x16(self):
+        self.run_test(32, 16, self.gen_data_copy_xarray)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_simple_cp_03_64x32(self):
+        self.run_test(64, 32, self.gen_data_copy_xarray)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_simple_cp_04_128x64(self):
+        self.run_test(128, 64, self.gen_data_copy_xarray)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_simple_cp_05_256x128(self):
+        self.run_test(256, 128, self.gen_data_copy_xarray)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_simple_cp_06_512x256(self):
+        self.run_test(512, 256, self.gen_data_copy_xarray)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_simple_cp_07_1024x512(self):
+        self.run_test(1024, 512, self.gen_data_copy_xarray)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_simple_cp_08_2048x1024(self):
+        self.run_test(2048, 1024, self.gen_data_copy_xarray)
+
+
+class TestSimpleRunNumpyCopy(SimpleRunBase):
+    @pytest.fixture(autouse=True)
+    def setupBenchmark(self, benchmark):
+        self.setup(benchmark)
+
+    def setup_data(self, size):
+        self.info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
+        self.info2 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
+        self.data = [
+            fm.data.strip_data(fm.data.full(0.0, "input", self.info1)),
+            fm.data.strip_data(fm.data.full(0.0, "input", self.info1)),
+        ]
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_numpy_cp_01_2x1(self):
+        self.run_test(2, 1, self.gen_data_copy_numpy)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_numpy_cp_02_32x16(self):
+        self.run_test(32, 16, self.gen_data_copy_numpy)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_numpy_cp_03_64x32(self):
+        self.run_test(64, 32, self.gen_data_copy_numpy)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_numpy_cp_04_128x64(self):
+        self.run_test(128, 64, self.gen_data_copy_numpy)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_numpy_cp_05_256x128(self):
+        self.run_test(256, 128, self.gen_data_copy_numpy)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_numpy_cp_06_512x256(self):
+        self.run_test(512, 256, self.gen_data_copy_numpy)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_numpy_cp_07_1024x512(self):
+        self.run_test(1024, 512, self.gen_data_copy_numpy)
+
+    @pytest.mark.benchmark(group="run-sim")
+    def test_run_numpy_cp_08_2048x1024(self):
+        self.run_test(2048, 1024, self.gen_data_copy_numpy)
