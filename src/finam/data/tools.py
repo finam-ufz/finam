@@ -25,6 +25,8 @@ from .grid_tools import Grid, GridBase
 pint_xarray.unit_registry.default_format = "cf"
 UNITS = pint_xarray.unit_registry
 
+_UNITS_CACHE = {}
+
 
 def _gen_dims(ndim, info):
     """
@@ -533,10 +535,14 @@ def compatible_units(unit1, unit2):
     Returns
     -------
     bool
-        Uint compatibility.
+        Unit compatibility.
     """
     unit1, unit2 = _get_pint_units(unit1), _get_pint_units(unit2)
-    return unit1.is_compatible_with(unit2)
+    comp_equiv = _UNITS_CACHE.get((unit1, unit2))
+    if comp_equiv is None:
+        comp_equiv = _cache_units(unit1, unit2)
+
+    return comp_equiv[0]
 
 
 def equivalent_units(unit1, unit2):
@@ -556,10 +562,29 @@ def equivalent_units(unit1, unit2):
         Unit equivalence.
     """
     unit1, unit2 = _get_pint_units(unit1), _get_pint_units(unit2)
+    comp_equiv = _UNITS_CACHE.get((unit1, unit2))
+    if comp_equiv is None:
+        comp_equiv = _cache_units(unit1, unit2)
+
+    return comp_equiv[1]
+
+
+def _cache_units(unit1, unit2):
+    equiv = False
+    compat = False
     try:
-        return np.isclose((1.0 * unit1).to(unit2).magnitude, 1.0)
+        equiv = np.isclose((1.0 * unit1).to(unit2).magnitude, 1.0)
+        compat = True
     except pint.errors.DimensionalityError:
-        return False
+        pass
+
+    _UNITS_CACHE[(unit1, unit2)] = compat, equiv
+    return compat, equiv
+
+
+def clear_units_cache():
+    """Clears the units cache"""
+    _UNITS_CACHE.clear()
 
 
 def assert_type(cls, slot, obj, types):
