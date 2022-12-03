@@ -87,7 +87,6 @@ def to_xarray(data, name, info, time_entries=1, force_copy=False):
             name=name,
             info=info,
             overwrite_name=True,
-            check_units_equivalent=False,
         )
         if equivalent_units(info.units, data):
             if force_copy:
@@ -383,7 +382,6 @@ def check(
     name,
     info,
     overwrite_name=False,
-    check_units_equivalent=True,
 ):
     """
     Check if data matches given info.
@@ -398,8 +396,6 @@ def check(
         Info associated with the data.
     overwrite_name : bool
         Overwrites the name in the data instead of comparing both names
-    check_units_equivalent : bool
-        Check equivalence of data and info units.
 
     Raises
     ------
@@ -441,11 +437,6 @@ def check(
     if not compatible_units(units, xdata):
         raise FinamDataError(
             f"check: given data has incompatible units. "
-            f"Got {get_units(xdata)}, expected {units}."
-        )
-    if check_units_equivalent and not equivalent_units(units, xdata):
-        raise FinamDataError(
-            f"check: given data has non-equivalent units. "
             f"Got {get_units(xdata)}, expected {units}."
         )
 
