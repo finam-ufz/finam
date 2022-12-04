@@ -151,9 +151,7 @@ class Output(IOutput, Loggable):
             xdata = tools.to_xarray(data, self.name, self.info)
             if len(self.data) > 0:
                 d = self.data[-1][1]
-                if np.may_share_memory(
-                    tools.get_magnitude(d), tools.get_magnitude(xdata)
-                ):
+                if np.may_share_memory(d.data.magnitude, xdata.data.magnitude):
                     raise FinamDataError(
                         "Received data that shares memory with previously received data."
                     )
