@@ -5,6 +5,8 @@ Micro-benchmarks and profiling for important FINAM runs functions.
 Note that plot panels have different units!
 `ms` is milliseconds (1/1,000 second), `us` is microseconds (1/1,000,000 second).
 
+Open images in a separate browser tab for tooltips showing exact values.
+
 ## Full runs
 
 **Profiling data** for full runs can be found in the latest [job artifacts](https://git.ufz.de/FINAM/finam/-/jobs/artifacts/main/browse/prof?job=profile).
