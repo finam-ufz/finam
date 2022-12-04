@@ -24,6 +24,8 @@
 * Outputs can be flagged `static` for data that is only used during initialization, or that is constant (!166)
 * Inputs can be flagged `static` for constant data (!171)
 * Outputs accept and convert compatible units, not only exactly equal units (!215)
+* Outputs check that subsequent data pushes don't share memory (!217)
+* Exchanged `xarray` data has no time coordinate anymore, only a dimension without values (for performance and usability) (!223)
 
 ### Components
 
@@ -43,6 +45,7 @@
 * Restructuring of time integration adapters (!194)
   * `adapters.IntegrateTime` renamed to `adapters.AvgOverTime`
   * Add `adapters.SumOverTime` for sum/Area under Curve integration
+* Adapters have a method `finalize()` for cleanup (!226).
 
 ### Other
 
@@ -64,6 +67,10 @@
 * New helper function `tools.inspect()` to inspect components, adapters and I/O slots (!197)
 * Publish on PyPI, starting with the next release (!198, !200, !201)
 * Added benchmarks for the most important FINAM functions
+  (see the [benchmarks README](https://git.ufz.de/FINAM/finam/-/blob/main/benchmarks/README.md))
+* Added profiling for full runs to the CI (!221)
+* Optimization of data tool functions, with approx. 20-fold speedup of basic push+pull
+  (!222, !223, !224, !228, !229).
 
 ## [v0.4.0-rc.2]
 
