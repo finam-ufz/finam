@@ -7,7 +7,7 @@ for filename in benchmarks/profiling/*.py; do
   fn=$(basename -- "$filename")
   fn="${fn%.*}"
   echo "$fn"
-  python -m cProfile -o prof/"$fn".pstats benchmarks/profiling/"$fn".py
+  python benchmarks/profiling/"$fn".py prof/"$fn".pstats
   gprof2dot --colour-nodes-by-selftime -f pstats prof/"$fn".pstats > prof/"$fn".dot
   dot -Tsvg -o prof/"$fn".svg prof/"$fn".dot
   dot -Tpng -o prof/"$fn".png prof/"$fn".dot

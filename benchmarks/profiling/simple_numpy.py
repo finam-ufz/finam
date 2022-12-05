@@ -5,7 +5,11 @@ Two components, coupled via a single link.
 Simulation runs for 1 year with a daily step in both components.
 Components exchange a 128x64 uniform grid.
 """
+import cProfile
 import datetime as dt
+import io
+import pstats
+import sys
 
 import finam as fm
 
@@ -52,6 +56,18 @@ def run_model():
     composition.run(end_time=end_time)
 
 
-if __name__ == "__main__":
-    for i in range(10):
+def run_model_multi(n):
+    for _ in range(n):
         run_model()
+
+
+if __name__ == "__main__":
+    pr = cProfile.Profile()
+    pr.enable()
+
+    run_model_multi(10)
+
+    pr.disable()
+    s = io.StringIO()
+    ps = pstats.Stats(pr, stream=s).sort_stats(pstats.SortKey.CUMULATIVE)
+    ps.dump_stats(sys.argv[1])
