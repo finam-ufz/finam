@@ -201,8 +201,7 @@ class Component(IComponent, Loggable, ABC):
     @status.setter
     def status(self, status):
         """The component's current status."""
-        with ErrorLogger(self.logger):
-            self._status = get_enum_value(status, ComponentStatus, FinamStatusError)
+        self._status = status
 
     @property
     def name(self):

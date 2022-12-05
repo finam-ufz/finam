@@ -469,7 +469,7 @@ def is_quantified(xdata):
     Returns
     -------
     bool
-        Wether the data is a quantified DataArray.
+        Whether the data is a quantified DataArray.
     """
     return isinstance(xdata, xr.DataArray) and xdata.pint.units is not None
 
