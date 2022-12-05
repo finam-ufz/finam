@@ -83,6 +83,8 @@ class RectilinearGrid(StructuredGrid):
             raise ValueError("RectilinearGrid: wrong length of 'axes_names'")
         self._crs = crs
 
+        self._data_shape = None
+
     def to_unstructured(self):
         """
         Cast grid to an unstructured grid.
@@ -106,6 +108,13 @@ class RectilinearGrid(StructuredGrid):
     def dims(self):
         """tuple: Axes lengths (xyz order)."""
         return tuple(map(len, self.axes))
+
+    @property
+    def data_shape(self):
+        """tuple: Shape of the associated data."""
+        if self._data_shape is None:
+            self._data_shape = super().data_shape
+        return self._data_shape
 
     @property
     def axes(self):
@@ -419,6 +428,15 @@ class UnstructuredGrid(Grid):
     def points(self):
         """np.ndarray: Grid points."""
         return self._points
+
+    @property
+    def data_shape(self):
+        """np.ndarray: Grid points."""
+        return (
+            (len(self.points),)
+            if self.data_location == Location.POINTS
+            else (len(self.cells),)
+        )
 
     @property
     def cells(self):

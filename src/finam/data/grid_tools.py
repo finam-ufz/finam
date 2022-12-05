@@ -551,9 +551,9 @@ class Grid(GridBase):
         return self.cell_centers
 
     @property
+    @abstractmethod
     def data_shape(self):
         """tuple: Shape of the associated data."""
-        return (len(self.data_points),)
 
     @property
     def data_size(self):
