@@ -27,7 +27,6 @@ from finam import (
     Output,
     TimeComponent,
 )
-from finam import data as tools
 from finam.adapters.base import Scale
 from finam.adapters.time import DelayFixed, NextTime
 from finam.modules import CallbackComponent, CallbackGenerator, DebugPushConsumer, debug
@@ -148,7 +147,7 @@ class MockupCircularComponent(TimeComponent):
         push_data = {}
         pulled_data = self.connector.in_data["Input"]
         if pulled_data is not None:
-            push_data["Output"] = tools.get_data(tools.strip_time(pulled_data))
+            push_data["Output"] = pulled_data[0, ...]
 
         self.try_connect(
             start_time,
@@ -162,9 +161,7 @@ class MockupCircularComponent(TimeComponent):
     def _update(self):
         self._time += self._step
         pulled = self.inputs["Input"].pull_data(self.time)
-        self.outputs["Output"].push_data(
-            tools.get_data(tools.strip_time(pulled)), self.time
-        )
+        self.outputs["Output"].push_data(pulled, self.time)
 
     def _finalize(self):
         pass
@@ -291,7 +288,7 @@ class TestComposition(unittest.TestCase):
             log_file = os.path.join(tmp, "test.log")
 
             module1 = MockupComponent(
-                callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+                callbacks={"Output": lambda t: t.day}, step=timedelta(1.0)
             )
             module2 = MockupDependentComponent(step=timedelta(1.0))
 
@@ -363,7 +360,7 @@ class TestComposition(unittest.TestCase):
 
     def test_iterative_connect(self):
         module1 = MockupComponent(
-            callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+            callbacks={"Output": lambda t: t.day}, step=timedelta(1.0)
         )
         module2 = MockupDependentComponent(step=timedelta(1.0))
 
@@ -376,7 +373,7 @@ class TestComposition(unittest.TestCase):
 
     def test_iterative_connect_multi(self):
         module1 = MockupComponent(
-            callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+            callbacks={"Output": lambda t: t.day}, step=timedelta(1.0)
         )
         module2 = MockupCircularComponent(step=timedelta(1.0))
         module3 = MockupDependentComponent(step=timedelta(1.0))
@@ -866,7 +863,7 @@ class TestComposition(unittest.TestCase):
             return t.day
 
         def lambda_component(inp, t):
-            return {"Out": fm.data.strip_data(inp["In"])}
+            return {"Out": inp["In"][0, ...]}
 
         def lambda_debugger(name, data, t):
             updates[name].append(t.day)

@@ -14,7 +14,6 @@ from finam.data.tools import (
     get_magnitude,
     get_units,
     is_quantified,
-    strip_data,
     strip_time,
     to_units,
     to_xarray,

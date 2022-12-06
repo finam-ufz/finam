@@ -1,7 +1,7 @@
 """Pull-based components for merging multiple inputs into a single output"""
 from finam.interfaces import ComponentStatus
 
-from ..data.tools import compatible_units, strip_data
+from ..data.tools import compatible_units, strip_time
 from ..errors import FinamMetaDataError
 from ..sdk import CallbackOutput, Component
 from ..tools.log_helper import ErrorLogger
@@ -140,8 +140,8 @@ class WeightedSum(Component):
             result = None
 
             for name in self._input_names:
-                value = strip_data(self._in_data[name])
-                weight = strip_data(self._in_data[name + "_weight"])
+                value = strip_time(self._in_data[name])
+                weight = strip_time(self._in_data[name + "_weight"])
 
                 if result is None:
                     result = value * weight
