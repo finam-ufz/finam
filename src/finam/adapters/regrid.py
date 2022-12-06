@@ -217,9 +217,7 @@ class RegridLinear(ARegridding):
         in_data = self.pull_data(time, target)
 
         if isinstance(self.input_grid, StructuredGrid):
-            self.inter.values = dtools.get_magnitude(
-                dtools.strip_time(in_data, self.input_grid)
-            )
+            self.inter.values = in_data[0, ...].magnitude
             res = self.inter(self.out_coords)
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values.flatten(
@@ -227,9 +225,7 @@ class RegridLinear(ARegridding):
                 )[self.fill_ids]
         else:
             self.inter.values = np.ascontiguousarray(
-                dtools.get_magnitude(in_data).reshape(
-                    (-1, 1), order=self.input_grid.order
-                ),
+                in_data[0, ...].magnitude.reshape((-1, 1), order=self.input_grid.order),
                 dtype=np.double,
             )
             res = self.inter(self.out_coords)
