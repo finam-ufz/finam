@@ -17,7 +17,6 @@ from .grid_tools import Grid, GridBase
 pint.application_registry.default_format = "cf"
 UNITS = pint.application_registry
 
-_UNIT_CACHE = {}
 _UNIT_PAIRS_CACHE = {}
 
 
@@ -51,7 +50,7 @@ def prepare(data, info, time_entries=1, force_copy=False):
     FinamDataError
         If the data doesn't match its info.
     """
-    units = _get_pint_units(info.units)
+    units = info.units
     if isinstance(data, pint.Quantity):
         if not compatible_units(data.units, units):
             raise FinamDataError(
@@ -355,7 +354,7 @@ def check(
     if not compatible_units(info.units, xdata):
         raise FinamDataError(
             f"check: given data has incompatible units. "
-            f"Got {get_units(xdata)}, expected {UNITS.Unit(info.units)}."
+            f"Got {get_units(xdata)}, expected {info.units}."
         )
 
 
@@ -434,15 +433,13 @@ def _get_pint_units(var):
     if var is None:
         raise FinamDataError("Can't extract units from 'None'.")
 
+    if isinstance(var, pint.Unit):
+        return var
+
     if isinstance(var, pint.Quantity):
         return var.units or UNITS.dimensionless
 
-    units = _UNIT_CACHE.get(var)
-    if units is None:
-        units = UNITS.Unit(var)
-        _UNIT_CACHE[var] = units
-
-    return units
+    return UNITS.Unit(var)
 
 
 def compatible_units(unit1, unit2):
@@ -508,7 +505,6 @@ def _cache_units(unit1, unit2):
 
 def clear_units_cache():
     """Clears the units cache"""
-    _UNIT_CACHE.clear()
     _UNIT_PAIRS_CACHE.clear()
 
 
@@ -557,7 +553,10 @@ class Info:
         self.grid = grid
         self.meta = meta or {}
         self.meta.update(meta_kwargs)
-        self.meta.setdefault("units", "")
+
+        units = self.meta.get("units", "")
+        units = None if units is None else UNITS.Unit(units)
+        self.meta["units"] = units
 
     def copy(self):
         """Copies the info object"""
@@ -581,6 +580,9 @@ class Info:
             elif k == "grid":
                 if v is not None or use_none:
                     other.grid = v
+            elif k == "units":
+                if v is not None or use_none:
+                    other.meta[k] = v if v is None else UNITS.Unit(v)
             else:
                 if v is not None or use_none:
                     other.meta[k] = v
