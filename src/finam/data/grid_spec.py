@@ -84,6 +84,7 @@ class RectilinearGrid(StructuredGrid):
         self._crs = crs
 
         self._data_shape = None
+        self._data_size = None
 
     def to_unstructured(self):
         """
@@ -115,6 +116,13 @@ class RectilinearGrid(StructuredGrid):
         if self._data_shape is None:
             self._data_shape = super().data_shape
         return self._data_shape
+
+    @property
+    def data_size(self):
+        """int: Size of the associated data."""
+        if self._data_size is None:
+            self._data_size = super().data_size
+        return self._data_size
 
     @property
     def axes(self):
@@ -436,6 +444,15 @@ class UnstructuredGrid(Grid):
             (len(self.points),)
             if self.data_location == Location.POINTS
             else (len(self.cells),)
+        )
+
+    @property
+    def data_size(self):
+        """int: Size of the associated data."""
+        return (
+            len(self.points)
+            if self.data_location == Location.POINTS
+            else len(self.cells)
         )
 
     @property
