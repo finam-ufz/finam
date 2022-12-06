@@ -4,25 +4,18 @@ import datetime
 
 import numpy as np
 import pandas as pd
-
-# isort: off
-
-# to be able to read unit attributes following the CF conventions
-# pylint: disable-next=W0611
-import cf_xarray.units  # must be imported before pint_xarray
-import pint_xarray
 import pint
 
-# isort: on
-
 from ..errors import FinamDataError, FinamMetaDataError
-from . import grid_spec
+
+# pylint: disable-next=unused-import
+from . import cf_units, grid_spec
 from .grid_tools import Grid, GridBase
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here
-pint_xarray.unit_registry.default_format = "cf"
-UNITS = pint_xarray.unit_registry
+pint.application_registry.default_format = "cf"
+UNITS = pint.application_registry
 
 _UNIT_CACHE = {}
 _UNIT_PAIRS_CACHE = {}

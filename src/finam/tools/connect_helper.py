@@ -3,8 +3,6 @@ import copy
 import logging
 from abc import ABC
 
-import xarray as xr
-
 from finam.interfaces import ComponentStatus, Loggable
 
 from ..data.tools import Info
@@ -526,12 +524,8 @@ class ConnectHelper(Loggable):
         if out.is_static:
             out.push_data(data, None)
         elif info_time != time:
-            if isinstance(data, xr.DataArray):
-                out.push_data(data.copy(), time)
-                out.push_data(data, info_time)
-            else:
-                out.push_data(data, time)
-                out.push_data(copy.copy(data), info_time)
+            out.push_data(data, time)
+            out.push_data(copy.copy(data), info_time)
         else:
             out.push_data(data, info_time)
 
