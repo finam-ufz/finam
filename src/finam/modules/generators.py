@@ -92,8 +92,8 @@ class CallbackGenerator(TimeComponent):
             }
 
         push_data = {}
-        for name, pushed in self.connector.data_pushed.items():
-            if not pushed:
+        for name, req in self.connector.data_required.items():
+            if req:
                 push_data[name] = self._initial_data[name]
 
         self.try_connect(start_time, push_data=push_data)

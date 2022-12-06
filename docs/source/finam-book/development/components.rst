@@ -309,10 +309,6 @@ In :meth:`.TimeComponent._update`, we get the component's input data, do a "mode
 
             result = a + b
 
-            # We need to unwrap the data here, as the push time will not equal the pull time.
-            # This would result in conflicting timestamps in the internal checks
-            result = fm.data.strip_data(result)
-
             self.outputs["Sum"].push_data(result, self.time)
 
 
@@ -403,10 +399,6 @@ Here is the final code of the completed component.
             b = self.inputs["B"].pull_data(self.time)
 
             result = a + b
-
-            # We need to unwrap the data here, as the push time will not equal the pull time.
-            # This would result in conflicting timestamps in the internal checks
-            result = fm.data.strip_data(result)
 
             self.outputs["Sum"].push_data(result, self.time)
 
