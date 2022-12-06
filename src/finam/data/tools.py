@@ -146,7 +146,17 @@ def has_time_axis(xdata, grid):
     bool
         Whether the data has a time axis.
     """
-    grid_dim = len(grid.data_shape) if isinstance(grid, Grid) else grid.dim
+    grid_dim = None
+
+    if isinstance(grid, Grid):
+        grid_dim = len(grid.data_shape)
+    elif isinstance(grid, grid_spec.NoGrid):
+        grid_dim = grid.dim
+    else:
+        raise ValueError(
+            f"Expected type Grid or NoGrid, got {grid.__class__.__name__}."
+        )
+
     if xdata.ndim == grid_dim:
         return False
 

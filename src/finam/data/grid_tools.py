@@ -585,7 +585,6 @@ class Grid(GridBase):
         if isinstance(self, StructuredGrid) != isinstance(other, StructuredGrid):
             return False
 
-        # Might comparison of data_points be sufficient here?
         return (
             self.dim == other.dim
             and self.crs == other.crs
@@ -763,6 +762,22 @@ class StructuredGrid(Grid):
         dims = np.asarray(self.dims[::-1] if self.axes_reversed else self.dims)
         return tuple(
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
+        )
+
+    def __eq__(self, other):
+        if not isinstance(other, Grid):
+            return False
+
+        if not isinstance(other, StructuredGrid):
+            return False
+
+        return (
+            self.dim == other.dim
+            and self.crs == other.crs
+            and self.order == other.order
+            and self.data_location == other.data_location
+            and self.data_shape == other.data_shape
+            and all(np.allclose(a, b) for a, b in zip(self.axes, other.axes))
         )
 
     def export_vtk(
