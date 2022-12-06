@@ -13,7 +13,7 @@ class TestRegrid(unittest.TestCase):
 
     def setup_adapter(self, grid1, grid2, adapter):
         time = dt.datetime(2000, 1, 1)
-        self.data = fm.data.full(1.0, "test", fm.Info(time=time, grid=grid1))
+        self.data = fm.data.full(1.0, fm.Info(time=time, grid=grid1))
 
         self.source = fm.modules.CallbackGenerator(
             callbacks={"Step": (lambda t: self.data, fm.Info(None, grid=grid1))},

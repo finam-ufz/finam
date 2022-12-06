@@ -21,21 +21,15 @@ class TestPushPull(unittest.TestCase):
         self.time += dt.timedelta(days=1)
         self.counter += 1
 
-    def setup_link(self, grid, target_units, xr=False):
+    def setup_link(self, grid, target_units):
         self.time = dt.datetime(2000, 1, 1)
         info1 = fm.Info(time=self.time, grid=grid, units="m")
         info2 = fm.Info(time=self.time, grid=grid, units=target_units)
 
         self.data = [
-            fm.data.full(0.0, "test", info1),
-            fm.data.full(0.0, "test", info1),
+            fm.data.full(0.0, info1),
+            fm.data.full(0.0, info1),
         ]
-
-        if not xr:
-            self.data = [
-                fm.data.strip_data(self.data[0]),
-                fm.data.strip_data(self.data[1]),
-            ]
 
         self.out = fm.Output(name="Output")
         self.inp = fm.Input(name="Input")
@@ -91,52 +85,4 @@ class TestPushPull(unittest.TestCase):
     def test_push_pull_np_units_04_2048x1024(self):
         grid = fm.UniformGrid((2048, 1024))
         self.setup_link(grid, target_units="km")
-        self.benchmark(self.push_pull)
-
-    @pytest.mark.benchmark(group="sdk-io")
-    def test_push_pull_xr_01_2x1(self):
-        grid = fm.UniformGrid((2, 1))
-        self.setup_link(grid, target_units="m", xr=True)
-        self.benchmark(self.push_pull)
-
-    @pytest.mark.benchmark(group="sdk-io")
-    def test_push_pull_xr_02_512x256(self):
-        grid = fm.UniformGrid((512, 256))
-        self.setup_link(grid, target_units="m", xr=True)
-        self.benchmark(self.push_pull)
-
-    @pytest.mark.benchmark(group="sdk-io")
-    def test_push_pull_xr_03_1024x512(self):
-        grid = fm.UniformGrid((1024, 512))
-        self.setup_link(grid, target_units="m", xr=True)
-        self.benchmark(self.push_pull)
-
-    @pytest.mark.benchmark(group="sdk-io")
-    def test_push_pull_xr_04_2048x1024(self):
-        grid = fm.UniformGrid((2048, 1024))
-        self.setup_link(grid, target_units="m", xr=True)
-        self.benchmark(self.push_pull)
-
-    @pytest.mark.benchmark(group="sdk-io")
-    def test_push_pull_xr_units_01_2x1(self):
-        grid = fm.UniformGrid((2, 1))
-        self.setup_link(grid, target_units="km", xr=True)
-        self.benchmark(self.push_pull)
-
-    @pytest.mark.benchmark(group="sdk-io")
-    def test_push_pull_xr_units_02_512x256(self):
-        grid = fm.UniformGrid((512, 256))
-        self.setup_link(grid, target_units="km", xr=True)
-        self.benchmark(self.push_pull)
-
-    @pytest.mark.benchmark(group="sdk-io")
-    def test_push_pull_xr_units_03_1024x512(self):
-        grid = fm.UniformGrid((1024, 512))
-        self.setup_link(grid, target_units="km", xr=True)
-        self.benchmark(self.push_pull)
-
-    @pytest.mark.benchmark(group="sdk-io")
-    def test_push_pull_xr_units_04_2048x1024(self):
-        grid = fm.UniformGrid((2048, 1024))
-        self.setup_link(grid, target_units="km", xr=True)
         self.benchmark(self.push_pull)

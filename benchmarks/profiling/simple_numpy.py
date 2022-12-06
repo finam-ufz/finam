@@ -25,8 +25,8 @@ def run_model():
     info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
     info2 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
     data = [
-        fm.data.strip_data(fm.data.full(0.0, "input", info1)),
-        fm.data.strip_data(fm.data.full(0.0, "input", info1)),
+        fm.data.full(0.0, info1),
+        fm.data.full(0.0, info1),
     ]
 
     def gen_data(t):
