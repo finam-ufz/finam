@@ -240,7 +240,7 @@ class TimeCachingAdapter(Adapter, NoBranchAdapter, ABC):
         """
         check_time(self.logger, time)
 
-        data = dtools.strip_data(self.pull_data(time, self))
+        data = dtools.strip_time(self.pull_data(time, self), self._input_info.grid)
         self.data.append((time, data))
 
     def _get_data(self, time, _target):
@@ -360,7 +360,7 @@ class StackTime(TimeCachingAdapter):
             break
 
         arr = np.stack([d[1] for d in extract])
-        return dtools.to_xarray(arr, self.name, self.info, time_entries=len(extract))
+        return dtools.to_xarray(arr, self.info, time_entries=len(extract))
 
 
 class LinearTime(TimeCachingAdapter):

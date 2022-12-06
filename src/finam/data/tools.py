@@ -108,6 +108,11 @@ def to_xarray(data, info, time_entries=1, force_copy=False):
 def _check_input_shape(data, info, time_entries):
     # check correct data size
     if isinstance(info.grid, Grid):
+        time_entries = (
+            data.shape[0]
+            if len(data.shape) == len(info.grid.data_shape) + 1
+            else time_entries
+        )
         data_size = data.size / time_entries
         if data_size != info.grid.data_size:
             raise FinamDataError(
@@ -135,21 +140,25 @@ def _check_input_shape(data, info, time_entries):
                     [time_entries] + list(info.grid.data_shape), order=info.grid.order
                 )
     elif isinstance(info.grid, grid_spec.NoGrid):
-        if len(data.shape) != info.grid.dim + 1:
-            if len(data.shape) == info.grid.dim:
-                data = np.expand_dims(data, 0)
-            else:
-                raise FinamDataError(
-                    f"to_xarray: number of dimensions in data doesn't match expected number. "
-                    f"Got {len(data.shape)}, expected {info.grid.dim}"
-                )
-        else:
-            if data.shape[0] != time_entries:
-                raise FinamDataError(
-                    f"to_xarray: number of time entries in data doesn't match expected number. "
-                    f"Got {data.shape[0]}, expected {time_entries}"
-                )
+        data = _check_input_shape_no_grid(data, info, time_entries)
+    return data
 
+
+def _check_input_shape_no_grid(data, info, time_entries):
+    if len(data.shape) != info.grid.dim + 1:
+        if len(data.shape) == info.grid.dim:
+            data = np.expand_dims(data, 0)
+        else:
+            raise FinamDataError(
+                f"to_xarray: number of dimensions in data doesn't match expected number. "
+                f"Got {len(data.shape)}, expected {info.grid.dim}"
+            )
+    else:
+        if data.shape[0] != time_entries:
+            raise FinamDataError(
+                f"to_xarray: number of time entries in data doesn't match expected number. "
+                f"Got {data.shape[0]}, expected {time_entries}"
+            )
     return data
 
 
@@ -168,10 +177,11 @@ def has_time_axis(xdata, grid):
     bool
         Whether the data has a time axis.
     """
-    if xdata.ndim == grid.dim:
+    grid_dim = len(grid.data_shape) if isinstance(grid, Grid) else grid.dim
+    if xdata.ndim == grid_dim:
         return False
 
-    if xdata.ndim == grid.dim + 1:
+    if xdata.ndim == grid_dim + 1:
         return True
 
     raise FinamDataError("Data dimension must be grid dimension or grid dimension + 1.")

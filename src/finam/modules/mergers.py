@@ -140,8 +140,8 @@ class WeightedSum(Component):
             result = None
 
             for name in self._input_names:
-                value = strip_time(self._in_data[name])
-                weight = strip_time(self._in_data[name + "_weight"])
+                value = strip_time(self._in_data[name], self._grid)
+                weight = strip_time(self._in_data[name + "_weight"], self._grid)
 
                 if result is None:
                     result = value * weight

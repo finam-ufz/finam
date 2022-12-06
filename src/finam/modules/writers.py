@@ -106,7 +106,7 @@ class CsvWriter(TimeComponent):
 
         if self.status == ComponentStatus.CONNECTED:
             values = [
-                dtools.get_magnitude(dtools.strip_time(data))
+                dtools.get_magnitude(dtools.strip_time(data, NoGrid()))
                 for _, data in self.connector.in_data.items()
             ]
 
@@ -128,7 +128,7 @@ class CsvWriter(TimeComponent):
 
         values = [
             dtools.get_magnitude(
-                dtools.strip_time(self.inputs[inp].pull_data(self.time))
+                dtools.strip_time(self.inputs[inp].pull_data(self.time), NoGrid())
             )
             for inp in self._input_names
         ]

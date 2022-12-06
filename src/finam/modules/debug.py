@@ -116,7 +116,11 @@ class DebugConsumer(TimeComponent):
                 self.logger.debug("Pulled input data for %s", name)
 
                 if self._log_data is not None:
-                    pdata = data[0, ...] if self._strip_data else data
+                    pdata = (
+                        tools.strip_time(data, self.inputs[name].info.grid)
+                        if self._strip_data
+                        else data
+                    )
                     self.logger.log(
                         self._log_data,
                         'Received "%s" - %s: %s',
@@ -140,7 +144,11 @@ class DebugConsumer(TimeComponent):
         }
         for name, data in self._data.items():
             if self._log_data is not None:
-                pdata = data[0, ...] if self._strip_data else data
+                pdata = (
+                    tools.strip_time(data, self.inputs[name].info.grid)
+                    if self._strip_data
+                    else data
+                )
                 self.logger.log(
                     self._log_data,
                     'Received "%s" - %s: %s',
@@ -253,7 +261,9 @@ class DebugPushConsumer(Component):
         data = caller.pull_data(time)
         self._data[caller.name] = data
         if self._log_data is not None:
-            pdata = tools.strip_data(data) if self._strip_data else data
+            pdata = (
+                tools.strip_time(data, caller.info.grid) if self._strip_data else data
+            )
             self.logger.log(
                 self._log_data,
                 'Received "%s" - %s: %s',

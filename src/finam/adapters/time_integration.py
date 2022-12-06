@@ -26,7 +26,7 @@ class TimeIntegrationAdapter(TimeCachingAdapter, ABC):
         """
         check_time(self.logger, time)
 
-        data = tools.strip_data(self.pull_data(time, self))
+        data = tools.strip_time(self.pull_data(time, self), self._input_info.grid)
         self.data.append((time, data))
 
         if self._prev_time is None:
