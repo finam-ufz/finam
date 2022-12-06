@@ -21,32 +21,6 @@ _UNIT_CACHE = {}
 _UNIT_PAIRS_CACHE = {}
 
 
-def _gen_dims(ndim, info):
-    """
-    Generate dimension names.
-
-    Parameters
-    ----------
-    ndim : int
-        Number of dimensions.
-    info : Info
-        Info associated with the data.
-
-    Returns
-    -------
-    list
-        Dimension names.
-    """
-    # create correct dims (time always first)
-    dims = ["time"]
-    if isinstance(info.grid, grid_spec.NoGrid):
-        # xarray has dim_0, dim_1 ... as default names
-        dims += [f"dim_{i}" for i in range(ndim)]
-    else:
-        dims += info.grid.data_axes_names
-    return dims
-
-
 def to_xarray(data, info, time_entries=1, force_copy=False):
     """
     Convert data to a xarray.DataArray.
