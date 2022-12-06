@@ -289,3 +289,31 @@ class TestDataTools(unittest.TestCase):
         xdata = xr.DataArray(1.0)
         xdata = finam.data.quantify(xdata)
         self.assertEqual(finam.data.get_units(xdata), finam.UNITS.dimensionless)
+
+    def test_to_datetime(self):
+        t = np.datetime64("1900-01-01")
+        self.assertEqual(datetime.datetime(1900, 1, 1), finam.data.to_datetime(t))
+
+        t = np.datetime64("2000-01-01")
+        self.assertEqual(datetime.datetime(2000, 1, 1), finam.data.to_datetime(t))
+
+    def test_cache_units(self):
+        finam.data.tools.clear_units_cache()
+
+        self.assertEqual({}, finam.data.tools._UNIT_CACHE)
+        self.assertEqual({}, finam.data.tools._UNIT_PAIRS_CACHE)
+
+        u = finam.data.tools._get_pint_units("m")
+        self.assertEqual({"m": u}, finam.data.tools._UNIT_CACHE)
+
+        eqiv = finam.data.tools.equivalent_units("mm", "L/m^2")
+        self.assertTrue(eqiv)
+        self.assertEqual(
+            {(finam.UNITS.Unit("mm"), finam.UNITS.Unit("L/m^2")): (True, True)},
+            finam.data.tools._UNIT_PAIRS_CACHE,
+        )
+
+        finam.data.tools.clear_units_cache()
+
+        self.assertEqual({}, finam.data.tools._UNIT_CACHE)
+        self.assertEqual({}, finam.data.tools._UNIT_PAIRS_CACHE)
