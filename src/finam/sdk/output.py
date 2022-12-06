@@ -148,10 +148,10 @@ class Output(IOutput, Loggable):
             time = None
 
         with ErrorLogger(self.logger):
-            xdata = tools.to_xarray(data, self.name, self.info)
+            xdata = tools.to_xarray(data, self.info)
             if len(self.data) > 0:
                 d = self.data[-1][1]
-                if np.may_share_memory(d.data.magnitude, xdata.data.magnitude):
+                if np.may_share_memory(d.data, xdata.data):
                     raise FinamDataError(
                         "Received data that shares memory with previously received data."
                     )
@@ -443,7 +443,7 @@ class CallbackOutput(Output):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         with ErrorLogger(self.logger):
-            xdata = tools.to_xarray(data, self.name, self.info)
+            xdata = tools.to_xarray(data, self.info)
             if self.last_data is not None and np.may_share_memory(
                 tools.get_magnitude(self.last_data), tools.get_magnitude(xdata)
             ):

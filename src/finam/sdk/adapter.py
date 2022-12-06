@@ -152,10 +152,9 @@ class Adapter(IAdapter, Input, Output, ABC):
                 raise FinamTimeError("Time must be of type datetime")
 
         data = self._get_data(time, target)
-        name = self.get_source().name + "_" + self.name
 
         with ErrorLogger(self.logger):
-            return tools.to_xarray(data, name, self._output_info)
+            return tools.to_xarray(data, self._output_info)
 
     def _get_data(self, time, target):
         """Get the transformed data of this adapter.
@@ -188,7 +187,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Returns
         -------
-        dict
+        Info
             Delivered data info
 
         Raises
@@ -212,7 +211,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Returns
         -------
-        dict
+        Info
             Delivered data info
         """
         return self.exchange_info(info)
@@ -323,12 +322,11 @@ class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
 
         new_time = self.with_delay(time)
         data = self._get_data(new_time, target)
-        name = self.get_source().name + "_" + self.name
 
         self._pulled(time)
 
         with ErrorLogger(self.logger):
-            return tools.to_xarray(data, name, self._output_info)
+            return tools.to_xarray(data, self._output_info)
 
     def _get_data(self, time, target):
         """Get the output's data-set for the given time.

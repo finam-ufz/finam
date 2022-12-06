@@ -123,7 +123,7 @@ class Input(IInput, Loggable):
 
         with ErrorLogger(self.logger):
             data = tools.to_units(data, self._input_info.units)
-            tools.check(data, data.name, self._input_info)
+            tools.check(data, self._input_info)
 
         return data
 

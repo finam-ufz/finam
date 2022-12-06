@@ -44,14 +44,12 @@ Data tools
     check_quantified
     full
     full_like
-    get_data
     get_dimensionality
     get_magnitude
     get_units
     has_time_axis
     is_quantified
     quantify
-    strip_data
     strip_time
     to_datetime
     to_units
@@ -87,14 +85,12 @@ from .tools import (
     check_quantified,
     full,
     full_like,
-    get_data,
     get_dimensionality,
     get_magnitude,
     get_units,
     has_time_axis,
     is_quantified,
     quantify,
-    strip_data,
     strip_time,
     to_datetime,
     to_units,
@@ -130,14 +126,12 @@ __all__ += [
     "check_quantified",
     "full",
     "full_like",
-    "get_data",
     "get_dimensionality",
     "get_magnitude",
     "get_units",
     "has_time_axis",
     "quantify",
     "is_quantified",
-    "strip_data",
     "strip_time",
     "to_datetime",
     "to_units",
