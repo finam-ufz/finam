@@ -12,6 +12,7 @@ Logging helper
     LogStdOutStdErr
     LogWriter
     is_loggable
+    add_logging_level
 
 Datetime helper
 ===============
@@ -67,6 +68,7 @@ from .log_helper import (
     LogCStdOutStdErr,
     LogStdOutStdErr,
     LogWriter,
+    add_logging_level,
     is_loggable,
 )
 
@@ -75,6 +77,7 @@ __all__ += ["is_timedelta"]
 __all__ += ["get_enum_value"]
 __all__ += ["inspect"]
 __all__ += [
+    "add_logging_level",
     "ErrorLogger",
     "is_loggable",
     "LogWriter",

@@ -29,6 +29,17 @@ class TestLog(unittest.TestCase):
         # check that we only got the one dummy log
         self.assertEqual(len(captured.records), 1)
 
+    def test_log_levels(self):
+        with self.assertLogs("foo", level="TRACE") as captured:
+            logging.getLogger("foo").trace("A")
+            logging.getLogger("foo").profile("B")
+
+        self.assertEqual(len(captured.records), 2)
+        self.assertEqual(captured.records[0].levelno, logging.TRACE)
+        self.assertEqual(captured.records[0].message, "A")
+        self.assertEqual(captured.records[1].levelno, logging.PROFILE)
+        self.assertEqual(captured.records[1].message, "B")
+
     def test_redirect(self):
         with self.assertLogs() as captured:
             with LogStdOutStdErr():
