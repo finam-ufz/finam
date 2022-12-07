@@ -14,6 +14,7 @@ Besides preparation of models, implementation of adapters that mediate data betw
 * Implementing :doc:`special_components`.
 * Using :doc:`logging`.
 * Writing :doc:`py-bindings` for models in languages other than Python.
+* :doc:`performance`.
 
 .. toctree::
     :hidden:
@@ -26,3 +27,4 @@ Besides preparation of models, implementation of adapters that mediate data betw
     special_components
     logging
     py-bindings
+    performance
