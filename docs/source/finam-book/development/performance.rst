@@ -16,6 +16,18 @@ Optimizing performance
 Units
 ^^^^^
 
+Avoid unit conversions
+""""""""""""""""""""""
+
+FINAM does automatic units conversion in :class:`.Input` objects.
+This comes at the cost of computation time.
+Conversion of a 1000x1000 grid requires about 1 ms, while a push and pull without a conversion requires about 0.05 ms.
+For details, see the `benchmarks <https://git.ufz.de/FINAM/finam/-/tree/main/benchmarks>`_.
+
+Where possible, use the same units in linked components.
+
+Equivalent units have no calculation overhead (e.g. ``mm`` and ``L/m^2``).
+
 Use ``Quantity``
 """"""""""""""""
 
@@ -112,8 +124,21 @@ Both properties can also be set for individual :class:`.Output` and :class:`.Ada
 Reduce time step difference
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Aggregate data in components
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Time steps of the same order of magnitude for linked components reduces the requirement for storing large numbers of data arrays.
+In many cases, this is most effective when combined with `Aggregating data in components`_.
+
+Aggregating data in components
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Components are not required to push data after every step.
+This allows for components that use a sub-step to pull data and aggregate it internally.
+
+This is particularly useful for components with a large time step where inputs are expected
+to be an aggregate of many small time steps, like the annual sum of a daily value.
+
+Instead of (or in addition to) using a
+:class:`SumOverTime <.adapters.SumOverTime>` or :class:`AvgOverTime <.adapters.AvgOverTime>` adapter,
+a component can do the aggregation internally with a daily sub-step.
 
 Benchmarking and profiling
 --------------------------
