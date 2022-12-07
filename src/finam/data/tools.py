@@ -66,9 +66,15 @@ def prepare(data, info, time_entries=1, force_copy=False):
             data = data.copy()
     else:
         if isinstance(data, np.ndarray):
-            data = data * units
+            if force_copy:
+                data = data * units
+            else:
+                data = UNITS.Quantity(data, units)
         else:
-            data = np.asarray(data) * units
+            if force_copy:
+                data = np.asarray(data) * units
+            else:
+                data = UNITS.Quantity(np.asarray(data), units)
 
     data = _check_input_shape(data, info, time_entries)
     return data

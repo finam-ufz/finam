@@ -13,10 +13,8 @@ if __name__ == "__main__":
     info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
     data = fm.data.to_xarray(fm.data.full(0.0, info1), info1)
 
-
     def gen_data(t):
         return np.copy(data)
-
 
     source = fm.modules.CallbackGenerator(
         callbacks={"Out": (gen_data, info1.copy())},
