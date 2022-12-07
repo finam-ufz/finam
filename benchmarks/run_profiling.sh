@@ -10,7 +10,7 @@ for filename in benchmarks/profiling/*.py; do
   then
     echo "$fn"
     python benchmarks/profiling/"$fn".py prof/"$fn".pstats
-    gprof2dot --colour-nodes-by-selftime -f pstats prof/"$fn".pstats > prof/"$fn".dot
+    gprof2dot --colour-nodes-by-selftime -f pstats prof/"$fn".pstats -n 0.1 -e 0.02 > prof/"$fn".dot
     dot -Tsvg -o prof/"$fn".svg prof/"$fn".dot
     dot -Tpng -o prof/"$fn".png prof/"$fn".dot
   fi
