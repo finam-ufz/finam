@@ -271,7 +271,10 @@ class Output(IOutput, Loggable):
         return data
 
     def _pack(self, data):
-        if self.memory_limit is not None and 0 <= self.memory_limit <= self._total_mem:
+        data_size = data.nbytes
+        if self.memory_limit is not None and 0 <= self.memory_limit < (
+            self._total_mem + data_size
+        ):
             fn = os.path.join(
                 self.memory_location or "", f"{id(self)}-{self._mem_counter}.npy"
             )
@@ -284,7 +287,7 @@ class Output(IOutput, Loggable):
             np.save(fn, data.magnitude)
             return fn
 
-        self._total_mem += data.nbytes
+        self._total_mem += data_size
         self.logger.debug(
             "keeping data in RAM (total RAM %0.2f MB)", self._total_mem / 1048576
         )
