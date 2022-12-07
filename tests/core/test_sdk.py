@@ -457,6 +457,28 @@ class TestInput(unittest.TestCase):
         with self.assertRaises(ValueError):
             inp.set_source(outp)
 
+    def test_fail_accept(self):
+        t = datetime(2000, 1, 1)
+        info = Info(time=t, grid=NoGrid())
+        info2 = Info(time=t, grid=NoGrid(), units="m")
+
+        out = Output(name="Output", static=True)
+        in1 = Input(name="Input", static=True)
+
+        out >> in1
+
+        in1.ping()
+
+        out.push_info(info)
+
+        with self.assertRaises(FinamMetaDataError):
+            in1.exchange_info(info2)
+
+        in1.exchange_info(info)
+
+        with self.assertRaises(FinamMetaDataError):
+            in1.exchange_info(info)
+
     def test_pull_static(self):
         t = datetime(2000, 1, 1)
         info = Info(time=t, grid=NoGrid())
