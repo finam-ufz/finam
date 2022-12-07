@@ -288,6 +288,16 @@ class IOutput(ABC):
     def memory_limit(self, limit):
         """The memory limit for this slot"""
 
+    @property
+    @abstractmethod
+    def memory_location(self):
+        """The memory-mapping location for this slot"""
+
+    @memory_location.setter
+    @abstractmethod
+    def memory_location(self, directory):
+        """The memory-mapping location for this slot"""
+
     @abstractmethod
     def has_info(self):
         """Returns if the output has a data info.

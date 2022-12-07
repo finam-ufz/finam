@@ -20,6 +20,7 @@ from ..interfaces import IAdapter, IInput, IOutput, Loggable
 from ..tools.log_helper import ErrorLogger
 
 
+# pylint: disable=too-many-public-methods
 class Output(IOutput, Loggable):
     """Default output implementation."""
 
@@ -46,6 +47,7 @@ class Output(IOutput, Loggable):
 
         self._time = None
         self._mem_limit = None
+        self._mem_location = None
         self._total_mem = 0
         self._mem_counter = 0
 
@@ -88,6 +90,16 @@ class Output(IOutput, Loggable):
     def memory_limit(self, limit):
         """The memory limit for this slot"""
         self._mem_limit = limit
+
+    @property
+    def memory_location(self):
+        """The memory-mapping location for this slot"""
+        return self._mem_location
+
+    @memory_location.setter
+    def memory_location(self, directory):
+        """The memory-mapping location for this slot"""
+        self._mem_location = directory
 
     def has_info(self):
         """Returns if the output has a data info.
@@ -260,7 +272,9 @@ class Output(IOutput, Loggable):
 
     def _pack(self, data):
         if self.memory_limit is not None and 0 <= self.memory_limit <= self._total_mem:
-            fn = f"{id(self)}-{self._mem_counter}.npy"
+            fn = os.path.join(
+                self.memory_location or "", f"{id(self)}-{self._mem_counter}.npy"
+            )
             self.logger.debug(
                 "dumping data to file %s (total RAM %0.2f MB)",
                 fn,

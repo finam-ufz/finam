@@ -10,6 +10,7 @@ Composition
     :noindex: Composition
 """
 import logging
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -70,6 +71,13 @@ class Composition(Loggable):
         Whether to write a log file, by default None
     log_level : int or str, optional
         Logging level, by default logging.INFO
+    slot_memory_limit : int, optional
+        Memory limit per output and adapter data, in bytes.
+        When the limit is exceeded, data is stored to disk under the path of `slot_memory_location`.
+        Default: no limit (``None``).
+    slot_memory_location : str, optional
+        Location for storing data when exceeding ``slot_memory_limit``.
+        Default: "temp".
     """
 
     def __init__(
@@ -80,6 +88,7 @@ class Composition(Loggable):
         log_file=None,
         log_level=logging.INFO,
         slot_memory_limit=None,
+        slot_memory_location="temp",
     ):
         super().__init__()
         # setup logger
@@ -116,6 +125,7 @@ class Composition(Loggable):
         self.is_connected = False
 
         self.slot_memory_limit = slot_memory_limit
+        self.slot_memory_location = slot_memory_location
 
     def initialize(self):
         """Initialize all modules.
@@ -129,6 +139,9 @@ class Composition(Loggable):
         for mod in self.modules:
             self._check_status(mod, [ComponentStatus.CREATED])
 
+        if self.slot_memory_location is not None:
+            os.makedirs(self.slot_memory_location, exist_ok=True)
+
         for mod in self.modules:
             if is_loggable(mod) and mod.uses_base_logger_name:
                 mod.base_logger_name = self.logger_name
@@ -141,6 +154,8 @@ class Composition(Loggable):
             for _, out in mod.outputs.items():
                 if out.memory_limit is None:
                     out.memory_limit = self.slot_memory_limit
+                if out.memory_location is None:
+                    out.memory_location = self.slot_memory_location
 
             self._check_status(mod, [ComponentStatus.INITIALIZED])
 
@@ -183,6 +198,8 @@ class Composition(Loggable):
         for ada in self.adapters:
             if ada.memory_limit is None:
                 ada.memory_limit = self.slot_memory_limit
+            if ada.memory_location is None:
+                ada.memory_location = self.slot_memory_location
 
         self._connect_components(start_time)
 
