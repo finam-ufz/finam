@@ -278,6 +278,16 @@ class IOutput(ABC):
     def needs_push(self):
         """bool: if the output needs push."""
 
+    @property
+    @abstractmethod
+    def memory_limit(self):
+        """The memory limit for this slot"""
+
+    @memory_limit.setter
+    @abstractmethod
+    def memory_limit(self, limit):
+        """The memory limit for this slot"""
+
     @abstractmethod
     def has_info(self):
         """Returns if the output has a data info.
@@ -406,6 +416,10 @@ class IOutput(ABC):
         :class:`.IOutput`
             The last element of the chain.
         """
+
+    @abstractmethod
+    def finalize(self):
+        """Finalize the output"""
 
     def __rshift__(self, other):
         return self.chain(other)

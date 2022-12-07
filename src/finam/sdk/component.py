@@ -173,6 +173,10 @@ class Component(IComponent, Loggable, ABC):
         """
         self.logger.debug("finalize")
         self._finalize()
+
+        for _n, out in self.outputs.items():
+            out.finalize()
+
         if self.status != ComponentStatus.FAILED:
             self.status = ComponentStatus.FINALIZED
 

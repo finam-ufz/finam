@@ -2,6 +2,7 @@
 Implementations of IOutput
 """
 import logging
+import os
 from datetime import datetime
 
 import numpy as np
@@ -44,6 +45,9 @@ class Output(IOutput, Loggable):
         self._out_infos_exchanged = 0
 
         self._time = None
+        self._mem_limit = None
+        self._total_mem = 0
+        self._mem_counter = 0
 
     @property
     def time(self):
@@ -74,6 +78,16 @@ class Output(IOutput, Loggable):
     def needs_push(self):
         """bool: if the output needs push."""
         return True
+
+    @property
+    def memory_limit(self):
+        """The memory limit for this slot"""
+        return self._mem_limit
+
+    @memory_limit.setter
+    def memory_limit(self, limit):
+        """The memory limit for this slot"""
+        self._mem_limit = limit
 
     def has_info(self):
         """Returns if the output has a data info.
@@ -155,7 +169,7 @@ class Output(IOutput, Loggable):
                     raise FinamDataError(
                         "Received data that shares memory with previously received data."
                     )
-
+            xdata = self._pack(xdata)
             self.data.append((time, xdata))
 
         self._time = time
@@ -227,7 +241,11 @@ class Output(IOutput, Loggable):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         with ErrorLogger(self.logger):
-            data = self.data[0][1] if self.is_static else self._interpolate(time)
+            data = (
+                self._unpack(self.data[0][1])
+                if self.is_static
+                else self._interpolate(time)
+            )
 
         if not self.is_static:
             data_count = len(self.data)
@@ -240,6 +258,32 @@ class Output(IOutput, Loggable):
 
         return data
 
+    def _pack(self, data):
+        if self.memory_limit is not None and 0 <= self.memory_limit <= self._total_mem:
+            fn = f"{id(self)}-{self._mem_counter}.npy"
+            self.logger.debug(
+                "dumping data to file %s (total RAM %0.2f MB)",
+                fn,
+                self._total_mem / 1048576,
+            )
+            self._mem_counter += 1
+            np.save(fn, data.magnitude)
+            return fn
+
+        self._total_mem += data.nbytes
+        self.logger.debug(
+            "keeping data in RAM (total RAM %0.2f MB)", self._total_mem / 1048576
+        )
+        return data
+
+    def _unpack(self, where):
+        if isinstance(where, str):
+            self.logger.debug("reading data from file %s", where)
+            data = np.load(where, allow_pickle=True)
+            return tools.UNITS.Quantity(data, self.info.units)
+
+        return where
+
     def _clear_data(self, time, target):
         self._connected_inputs[target] = time
         if any(t is None for t in self._connected_inputs.values()):
@@ -247,7 +291,18 @@ class Output(IOutput, Loggable):
 
         t_min = min(self._connected_inputs.values())
         while len(self.data) > 1 and self.data[1][0] <= t_min:
-            self.data.pop(0)
+            d = self.data.pop(0)
+            if isinstance(d[1], str):
+                os.remove(d[1])
+            else:
+                self._total_mem -= d[1].nbytes
+
+    def finalize(self):
+        """Finalize the output"""
+        for _t, d in self.data:
+            if isinstance(d, str):
+                os.remove(d)
+        self.data.clear()
 
     def _interpolate(self, time):
         if time < self.data[0][0] or time > self.data[-1][0]:
@@ -258,16 +313,16 @@ class Output(IOutput, Loggable):
             if time > t:
                 continue
             if time == t:
-                return data
+                return self._unpack(data)
 
             t_prev, data_prev = self.data[i - 1]
             diff = t - t_prev
             t_half = t_prev + diff / 2
 
             if time < t_half:
-                return data_prev
+                return self._unpack(data_prev)
 
-            return data
+            return self._unpack(data)
 
         raise FinamTimeError(
             f"Time interpolation failed. This should not happen and is probably a bug. "
@@ -452,6 +507,9 @@ class CallbackOutput(Output):
                 )
             self.last_data = xdata
             return xdata
+
+    def finalize(self):
+        """Finalize the output"""
 
 
 def _check_time(time, is_static):

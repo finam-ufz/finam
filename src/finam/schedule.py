@@ -70,8 +70,6 @@ class Composition(Loggable):
         Whether to write a log file, by default None
     log_level : int or str, optional
         Logging level, by default logging.INFO
-    mpi_rank : int, default 0
-        MPI rank of the composition.
     """
 
     def __init__(
@@ -81,7 +79,7 @@ class Composition(Loggable):
         print_log=True,
         log_file=None,
         log_level=logging.INFO,
-        mpi_rank=0,
+        slot_memory_limit=None,
     ):
         super().__init__()
         # setup logger
@@ -116,7 +114,8 @@ class Composition(Loggable):
         self.output_owners = None
         self.is_initialized = False
         self.is_connected = False
-        self.mpi_rank = mpi_rank
+
+        self.slot_memory_limit = slot_memory_limit
 
     def initialize(self):
         """Initialize all modules.
@@ -138,6 +137,10 @@ class Composition(Loggable):
             with ErrorLogger(self.logger):
                 mod.inputs.set_logger(mod)
                 mod.outputs.set_logger(mod)
+
+            for _, out in mod.outputs.items():
+                if out.memory_limit is None:
+                    out.memory_limit = self.slot_memory_limit
 
             self._check_status(mod, [ComponentStatus.INITIALIZED])
 
@@ -168,17 +171,7 @@ class Composition(Loggable):
                     )
             else:
                 if start_time is None:
-                    t_min = None
-                    for mod in time_modules:
-                        if mod.time is not None:
-                            if t_min is None or mod.time < t_min:
-                                t_min = mod.time
-                    if t_min is None:
-                        raise ValueError(
-                            "Unable to determine starting time of the composition."
-                            "Please provide a starting time in ``run()`` or ``connect()``"
-                        )
-                    start_time = t_min
+                    start_time = _get_start_time(time_modules)
                 if not isinstance(start_time, datetime):
                     raise ValueError(
                         "start must be of type datetime for a composition with time components"
@@ -186,6 +179,10 @@ class Composition(Loggable):
 
         self._collect_adapters()
         self._validate_composition()
+
+        for ada in self.adapters:
+            if ada.memory_limit is None:
+                ada.memory_limit = self.slot_memory_limit
 
         self._connect_components(start_time)
 
@@ -430,6 +427,20 @@ def _collect_adapters_output(out: IOutput, out_adapters: set):
         if isinstance(trg, IAdapter):
             out_adapters.add(trg)
             _collect_adapters_output(trg, out_adapters)
+
+
+def _get_start_time(time_modules):
+    t_min = None
+    for mod in time_modules:
+        if mod.time is not None:
+            if t_min is None or mod.time < t_min:
+                t_min = mod.time
+    if t_min is None:
+        raise ValueError(
+            "Unable to determine starting time of the composition."
+            "Please provide a starting time in ``run()`` or ``connect()``"
+        )
+    return t_min
 
 
 def _check_missing_modules(modules):
