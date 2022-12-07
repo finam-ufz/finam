@@ -1,6 +1,7 @@
 """
 Adapters that deal with time, like temporal interpolation and integration.
 """
+import os
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
 
@@ -241,7 +242,7 @@ class TimeCachingAdapter(Adapter, NoBranchAdapter, ABC):
         check_time(self.logger, time)
 
         data = dtools.strip_time(self.pull_data(time, self), self._input_info.grid)
-        self.data.append((time, data))
+        self.data.append((time, self._pack(data)))
 
     def _get_data(self, time, _target):
         """Get the output's data-set for the given time.
@@ -267,7 +268,11 @@ class TimeCachingAdapter(Adapter, NoBranchAdapter, ABC):
 
     def _clear_cached_data(self, time):
         while len(self.data) > 1 and self.data[1][0] <= time:
-            self.data.pop(0)
+            d = self.data.pop(0)
+            if isinstance(d[1], str):
+                os.remove(d[1])
+            else:
+                self._total_mem -= d[1].nbytes
 
     @abstractmethod
     def _interpolate(self, time):
@@ -289,13 +294,13 @@ class NextTime(TimeCachingAdapter):
 
     def _interpolate(self, time):
         if len(self.data) == 1:
-            return self.data[0][1]
+            return self._unpack(self.data[0][1])
 
         for t, data in self.data:
             if time > t:
                 continue
 
-            return data
+            return self._unpack(data)
 
         raise FinamTimeError(
             f"Time interpolation failed. This should not happen and is probably a bug. "
@@ -318,16 +323,16 @@ class PreviousTime(TimeCachingAdapter):
 
     def _interpolate(self, time):
         if len(self.data) == 1:
-            return self.data[0][1]
+            return self._unpack(self.data[0][1])
 
         for i, (t, data) in enumerate(self.data):
             if time > t:
                 continue
             if time == t:
-                return data
+                return self._unpack(data)
 
             _, data_prev = self.data[i - 1]
-            return data_prev
+            return self._unpack(data_prev)
 
         raise FinamTimeError(
             f"Time interpolation failed. This should not happen and is probably a bug. "
@@ -353,10 +358,10 @@ class StackTime(TimeCachingAdapter):
 
         for t, data in self.data:
             if time > t:
-                extract.append((t, data))
+                extract.append((t, self._unpack(data)))
                 continue
 
-            extract.append((t, data))
+            extract.append((t, self._unpack(data)))
             break
 
         arr = np.stack([d[1] for d in extract])
@@ -396,13 +401,13 @@ class LinearTime(TimeCachingAdapter):
             if time > t:
                 continue
             if time == t:
-                return data
+                return self._unpack(data)
 
             t_prev, data_prev = self.data[i - 1]
 
             dt = (time - t_prev) / (t - t_prev)
 
-            result = interpolate(data_prev, data, dt)
+            result = interpolate(self._unpack(data_prev), self._unpack(data), dt)
 
             return result
 
@@ -459,7 +464,7 @@ class StepTime(TimeCachingAdapter):
             if time > t:
                 continue
             if time == t:
-                return data
+                return self._unpack(data)
 
             t_prev, data_prev = self.data[i - 1]
 
@@ -467,7 +472,7 @@ class StepTime(TimeCachingAdapter):
 
             result = interpolate_step(data_prev, data, dt, self.step)
 
-            return result
+            return self._unpack(result)
 
         raise FinamTimeError(
             f"Time interpolation failed. This should not happen and is probably a bug. "
