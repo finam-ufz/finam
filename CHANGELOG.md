@@ -26,6 +26,8 @@
 * Outputs accept and convert compatible units, not only exactly equal units (!215)
 * Outputs check that subsequent data pushes don't share memory (!217)
 * Exchanged `xarray` data has no time coordinate anymore, only a dimension without values (for performance and usability) (!223)
+* Remove the `xarray` wrapping completely. Use numpy arrays in pint `Quantity` (!235)
+* Outputs and adapters can have a `memory_limit` and write data to disk if the limit is exceeded (!238)
 
 ### Components
 
@@ -36,6 +38,7 @@
 * Add `modules.DebugPushConsumer` as a push-based variant of the debug consumer (!165)
 * Add `modules.UserControl` that lets users control FINAM runs from the terminal (!184)
 * `modules.DebugConsumer` and `modules.DebugPushConsumer` can use optional callbacks for better debugging (!176)
+* Components can be renamed using the method `with_name()` (!243)
 
 ### Adapters
 
@@ -46,6 +49,7 @@
   * `adapters.IntegrateTime` renamed to `adapters.AvgOverTime`
   * Add `adapters.SumOverTime` for sum/Area under Curve integration
 * Adapters have a method `finalize()` for cleanup (!226).
+* Adapters can be renamed using the method `with_name()` (!243)
 
 ### Other
 
@@ -70,7 +74,8 @@
   (see the [benchmarks README](https://git.ufz.de/FINAM/finam/-/blob/main/benchmarks/README.md))
 * Added profiling for full runs to the CI (!221)
 * Optimization of data tool functions, with approx. 20-fold speedup of basic push+pull
-  (!222, !223, !224, !228, !229).
+  (!222, !223, !224, !228, !229, !237).
+* Add two more log levels: `TRACE` (most verbose) and `PROFILE` (between `DEBUG` and `INFO`) (!240)
 
 ## [v0.4.0-rc.2]
 
