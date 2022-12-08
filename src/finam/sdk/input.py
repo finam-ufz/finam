@@ -57,7 +57,7 @@ class Input(IInput, Loggable):
         source : :class:`.IOutput`
             source output or adapter
         """
-        self.logger.debug("set source")
+        self.logger.trace("set source")
 
         with ErrorLogger(self.logger):
             if self.source is not None:
@@ -88,7 +88,7 @@ class Input(IInput, Loggable):
         time : :class:`datetime <datetime.datetime>`
             Simulation time of the notification.
         """
-        self.logger.debug("source changed")
+        self.logger.trace("source changed")
 
     def pull_data(self, time, target=None):
         """Retrieve the data from the input's source.
@@ -108,7 +108,7 @@ class Input(IInput, Loggable):
         :class:`pint.Quantity`
             Data set for the given simulation time.
         """
-        self.logger.debug("pull data")
+        self.logger.trace("pull data")
 
         if time is not None and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
@@ -116,15 +116,27 @@ class Input(IInput, Loggable):
 
         if self.is_static:
             if self._cached_data is None:
-                self._cached_data = self.source.get_data(time, target or self)
+                with ErrorLogger(self.logger):
+                    data = self.source.get_data(time, target or self)
+                    self._cached_data = self._convert_and_check(data)
+
             data = self._cached_data
         else:
             data = self.source.get_data(time, target or self)
+            with ErrorLogger(self.logger):
+                data = self._convert_and_check(data)
 
-        with ErrorLogger(self.logger):
-            data = tools.to_units(data, self._input_info.units, check_equivalent=True)
-            tools.check(data, self._input_info)
+        return data
 
+    def _convert_and_check(self, data):
+        (data, conv) = tools.to_units(
+            data, self._input_info.units, check_equivalent=True, report_conversion=True
+        )
+        if conv is not None:
+            self.logger.profile(
+                "converted units from %s to %s (%d entries)", *conv, data.size
+            )
+        tools.check(data, self._input_info)
         return data
 
     def ping(self):
@@ -147,7 +159,7 @@ class Input(IInput, Loggable):
         dict
             delivered parameters
         """
-        self.logger.debug("exchanging info")
+        self.logger.trace("exchanging info")
 
         with ErrorLogger(self.logger):
             if self._in_info_exchanged:
@@ -234,7 +246,7 @@ class CallbackInput(Input):
         time : :class:`datetime <datetime.datetime>`
             Simulation time of the notification.
         """
-        self.logger.debug("source changed")
+        self.logger.trace("source changed")
         if time is not None and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")

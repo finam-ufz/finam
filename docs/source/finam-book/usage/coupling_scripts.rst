@@ -246,7 +246,7 @@ There you have several options:
   - ``<pathlike>``: log file will be created under the given path
 - ``log_level``: (int) this will control the level of logging (:data:`logging.INFO` by default)
   - only log messages with a level equal or higher than the given logging level will be shown
-  - options are (from most to least verbose): :data:`logging.DEBUG`, :data:`logging.INFO`, :data:`logging.WARNING`, :data:`logging.ERROR`, :data:`logging.CRITICAL` or any positive integer number
+  - options are (from most to least verbose): :data:`logging.TRACE`, :data:`logging.DEBUG`, :data:`logging.PROFILE`, :data:`logging.INFO`, :data:`logging.WARNING`, :data:`logging.ERROR`, :data:`logging.CRITICAL` or any positive integer number
 
 A log file could look like this, when setting the logging level to :data:`logging.INFO`:
 

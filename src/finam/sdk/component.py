@@ -146,9 +146,10 @@ class Component(IComponent, Loggable, ABC):
         After the method call, the component should have :attr:`.status`
         :attr:`.ComponentStatus.UPDATED` or :attr:`.ComponentStatus.FINISHED`.
         """
-        self.logger.debug("update")
         if isinstance(self, ITimeComponent):
-            self.logger.debug("current time: %s", self.time)
+            self.logger.debug("update - current time: %s", self.time)
+        else:
+            self.logger.debug("update")
 
         self._update()
 
@@ -335,7 +336,7 @@ class Component(IComponent, Loggable, ABC):
 
         Rules are evaluated in the given order. Later rules can overwrite attributes set by earlier rules.
         """
-        self.logger.debug("create connector")
+        self.logger.trace("create connector")
         self._connector = ConnectHelper(
             self.logger_name,
             self.inputs,
@@ -373,7 +374,7 @@ class Component(IComponent, Loggable, ABC):
         push_data : dict of [str, array-like]
             currently or newly available output data by output name
         """
-        self.logger.debug("try connect")
+        self.logger.trace("try connect")
 
         if self._connector is None:
             raise FinamStatusError(
@@ -386,7 +387,7 @@ class Component(IComponent, Loggable, ABC):
             push_infos=push_infos,
             push_data=push_data,
         )
-        self.logger.debug("try_connect status is %s", self.status)
+        self.logger.trace("try_connect status is %s", self.status)
 
     def __getitem__(self, name):
         """Get an input or output by name. Implements access through square brackets.

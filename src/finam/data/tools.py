@@ -20,7 +20,7 @@ UNITS = pint.application_registry
 _UNIT_PAIRS_CACHE = {}
 
 
-def prepare(data, info, time_entries=1, force_copy=False):
+def prepare(data, info, time_entries=1, force_copy=False, report_conversion=False):
     """
     Prepares data in FINAM's internal transmission format.
 
@@ -39,17 +39,26 @@ def prepare(data, info, time_entries=1, force_copy=False):
         Forces the result to be a copy of the passed data. Default `False`.
 
         If not used, the result is a view of the data if no units conversion needs to be done.
+    report_conversion : bool, optional
+        If true, returns a tuple with the second element indicating the unit conversion if it was required.
 
     Returns
     -------
-    pint.Quantity
+    pint.Quantity or tuple(pint.Quantity, tuple(pint.Unit, pint.Unit) or None)
         The prepared data as a numpy array, wrapped into a :class:`pint.Quantity`.
+
+        If ``report_conversion`` is ``True``, a tuple is returned with the second element
+        indicating the unit conversion if it was required.
+
+        The second element is ``None`` if no conversion was required,
+        and a tuple of two :class:`pint.Unit` objects otherwise.
 
     Raises
     ------
     FinamDataError
         If the data doesn't match its info.
     """
+    units_converted = None
     units = info.units
     if isinstance(data, pint.Quantity):
         if not compatible_units(data.units, units):
@@ -57,26 +66,25 @@ def prepare(data, info, time_entries=1, force_copy=False):
                 f"Given data has incompatible units. "
                 f"Got {data.units}, expected {units}."
             )
-        if not isinstance(data.magnitude, np.ndarray):
-            data = np.asarray(data.magnitude) * data.units
-
         if not equivalent_units(data.units, units):
+            units_converted = data.units, units
             data = data.to(units)
         elif force_copy:
             data = data.copy()
     else:
         if isinstance(data, np.ndarray):
             if force_copy:
-                data = data * units
-            else:
-                data = UNITS.Quantity(data, units)
+                data = np.copy(data)
+            data = UNITS.Quantity(data, units)
         else:
             if force_copy:
-                data = np.asarray(data) * units
-            else:
-                data = UNITS.Quantity(np.asarray(data), units)
+                data = copy.copy(data)
+            data = UNITS.Quantity(np.asarray(data), units)
 
     data = _check_input_shape(data, info, time_entries)
+
+    if report_conversion:
+        return data, units_converted
     return data
 
 
@@ -272,7 +280,7 @@ def get_dimensionality(xdata):
     return xdata.dimensionality
 
 
-def to_units(xdata, units, check_equivalent=False):
+def to_units(xdata, units, check_equivalent=False, report_conversion=False):
     """
     Convert data to given units.
 
@@ -284,20 +292,34 @@ def to_units(xdata, units, check_equivalent=False):
         Desired units.
     check_equivalent : bool, optional
         Checks for equivalent units and simply re-assigns if possible.
+    report_conversion : bool, optional
+        If true, returns a tuple with the second element indicating the unit conversion if it was required.
 
     Returns
     -------
-    pint.Quantity
-        Converted data.
+    pint.Quantity or tuple(pint.Quantity, tuple(pint.Unit, pint.Unit) or None)
+        The converted data.
+
+        If ``report_conversion`` is ``True``, a tuple is returned with the second element
+        indicating the unit conversion if it was required.
+
+        The second element is ``None`` if no conversion was required,
+        and a tuple of two :class:`pint.Unit` objects otherwise.
     """
     check_quantified(xdata, "to_units")
     units = _get_pint_units(units)
     units2 = xdata.units
-    if units == units2:
-        return xdata
-    if check_equivalent and equivalent_units(units, units2):
-        return UNITS.Quantity(xdata.magnitude, units)
-    return xdata.to(units)
+    conversion = None
+    if units != units2:
+        if check_equivalent and equivalent_units(units, units2):
+            xdata = UNITS.Quantity(xdata.magnitude, units)
+        else:
+            xdata = xdata.to(units)
+            conversion = units2, units
+
+    if report_conversion:
+        return xdata, conversion
+    return xdata
 
 
 def full_like(xdata, value):

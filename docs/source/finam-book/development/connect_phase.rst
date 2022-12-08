@@ -197,7 +197,13 @@ In the most simple case, all metadata is known in :meth:`.Component._initialize`
     generator.outputs["Output2"] >> simple_conn.inputs["B"]
     simple_conn.outputs["Area"] >> consumer.inputs["Input"]
 
-    comp.connect()
+    comp.connect()    # doctest: +ELLIPSIS
+
+.. testoutput:: simple-connect
+    :hide:
+
+    ...
+
 
 In :meth:`.Component._initialize`, we create inputs and outputs with metadata (here ``grid`` and ``units``).
 Then, we create the connector with :meth:`.Component.create_connector`. No arguments required here, as there are no dependencies.
@@ -284,7 +290,13 @@ and the initial data should be generated from it.
     generator.outputs["Output2"] >> complex_conn.inputs["B"]
     complex_conn.outputs["Area"] >> consumer.inputs["Input"]
 
-    comp.connect()
+    comp.connect()    # doctest: +ELLIPSIS
+
+.. testoutput:: complex-connect
+    :hide:
+
+    ...
+
 
 In :meth:`.Component._initialize`, we set the ``grid`` of input ``"A"`` to ``None``.
 It will be filled from the connected output, and becomes available in

@@ -90,7 +90,7 @@ class Adapter(IAdapter, Input, Output, ABC):
         time : :class:`datetime <datetime.datetime>`
             Simulation time of the notification.
         """
-        self.logger.debug("source changed")
+        self.logger.debug("source updated")
         if time is not None and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
@@ -107,7 +107,7 @@ class Adapter(IAdapter, Input, Output, ABC):
         time : :class:`datetime <datetime.datetime>`
             Simulation time of the simulation.
         """
-        self.logger.debug("notify targets")
+        self.logger.trace("notify targets")
         if time is not None and not isinstance(time, datetime):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
@@ -154,7 +154,12 @@ class Adapter(IAdapter, Input, Output, ABC):
         data = self._get_data(time, target)
 
         with ErrorLogger(self.logger):
-            return tools.prepare(data, self._output_info)
+            xdata, conv = tools.prepare(data, self._output_info, report_conversion=True)
+            if conv is not None:
+                self.logger.profile(
+                    "converted units from %s to %s (%d entries)", *conv, xdata.size
+                )
+            return xdata
 
     def _get_data(self, time, target):
         """Get the transformed data of this adapter.
@@ -195,7 +200,7 @@ class Adapter(IAdapter, Input, Output, ABC):
         FinamNoDataError
             Raises the error if no info is available
         """
-        self.logger.debug("get info")
+        self.logger.trace("get info")
         self._output_info = self._get_info(info)
         return self._output_info
 
@@ -234,7 +239,7 @@ class Adapter(IAdapter, Input, Output, ABC):
         Info
             delivered parameters
         """
-        self.logger.debug("exchanging info")
+        self.logger.trace("exchanging info")
         with ErrorLogger(self.logger):
             if info is None:
                 raise FinamMetaDataError("No metadata provided")
@@ -255,7 +260,7 @@ class Adapter(IAdapter, Input, Output, ABC):
         source :
             source output or adapter
         """
-        self.logger.debug("set source")
+        self.logger.trace("set source")
         # fix to set base-logger for adapters derived from Input source logger
         if self.uses_base_logger_name and not is_loggable(source):
             with ErrorLogger(self.logger):
@@ -326,7 +331,12 @@ class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
         self._pulled(time)
 
         with ErrorLogger(self.logger):
-            return tools.prepare(data, self._output_info)
+            xdata, conv = tools.prepare(data, self._output_info, report_conversion=True)
+            if conv is not None:
+                self.logger.profile(
+                    "converted units from %s to %s (%d entries)", *conv, xdata.size
+                )
+            return xdata
 
     def _get_data(self, time, target):
         """Get the output's data-set for the given time.
@@ -377,7 +387,7 @@ class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
         FinamNoDataError
             Raises the error if no info is available
         """
-        self.logger.debug("get info")
+        self.logger.trace("get info")
         self._output_info = self._get_info(info)
         self.initial_time = self._output_info.time
         return self._output_info

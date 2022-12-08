@@ -388,9 +388,9 @@ class ConnectHelper(Loggable):
                 try:
                     self.out_infos[name] = self.outputs[name].info
                     any_done = True
-                    self.logger.debug("Successfully pulled output info for %s", name)
+                    self.logger.trace("Successfully pulled output info for %s", name)
                 except FinamNoDataError:
-                    self.logger.debug("Failed to pull output info for %s", name)
+                    self.logger.trace("Failed to pull output info for %s", name)
 
         any_done += self._push(start_time)
 
@@ -403,9 +403,9 @@ class ConnectHelper(Loggable):
                             start_time or info.time
                         )
                         any_done = True
-                        self.logger.debug("Successfully pulled input data for %s", name)
+                        self.logger.trace("Successfully pulled input data for %s", name)
                     except FinamNoDataError:
-                        self.logger.debug("Failed to pull input data for %s", name)
+                        self.logger.trace("Failed to pull input data for %s", name)
 
         if (
             all(v is not None for v in self.in_infos.values())
@@ -480,9 +480,9 @@ class ConnectHelper(Loggable):
                 try:
                     self.in_infos[name] = self.inputs[name].exchange_info()
                     any_done = True
-                    self.logger.debug("Successfully exchanged input info for %s", name)
+                    self.logger.trace("Successfully exchanged input info for %s", name)
                 except FinamNoDataError:
-                    self.logger.debug("Failed to exchange input info for %s", name)
+                    self.logger.trace("Failed to exchange input info for %s", name)
 
         for name, info in list(self._in_info_cache.items()):
             if self.in_infos[name] is None:
@@ -493,9 +493,9 @@ class ConnectHelper(Loggable):
                     )
                     any_done = True
                     self._in_info_cache.pop(name)
-                    self.logger.debug("Successfully exchanged input info for %s", name)
+                    self.logger.trace("Successfully exchanged input info for %s", name)
                 except FinamNoDataError:
-                    self.logger.debug("Failed to exchange input info for %s", name)
+                    self.logger.trace("Failed to exchange input info for %s", name)
 
         return any_done
 
@@ -508,7 +508,7 @@ class ConnectHelper(Loggable):
                 self.infos_pushed[name] = True
                 any_done = True
                 self._out_info_cache.pop(name)
-                self.logger.debug("Successfully pushed output info for %s", name)
+                self.logger.trace("Successfully pushed output info for %s", name)
 
         for name, data in list(self._out_data_cache.items()):
             if not self.data_pushed[name] and self.infos_pushed[name]:
@@ -531,7 +531,7 @@ class ConnectHelper(Loggable):
 
         self.data_pushed[name] = True
         self._out_data_cache.pop(name)
-        self.logger.debug("Successfully pushed output data for %s", name)
+        self.logger.trace("Successfully pushed output data for %s", name)
 
 
 def _check_times(infos):

@@ -70,13 +70,14 @@ File ``src/scale.py``:
 
     generator.outputs["Value"] >> adapter >> consumer.inputs["Input"]
 
-    comp.run(end_time=datetime(2000, 1, 2))
+    comp.run(end_time=datetime(2000, 1, 2))    # doctest: +ELLIPSIS
 
     print(consumer.data["Input"][0, ...])
 
 .. testoutput:: scale-adapter
     :hide:
 
+    ...
     0.5 dimensionless
 
 In :meth:`.Adapter._get_data`, we:
@@ -238,13 +239,14 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
 
     generator.outputs["Value"] >> adapter >> consumer.inputs["Input"]
 
-    comp.run(end_time=datetime(2000, 1, 15))
+    comp.run(end_time=datetime(2000, 1, 15))    # doctest: +ELLIPSIS
 
     print(consumer.data["Input"][0, ...])
 
 .. testoutput:: time-adapter
     :hide:
 
+    ...
     15.0 dimensionless
 
 In :meth:`.Adapter._get_data`, the following happens:

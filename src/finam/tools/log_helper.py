@@ -146,3 +146,46 @@ class ErrorLogger(AbstractContextManager):
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_value is not None and self.do_log:
             logging.getLogger(self.logger).exception(exc_value)
+
+
+def add_logging_level(name, num, method=None):
+    """
+    Adds a logging level to the `logging` module.
+
+    Examples
+    --------
+
+    .. code-block:: Python
+
+        add_logging_level("TRACE", logging.DEBUG - 5)
+
+    Parameters
+    ----------
+    name : str
+        The name of the new logging level.
+    num : int
+        The numeric severity of the new logging level.
+    method : str, optional
+        The method name for the new logging level.
+        Defaults to lowercase of ``name``.
+    """
+    if not method:
+        method = name.lower()
+
+    if hasattr(logging, name):
+        raise AttributeError(f"{name} already defined in logging module")
+    if hasattr(logging.getLoggerClass(), name):
+        raise AttributeError(f"{name} already defined in logger class")
+
+    def log_for_level(self, message, *args, **kwargs):
+        if self.isEnabledFor(num):
+            # pylint: disable=protected-access
+            self._log(num, message, args, **kwargs)
+
+    def log_to_root(message, *args, **kwargs):
+        logging.log(num, message, *args, **kwargs)
+
+    logging.addLevelName(num, name)
+    setattr(logging, name, num)
+    setattr(logging.getLoggerClass(), method, log_for_level)
+    setattr(logging, method, log_to_root)

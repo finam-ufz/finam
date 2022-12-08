@@ -134,6 +134,14 @@ class TestDataTools(unittest.TestCase):
         )
         self.assertEqual((1, 2, 2), data.shape)
 
+        data = finam.data.prepare(
+            finam.UNITS.Quantity(1.0, "m"),
+            finam.Info(time, grid=finam.NoGrid(), units="m"),
+        )
+
+        self.assertEqual((1,), data.shape)
+        self.assertEqual(finam.UNITS.meter, data.units)
+
         with self.assertRaises(finam.errors.FinamDataError):
             finam.data.prepare(
                 np.asarray([1, 2]), finam.Info(time, grid=finam.NoGrid())
@@ -191,6 +199,13 @@ class TestDataTools(unittest.TestCase):
         xdata2 = finam.data.prepare(xdata, info_2)
         xdata[0, 0] = 0 * finam.UNITS("m")
         self.assertNotEqual(finam.data.get_magnitude(xdata2[0, 0]), 0.0)
+
+        data = [1.0]
+        xdata2 = finam.data.prepare(data, info_1, force_copy=True)
+        self.assertEqual(1.0 * finam.UNITS.meter, xdata2[0])
+
+        xdata2[0, 0] = 0 * finam.UNITS("m")
+        self.assertNotEqual(0.0, data[0])
 
     def test_assert_type(self):
         finam.data.assert_type(self, "A", 1, [int, float])

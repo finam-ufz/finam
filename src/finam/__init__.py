@@ -187,6 +187,9 @@ except ModuleNotFoundError:  # pragma: no cover
     # package is not installed
     __version__ = "0.0.0.dev0"
 
+tools.log_helper.add_logging_level("TRACE", 5)
+tools.log_helper.add_logging_level("PROFILE", 15)
+
 
 __all__ = ["__version__"]
 __all__ += ["adapters", "data", "interfaces", "modules", "schedule", "sdk", "tools"]

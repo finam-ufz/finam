@@ -132,7 +132,7 @@ class Composition(Loggable):
 
         After the call, module inputs and outputs are available for linking.
         """
-        self.logger.debug("init composition")
+        self.logger.info("init composition")
         if self.is_initialized:
             raise FinamStatusError("Composition was already initialized.")
 
@@ -203,7 +203,7 @@ class Composition(Loggable):
 
         self._connect_components(start_time)
 
-        self.logger.debug("validate components")
+        self.logger.info("validate components")
         for mod in self.modules:
             mod.validate()
             self._check_status(mod, [ComponentStatus.VALIDATED])
@@ -245,7 +245,7 @@ class Composition(Loggable):
         if not self.is_connected:
             self.connect(start_time)
 
-        self.logger.debug("running composition")
+        self.logger.info("run composition")
         while len(time_modules) > 0:
             sort_modules = list(time_modules)
             sort_modules.sort(key=lambda m: m.time)
@@ -324,7 +324,7 @@ class Composition(Loggable):
 
     def _validate_composition(self):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
-        self.logger.debug("validate composition")
+        self.logger.info("validate composition")
         for mod in self.modules:
             with ErrorLogger(mod.logger if is_loggable(mod) else self.logger):
                 for inp in mod.inputs.values():
@@ -338,7 +338,7 @@ class Composition(Loggable):
             _check_missing_modules(self.modules)
 
     def _connect_components(self, time):
-        self.logger.debug("connect components")
+        self.logger.info("connect components")
         counter = 0
         while True:
             self.logger.debug("connect iteration %d", counter)
@@ -380,7 +380,7 @@ class Composition(Loggable):
             counter += 1
 
     def _finalize_components(self):
-        self.logger.debug("finalize components")
+        self.logger.info("finalize components")
         for mod in self.modules:
             self._check_status(
                 mod,
@@ -404,7 +404,7 @@ class Composition(Loggable):
             ada.finalize()
 
     def _finalize_composition(self):
-        self.logger.debug("finalize composition")
+        self.logger.info("finalize composition")
         handlers = self.logger.handlers[:]
         for handler in handlers:
             self.logger.removeHandler(handler)
