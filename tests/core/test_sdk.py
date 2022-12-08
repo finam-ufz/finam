@@ -358,7 +358,7 @@ class TestOutput(unittest.TestCase):
         with self.assertRaises(FinamStaticDataError):
             out.push_data(0, None)
 
-    def test_data_copied_xarray(self):
+    def test_data_copied(self):
         t = datetime(2000, 1, 1)
         info = Info(time=t, grid=fm.UniformGrid((1, 1)))
 
@@ -377,7 +377,7 @@ class TestOutput(unittest.TestCase):
         with self.assertRaises(FinamDataError):
             out.push_data(in_data, t)
 
-    def test_data_copied_xarray_units(self):
+    def test_data_copied_units(self):
         t = datetime(2000, 1, 1)
         info1 = Info(time=t, grid=fm.UniformGrid((1, 1)), units="m")
         info2 = Info(time=t, grid=fm.UniformGrid((1, 1)), units="km")
@@ -398,48 +398,6 @@ class TestOutput(unittest.TestCase):
 
         self.assertEqual(out_data[0, 0, 0], 0.0 * fm.UNITS("km"))
         in_data[0, 0, 0] = 1.0 * fm.UNITS("m")
-        self.assertEqual(out_data[0, 0, 0], 0.0 * fm.UNITS("km"))
-
-    def test_data_copied_numpy(self):
-        t = datetime(2000, 1, 1)
-        info = Info(time=t, grid=fm.UniformGrid((1, 1)))
-
-        out = Output(name="Output")
-        in1 = Input(name="Input")
-
-        out >> in1
-
-        in1.ping()
-
-        out.push_info(info)
-        in1.exchange_info(info)
-
-        in_data = fm.data.full(0.0, info)
-        out.push_data(in_data, t)
-        with self.assertRaises(FinamDataError):
-            out.push_data(in_data, t)
-
-    def test_data_copied_numpy_units(self):
-        t = datetime(2000, 1, 1)
-        info1 = Info(time=t, grid=fm.UniformGrid((1, 1)), units="m")
-        info2 = Info(time=t, grid=fm.UniformGrid((1, 1)), units="km")
-
-        out = Output(name="Output")
-        in1 = Input(name="Input")
-
-        out >> in1
-
-        in1.ping()
-
-        out.push_info(info1)
-        in1.exchange_info(info2)
-
-        in_data = fm.data.full(0.0, info1)
-        out.push_data(in_data, t)
-        out_data = in1.pull_data(t, in1)
-
-        self.assertEqual(out_data[0, 0, 0], 0.0 * fm.UNITS("km"))
-        in_data[0, 0] = 1.0 * fm.UNITS("m")
         self.assertEqual(out_data[0, 0, 0], 0.0 * fm.UNITS("km"))
 
 

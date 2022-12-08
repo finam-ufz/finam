@@ -143,7 +143,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Returns
         -------
-        :class:`xarray.DataArray`
+        :class:`pint.Quantity`
             Transformed data-set for the requested time.
         """
         self.logger.debug("get data")
@@ -154,7 +154,7 @@ class Adapter(IAdapter, Input, Output, ABC):
         data = self._get_data(time, target)
 
         with ErrorLogger(self.logger):
-            return tools.to_xarray(data, self._output_info)
+            return tools.prepare(data, self._output_info)
 
     def _get_data(self, time, target):
         """Get the transformed data of this adapter.
@@ -170,7 +170,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Returns
         -------
-        :class:`xarray.DataArray`
+        :class:`pint.Quantity`
             Transformed data-set for the requested time.
         """
         raise NotImplementedError(
@@ -312,7 +312,7 @@ class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
 
         Returns
         -------
-        :class:`xarray.DataArray`
+        :class:`pint.Quantity`
             Transformed data-set for the requested time.
         """
         self.logger.debug("get data")
@@ -326,7 +326,7 @@ class TimeDelayAdapter(Adapter, ITimeDelayAdapter, ABC):
         self._pulled(time)
 
         with ErrorLogger(self.logger):
-            return tools.to_xarray(data, self._output_info)
+            return tools.prepare(data, self._output_info)
 
     def _get_data(self, time, target):
         """Get the output's data-set for the given time.

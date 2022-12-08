@@ -909,63 +909,7 @@ class TestComposition(unittest.TestCase):
         self.assertEqual([1, 8, 13], updates["A"])
         self.assertEqual([1, 4, 7, 10], updates["B"])
 
-    def test_starting_time_numpy(self):
-        start_1 = datetime(2000, 1, 2)
-        start_2 = datetime(2000, 1, 8)
-
-        updates = {"A": [], "B": []}
-
-        def lambda_generator(t):
-            return t.day
-
-        def lambda_component(inp, t):
-            return {"Out": np.asarray(1) * fm.UNITS("")}
-
-        def lambda_debugger(name, data, t):
-            updates[name].append(t.day)
-
-        module1 = CallbackGenerator(
-            callbacks={"Out": (lambda_generator, fm.Info(time=None, grid=fm.NoGrid()))},
-            start=start_2,
-            step=timedelta(days=5),
-        )
-        module2 = CallbackComponent(
-            inputs={
-                "In": fm.Info(time=None, grid=fm.NoGrid()),
-            },
-            outputs={
-                "Out": fm.Info(time=None, grid=fm.NoGrid()),
-            },
-            callback=lambda_component,
-            start=start_1,
-            step=timedelta(days=3),
-        )
-        module3 = DebugPushConsumer(
-            inputs={
-                "A": fm.Info(time=None, grid=None),
-                "B": fm.Info(time=None, grid=None),
-            },
-            callbacks={
-                "A": lambda_debugger,
-                "B": lambda_debugger,
-            },
-        )
-
-        composition = Composition([module1, module2, module3])
-        composition.initialize()
-
-        module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
-        module1.outputs["Out"] >> Scale(1.0) >> module3.inputs["A"]
-        module2.outputs["Out"] >> Scale(1.0) >> module3.inputs["B"]
-
-        composition.connect(datetime(2000, 1, 1))
-
-        composition.run(end_time=datetime(2000, 1, 10))
-
-        self.assertEqual([1, 8, 13], updates["A"])
-        self.assertEqual([1, 2, 5, 8, 11], updates["B"])
-
-    def test_starting_time_xarray(self):
+    def test_starting_time(self):
         start_1 = datetime(2000, 1, 2)
         start_2 = datetime(2000, 1, 8)
 

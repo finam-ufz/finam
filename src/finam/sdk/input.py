@@ -105,7 +105,7 @@ class Input(IInput, Loggable):
 
         Returns
         -------
-        :class:`xarray.DataArray`
+        :class:`pint.Quantity`
             Data set for the given simulation time.
         """
         self.logger.debug("pull data")

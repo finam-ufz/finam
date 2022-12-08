@@ -20,9 +20,9 @@ Inputs receive data in the :mod:`xarray` form, with units and time axis.
 
 Several tool functions are provided in :mod:`.data` to convert to and from :class:`xarray.DataArray`:
 
-* :func:`to_xarray(data, info, time) <.data.to_xarray>`
+* :func:`prepare(data, info, time) <.data.prepare>`
   Wraps data, adds time axis and units based on ``info`` (see `The Info object`_).
-  Performs a metadata check if ``data`` is already an :class:`xarray.DataArray`.
+  Performs a metadata checks.
 * :func:`strip_time(xdata, grid) <.data.strip_time>`
   Squeezes away the time axis if there is a single entry only, and raises an error otherwise.
   Returns an :class:`xarray.DataArray` with units.

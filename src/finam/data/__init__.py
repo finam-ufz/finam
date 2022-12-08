@@ -49,11 +49,11 @@ Data tools
     get_units
     has_time_axis
     is_quantified
+    prepare
     quantify
     strip_time
     to_datetime
     to_units
-    to_xarray
 """
 
 from ..errors import FinamDataError
@@ -90,11 +90,11 @@ from .tools import (
     get_units,
     has_time_axis,
     is_quantified,
+    prepare,
     quantify,
     strip_time,
     to_datetime,
     to_units,
-    to_xarray,
 )
 
 __all__ = ["grid_spec", "grid_tools", "tools"]
@@ -130,10 +130,10 @@ __all__ += [
     "get_magnitude",
     "get_units",
     "has_time_axis",
+    "prepare",
     "quantify",
     "is_quantified",
     "strip_time",
     "to_datetime",
     "to_units",
-    "to_xarray",
 ]

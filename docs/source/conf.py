@@ -135,7 +135,6 @@ intersphinx_mapping = {
     "Python": ("https://docs.python.org/3/", None),
     "NumPy": ("https://numpy.org/doc/stable/", None),
     "SciPy": ("https://docs.scipy.org/doc/scipy/", None),
-    "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "pint": ("https://pint.readthedocs.io/en/stable/", None),
     "pytest": ("https://docs.pytest.org/en/7.1.x/", None),
     "pyproj": ("https://pyproj4.github.io/pyproj/stable/", None),
