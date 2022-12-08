@@ -324,21 +324,21 @@ def to_units(xdata, units, check_equivalent=False, report_conversion=False):
 
 def full_like(xdata, value):
     """
-    Return a new DataArray with the same shape and type as a given object.
+    Return a new data array with the same shape, type and units as a given object.
 
     Parameters
     ----------
-    xdata : pint.Quantity
-        The reference object in input.
+    xdata : :class:`pint.Quantity` or :class:`numpy.ndarray`
+        The reference object input.
     value : scalar
         Value to fill the new object with before returning it.
 
     Returns
     -------
-    pint.Quantity
+    pint.Quantity or numpy.ndarray
         New object with the same shape and type as other,
         with the data filled with fill_value.
-        Coords will be copied from other.
+        Units will be taken from the input if present.
     """
     d = np.full_like(xdata, value)
     if is_quantified(xdata):
@@ -349,7 +349,7 @@ def full_like(xdata, value):
 
 def full(value, info):
     """
-    Return a new DataArray of given info, filled with given value.
+    Return a new data array with units according to the given info, filled with given value.
 
     Parameters
     ----------

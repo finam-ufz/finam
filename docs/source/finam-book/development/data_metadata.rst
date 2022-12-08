@@ -7,32 +7,33 @@ This chapter explains data and metadata in FINAM.
 Data arrays
 -----------
 
-Internally, all data is passed as :class:`xarray.DataArray`.
-In addition, data is wrapped in :mod:`pint` units,
-and a time axis with a single entry is added.
+Internally, all data is passed as :class:`numpy.ndarray`, wrapped in :class:`pint.Quantity`.
+In addition, a time axis with a single entry is added at index 0.
 
-Data can be pushed to outputs as any type that can be wrapped in :class:`xarray.DataArray`.
-This includes :class:`numpy.ndarray`,
-lists, and scalar values.
+Data can be pushed to outputs as any type that can be wrapped in :class:`numpy.ndarray`.
+This includes lists and scalar values.
 Wrapping, adding time axis and units are performed internally, based on the available metadata (see section metadata_).
 
-Inputs receive data in the :mod:`xarray` form, with units and time axis.
+Inputs always receive data in the wrapped :class:`numpy.ndarray` form, with units and time axis.
 
-Several tool functions are provided in :mod:`.data` to convert to and from :class:`xarray.DataArray`:
+Several tool functions are provided in :mod:`.data` to convert to and from the internal data structure:
 
+* :func:`full(value, info) <.data.full>`
+  Creates a new data array with units according to the given info, filled with given value.
+* :func:`full_like(data, value) <.data.full_like>`
+  Creates a new data array with the same shape, type and units as a given object.
 * :func:`prepare(data, info, time) <.data.prepare>`
-  Wraps data, adds time axis and units based on ``info`` (see `The Info object`_).
+  Wraps data, checks or adds time axis and units based on ``info`` (see `The Info object`_).
   Performs a metadata checks.
 * :func:`strip_time(xdata, grid) <.data.strip_time>`
   Squeezes away the time axis if there is a single entry only, and raises an error otherwise.
-  Returns an :class:`xarray.DataArray` with units.
 * :func:`get_magnitude(xdata) <.data.get_magnitude>`
-  Extracts data without units. Returns a :mod:`numpy` array without units, but with time axis preserved.
+  Extracts data without units. Returns a :class:`numpy.ndarray` array without units, but with time axis preserved.
 * :func:`get_units(xdata) <.data.get_units>`
-  Gets the :mod:`pint` units of the data
+  Gets the :class:`pint.Unit` units of the data
 * :func:`get_dimensionality(xdata) <.data.get_dimensionality>`
   Gets the :mod:`pint` dimensionality of the data (like length, mass, ...)
-* :func:`has_time_axis(xdata) <.data.has_time_axis>`
+* :func:`has_time_axis(xdata, grid) <.data.has_time_axis>`
   Checks if the data has a time axis
 
 Metadata
