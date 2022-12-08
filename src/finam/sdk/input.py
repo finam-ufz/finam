@@ -20,7 +20,7 @@ class Input(IInput, Loggable):
         self.base_logger_name = None
         if name is None:
             raise ValueError("Input: needs a name.")
-        self.name = name
+        self._name = name
         self._static = static
         if info_kwargs:
             if info is not None:
@@ -29,6 +29,11 @@ class Input(IInput, Loggable):
         self._input_info = info
         self._in_info_exchanged = False
         self._cached_data = None
+
+    @property
+    def name(self):
+        """Input name."""
+        return self._name
 
     @property
     def is_static(self):
