@@ -66,14 +66,6 @@ def prepare(data, info, time_entries=1, force_copy=False, report_conversion=Fals
                 f"Given data has incompatible units. "
                 f"Got {data.units}, expected {units}."
             )
-        if not isinstance(data.magnitude, np.ndarray):
-            if force_copy:
-                data = copy.copy(data.magnitude)
-            else:
-                data = data.magnitude
-
-            data = UNITS.Quantity(np.asarray(data), data.units)
-
         if not equivalent_units(data.units, units):
             units_converted = data.units, units
             data = data.to(units)
