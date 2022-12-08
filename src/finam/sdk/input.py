@@ -122,7 +122,7 @@ class Input(IInput, Loggable):
             data = self.source.get_data(time, target or self)
 
         with ErrorLogger(self.logger):
-            data = tools.to_units(data, self._input_info.units)
+            data = tools.to_units(data, self._input_info.units, check_equivalent=True)
             tools.check(data, self._input_info)
 
         return data

@@ -266,3 +266,53 @@ class TestUnitsTools(unittest.TestCase):
         info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
         xdata = full(0.0, info)
         _result = self.benchmark(get_magnitude, xdata=xdata)
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_set_units_mul_01_512x256(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
+        xdata = full(0.0, info).magnitude
+        _result = self.benchmark(set_units_mul, data=xdata, units=fm.UNITS.Unit("m"))
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_set_units_mul_02_1024x512(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((1024, 512)), units="m")
+        xdata = full(0.0, info).magnitude
+        _result = self.benchmark(set_units_mul, data=xdata, units=fm.UNITS.Unit("m"))
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_set_units_mul_03_2048x1024(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
+        xdata = full(0.0, info).magnitude
+        _result = self.benchmark(set_units_mul, data=xdata, units=fm.UNITS.Unit("m"))
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_set_units_quant_01_512x256(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
+        xdata = full(0.0, info).magnitude
+        _result = self.benchmark(set_units_qua, data=xdata, units=fm.UNITS.Unit("m"))
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_set_units_quant_02_1024x512(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((1024, 512)), units="m")
+        xdata = full(0.0, info).magnitude
+        _result = self.benchmark(set_units_qua, data=xdata, units=fm.UNITS.Unit("m"))
+
+    @pytest.mark.benchmark(group="data-tools-slow")
+    def test_set_units_quant_03_2048x1024(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
+        xdata = full(0.0, info).magnitude
+        _result = self.benchmark(set_units_qua, data=xdata, units=fm.UNITS.Unit("m"))
+
+
+def set_units_mul(data, units):
+    return data * units
+
+
+def set_units_qua(data, units):
+    return fm.UNITS.Quantity(data, units)

@@ -274,11 +274,7 @@ class TestDataTools(unittest.TestCase):
     def test_cache_units(self):
         finam.data.tools.clear_units_cache()
 
-        self.assertEqual({}, finam.data.tools._UNIT_CACHE)
         self.assertEqual({}, finam.data.tools._UNIT_PAIRS_CACHE)
-
-        u = finam.data.tools._get_pint_units("m")
-        self.assertEqual({"m": u}, finam.data.tools._UNIT_CACHE)
 
         eqiv = finam.data.tools.equivalent_units("mm", "L/m^2")
         self.assertTrue(eqiv)
@@ -289,5 +285,4 @@ class TestDataTools(unittest.TestCase):
 
         finam.data.tools.clear_units_cache()
 
-        self.assertEqual({}, finam.data.tools._UNIT_CACHE)
         self.assertEqual({}, finam.data.tools._UNIT_PAIRS_CACHE)
