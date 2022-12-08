@@ -272,7 +272,7 @@ def get_dimensionality(xdata):
     return xdata.dimensionality
 
 
-def to_units(xdata, units):
+def to_units(xdata, units, check_equivalent=False):
     """
     Convert data to given units.
 
@@ -282,6 +282,8 @@ def to_units(xdata, units):
         The given data array.
     units : str or pint.Unit
         Desired units.
+    check_equivalent : bool, optional
+        Checks for equivalent units and simply re-assigns if possible.
 
     Returns
     -------
@@ -290,8 +292,11 @@ def to_units(xdata, units):
     """
     check_quantified(xdata, "to_units")
     units = _get_pint_units(units)
-    if units == xdata.units:
+    units2 = xdata.units
+    if units == units2:
         return xdata
+    if check_equivalent and equivalent_units(units, units2):
+        return UNITS.Quantity(xdata.magnitude, units)
     return xdata.to(units)
 
 
