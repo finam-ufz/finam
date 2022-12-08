@@ -19,7 +19,7 @@ def run_model():
     size = (1024, 1024)
 
     info1 = fm.Info(time=None, grid=fm.UniformGrid(size), units="m")
-    data = fm.data.to_xarray(fm.data.full(0.0, info1), info1)
+    data = fm.data.prepare(fm.data.full(0.0, info1), info1)
 
     def gen_data(t):
         return np.copy(data)
