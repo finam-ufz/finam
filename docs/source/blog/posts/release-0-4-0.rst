@@ -8,7 +8,7 @@
 FINAM 0.4 released
 ==================
 
-After two months of hard work since the last release, FINAM 0.4 comes with a full load of new features
+After three months of hard work since the last release, FINAM 0.4 comes with a full load of new features
 and usability improvements. This version is a real breakthrough in the development of FINAM!
 
 Highlights are a new scheduling algorithm, grid data types, automatic metadata and units handling,
@@ -41,19 +41,6 @@ Mandatory metadata are `Grid specifications`_ and units, but more is possible.
 
 FINAM automatically checks data vs. metadata to detect inconsistencies or malicious coupling setups.
 
-All data is :mod:`xarray` with :mod:`pint` units
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Add data is now passed as :class:`xarray.DataArray`, with :mod:`pint` units attached.
-This allows for comprehensive checks against metadata to ensure correct grid layout, units, etc.
-
-Users can still handle data as :mod:`numpy` :class:`ndarray <numpy.ndarray>`
-and leave the conversion to FINAM.
-Attached units work with :mod:`numpy` as well as :mod:`xarray` data,
-so all calculations can and should be done with units for safety.
-Units are checked by inputs, and converted automatically if they are compatible.
-So there are no adapters required for unit conversion.
-
 Grid specifications
 ^^^^^^^^^^^^^^^^^^^
 
@@ -65,6 +52,16 @@ For unstructured grids, :class:`.UnstructuredGrid` (i.e. meshes) and :class:`.Un
 Data that is not on a grid or mesh is also supported through :class:`.NoGrid`.
 
 For an important aspect of using grid specifications, see section `Regridding and CRS handling`_.
+
+Unified data with units
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Add data is now passed around as :class:`numpy.ndarray`, wrapped in :class:`pint.Quantity` for units.
+This allows for comprehensive checks against metadata to ensure correct grid layout, units, etc.
+
+Thanks to :mod:`pint`, calculation can be done with units for safety.
+Units are checked by inputs, and converted automatically if they are compatible.
+So there are no adapters required for unit conversion.
 
 Bi-directional metadata exchange
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -145,9 +142,11 @@ Next steps and future direction
 
 Most important in the near future, FINAM needs testing in production, as well as user feedback.
 
-FINAM's functionality is well-tested for all use cases we have in mind, with 99% test coverage!
+FINAM's functionality is well-tested for all use cases we have in mind, with >95% test coverage!
 But still, we are working with dummy components for testing. Also, all developers working on wrappers for existing models are highly involved in the process of FINAM development.
 Thus, they are probably biased and over-informed.
 
 To make progress with FINAM, we would love to get feedback from new users that approach FINAM from an unbiased perspective.
 Most of the future progress and direction will depend in this feedback.
+
+For feedback and suggestions, please use FINAM's `GitHub discussions <https://github.com/finam-ufz/finam/discussions>`_.
