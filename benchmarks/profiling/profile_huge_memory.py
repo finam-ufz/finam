@@ -1,10 +1,18 @@
+import cProfile
 import datetime as dt
+import io
+import pstats
+import sys
+import time
 
 import numpy as np
 
 import finam as fm
 
-if __name__ == "__main__":
+
+def run_model():
+    t = time.time()
+
     start_time = dt.datetime(2000, 1, 1)
     end_time = dt.datetime(2002, 1, 1)
 
@@ -29,9 +37,23 @@ if __name__ == "__main__":
         step=dt.timedelta(days=365),
     )
 
-    composition = fm.Composition([source, sink])
+    composition = fm.Composition([source, sink], slot_memory_limit=500 * 2**20)
     composition.initialize()
 
     source["Out"] >> sink["In"]
 
     composition.run(end_time=end_time)
+
+    print("Total time:", time.time() - t)
+
+
+if __name__ == "__main__":
+    pr = cProfile.Profile()
+    pr.enable()
+
+    run_model()
+
+    pr.disable()
+    s = io.StringIO()
+    ps = pstats.Stats(pr, stream=s).sort_stats(pstats.SortKey.CUMULATIVE)
+    ps.dump_stats(sys.argv[1])

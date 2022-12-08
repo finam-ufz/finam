@@ -2,8 +2,12 @@
 Unit tests for the sdk implementations.
 """
 import logging
+import os.path
+import tempfile
 import unittest
 from datetime import datetime, timedelta
+
+import numpy as np
 
 import finam as fm
 from finam import (
@@ -397,8 +401,49 @@ class TestOutput(unittest.TestCase):
         out_data = in1.pull_data(t, in1)
 
         self.assertEqual(out_data[0, 0, 0], 0.0 * fm.UNITS("km"))
-        in_data[0, 0, 0] = 1.0 * fm.UNITS("m")
+        in_data[0, 0] = 1.0 * fm.UNITS("m")
         self.assertEqual(out_data[0, 0, 0], 0.0 * fm.UNITS("km"))
+
+    def test_memory_limit(self):
+        t = datetime(2000, 1, 1)
+        info = Info(time=t, grid=fm.UniformGrid((100, 100)))
+
+        with tempfile.TemporaryDirectory() as td:
+
+            out = Output(name="Output")
+            out.memory_limit = 0
+            out.memory_location = td
+            oid = id(out)
+
+            in1 = Input(name="Input")
+
+            out >> in1
+
+            in1.ping()
+
+            out.push_info(info)
+            in1.exchange_info(info)
+
+            in_data = fm.data.full(0.0, info)
+            out.push_data(np.copy(in_data), datetime(2000, 1, 1))
+            out.push_data(np.copy(in_data), datetime(2000, 1, 2))
+
+            self.assertTrue(os.path.isfile(os.path.join(td, f"{oid}-{0}.npy")))
+            self.assertTrue(os.path.isfile(os.path.join(td, f"{oid}-{1}.npy")))
+
+            data = in1.pull_data(datetime(2000, 1, 2), in1)
+
+            np.testing.assert_allclose(data.magnitude, in_data.magnitude)
+            self.assertEqual(data.units, in_data.units)
+            self.assertEqual(data.units, info.units)
+
+            self.assertFalse(os.path.isfile(os.path.join(td, f"{oid}-{0}.npy")))
+            self.assertTrue(os.path.isfile(os.path.join(td, f"{oid}-{1}.npy")))
+
+            out.finalize()
+
+            self.assertFalse(os.path.isfile(os.path.join(td, f"{oid}-{0}.npy")))
+            self.assertFalse(os.path.isfile(os.path.join(td, f"{oid}-{1}.npy")))
 
 
 class TestInput(unittest.TestCase):

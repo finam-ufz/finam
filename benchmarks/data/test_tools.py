@@ -69,6 +69,27 @@ class TestPrepare(unittest.TestCase):
         xdata = full(0.0, info)
         _result = self.benchmark(prepare, data=xdata, info=info)
 
+    @pytest.mark.benchmark(group="data-tools")
+    def test_prepare_np_units_01_2x1(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="m")
+        xdata = full(0.0, info).magnitude
+        _result = self.benchmark(prepare, data=xdata, info=info)
+
+    @pytest.mark.benchmark(group="data-tools")
+    def test_prepare_np_units_02_512x256(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((512, 256)), units="m")
+        xdata = full(0.0, info).magnitude
+        _result = self.benchmark(prepare, data=xdata, info=info)
+
+    @pytest.mark.benchmark(group="data-tools")
+    def test_prepare_np_units_03_2048x1024(self):
+        time = dt.datetime(2000, 1, 1)
+        info = fm.Info(time=time, grid=fm.UniformGrid((2048, 1024)), units="m")
+        xdata = full(0.0, info).magnitude
+        _result = self.benchmark(prepare, data=xdata, info=info)
+
     @pytest.mark.benchmark(group="data-tools-slow")
     def test_cp_prepare_np_01_2x1(self):
         time = dt.datetime(2000, 1, 1)

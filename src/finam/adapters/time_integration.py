@@ -27,7 +27,7 @@ class TimeIntegrationAdapter(TimeCachingAdapter, ABC):
         check_time(self.logger, time)
 
         data = tools.strip_time(self.pull_data(time, self), self._input_info.grid)
-        self.data.append((time, data))
+        self.data.append((time, self._pack(data)))
 
         if self._prev_time is None:
             self._prev_time = time
@@ -111,18 +111,21 @@ class AvgOverTime(TimeIntegrationAdapter):
 
     def _interpolate(self, time):
         if len(self.data) == 1:
-            return self.data[0][1]
+            return self._unpack(self.data[0][1])
 
         if time <= self.data[0][0]:
-            return self.data[0][1]
+            return self._unpack(self.data[0][1])
 
         sum_value = None
 
+        t_old, v_old = self.data[0]
+        v_old = self._unpack(v_old)
         for i in range(len(self.data) - 1):
-            t_old, v_old = self.data[i]
             t_new, v_new = self.data[i + 1]
+            v_new = self._unpack(v_new)
 
             if self._prev_time >= t_new:
+                t_old, v_old = t_new, v_new
                 continue
             if time <= t_old:
                 break
@@ -146,6 +149,8 @@ class AvgOverTime(TimeIntegrationAdapter):
             value *= time_range.total_seconds() * tools.UNITS.Unit("s")
 
             sum_value = value if sum_value is None else sum_value + value
+
+            t_old, v_old = t_new, v_new
 
         dt = time - self._prev_time
         if dt.total_seconds() > 0:
@@ -239,20 +244,22 @@ class SumOverTime(TimeIntegrationAdapter):
         if len(self.data) == 1 or time <= self.data[0][0]:
             if self._per_time:
                 return (
-                    self.data[0][1]
-                    * self._initial_interval.total_seconds()
-                    * tools.UNITS.Unit("s")
+                    self._unpack(self.data[0][1])
+                    * (self._initial_interval.total_seconds() * tools.UNITS.Unit("s"))
                 ).to_reduced_units()
 
-            return self.data[0][1]
+            return self._unpack(self.data[0][1])
 
         sum_value = None
 
+        t_old, v_old = self.data[0]
+        v_old = self._unpack(v_old)
         for i in range(len(self.data) - 1):
-            t_old, v_old = self.data[i]
             t_new, v_new = self.data[i + 1]
+            v_new = self._unpack(v_new)
 
             if self._prev_time >= t_new:
+                t_old, v_old = t_new, v_new
                 continue
             if time <= t_old:
                 break
@@ -277,6 +284,8 @@ class SumOverTime(TimeIntegrationAdapter):
                 value *= time_range.total_seconds() * tools.UNITS.Unit("s")
 
             sum_value = value if sum_value is None else sum_value + value
+
+            t_old, v_old = t_new, v_new
 
         if self._per_time:
             return sum_value.to_reduced_units()
