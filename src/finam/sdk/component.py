@@ -43,11 +43,17 @@ class Component(IComponent, Loggable, ABC):
 
     def __init__(self):
         Loggable.__init__(self)
+        self._name = self.__class__.__name__
         self._status = ComponentStatus.CREATED
         self._inputs = IOList(self, "INPUT")
         self._outputs = IOList(self, "OUTPUT")
         self.base_logger_name = None
         self._connector: ConnectHelper = None
+
+    def with_name(self, name):
+        """Renames the component and returns self."""
+        self._name = name
+        return self
 
     @final
     def initialize(self):
@@ -211,7 +217,7 @@ class Component(IComponent, Loggable, ABC):
     @property
     def name(self):
         """Component name."""
-        return self.__class__.__name__
+        return self._name
 
     @property
     def logger_name(self):

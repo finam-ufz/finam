@@ -874,5 +874,15 @@ class TestNotImplemented(unittest.TestCase):
             adapter._get_data(datetime(2000, 1, 1), None)
 
 
+class TestRename(unittest.TestCase):
+    def test_rename_component(self):
+        comp = fm.modules.SimplexNoise().with_name("CompA")
+        self.assertEqual("CompA", comp.name)
+
+    def test_rename_adapter(self):
+        ada = fm.adapters.Scale(1.0).with_name("Scale-1")
+        self.assertEqual("Scale-1", ada.name)
+
+
 if __name__ == "__main__":
     unittest.main()

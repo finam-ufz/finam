@@ -120,6 +120,11 @@ class IComponent(ABC):
 
     @property
     @abstractmethod
+    def name(self):
+        """Component name."""
+
+    @property
+    @abstractmethod
     def inputs(self):
         """IOList: The component's inputs."""
 
@@ -153,6 +158,11 @@ class ITimeComponent(IComponent, ABC):
 
 class IInput(ABC):
     """Interface for input slots."""
+
+    @property
+    @abstractmethod
+    def name(self):
+        """Input name."""
 
     @property
     @abstractmethod
@@ -246,6 +256,11 @@ class IInput(ABC):
 
 class IOutput(ABC):
     """Interface for output slots."""
+
+    @property
+    @abstractmethod
+    def name(self):
+        """Output name."""
 
     @property
     @abstractmethod
@@ -437,10 +452,6 @@ class IOutput(ABC):
 
 class IAdapter(IInput, IOutput, ABC):
     """Interface for adapters."""
-
-    @abstractmethod
-    def finalize(self):
-        """Called at the end of each run. Can be used for cleanup."""
 
 
 class NoBranchAdapter:

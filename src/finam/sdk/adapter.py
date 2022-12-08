@@ -34,8 +34,14 @@ class Adapter(IAdapter, Input, Output, ABC):
     def __init__(self):
         Input.__init__(self, name=self.__class__.__name__)
         Output.__init__(self, name=self.__class__.__name__)
+        self._name = self.__class__.__name__
         self.source = None
         self.targets = []
+
+    def with_name(self, name):
+        """Renames the adapter and returns self."""
+        self._name = name
+        return self
 
     @property
     def time(self):

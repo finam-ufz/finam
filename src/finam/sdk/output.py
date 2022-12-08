@@ -32,7 +32,7 @@ class Output(IOutput, Loggable):
         self.base_logger_name = None
         if name is None:
             raise ValueError("Output: needs a name.")
-        self.name = name
+        self._name = name
         self._static = static
 
         if info_kwargs:
@@ -50,6 +50,11 @@ class Output(IOutput, Loggable):
         self._mem_location = None
         self._total_mem = 0
         self._mem_counter = 0
+
+    @property
+    def name(self):
+        """Input name."""
+        return self._name
 
     @property
     def time(self):
