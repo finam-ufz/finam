@@ -174,8 +174,6 @@ def add_logging_level(name, num, method=None):
 
     if hasattr(logging, name):
         raise AttributeError(f"{name} already defined in logging module")
-    if hasattr(logging, name):
-        raise AttributeError(f"{name} already defined in logging module")
     if hasattr(logging.getLoggerClass(), name):
         raise AttributeError(f"{name} already defined in logger class")
 

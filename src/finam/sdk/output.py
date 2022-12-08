@@ -116,7 +116,7 @@ class Output(IOutput, Loggable):
         target : :class:`.IInput`
             The target to add.
         """
-        self.logger.debug("add target")
+        self.logger.trace("add target")
         if not isinstance(target, IInput):
             with ErrorLogger(self.logger):
                 raise ValueError("Only IInput can added as target for IOutput")
@@ -154,11 +154,11 @@ class Output(IOutput, Loggable):
         time : :class:`datetime <datetime.datetime>`
             Simulation time of the data set.
         """
-        self.logger.debug("push data")
-
         if not self.has_targets:
-            self.logger.debug("skipping push to unconnected output")
+            self.logger.trace("skipping push to unconnected output")
             return
+
+        self.logger.trace("push data")
 
         with ErrorLogger(self.logger):
             _check_time(time, self.is_static)
@@ -174,19 +174,23 @@ class Output(IOutput, Loggable):
             time = None
 
         with ErrorLogger(self.logger):
-            xdata = tools.prepare(data, self.info)
+            xdata, conv = tools.prepare(data, self.info, report_conversion=True)
             if len(self.data) > 0 and not isinstance(self.data[-1][1], str):
                 d = self.data[-1][1]
                 if np.may_share_memory(d.data, xdata.data):
                     raise FinamDataError(
                         "Received data that shares memory with previously received data."
                     )
+            if conv is not None:
+                self.logger.profile(
+                    "converted units from %s to %s (%d entries)", *conv, xdata.size
+                )
             xdata = self._pack(xdata)
             self.data.append((time, xdata))
 
         self._time = time
 
-        self.logger.debug("data cache: %d", len(self.data))
+        self.logger.trace("data cache: %d", len(self.data))
 
         self.notify_targets(time)
 
@@ -198,7 +202,7 @@ class Output(IOutput, Loggable):
         info : :class:`.Info`
             Delivered data info
         """
-        self.logger.debug("push info")
+        self.logger.trace("push info")
         if not isinstance(info, Info):
             with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Metadata must be of type Info")
@@ -212,7 +216,7 @@ class Output(IOutput, Loggable):
         time : :class:`datetime <datetime.datetime>`
             Simulation time of the simulation.
         """
-        self.logger.debug("notify targets")
+        self.logger.trace("notify targets")
 
         with ErrorLogger(self.logger):
             _check_time(time, self.is_static)
@@ -240,7 +244,7 @@ class Output(IOutput, Loggable):
         FinamNoDataError
             Raises the error if no data is available
         """
-        self.logger.debug("get data")
+        self.logger.trace("get data")
 
         with ErrorLogger(self.logger):
             _check_time(time, self.is_static)
@@ -264,7 +268,7 @@ class Output(IOutput, Loggable):
             self._clear_data(time, target)
 
             if len(self.data) < data_count:
-                self.logger.debug(
+                self.logger.trace(
                     "reduced data cache: %d -> %d", data_count, len(self.data)
                 )
 
@@ -278,7 +282,7 @@ class Output(IOutput, Loggable):
             fn = os.path.join(
                 self.memory_location or "", f"{id(self)}-{self._mem_counter}.npy"
             )
-            self.logger.debug(
+            self.logger.profile(
                 "dumping data to file %s (total RAM %0.2f MB)",
                 fn,
                 self._total_mem / 1048576,
@@ -288,14 +292,14 @@ class Output(IOutput, Loggable):
             return fn
 
         self._total_mem += data_size
-        self.logger.debug(
+        self.logger.trace(
             "keeping data in RAM (total RAM %0.2f MB)", self._total_mem / 1048576
         )
         return data
 
     def _unpack(self, where):
         if isinstance(where, str):
-            self.logger.debug("reading data from file %s", where)
+            self.logger.profile("reading data from file %s", where)
             data = np.load(where, allow_pickle=True)
             return tools.UNITS.Quantity(data, self.info.units)
 
@@ -366,7 +370,7 @@ class Output(IOutput, Loggable):
         FinamNoDataError
             Raises the error if no info is available
         """
-        self.logger.debug("get info")
+        self.logger.trace("get info")
 
         if self._output_info is None:
             raise FinamNoDataError("No data info available")
@@ -427,7 +431,7 @@ class Output(IOutput, Loggable):
         :class:`.IOutput`
             The last element of the chain.
         """
-        self.logger.debug("chain")
+        self.logger.trace("chain")
         self.add_target(other)
         other.set_source(self)
         return other
@@ -499,7 +503,7 @@ class CallbackOutput(Output):
         FinamNoDataError
             Raises the error if no data is available
         """
-        self.logger.debug("source changed")
+        self.logger.trace("get data")
 
         with ErrorLogger(self.logger):
             _check_time(time, False)
@@ -515,12 +519,16 @@ class CallbackOutput(Output):
             raise FinamNoDataError(f"No data available in {self.name}")
 
         with ErrorLogger(self.logger):
-            xdata = tools.prepare(data, self.info)
+            xdata, conv = tools.prepare(data, self.info, report_conversion=True)
             if self.last_data is not None and np.may_share_memory(
                 tools.get_magnitude(self.last_data), tools.get_magnitude(xdata)
             ):
                 raise FinamDataError(
                     "Received data that shares memory with previously received data."
+                )
+            if conv is not None:
+                self.logger.profile(
+                    "converted units from %s to %s (%d entries)", *conv, xdata.size
                 )
             self.last_data = xdata
             return xdata
