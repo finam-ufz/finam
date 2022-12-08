@@ -531,7 +531,7 @@ def check_time(logger, time, time_range=(None, None)):
     """
     Checks time.
 
-    Checks time for being of type `datetime`, and to be in range of time_range
+    Checks time for being of type :class:`datetime <datetime.datetime>`, and to be in range of time_range
     (upper and lower limits inclusive).
 
     Parameters

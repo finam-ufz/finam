@@ -73,7 +73,7 @@ class Composition(Loggable):
         Logging level, by default logging.INFO
     slot_memory_limit : int, optional
         Memory limit per output and adapter data, in bytes.
-        When the limit is exceeded, data is stored to disk under the path of `slot_memory_location`.
+        When the limit is exceeded, data is stored to disk under the path of ``slot_memory_location``.
         Default: no limit (``None``).
     slot_memory_location : str, optional
         Location for storing data when exceeding ``slot_memory_limit``.

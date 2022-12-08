@@ -36,7 +36,7 @@ def prepare(data, info, time_entries=1, force_copy=False, report_conversion=Fals
     time_entries : int, optional
         Number of time slices in the data. Default 1.
     force_copy : bool, optional
-        Forces the result to be a copy of the passed data. Default `False`.
+        Forces the result to be a copy of the passed data. Default ``False``.
 
         If not used, the result is a view of the data if no units conversion needs to be done.
     report_conversion : bool, optional

@@ -13,8 +13,18 @@ under `benchmarks <https://git.ufz.de/FINAM/finam/-/tree/main/benchmarks>`_.
 Optimizing performance
 ----------------------
 
+This section gives advice on how to write efficient components and adapters.
+
+.. note::
+    For logging of potentially performance-critical internal calculations,
+    set the logging level of a composition to ``PROFILE``.
+
 Units
 ^^^^^
+
+All data passed around has :mod:`pint` units.
+This added safety may come with a performance cost.
+This section gives some hints on how to handle units efficiently.
 
 Avoid unit conversions
 """"""""""""""""""""""
@@ -147,3 +157,7 @@ a component can do the aggregation internally with a daily sub-step.
 
 Benchmarking and profiling
 --------------------------
+
+This section gives advice on how to profile FINAM modules and compositions.
+
+[TODO]
