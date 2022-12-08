@@ -150,7 +150,7 @@ class ErrorLogger(AbstractContextManager):
 
 def add_logging_level(name, num, method=None):
     """
-    Adds a logging level to the `logging` module.
+    Adds a logging level to the :mod:`logging` module.
 
     Examples
     --------

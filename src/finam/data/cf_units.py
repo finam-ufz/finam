@@ -17,7 +17,7 @@ try:
 
     @pint.register_unit_format("cf")  # pylint: disable-next=unused-argument
     def short_formatter(unit, registry, **options):
-        """Return a CF-compliant unit string from a `pint` unit.
+        """Return a CF-compliant unit string from a :mod:`pint` unit.
         Parameters
         ----------
         unit : pint.UnitContainer

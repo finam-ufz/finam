@@ -358,7 +358,7 @@ class Output(IOutput, Loggable):
     def get_info(self, info):
         """Exchange and get the output's data info.
 
-        For internal use. To get the info in a component, use property `info`.
+        For internal use. To get the info in a component, use property :attr:`.info`.
 
         Parameters
         ----------
