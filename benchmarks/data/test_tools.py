@@ -207,7 +207,10 @@ class TestUnitsTools(unittest.TestCase):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="mm")
         xdata = full(0.0, info)
-        result = self.benchmark(equivalent_units, unit1=xdata, unit2="L/m^2")
+        _result = equivalent_units(xdata, fm.UNITS.Unit("L/m^2"))
+        result = self.benchmark(
+            equivalent_units, unit1=xdata, unit2=fm.UNITS.Unit("L/m^2")
+        )
         self.assertTrue(result)
 
     @pytest.mark.benchmark(group="data-tools")
@@ -215,7 +218,8 @@ class TestUnitsTools(unittest.TestCase):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="mm")
         xdata = full(0.0, info)
-        result = self.benchmark(equivalent_units, unit1=xdata, unit2="m")
+        _result = equivalent_units(xdata, fm.UNITS.meter)
+        result = self.benchmark(equivalent_units, unit1=xdata, unit2=fm.UNITS.meter)
         self.assertFalse(result)
 
     @pytest.mark.benchmark(group="data-tools")
@@ -223,7 +227,10 @@ class TestUnitsTools(unittest.TestCase):
         time = dt.datetime(2000, 1, 1)
         info = fm.Info(time=time, grid=fm.UniformGrid((2, 1)), units="mm")
         xdata = full(0.0, info)
-        _result = self.benchmark(compatible_units, unit1=xdata, unit2="km")
+        _result = compatible_units(xdata, fm.UNITS.kilometer)
+        _result = self.benchmark(
+            compatible_units, unit1=xdata, unit2=fm.UNITS.kilometer
+        )
 
     @pytest.mark.benchmark(group="data-tools-slow")
     def test_to_units_01_2x1(self):
