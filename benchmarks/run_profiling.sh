@@ -1,6 +1,7 @@
 #!/bin/bash
 echo Profiling...
 
+set -e
 mkdir -p prof
 
 for filename in benchmarks/profiling/*.py; do
