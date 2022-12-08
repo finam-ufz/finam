@@ -36,7 +36,7 @@ class TestHistogram(unittest.TestCase):
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 20))
-        self.assertEqual(data.data.sum(), 11 * 14)
+        self.assertEqual(data.sum(), 11 * 14)
         self.assertEqual(fm.data.get_units(data), fm.UNITS.dimensionless)
 
         composition.run(end_time=datetime(2000, 1, 10))

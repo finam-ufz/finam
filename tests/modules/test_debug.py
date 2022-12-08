@@ -21,7 +21,7 @@ class TestScheduleLogger(unittest.TestCase):
             outputs={
                 "Out": fm.Info(time=None, grid=fm.NoGrid()),
             },
-            callback=lambda inp, _t: {"Out": fm.data.strip_data(inp["In"])},
+            callback=lambda inp, _t: {"Out": inp["In"][0, ...]},
             start=start,
             step=timedelta(days=5),
         )
@@ -32,7 +32,7 @@ class TestScheduleLogger(unittest.TestCase):
             outputs={
                 "Out": fm.Info(time=None, grid=fm.NoGrid()),
             },
-            callback=lambda inp, _t: {"Out": fm.data.strip_data(inp["In"])},
+            callback=lambda inp, _t: {"Out": inp["In"][0, ...]},
             start=start,
             step=timedelta(days=8),
         )
@@ -87,8 +87,8 @@ class TestPushDebugConsumer(unittest.TestCase):
         module1.outputs["Out"] >> consumer.inputs["In"]
 
         composition.connect(start)
-        self.assertEqual(fm.data.strip_data(consumer.data["In"]), 1)
+        self.assertEqual(consumer.data["In"][0, ...], 1)
 
         composition.run(start_time=start, end_time=datetime(2000, 1, 10))
 
-        self.assertEqual(fm.data.strip_data(consumer.data["In"]), 11)
+        self.assertEqual(consumer.data["In"][0, ...], 11)

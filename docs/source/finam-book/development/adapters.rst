@@ -72,7 +72,7 @@ File ``src/scale.py``:
 
     comp.run(end_time=datetime(2000, 1, 2))
 
-    print(fm.data.strip_data(consumer.data["Input"]))
+    print(consumer.data["Input"][0, ...])
 
 .. testoutput:: scale-adapter
     :hide:
@@ -171,10 +171,7 @@ In :meth:`.Adapter._source_updated`, we need to store incoming data:
             data = self.pull_data(time, self)
 
             self.old_data = self.new_data
-            self.new_data = (
-                time,
-                fm.data.strip_data(data)
-            )
+            self.new_data = (time, data)
 
         def _get_data(self, time, target):
             pass
@@ -203,15 +200,12 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
             data = self.pull_data(time, self)
 
             self.old_data = self.new_data
-            self.new_data = (
-                time,
-                fm.data.strip_data(data)
-            )
+            self.new_data = (time, data)
 
         def _get_data(self, time, _target):
             if self.old_data is None:
                 if self.new_data is None:
-                    return None
+                    raise fm.FinamNoDataError("No data available.")
                 else:
                     return self.new_data[1]
 
@@ -246,7 +240,7 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
 
     comp.run(end_time=datetime(2000, 1, 15))
 
-    print(fm.data.strip_data(consumer.data["Input"]))
+    print(consumer.data["Input"][0, ...])
 
 .. testoutput:: time-adapter
     :hide:

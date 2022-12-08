@@ -20,27 +20,20 @@ Inputs receive data in the :mod:`xarray` form, with units and time axis.
 
 Several tool functions are provided in :mod:`.data` to convert to and from :class:`xarray.DataArray`:
 
-* :func:`to_xarray(data, name, info, time) <.data.to_xarray>`
+* :func:`prepare(data, info, time) <.data.prepare>`
   Wraps data, adds time axis and units based on ``info`` (see `The Info object`_).
-  Performs a metadata check if ``data`` is already an :class:`xarray.DataArray`.
-* :func:`strip_time(xdata) <.data.strip_time>`
+  Performs a metadata checks.
+* :func:`strip_time(xdata, grid) <.data.strip_time>`
   Squeezes away the time axis if there is a single entry only, and raises an error otherwise.
   Returns an :class:`xarray.DataArray` with units.
-* :func:`get_data(xdata) <.data.get_data>`
-  Unwraps the data to a :mod:`numpy` array with units (:class:`pint.Quantity`), and with time axis preserved.
-* :func:`strip_data(xdata) <.data.strip_data>`
-  Combines :func:`strip_time <.data.strip_time>` and :func:`get_data <.data.get_data>`.
-  Returns a :mod:`numpy` array with units, without the time axis.
 * :func:`get_magnitude(xdata) <.data.get_magnitude>`
   Extracts data without units. Returns a :mod:`numpy` array without units, but with time axis preserved.
 * :func:`get_units(xdata) <.data.get_units>`
   Gets the :mod:`pint` units of the data
 * :func:`get_dimensionality(xdata) <.data.get_dimensionality>`
   Gets the :mod:`pint` dimensionality of the data (like length, mass, ...)
-* :func:`has_time(xdata) <.data.has_time>`
+* :func:`has_time_axis(xdata) <.data.has_time_axis>`
   Checks if the data has a time axis
-* :func:`get_time(xdata) <.data.get_time>`
-  Gets the time axis values of the data
 
 Metadata
 --------

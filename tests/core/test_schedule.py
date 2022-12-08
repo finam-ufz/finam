@@ -27,7 +27,6 @@ from finam import (
     Output,
     TimeComponent,
 )
-from finam import data as tools
 from finam.adapters.base import Scale
 from finam.adapters.time import DelayFixed, NextTime
 from finam.modules import CallbackComponent, CallbackGenerator, DebugPushConsumer, debug
@@ -148,7 +147,7 @@ class MockupCircularComponent(TimeComponent):
         push_data = {}
         pulled_data = self.connector.in_data["Input"]
         if pulled_data is not None:
-            push_data["Output"] = tools.get_data(tools.strip_time(pulled_data))
+            push_data["Output"] = pulled_data[0, ...]
 
         self.try_connect(
             start_time,
@@ -162,9 +161,7 @@ class MockupCircularComponent(TimeComponent):
     def _update(self):
         self._time += self._step
         pulled = self.inputs["Input"].pull_data(self.time)
-        self.outputs["Output"].push_data(
-            tools.get_data(tools.strip_time(pulled)), self.time
-        )
+        self.outputs["Output"].push_data(pulled, self.time)
 
     def _finalize(self):
         pass
@@ -291,7 +288,7 @@ class TestComposition(unittest.TestCase):
             log_file = os.path.join(tmp, "test.log")
 
             module1 = MockupComponent(
-                callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+                callbacks={"Output": lambda t: t.day}, step=timedelta(1.0)
             )
             module2 = MockupDependentComponent(step=timedelta(1.0))
 
@@ -363,7 +360,7 @@ class TestComposition(unittest.TestCase):
 
     def test_iterative_connect(self):
         module1 = MockupComponent(
-            callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+            callbacks={"Output": lambda t: t.day}, step=timedelta(1.0)
         )
         module2 = MockupDependentComponent(step=timedelta(1.0))
 
@@ -376,7 +373,7 @@ class TestComposition(unittest.TestCase):
 
     def test_iterative_connect_multi(self):
         module1 = MockupComponent(
-            callbacks={"Output": lambda t: t}, step=timedelta(1.0)
+            callbacks={"Output": lambda t: t.day}, step=timedelta(1.0)
         )
         module2 = MockupCircularComponent(step=timedelta(1.0))
         module3 = MockupDependentComponent(step=timedelta(1.0))
@@ -866,7 +863,7 @@ class TestComposition(unittest.TestCase):
             return t.day
 
         def lambda_component(inp, t):
-            return {"Out": fm.data.strip_data(inp["In"])}
+            return {"Out": inp["In"][0, ...]}
 
         def lambda_debugger(name, data, t):
             updates[name].append(t.day)
@@ -912,63 +909,7 @@ class TestComposition(unittest.TestCase):
         self.assertEqual([1, 8, 13], updates["A"])
         self.assertEqual([1, 4, 7, 10], updates["B"])
 
-    def test_starting_time_numpy(self):
-        start_1 = datetime(2000, 1, 2)
-        start_2 = datetime(2000, 1, 8)
-
-        updates = {"A": [], "B": []}
-
-        def lambda_generator(t):
-            return t.day
-
-        def lambda_component(inp, t):
-            return {"Out": np.asarray(1) * fm.UNITS("")}
-
-        def lambda_debugger(name, data, t):
-            updates[name].append(t.day)
-
-        module1 = CallbackGenerator(
-            callbacks={"Out": (lambda_generator, fm.Info(time=None, grid=fm.NoGrid()))},
-            start=start_2,
-            step=timedelta(days=5),
-        )
-        module2 = CallbackComponent(
-            inputs={
-                "In": fm.Info(time=None, grid=fm.NoGrid()),
-            },
-            outputs={
-                "Out": fm.Info(time=None, grid=fm.NoGrid()),
-            },
-            callback=lambda_component,
-            start=start_1,
-            step=timedelta(days=3),
-        )
-        module3 = DebugPushConsumer(
-            inputs={
-                "A": fm.Info(time=None, grid=None),
-                "B": fm.Info(time=None, grid=None),
-            },
-            callbacks={
-                "A": lambda_debugger,
-                "B": lambda_debugger,
-            },
-        )
-
-        composition = Composition([module1, module2, module3])
-        composition.initialize()
-
-        module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
-        module1.outputs["Out"] >> Scale(1.0) >> module3.inputs["A"]
-        module2.outputs["Out"] >> Scale(1.0) >> module3.inputs["B"]
-
-        composition.connect(datetime(2000, 1, 1))
-
-        composition.run(end_time=datetime(2000, 1, 10))
-
-        self.assertEqual([1, 8, 13], updates["A"])
-        self.assertEqual([1, 2, 5, 8, 11], updates["B"])
-
-    def test_starting_time_xarray(self):
+    def test_starting_time(self):
         start_1 = datetime(2000, 1, 2)
         start_2 = datetime(2000, 1, 8)
 

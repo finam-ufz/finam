@@ -4,67 +4,34 @@ import datetime
 
 import numpy as np
 import pandas as pd
-
-# isort: off
-import xarray as xr
-
-# to be able to read unit attributes following the CF conventions
-# pylint: disable-next=W0611
-import cf_xarray.units  # must be imported before pint_xarray
-import pint_xarray
 import pint
 
-# isort: on
-
 from ..errors import FinamDataError, FinamMetaDataError
-from . import grid_spec
+
+# pylint: disable-next=unused-import
+from . import cf_units, grid_spec
 from .grid_tools import Grid, GridBase
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here
-pint_xarray.unit_registry.default_format = "cf"
-UNITS = pint_xarray.unit_registry
+pint.application_registry.default_format = "cf"
+UNITS = pint.application_registry
 
 _UNIT_CACHE = {}
 _UNIT_PAIRS_CACHE = {}
 
 
-def _gen_dims(ndim, info):
+def prepare(data, info, time_entries=1, force_copy=False):
     """
-    Generate dimension names.
+    Prepares data in FINAM's internal transmission format.
 
-    Parameters
-    ----------
-    ndim : int
-        Number of dimensions.
-    info : Info
-        Info associated with the data.
-
-    Returns
-    -------
-    list
-        Dimension names.
-    """
-    # create correct dims (time always first)
-    dims = ["time"]
-    if isinstance(info.grid, grid_spec.NoGrid):
-        # xarray has dim_0, dim_1 ... as default names
-        dims += [f"dim_{i}" for i in range(ndim)]
-    else:
-        dims += info.grid.data_axes_names
-    return dims
-
-
-def to_xarray(data, name, info, time_entries=1, force_copy=False):
-    """
-    Convert data to a xarray.DataArray.
+    Checks tha shape of the data.
+    Checks or adds units and time dimension.
 
     Parameters
     ----------
     data : arraylike
         The input data.
-    name : str
-        Name of the data.
     info : Info
         Info associated with the data.
     time_entries : int, optional
@@ -76,29 +43,14 @@ def to_xarray(data, name, info, time_entries=1, force_copy=False):
 
     Returns
     -------
-    xarray.DataArray
-        The converted data.
+    pint.Quantity
+        The prepared data as a numpy array, wrapped into a :class:`pint.Quantity`.
 
     Raises
     ------
     FinamDataError
         If the data doesn't match its info.
     """
-    if isinstance(data, xr.DataArray):
-        check(
-            xdata=data,
-            name=name,
-            info=info,
-            overwrite_name=True,
-        )
-        if equivalent_units(info.units, data):
-            if force_copy:
-                return data.copy()
-
-            return data
-
-        return to_units(data, info.units)
-
     units = _get_pint_units(info.units)
     if isinstance(data, pint.Quantity):
         if not compatible_units(data.units, units):
@@ -106,81 +58,103 @@ def to_xarray(data, name, info, time_entries=1, force_copy=False):
                 f"Given data has incompatible units. "
                 f"Got {data.units}, expected {units}."
             )
-        if force_copy and equivalent_units(data.units, units):
-            data = np.asarray(data.m_as(units)).copy()
-        else:
-            data = np.asarray(data.m_as(units))
-    else:
-        data = np.asarray(data)
-        if force_copy:
+        if not isinstance(data.magnitude, np.ndarray):
+            data = np.asarray(data.magnitude) * data.units
+
+        if not equivalent_units(data.units, units):
+            data = data.to(units)
+        elif force_copy:
             data = data.copy()
+    else:
+        if isinstance(data, np.ndarray):
+            data = data * units
+        else:
+            data = np.asarray(data) * units
 
     data = _check_input_shape(data, info, time_entries)
-    # generate quantified DataArray
-    out_array = xr.DataArray(
-        name=name,
-        data=data[np.newaxis, ...] if time_entries <= 1 else data,
-        dims=_gen_dims(np.ndim(data), info),
-        attrs=info.meta,
-    )
-    return quantify(out_array)
+    return data
 
 
 def _check_input_shape(data, info, time_entries):
     # check correct data size
     if isinstance(info.grid, Grid):
+        time_entries = (
+            data.shape[0]
+            if len(data.shape) == len(info.grid.data_shape) + 1
+            else time_entries
+        )
         data_size = data.size / time_entries
         if data_size != info.grid.data_size:
             raise FinamDataError(
-                f"to_xarray: data size doesn't match grid size. "
+                f"quantify: data size doesn't match grid size. "
                 f"Got {data_size}, expected {info.grid.data_size}"
             )
         # check shape of non-flat arrays
         if len(data.shape) != 1:
-            data_shape = data.shape if time_entries <= 1 else data.shape[1:]
-            if (
-                data_shape != info.grid.data_shape
-                and tuple(v for v in data_shape if v != 1) != info.grid.data_shape
-            ):
-                raise FinamDataError(
-                    f"to_xarray: data shape doesn't match grid shape. "
-                    f"Got {data_shape}, expected {info.grid.data_shape}"
-                )
-
-        # reshape arrays
-        if time_entries <= 1:
-            data = data.reshape(info.grid.data_shape, order=info.grid.order)
+            if data.shape[1:] != info.grid.data_shape:
+                if data.shape == info.grid.data_shape:
+                    data = np.expand_dims(data, 0)
+                else:
+                    raise FinamDataError(
+                        f"quantify: data shape doesn't match grid shape. "
+                        f"Got {data.shape}, expected {info.grid.data_shape}"
+                    )
         else:
-            data = data.reshape(
-                [time_entries] + list(info.grid.data_shape), order=info.grid.order
-            )
-
+            # reshape arrays
+            if time_entries <= 1:
+                data = data.reshape(
+                    [1] + list(info.grid.data_shape), order=info.grid.order
+                )
+            else:
+                data = data.reshape(
+                    [time_entries] + list(info.grid.data_shape), order=info.grid.order
+                )
     elif isinstance(info.grid, grid_spec.NoGrid):
-        data_shape = data.shape if time_entries <= 1 else data.shape[1:]
-        if len(data_shape) != info.grid.dim:
-            raise FinamDataError(
-                f"to_xarray: number of dimensions in data doesn't match expected number. "
-                f"Got {len(data_shape)}, expected {info.grid.dim}"
-            )
-
+        data = _check_input_shape_no_grid(data, info, time_entries)
     return data
 
 
-def has_time_axis(xdata):
+def _check_input_shape_no_grid(data, info, time_entries):
+    if len(data.shape) != info.grid.dim + 1:
+        if len(data.shape) == info.grid.dim:
+            data = np.expand_dims(data, 0)
+        else:
+            raise FinamDataError(
+                f"quantify: number of dimensions in data doesn't match expected number. "
+                f"Got {len(data.shape)}, expected {info.grid.dim}"
+            )
+    else:
+        if data.shape[0] != time_entries:
+            raise FinamDataError(
+                f"quantify: number of time entries in data doesn't match expected number. "
+                f"Got {data.shape[0]}, expected {time_entries}"
+            )
+    return data
+
+
+def has_time_axis(xdata, grid):
     """
     Check if the data array has a time axis.
 
     Parameters
     ----------
-    xdata : xarray.DataArray
+    xdata : numpy.ndarray
         The given data array.
-
+    grid : GridBase
+        The associated grid specification
     Returns
     -------
     bool
         Whether the data has a time axis.
     """
-    return "time" in xdata.dims
+    grid_dim = len(grid.data_shape) if isinstance(grid, Grid) else grid.dim
+    if xdata.ndim == grid_dim:
+        return False
+
+    if xdata.ndim == grid_dim + 1:
+        return True
+
+    raise FinamDataError("Data dimension must be grid dimension or grid dimension + 1.")
 
 
 _BASE_DATETIME = datetime.datetime(1970, 1, 1)
@@ -207,7 +181,7 @@ def get_magnitude(xdata):
 
     Parameters
     ----------
-    xdata : xarray.DataArray
+    xdata : pint.Quantity
         The given data array.
 
     Returns
@@ -216,46 +190,30 @@ def get_magnitude(xdata):
         Magnitude of given data.
     """
     check_quantified(xdata, "get_magnitude")
-    return xdata.data.magnitude
+    return xdata.magnitude
 
 
-def get_data(xdata):
-    """
-    Get quantified data.
+def strip_time(xdata, grid):
+    """Returns a view of the data with the time dimension squeezed if there is only a single entry
 
     Parameters
     ----------
-    xdata : xarray.DataArray
-        The given data array.
+    xdata : arraylike
+        Data to strip time dimension from
+    grid : GridBase
+        The associated grid specification
 
     Returns
     -------
-    pint.Quantity
-        Quantified data.
-    """
-    check_quantified(xdata, "get_data")
-    return xdata.data
-
-
-def strip_time(xdata):
-    """Returns a view of the xarray data with the time dimension squeezed if there is only a single entry
-
-    Returns
-    -------
-    xarray.DataArray
+    arraylike
         Stripped data
 
     Raises
     ------
     FinamDataError
-        If the data is not an xarray, or has multiple time entries.
+        If the data has multiple time entries.
     """
-    if not isinstance(xdata, xr.DataArray):
-        raise FinamDataError(
-            f"Can strip time of xarray DataArray only. Got {xdata.__class__.__name__}"
-        )
-
-    if has_time_axis(xdata):
+    if has_time_axis(xdata, grid):
         if xdata.shape[0] > 1:
             raise FinamDataError(
                 "Can't strip time of a data array with multiple time entries"
@@ -263,19 +221,6 @@ def strip_time(xdata):
         return xdata[0, ...]
 
     return xdata
-
-
-def strip_data(xdata):
-    """Unwraps the xarray data, with the time dimension squeezed if there is only a single entry.
-
-    Equivalent to calling :func:`.strip_time` and :func:`.get_data` on the data.
-
-    Returns
-    -------
-    numpy.ndarray
-        Stripped data
-    """
-    return get_data(strip_time(xdata))
 
 
 def get_units(xdata):
@@ -292,7 +237,7 @@ def get_units(xdata):
     pint.Unit
         Units of the data.
     """
-    return xdata.pint.units
+    return xdata.units
 
 
 def get_dimensionality(xdata):
@@ -301,7 +246,7 @@ def get_dimensionality(xdata):
 
     Parameters
     ----------
-    xdata : xarray.DataArray
+    xdata : pint.Quantity
         The given data array.
 
     Returns
@@ -309,8 +254,7 @@ def get_dimensionality(xdata):
     pint.UnitsContainer
         Dimensionality of the data.
     """
-    check_quantified(xdata, "get_dimensionality")
-    return xdata.pint.dimensionality
+    return xdata.dimensionality
 
 
 def to_units(xdata, units):
@@ -319,21 +263,21 @@ def to_units(xdata, units):
 
     Parameters
     ----------
-    xdata : xarray.DataArray
+    xdata : pint.Quantity
         The given data array.
     units : str or pint.Unit
         Desired units.
 
     Returns
     -------
-    xarray.DataArray
+    pint.Quantity
         Converted data.
     """
     check_quantified(xdata, "to_units")
     units = _get_pint_units(units)
-    if units == xdata.pint.units:
+    if units == xdata.units:
         return xdata
-    return xdata.pint.to(units)
+    return xdata.to(units)
 
 
 def full_like(xdata, value):
@@ -342,23 +286,26 @@ def full_like(xdata, value):
 
     Parameters
     ----------
-    xdata : xarray.DataArray
+    xdata : pint.Quantity
         The reference object in input.
     value : scalar
         Value to fill the new object with before returning it.
 
     Returns
     -------
-    xarray.DataArray
+    pint.Quantity
         New object with the same shape and type as other,
         with the data filled with fill_value.
         Coords will be copied from other.
     """
-    check_quantified(xdata, "full_like")
-    return xr.full_like(xdata.pint.dequantify(), value).pint.quantify()
+    d = np.full_like(xdata, value)
+    if is_quantified(xdata):
+        return UNITS.Quantity(d, xdata.units)
+
+    return d
 
 
-def full(value, name, info):
+def full(value, info):
     """
     Return a new DataArray of given info, filled with given value.
 
@@ -366,75 +313,44 @@ def full(value, name, info):
     ----------
     value : scalar
         Value to fill the new object with before returning it.
-    name : str
-        Name of the data.
     info : Info
         Info associated with the data.
 
     Returns
     -------
-    xarray.DataArray
+    pint.Quantity
         The converted data.
     """
     shape = info.grid.data_shape if isinstance(info.grid, Grid) else tuple()
-    return to_xarray(np.full(shape, value), name, info)
+    return prepare(np.full([1] + list(shape), value), info)
 
 
 def check(
     xdata,
-    name,
     info,
-    overwrite_name=False,
 ):
     """
     Check if data matches given info.
 
     Parameters
     ----------
-    xdata : xarray.DataArray
+    xdata : numpy.ndarray
         The given data array.
-    name : str
-        Name of the data.
     info : Info
         Info associated with the data.
-    overwrite_name : bool
-        Overwrites the name in the data instead of comparing both names
 
     Raises
     ------
     FinamDataError
         If data doesn't match given info.
     """
-    if not isinstance(xdata, xr.DataArray):
-        raise FinamDataError("check: given data is not a xarray.DataArray.")
     check_quantified(xdata, "check")
-    if name != xdata.name:
-        if overwrite_name:
-            xdata.name = name
-        else:
-            raise FinamDataError(
-                f"check: given data has wrong name. Got {xdata.name}, expected {name}"
-            )
 
-    if not has_time_axis(xdata):
+    if not has_time_axis(xdata, info.grid):
         raise FinamDataError("check: given data should have a time dimension.")
 
     _check_shape(xdata, info.grid)
 
-    dims = _gen_dims(len(xdata.dims) - 1, info)
-    if dims != list(xdata.dims):
-        raise FinamDataError(
-            f"check: given data has wrong dimensions. Got {list(xdata.dims)}, expected {dims}."
-        )
-    # pint_xarray will remove the "units" entry in the data attributes
-    # time should not be checked, as it is for the connect phase only
-    meta = copy.copy(info.meta)
-    meta.pop("units", None)
-    meta.pop("time", None)
-    if meta != xdata.attrs:
-        raise FinamDataError(
-            f"check: given data has wrong meta data.\nData: {xdata.attrs}\nMeta: {meta}"
-        )
     # check units
     if not compatible_units(info.units, xdata):
         raise FinamDataError(
@@ -463,7 +379,7 @@ def is_quantified(xdata):
 
     Parameters
     ----------
-    xdata : xarray.DataArray
+    xdata : Any
         The given data array.
 
     Returns
@@ -471,24 +387,27 @@ def is_quantified(xdata):
     bool
         Whether the data is a quantified DataArray.
     """
-    return isinstance(xdata, xr.DataArray) and xdata.pint.units is not None
+    return isinstance(xdata, pint.Quantity)
 
 
-def quantify(xdata):
+def quantify(xdata, units=None):
     """
-    Quantifies data from its metadata.
+    Quantifies data.
 
     Parameters
     ----------
-    xdata : xarray.DataArray
+    xdata : Any
         The given data array.
+    units :
 
     Returns
     -------
-    xarray.DataArray
+    pint.Quantity
         The quantified array.
     """
-    return xdata.pint.quantify() if "units" in xdata.attrs else xdata.pint.quantify("")
+    if is_quantified(xdata):
+        raise FinamDataError(f"Data is already quantified with units '{xdata.units}'")
+    return UNITS.Quantity(xdata, _get_pint_units(units or UNITS.dimensionless))
 
 
 def check_quantified(xdata, routine="check_quantified"):
@@ -497,7 +416,7 @@ def check_quantified(xdata, routine="check_quantified"):
 
     Parameters
     ----------
-    xdata : xarray.DataArray
+    xdata : numpy.ndarray
         The given data array.
     routine : str, optional
         Name of the routine to show in the Error, by default "check_quantified"
@@ -515,8 +434,8 @@ def _get_pint_units(var):
     if var is None:
         raise FinamDataError("Can't extract units from 'None'.")
 
-    if isinstance(var, xr.DataArray):
-        return var.pint.units or UNITS.dimensionless
+    if isinstance(var, pint.Quantity):
+        return var.units or UNITS.dimensionless
 
     units = _UNIT_CACHE.get(var)
     if units is None:

@@ -9,7 +9,7 @@ from finam.modules import CallbackComponent, CallbackGenerator, DebugConsumer
 
 
 def transform(inputs, _time):
-    return {"Out1": fm.data.strip_data(inputs["In1"]) * 2.0}
+    return {"Out1": inputs["In1"][0, ...] * 2.0}
 
 
 def consume(_inputs, _time):

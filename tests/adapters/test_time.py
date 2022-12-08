@@ -121,28 +121,28 @@ class TestDelayFixed(unittest.TestCase):
 
     def test_fixed_delay(self):
         data = self.adapter.get_data(datetime(2000, 1, 1), None)
-        self.assertEqual(tools.get_data(data), 0)
+        self.assertEqual(data, 0)
 
         self.source.update()
         self.source.update()
 
         data = self.adapter.get_data(datetime(2000, 1, 5), None)
-        self.assertEqual(tools.get_data(data), 0)
+        self.assertEqual(data, 0)
 
         for _ in range(20):
             self.source.update()
 
         data = self.adapter.get_data(datetime(2000, 1, 10), None)
-        self.assertEqual(tools.get_data(data), 0)
+        self.assertEqual(data, 0)
 
         data = self.adapter.get_data(datetime(2000, 1, 11), None)
-        self.assertEqual(tools.get_data(data), 0)
+        self.assertEqual(data, 0)
 
         data = self.adapter.get_data(datetime(2000, 1, 12), None)
-        self.assertEqual(tools.get_data(data), 1)
+        self.assertEqual(data, 1)
 
         data = self.adapter.get_data(datetime(2000, 1, 20), None)
-        self.assertEqual(tools.get_data(data), 9)
+        self.assertEqual(data, 9)
 
 
 class TestNextValue(unittest.TestCase):

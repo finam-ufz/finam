@@ -307,7 +307,6 @@ def _generate_noise(
 
     data /= max_amp
     data = data * (high - low) / 2 + (high + low) / 2
-
     return data
 
 

@@ -132,10 +132,8 @@ class RegridNearest(ARegridding):
     def _get_data(self, time, target):
         in_data = self.pull_data(time, target)
 
-        res = (
-            dtools.get_data(in_data)
-            .reshape(-1, order=self.input_grid.order)[self.ids]
-            .reshape(self.output_grid.data_shape, order=self.output_grid.order)
+        res = in_data.reshape(-1, order=self.input_grid.order)[self.ids].reshape(
+            self.output_grid.data_shape, order=self.output_grid.order
         )
         return res
 
@@ -219,7 +217,9 @@ class RegridLinear(ARegridding):
         in_data = self.pull_data(time, target)
 
         if isinstance(self.input_grid, StructuredGrid):
-            self.inter.values = dtools.get_magnitude(dtools.strip_time(in_data))
+            self.inter.values = dtools.get_magnitude(
+                dtools.strip_time(in_data, self.input_grid)
+            )
             res = self.inter(self.out_coords)
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values.flatten(

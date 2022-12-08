@@ -283,12 +283,12 @@ class TestStaticParametricGrid(unittest.TestCase):
         source.outputs["Grid"] >> sink.inputs["Input"]
 
         composition.connect(None)
-        data_1 = fm.data.strip_data(sink.data["Input"])
+        data_1 = sink.data["Input"][0, ...]
 
         self.assertEqual(data_1.shape, (19, 14))
 
         composition.run(end_time=None)
 
-        data_2 = fm.data.strip_data(sink.data["Input"])
+        data_2 = sink.data["Input"][0, ...]
         assert_allclose(data_1, data_2)
         self.assertEqual(data_2.shape, (19, 14))

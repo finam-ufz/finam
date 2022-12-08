@@ -44,18 +44,16 @@ Data tools
     check_quantified
     full
     full_like
-    get_data
     get_dimensionality
     get_magnitude
     get_units
     has_time_axis
     is_quantified
+    prepare
     quantify
-    strip_data
     strip_time
     to_datetime
     to_units
-    to_xarray
 """
 
 from ..errors import FinamDataError
@@ -87,18 +85,16 @@ from .tools import (
     check_quantified,
     full,
     full_like,
-    get_data,
     get_dimensionality,
     get_magnitude,
     get_units,
     has_time_axis,
     is_quantified,
+    prepare,
     quantify,
-    strip_data,
     strip_time,
     to_datetime,
     to_units,
-    to_xarray,
 )
 
 __all__ = ["grid_spec", "grid_tools", "tools"]
@@ -130,16 +126,14 @@ __all__ += [
     "check_quantified",
     "full",
     "full_like",
-    "get_data",
     "get_dimensionality",
     "get_magnitude",
     "get_units",
     "has_time_axis",
+    "prepare",
     "quantify",
     "is_quantified",
-    "strip_data",
     "strip_time",
     "to_datetime",
     "to_units",
-    "to_xarray",
 ]

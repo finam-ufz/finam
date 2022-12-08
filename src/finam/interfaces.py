@@ -217,7 +217,7 @@ class IInput(ABC):
 
         Returns
         -------
-        :class:`xarray.DataArray`
+        :class:`pint.Quantity`
             Data set for the given simulation time.
         """
 
@@ -363,7 +363,7 @@ class IOutput(ABC):
 
         Returns
         -------
-        :class:`xarray.DataArray`
+        :class:`pint.Quantity`
             data-set for the requested time.
 
         Raises

@@ -2,7 +2,6 @@
 import datetime as dt
 
 from ..data.grid_spec import NoGrid
-from ..data.tools import strip_data
 from ..errors import FinamMetaDataError
 from ..sdk import TimeComponent
 from ..tools.connect_helper import FromInput, FromOutput
@@ -156,7 +155,7 @@ class TimeTrigger(TimeComponent):
     def _update(self):
         self.time += self._step
 
-        data = strip_data(self.inputs["In"].pull_data(self.time))
+        data = self.inputs["In"].pull_data(self.time)
         self.outputs["Out"].push_data(data, self.time)
 
     def _finalize(self):
