@@ -175,7 +175,7 @@ class Output(IOutput, Loggable):
 
         with ErrorLogger(self.logger):
             xdata = tools.prepare(data, self.info)
-            if len(self.data) > 0:
+            if len(self.data) > 0 and not isinstance(self.data[-1][1], str):
                 d = self.data[-1][1]
                 if np.may_share_memory(d.data, xdata.data):
                     raise FinamDataError(
