@@ -117,6 +117,20 @@ In addition to handling different grid layouts, all adapters can also perform CR
 Due to the new `Bi-directional metadata exchange`_, the input and output `Grid specifications`_ do not need to be given by the user.
 Rather, the adapters can automatically determine them from the connected components.
 
+Time integration and averaging
+""""""""""""""""""""""""""""""
+
+For the coupling of models with vastly different time steps, we provide adapters that integrate over the last time step of the target component.
+
+:class:`SumOverTime <.adapters.SumOverTime>` sums up over the last time step, converting units per time to absolute units.
+:class:`AvgOverTime <.adapters.SumOverTime>` calculates the time-weighted average over the last time step, converting units per time to absolute units.
+
+.. plot:: api/plots/integration-methods.py
+
+    Illustration of time integration.
+
+For more details, see the blog post on :doc:`./time-adapters`.
+
 OpenSimplex noise generator
 """""""""""""""""""""""""""
 
