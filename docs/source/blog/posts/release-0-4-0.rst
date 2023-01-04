@@ -1,4 +1,4 @@
-.. post:: 27 Oct, 2022
+.. post:: 4 Jan, 2023
     :tags: announcement
     :category: Release
     :author: Martin Lange
@@ -8,7 +8,7 @@
 FINAM 0.4 released
 ==================
 
-After three months of hard work since the last release, FINAM 0.4 comes with a full load of new features
+After more than three months of hard work since the last release, FINAM 0.4 comes with a full load of new features
 and usability improvements. This version is a real breakthrough in the development of FINAM!
 
 Highlights are a new scheduling algorithm, grid data types, automatic metadata and units handling,

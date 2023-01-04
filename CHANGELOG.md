@@ -2,6 +2,8 @@
 
 ## [unpublished]
 
+## [v0.4.0]
+
 ### New scheduling algorithm
 
 * FINAM uses a new scheduling algorithm that allows components to use future data instead of only past/current (!157, !159)
@@ -171,6 +173,7 @@
 * initial release of FINAM
 
 [unpublished]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0-rc.2...main
+[v0.4.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0-rc.2...v0.4.0
 [v0.4.0-rc.2]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0-rc.1...v0.4.0-rc.2
 [v0.4.0-rc.1]: https://git.ufz.de/FINAM/finam/-/compare/v0.3.0...v0.4.0-rc.1
 [v0.3.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.2.0...v0.3.0
