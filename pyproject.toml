@@ -82,7 +82,6 @@ template = "__version__ = '{version}'"
 include = [
   "/src",
   "/tests",
-  "CHANGELOG.md",
 ]
 
 [tool.hatch.build.targets.wheel]
