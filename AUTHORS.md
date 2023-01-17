@@ -4,17 +4,17 @@ The FINAM project was created by the following people.
 
 ## Core developers
 
-- Martin Lange <martin.lange@ufz.de>
-- Sebastian Müller <sebastian.mueller@ufz.de>
+- Martin Lange (E-mail: <martin.lange@ufz.de>)
+- Sebastian Müller (E-mail: <sebastian.mueller@ufz.de>)
 
 ## Working Group members
 
-- Thomas Fischer <thomas.fischer@ufz.de>
-- Sara König <sara.koenig@ufz.de>
-- Jeisson Javier Leal Rojas <jeisson-javier.leal-rojas@ufz.de>
-- Matthias Kelbling <matthias.kelbling@ufz.de>
+- Thomas Fischer (E-mail: <thomas.fischer@ufz.de>)
+- Sara König (E-mail: <sara.koenig@ufz.de>)
+- Jeisson Javier Leal Rojas (E-mail: <jeisson-javier.leal-rojas@ufz.de>)
+- Matthias Kelbling (E-mail: <matthias.kelbling@ufz.de>)
 
 ## Supervisors
 
-- Stephan Thober <stephan.thober@ufz.de>
-- Sabine Attinger <sabine.attinger@ufz.de>
+- Stephan Thober (E-mail: <stephan.thober@ufz.de>)
+- Sabine Attinger (E-mail: <sabine.attinger@ufz.de>)
