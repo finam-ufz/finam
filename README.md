@@ -16,3 +16,7 @@ This approach allows for coupling of models irrespective of their internal struc
 * FINAM [documentation](https://finam.pages.ufz.de/finam/)
 * FINAM [source code](https://git.ufz.de/FINAM/finam)
 * FINAM [GitLab group](https://git.ufz.de/FINAM), containing further related projects
+
+## License
+
+LGPLv3, Copyright © 2021-2023, the FINAM developers: All rights reserved.
