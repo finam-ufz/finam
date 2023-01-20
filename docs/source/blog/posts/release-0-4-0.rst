@@ -107,12 +107,12 @@ Regridding and CRS handling
 FINAM comes with basic linear and nearest-neighbour regridding adapters in the core package:
 :class:`RegridLinear <.adapters.RegridLinear>` and :class:`RegridNearest <.adapters.RegridNearest>`.
 
-For more advances regidding, e.g. 1st od 2nd order conservative, there is the separate module
+For more advances regidding, e.g. 1st or 2nd order conservative, there is the separate module
 `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_, which provides an adapter based on
 `ESMPy <https://earthsystemmodeling.org/esmpy/>`_.
 
 The adapters perform regridding between arbitrary structured and unstructured `Grid specifications`_.
-In addition to handling different grid layouts, all adapters can also perform CRS conversions.
+In addition to handling different grid layouts, all adapters can also perform coordinate reference system (CRS) conversions.
 
 Due to the new `Bi-directional metadata exchange`_, the input and output `Grid specifications`_ do not need to be given by the user.
 Rather, the adapters can automatically determine them from the connected components.
