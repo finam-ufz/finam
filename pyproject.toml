@@ -1,9 +1,9 @@
 [build-system]
 requires = [
-    "setuptools>=64",
-    "setuptools_scm[toml]>=6.4",
+    "hatchling>=1.8.0",
+    "hatch-vcs",
 ]
-build-backend = "setuptools.build_meta"
+build-backend = "hatchling.build"
 
 [project]
 requires-python = ">=3.8"
@@ -11,7 +11,7 @@ name = "finam"
 description = "FINAM is not a model."
 authors = [{name = "FINAM Developers", email = "finam@ufz.de"}]
 readme = "README.md"
-license = {text = "LGPLv3"}
+license = "LGPL-3.0"
 dynamic = ["version"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -67,14 +67,22 @@ test = [
     "pytest-benchmark[histogram]>=4.0",
 ]
 
-[tool.setuptools]
-license-files = ["LICENSE"]
-
-[tool.setuptools_scm]
-write_to = "src/finam/_version.py"
-write_to_template = "__version__ = '{version}'"
-local_scheme = "no-local-version"
+[tool.hatch.version]
+source = "vcs"
 fallback_version = "0.0.0.dev0"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/finam/_version.py"
+template = "__version__ = '{version}'"
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/finam"]
 
 [tool.black]
 exclude = "_version.py"
