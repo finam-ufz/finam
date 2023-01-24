@@ -71,6 +71,9 @@ test = [
 source = "vcs"
 fallback_version = "0.0.0.dev0"
 
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-version"
+
 [tool.hatch.build.hooks.vcs]
 version-file = "src/finam/_version.py"
 template = "__version__ = '{version}'"
