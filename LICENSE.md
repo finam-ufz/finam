@@ -16,6 +16,8 @@ Copyright © 2023, the FINAM developers from Helmholtz-Zentrum für Umweltforsch
 > Scientific Director: Prof. Dr. Georg Teutsch<br/>
 > Administrative Director: Dr. Sabine König
 
+The list of FINAM developers is provided in the AUTHORS.md file.
+
 ***Contact:***
 
 - FINAM Admins (E-mail: <finam@ufz.de>)
