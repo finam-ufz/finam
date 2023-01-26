@@ -12,9 +12,6 @@ Copyright © 2023, the FINAM developers from Helmholtz-Zentrum für Umweltforsch
 > Registered Office: Leipzig<br/>
 > Registration Office: Amtsgericht Leipzig<br/>
 > Trade Register Nr. B 4703<br/>
-> Chairman of the Supervisory Board: MinDirig'in Oda Keppler<br/>
-> Scientific Director: Prof. Dr. Georg Teutsch<br/>
-> Administrative Director: Dr. Sabine König
 
 The list of FINAM developers is provided in the AUTHORS.md file.
 
