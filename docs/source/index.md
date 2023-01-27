@@ -110,7 +110,6 @@ blog/index
 Further information about licensing, the developers team and the changelog of FINAM.
 
 ```{toctree}
-:includehidden:
 :maxdepth: 2
 about/index
 ```
