@@ -1,4 +1,4 @@
-.. post:: 4 Jan, 2023
+.. post:: 27 Jan, 2023
     :tags: announcement
     :category: Release
     :author: Martin Lange
