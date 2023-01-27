@@ -105,17 +105,11 @@ Announcements, cookbook recipes and user experience with FINAM.
 blog/index
 ```
 
-## License
+## About
 
 LGPLv3, Copyright © 2021-2023, the FINAM developers from Helmholtz-Zentrum für Umweltforschung GmbH - UFZ. All rights reserved.
 
 ```{toctree}
 :maxdepth: 2
-license
-authors
-```
-
-```{toctree}
-:hidden:
-changelog
+about/index
 ```
