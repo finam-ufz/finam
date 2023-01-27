@@ -105,7 +105,15 @@ Announcements, cookbook recipes and user experience with FINAM.
 blog/index
 ```
 
+## About
+
+Further information about licensing, the developers team and the changelog of FINAM.
+
 ```{toctree}
-:hidden:
-changelog
+:maxdepth: 2
+about/index
 ```
+
+### License
+
+LGPLv3, Copyright © 2021-2023, the FINAM developers from Helmholtz-Zentrum für Umweltforschung GmbH - UFZ. All rights reserved.

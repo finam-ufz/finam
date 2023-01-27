@@ -11,7 +11,7 @@ from finam import __version__ as finam_version
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "finam"
-copyright = f"2021 - {datetime.datetime.now().year}, Team LandTECH"
+copyright = f"2021 - {datetime.datetime.now().year}, the FINAM developers from UFZ"
 author = "FINAM Developers"
 version = finam_version
 release = finam_version
