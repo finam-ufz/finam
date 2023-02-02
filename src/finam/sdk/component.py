@@ -2,7 +2,6 @@
 Abstract base implementations for components with and without time step.
 """
 import collections
-import datetime
 import logging
 from abc import ABC
 from datetime import datetime
