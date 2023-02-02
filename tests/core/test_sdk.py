@@ -409,7 +409,6 @@ class TestOutput(unittest.TestCase):
         info = Info(time=t, grid=fm.UniformGrid((100, 100)))
 
         with tempfile.TemporaryDirectory() as td:
-
             out = Output(name="Output")
             out.memory_limit = 0
             out.memory_location = td

@@ -10,8 +10,11 @@ except ImportError:
 
 
 def is_timedelta(value):
-    """Tests if a value is an instance of
-    :class:`timedelta <datetime.timedelta>` or :class:`relativedelta <dateutil.relativedelta.relativedelta>`."""
+    """
+    Tests if a value is an instance of
+    :class:`timedelta <datetime.timedelta>` or
+    :class:`relativedelta <dateutil.relativedelta.relativedelta>`.
+    """
     if isinstance(value, timedelta):
         return True
 

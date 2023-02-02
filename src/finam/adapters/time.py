@@ -393,7 +393,6 @@ class LinearTime(TimeCachingAdapter):
     """
 
     def _interpolate(self, time):
-
         if len(self.data) == 1:
             return self.data[0][1]
 
@@ -456,7 +455,6 @@ class StepTime(TimeCachingAdapter):
         self.step = step
 
     def _interpolate(self, time):
-
         if len(self.data) == 1:
             return self.data[0][1]
 

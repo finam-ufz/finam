@@ -136,7 +136,7 @@ class CsvWriter(TimeComponent):
 
     def _update_rows(self, values):
         with ErrorLogger(self.logger):
-            for (value, name) in zip(values, self._input_names):
+            for value, name in zip(values, self._input_names):
                 dtools.assert_type(self, name, value.item(), [int, float])
 
         self._rows.append([self.time.isoformat()] + values)

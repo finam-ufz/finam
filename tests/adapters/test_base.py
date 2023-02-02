@@ -111,7 +111,6 @@ class TestGridToValue(unittest.TestCase):
 
 class TestValueToGrid(unittest.TestCase):
     def setUp(self):
-
         self.source = CallbackGenerator(
             callbacks={
                 "Value": (
