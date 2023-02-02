@@ -4,7 +4,7 @@ FINAM is an open-source component-based model coupling framework for environment
 It aims at enabling bi-directional online couplings of models for different compartments like geo-, hydro-, pedo- and biosphere.
 
 <a href="https://finam.pages.ufz.de" title="FINAM homepage" target="_blank">
-  <img width="300" src="https://git.ufz.de/FINAM/finam-book/-/raw/main/src/images/logo_large.svg" />
+  <img width="300" src="https://git.ufz.de/FINAM/finam/-/raw/main/docs/source/_static/logo_large.svg" />
 </a>
 
 The framework is built in Python, with well-defined interfaces for data exchange.
