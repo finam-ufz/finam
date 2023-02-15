@@ -489,6 +489,14 @@ class GridBase(ABC):
     def dim(self):
         """int: Dimension of the grid or data."""
 
+    def to_canonical(self, data):
+        """Convert grid specific data to canonical form."""
+        return data
+
+    def from_canonical(self, data):
+        """Convert canonical data to grid specific form."""
+        return data
+
 
 class Grid(GridBase):
     """Abstract grid specification."""
@@ -868,3 +876,68 @@ class StructuredGrid(Grid):
             y = np.ascontiguousarray(self.axes[1] if self.dim > 1 else np.array([1.0]))
             z = np.ascontiguousarray(self.axes[2] if self.dim > 2 else np.array([1.0]))
             gridToVTK(path, x, y, z, **kw)
+
+    def to_canonical(self, data):
+        """
+        Convert grid specific data to canonical form.
+
+        Canonical means, that data axis are in xyz order and
+        following increasing axis values.
+
+        Parameters
+        ----------
+        data : arraylike
+            Data to convert.
+
+        Returns
+        -------
+        arraylike
+            Canonical Data.
+
+        Raises
+        ------
+        ValueError
+            When data has wrong shape.
+        """
+        if not np.array_equal(np.shape(data), self.data_shape):
+            msg = "to_canonical: data has wrong shape."
+            raise ValueError(msg)
+        if self.axes_reversed and np.ndim(data) > 1:
+            data = np.transpose(data)
+        for i, inc in enumerate(self.axes_increase):
+            if not inc:
+                data = np.flip(data, axis=i)
+        return data
+
+    def from_canonical(self, data):
+        """
+        Convert canonical data to grid specific form.
+
+        Canonical means, that data axis are in xyz order and
+        following increasing axis values.
+
+        Parameters
+        ----------
+        data : arraylike
+            Data to convert.
+
+        Returns
+        -------
+        arraylike
+            Grid specific Data.
+
+        Raises
+        ------
+        ValueError
+            When data has wrong shape.
+        """
+        rev = -1 if self.axes_reversed else 1
+        if not np.array_equal(np.shape(data)[::rev], self.data_shape):
+            msg = "from_canonical: data has wrong shape."
+            raise ValueError(msg)
+        for i, inc in enumerate(self.axes_increase):
+            if not inc:
+                data = np.flip(data, axis=i)
+        if self.axes_reversed and np.ndim(data) > 1:
+            data = np.transpose(data)
+        return data
