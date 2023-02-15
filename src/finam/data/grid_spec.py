@@ -32,6 +32,22 @@ class NoGrid(GridBase):
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D)"
 
+    def compatible(self, other):
+        """
+        Check for compatibility with other Grid.
+
+        Parameters
+        ----------
+        other : instance of Grid
+            Other grid to compatibility with.
+
+        Returns
+        -------
+        bool
+            compatibility
+        """
+        return self == other
+
     def __eq__(self, other):
         return isinstance(other, NoGrid) and self.dim == other.dim
 

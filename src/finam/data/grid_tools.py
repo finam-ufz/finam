@@ -578,6 +578,22 @@ class Grid(GridBase):
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D) {self.data_shape}"
 
+    def compatible(self, other):
+        """
+        Check for compatibility with other Grid.
+
+        Parameters
+        ----------
+        other : instance of Grid
+            Other grid to compatibility with.
+
+        Returns
+        -------
+        bool
+            compatibility
+        """
+        return self == other
+
     def __eq__(self, other):
         if not isinstance(other, Grid):
             return False
@@ -764,7 +780,20 @@ class StructuredGrid(Grid):
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
         )
 
-    def __eq__(self, other):
+    def compatible(self, other):
+        """
+        Check for compatibility with other Grid.
+
+        Parameters
+        ----------
+        other : instance of Grid
+            Other grid to compatibility with.
+
+        Returns
+        -------
+        bool
+            compatibility
+        """
         if not isinstance(other, Grid):
             return False
 
@@ -778,6 +807,15 @@ class StructuredGrid(Grid):
             and self.data_location == other.data_location
             and self.data_shape == other.data_shape
             and all(np.allclose(a, b) for a, b in zip(self.axes, other.axes))
+        )
+
+    def __eq__(self, other):
+        if not self.compatible(other):
+            return False
+
+        return (
+            all(a == b for a, b in zip(self.axes_increase, other.axes_increase))
+            and self.axes_reversed == other.axes_reversed
         )
 
     def export_vtk(
