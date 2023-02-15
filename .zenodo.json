@@ -1,0 +1,66 @@
+{
+    "contributors": [
+        {
+            "orcid": "0000-0002-8853-7202",
+            "affiliation": "Helmholtz Centre for Environmental Research - UFZ",
+            "type": "ProjectMember",
+            "name": "Martin Lange"
+        },
+        {
+            "orcid": "0000-0001-9060-4008",
+            "affiliation": "Helmholtz Centre for Environmental Research - UFZ",
+            "type": "ProjectMember",
+            "name": "Sebastian M\u00fcller"
+        },
+        {
+            "orcid": "0000-0002-1071-3464",
+            "affiliation": "Helmholtz Centre for Environmental Research - UFZ",
+            "type": "ProjectMember",
+            "name": "Thomas Fischer"
+        },
+        {
+            "orcid": "0000-0001-5385-0234",
+            "affiliation": "Helmholtz Centre for Environmental Research - UFZ",
+            "type": "ProjectMember",
+            "name": "Sara K\u00f6nig"
+        },
+        {
+            "orcid": "0000-0003-1785-8866",
+            "affiliation": "Helmholtz Centre for Environmental Research - UFZ",
+            "type": "ProjectMember",
+            "name": "Jeisson Javier Leal Rojas"
+        },
+        {
+            "orcid": "0000-0001-9303-6712",
+            "affiliation": "Helmholtz Centre for Environmental Research - UFZ",
+            "type": "ProjectMember",
+            "name": "Matthias Kelbling"
+        },
+        {
+            "orcid": "0000-0003-3939-1523",
+            "affiliation": "Helmholtz Centre for Environmental Research - UFZ",
+            "type": "Supervisor",
+            "name": "Stephan Thober"
+        },
+        {
+            "orcid": "0000-0002-7798-7080",
+            "affiliation": "Helmholtz Centre for Environmental Research - UFZ",
+            "type": "Supervisor",
+            "name": "Sabine Attinger"
+        }
+    ],
+    "license": "LGPL-3.0+",
+    "title": "FINAM is not a model",
+    "language": "eng",
+    "keywords": [
+        "coupler",
+        "framwork",
+        "modelling"
+    ],
+    "creators": [
+        {
+            "affiliation": "Helmholtz Centre for Environmental Research - UFZ",
+            "name": "FINAM Developers"
+        }
+    ]
+}
