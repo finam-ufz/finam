@@ -26,5 +26,6 @@ Besides preparation of models, implementation of adapters that mediate data betw
     connect_phase
     special_components
     logging
+    model_wrapping
     py-bindings
     performance
