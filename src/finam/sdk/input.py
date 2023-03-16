@@ -121,10 +121,9 @@ class Input(IInput, Loggable):
 
         if self.is_static:
             if self._cached_data is None:
+                data = self.source.get_data(time, target or self)
                 with ErrorLogger(self.logger):
-                    data = self.source.get_data(time, target or self)
                     self._cached_data = self._convert_and_check(data)
-
             data = self._cached_data
         else:
             data = self.source.get_data(time, target or self)

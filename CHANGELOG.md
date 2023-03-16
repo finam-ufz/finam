@@ -1,5 +1,11 @@
 # Release notes
 
+## [unpublished]
+
+### Bug fixes
+
+* No more logging of expected `FinamNoDataError` in inputs during the connect phase (!257)
+
 ## [v0.4.0]
 
 ### New scheduling algorithm
@@ -170,6 +176,7 @@
 
 * initial release of FINAM
 
+[unpublished]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0...main
 [v0.4.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0-rc.2...v0.4.0
 [v0.4.0-rc.2]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0-rc.1...v0.4.0-rc.2
 [v0.4.0-rc.1]: https://git.ufz.de/FINAM/finam/-/compare/v0.3.0...v0.4.0-rc.1
