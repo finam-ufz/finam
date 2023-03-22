@@ -13,6 +13,7 @@ Besides preparation of models, implementation of adapters that mediate data betw
 * :doc:`connect_phase`.
 * Implementing :doc:`special_components`.
 * Using :doc:`logging`.
+* :doc:`model_wrapping`.
 * Writing :doc:`py-bindings` for models in languages other than Python.
 * :doc:`performance`.
 
