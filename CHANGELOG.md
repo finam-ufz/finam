@@ -2,6 +2,10 @@
 
 ## [unpublished]
 
+### Documentation
+
+* Adds a book chapter on wrapping existing models for FINAM (!256)
+
 ### Bug fixes
 
 * No more logging of expected `FinamNoDataError` in inputs during the connect phase (!257)
