@@ -48,5 +48,33 @@ Model wrapper
 -------------
 
 The functionality listed above is used by a wrapper for the model the implements the :class:`.TimeComponent` interface.
-
 See chapter :doc:`components` for a walk through of how to write a model wrapper.
+
+The functionality listed above is typically used in the following places:
+
+* Create a model instance, initialize it:
+
+  * in :meth:`.TimeComponent._initialize` if the model setup does not depend on external inputs.
+  * in :meth:`.TimeComponent._connect` if the model setup (e.g. the model domain) depends on external inputs.
+
+* Step/update the model:
+
+  * in :meth:`.TimeComponent._update`.
+
+* Finalize the model:
+
+  * in :meth:`.TimeComponent._finalize`.
+
+* Get data, set data:
+
+  * in :meth:`.TimeComponent._update`.
+  * in :meth:`.TimeComponent._connect` to push initial data, and to initialize from external inputs.
+
+Local / non-spatial models
+--------------------------
+
+Local / non-spatial models can be used in FINAM for spatial simulations by creating and managing
+multiple model instances in the :class:`.TimeComponent` wrapper.
+E.g. one model instance per grid cell.
+This, however, requires that there are no global variables in the model.
+I.e. each model instance must be a fully independent object.
