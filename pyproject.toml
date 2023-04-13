@@ -52,11 +52,11 @@ Changelog = "https://git.ufz.de/FINAM/finam/-/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 doc = [
-    "sphinx>=5",
-    "pydata-sphinx-theme==0.11",
+    "sphinx>=6",
+    "pydata-sphinx-theme==0.13",
     "numpydoc>=1.1",
-    "sphinx-design>=0.3",
-    "myst-parser>=0.18",
+    "sphinx-design>=0.4",
+    "myst-parser>=1.0",
     "sphinxcontrib-mermaid>=0.7",
     "ablog>=0.10",
     "docutils>=0.18", # mdinclude with myst
