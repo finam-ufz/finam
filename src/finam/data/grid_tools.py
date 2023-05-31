@@ -586,7 +586,7 @@ class Grid(GridBase):
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D) {self.data_shape}"
 
-    def compatible(self, other):
+    def compatible_with(self, other):
         """
         Check for compatibility with other Grid.
 
@@ -785,7 +785,7 @@ class StructuredGrid(Grid):
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
         )
 
-    def compatible(self, other):
+    def compatible_with(self, other):
         """
         Check for compatibility with other Grid.
 
@@ -808,14 +808,23 @@ class StructuredGrid(Grid):
         return (
             self.dim == other.dim
             and self.crs == other.crs
-            and self.order == other.order
             and self.data_location == other.data_location
-            and self.data_shape == other.data_shape
-            and all(np.allclose(a, b) for a, b in zip(self.axes, other.axes))
+            and self.data_shape
+            == (
+                other.data_shape[::-1]
+                if self.axes_reversed != other.axes_reversed
+                else other.data_shape
+            )
+            and all(
+                np.allclose(
+                    a, b[::-1] if self.axes_increase[i] != other.axes_increase[i] else b
+                )
+                for i, (a, b) in enumerate(zip(self.axes, other.axes))
+            )
         )
 
     def __eq__(self, other):
-        if not self.compatible(other):
+        if not self.compatible_with(other):
             return False
 
         return (
