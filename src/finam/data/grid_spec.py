@@ -86,6 +86,7 @@ class RectilinearGrid(StructuredGrid):
     ):
         # at most 3 axes
         self._axes = [np.asarray(np.atleast_1d(ax), dtype=float) for ax in axes[:3]]
+        # all axes made increasing
         self._axes_increase = check_axes_monotonicity(self.axes)
         self._dim = len(self.dims)
         self._data_location = get_enum_value(data_location, Location)

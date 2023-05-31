@@ -689,7 +689,7 @@ class StructuredGrid(Grid):
     @property
     @abstractmethod
     def axes(self):
-        """list of np.ndarray: Axes of the structured grid (xyz order, may decrease)."""
+        """list of np.ndarray: Axes of the structured grid (xyz order, all increase)."""
 
     @property
     @abstractmethod
@@ -727,7 +727,7 @@ class StructuredGrid(Grid):
 
     @property
     def cell_axes(self):
-        """list of np.ndarray: Axes of the cell centers (xyz order, may decrease)."""
+        """list of np.ndarray: Axes of the cell centers (xyz order, all increase)."""
         # use cell centers as stagger locations
         return [((ax[:-1] + ax[1:]) / 2) if len(ax) > 1 else ax for ax in self.axes]
 
@@ -777,7 +777,11 @@ class StructuredGrid(Grid):
     def data_axes(self):
         """list of np.ndarray: Axes as used for the data matrix."""
         axes = self.cell_axes if self.data_location == Location.CELLS else self.axes
-        return reversed(axes) if self.axes_reversed else axes
+        # reverse axes if needed
+        return [
+            (axes[i] if self.axes_increase[i] else axes[i][::-1])
+            for i in (range(self.dim)[::-1] if self.axes_reversed else range(self.dim))
+        ]
 
     @property
     def data_axes_names(self):
@@ -828,12 +832,7 @@ class StructuredGrid(Grid):
         ):
             return False
 
-        return all(
-            np.allclose(
-                a, b[::-1] if self.axes_increase[i] != other.axes_increase[i] else b
-            )
-            for i, (a, b) in enumerate(zip(self.axes, other.axes))
-        )
+        return all(np.allclose(a, b) for a, b in zip(self.axes, other.axes))
 
     def __eq__(self, other):
         if not self.compatible_with(other):
