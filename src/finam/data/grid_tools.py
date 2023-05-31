@@ -947,3 +947,28 @@ class StructuredGrid(Grid):
         if self.axes_reversed and np.ndim(data) > 1:
             data = np.transpose(data)
         return data
+
+    def get_transform_to(self, other):
+        """
+        Get transformation for compatible grids.
+
+        Parameters
+        ----------
+        other : instance of Grid
+            Other grid to compatibility with.
+
+        Returns
+        -------
+        callable
+            data transformation
+        """
+        if not self.compatible_with(other):
+            raise ValueError("get_transform_to: grids are not compatible.")
+
+        def trans(data):
+            """Transformation."""
+            # could be optimized
+            return other.from_canonical(self.to_canonical(data))
+
+        # only use trans if grids are compatible but NOT equal
+        return lambda x: x if self == other else trans
