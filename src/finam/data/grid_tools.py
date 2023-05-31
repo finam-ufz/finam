@@ -680,7 +680,7 @@ class StructuredGrid(Grid):
     @property
     @abstractmethod
     def axes(self):
-        """list of np.ndarray: Axes of the structured grid in standard xyz order."""
+        """list of np.ndarray: Axes of the structured grid (xyz order, may decrease)."""
 
     @property
     @abstractmethod
@@ -718,7 +718,7 @@ class StructuredGrid(Grid):
 
     @property
     def cell_axes(self):
-        """list of np.ndarray: Axes of the cell centers (xyz order)."""
+        """list of np.ndarray: Axes of the cell centers (xyz order, may decrease)."""
         # use cell centers as stagger locations
         return [((ax[:-1] + ax[1:]) / 2) if len(ax) > 1 else ax for ax in self.axes]
 
@@ -766,20 +766,20 @@ class StructuredGrid(Grid):
 
     @property
     def data_axes(self):
-        """list of np.ndarray: Axes as used for the data."""
+        """list of np.ndarray: Axes as used for the data matrix."""
         axes = self.cell_axes if self.data_location == Location.CELLS else self.axes
         return reversed(axes) if self.axes_reversed else axes
 
     @property
     def data_axes_names(self):
-        """list of str: Axes names of the data."""
+        """list of str: Axes names of the data matrix."""
         return list(
             reversed(self.axes_names) if self.axes_reversed else self.axes_names
         )
 
     @property
     def data_shape(self):
-        """tuple: Shape of the associated data."""
+        """tuple: Shape of the associated data matrix."""
         dims = np.asarray(self.dims[::-1] if self.axes_reversed else self.dims)
         return tuple(
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
