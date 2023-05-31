@@ -186,12 +186,14 @@ class TestGridTools(unittest.TestCase):
         self.assertTrue(grid1.compatible_with(grid2))
 
         trans = grid1.get_transform_to(grid2)
+        trans2 = grid2.get_transform_to(grid1)
         self.assertIsNotNone(trans)
         data2 = trans(data1)
-
+        data3 = trans2(data2)
         assert_array_equal(data1.shape, data2.T.shape)
         assert_array_equal(data1[0], data2.T[1])
         assert_array_equal(data1[1], data2.T[0])
+        assert_array_equal(data1, data3)
 
         grid1 = EsriGrid(nrows=2, ncols=3, cellsize=2.0)
         self.assertFalse(grid1.compatible_with(grid2))
