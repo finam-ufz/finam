@@ -768,10 +768,7 @@ class StructuredGrid(Grid):
     def data_axes(self):
         """list of np.ndarray: Axes as used for the data."""
         axes = self.cell_axes if self.data_location == Location.CELLS else self.axes
-        return [
-            (axes[i] if self.axes_increase[i] else axes[i][::-1])
-            for i in (range(self.dim)[::-1] if self.axes_reversed else range(self.dim))
-        ]
+        return reversed(axes) if self.axes_reversed else axes
 
     @property
     def data_axes_names(self):
