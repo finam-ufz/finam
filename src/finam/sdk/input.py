@@ -137,7 +137,8 @@ class Input(IInput, Loggable):
     def _convert_and_check(self, data):
         # transform compatible data between grids
         if self.transform is not None:
-            data = self.transform(data)
+            with ErrorLogger(self.logger):
+                data = self.transform(data)
             self.logger.profile(
                 "converted data between compatible grids (%d entries)", data.size
             )
@@ -207,7 +208,8 @@ class Input(IInput, Loggable):
             use_none=False, time=info.time, grid=info.grid, **info.meta
         )
         self._in_info_exchanged = True
-        self.transform = src_info.grid.get_transform_to(self._input_info.grid)
+        with ErrorLogger(self.logger):
+            self.transform = src_info.grid.get_transform_to(self._input_info.grid)
 
         # pylint: disable-next=fixme
         # TODO: check if this is correct (was src_info before)
