@@ -209,6 +209,7 @@ class Input(IInput, Loggable):
         self._in_info_exchanged = True
         self.transform = src_info.grid.get_transform_to(self._input_info.grid)
 
+        # pylint: disable-next=fixme
         # TODO: check if this is correct (was src_info before)
         return self._input_info
 

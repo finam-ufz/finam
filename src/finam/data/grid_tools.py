@@ -497,6 +497,7 @@ class GridBase(ABC):
         """Convert canonical data to grid specific form."""
         return data
 
+    # pylint: disable-next=unused-argument
     def get_transform_to(self, other):
         """Transformation between compatible grids."""
         return None
