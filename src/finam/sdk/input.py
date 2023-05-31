@@ -29,6 +29,7 @@ class Input(IInput, Loggable):
         self._input_info = info
         self._in_info_exchanged = False
         self._cached_data = None
+        self.transform = None
 
     @property
     def name(self):
@@ -134,7 +135,15 @@ class Input(IInput, Loggable):
         return data
 
     def _convert_and_check(self, data):
-        (data, conv) = tools.to_units(
+        # transform compatible data between grids
+        if self.transform is not None:
+            data = self.transform(data)
+            self.logger.profile(
+                "converted data between compatible grids (%d entries)", data.size
+            )
+
+        # convert units
+        data, conv = tools.to_units(
             data, self._input_info.units, check_equivalent=True, report_conversion=True
         )
         if conv is not None:

@@ -497,6 +497,10 @@ class GridBase(ABC):
         """Convert canonical data to grid specific form."""
         return data
 
+    def get_transform_to(self, other):
+        """Transformation between compatible grids."""
+        return None
+
 
 class Grid(GridBase):
     """Abstract grid specification."""
@@ -971,4 +975,4 @@ class StructuredGrid(Grid):
             return other.from_canonical(self.to_canonical(data))
 
         # only use trans if grids are compatible but NOT equal
-        return lambda x: x if self == other else trans
+        return None if self == other else trans

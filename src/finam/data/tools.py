@@ -654,7 +654,7 @@ class Info:
             return False
 
         success = True
-        if self.grid is not None and self.grid != incoming.grid:
+        if self.grid is not None and not self.grid.compatible_with(incoming.grid):
             if not (ignore_none and incoming.grid is None):
                 fail_info["grid"] = (incoming.grid, self.grid)
                 success = False
