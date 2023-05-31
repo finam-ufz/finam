@@ -614,14 +614,18 @@ class Grid(GridBase):
         if isinstance(self, StructuredGrid) != isinstance(other, StructuredGrid):
             return False
 
-        return (
+        if not (
             self.dim == other.dim
             and self.crs == other.crs
             and self.order == other.order
             and self.data_location == other.data_location
-            and self.data_shape == other.data_shape
-            and np.allclose(self.data_points, other.data_points)
-        )
+        ):
+            return False
+
+        if self.data_shape != other.data_shape:
+            return False
+
+        return np.allclose(self.data_points, other.data_points)
 
     def export_vtk(
         self,
@@ -810,22 +814,25 @@ class StructuredGrid(Grid):
         if not isinstance(other, StructuredGrid):
             return False
 
-        return (
+        if not (
             self.dim == other.dim
             and self.crs == other.crs
             and self.data_location == other.data_location
-            and self.data_shape
-            == (
-                other.data_shape[::-1]
-                if self.axes_reversed != other.axes_reversed
-                else other.data_shape
+        ):
+            return False
+
+        if self.data_shape != (
+            other.data_shape[::-1]
+            if self.axes_reversed != other.axes_reversed
+            else other.data_shape
+        ):
+            return False
+
+        return all(
+            np.allclose(
+                a, b[::-1] if self.axes_increase[i] != other.axes_increase[i] else b
             )
-            and all(
-                np.allclose(
-                    a, b[::-1] if self.axes_increase[i] != other.axes_increase[i] else b
-                )
-                for i, (a, b) in enumerate(zip(self.axes, other.axes))
-            )
+            for i, (a, b) in enumerate(zip(self.axes, other.axes))
         )
 
     def __eq__(self, other):
