@@ -144,3 +144,4 @@ multi_line_output = 3
     max-attributes = 15
     max-parents = 10
     min-public-methods = 0
+    max-public-methods = 25

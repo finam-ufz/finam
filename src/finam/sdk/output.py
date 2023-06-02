@@ -362,7 +362,7 @@ class Output(IOutput, Loggable):
 
         Parameters
         ----------
-        info : :class:`.Info`
+        info : :class:`Info`
             Requested data info
 
         Returns

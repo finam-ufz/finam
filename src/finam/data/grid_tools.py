@@ -489,6 +489,19 @@ class GridBase(ABC):
     def dim(self):
         """int: Dimension of the grid or data."""
 
+    def to_canonical(self, data):
+        """Convert grid specific data to canonical form."""
+        return data
+
+    def from_canonical(self, data):
+        """Convert canonical data to grid specific form."""
+        return data
+
+    # pylint: disable-next=unused-argument
+    def get_transform_to(self, other):
+        """Transformation between compatible grids."""
+        return None
+
 
 class Grid(GridBase):
     """Abstract grid specification."""
@@ -578,6 +591,22 @@ class Grid(GridBase):
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D) {self.data_shape}"
 
+    def compatible_with(self, other):
+        """
+        Check for compatibility with other Grid.
+
+        Parameters
+        ----------
+        other : instance of Grid
+            Other grid to compatibility with.
+
+        Returns
+        -------
+        bool
+            compatibility
+        """
+        return self == other
+
     def __eq__(self, other):
         if not isinstance(other, Grid):
             return False
@@ -585,14 +614,18 @@ class Grid(GridBase):
         if isinstance(self, StructuredGrid) != isinstance(other, StructuredGrid):
             return False
 
-        return (
+        if not (
             self.dim == other.dim
             and self.crs == other.crs
             and self.order == other.order
             and self.data_location == other.data_location
-            and self.data_shape == other.data_shape
-            and np.allclose(self.data_points, other.data_points)
-        )
+        ):
+            return False
+
+        if self.data_shape != other.data_shape:
+            return False
+
+        return np.allclose(self.data_points, other.data_points)
 
     def export_vtk(
         self,
@@ -656,7 +689,7 @@ class StructuredGrid(Grid):
     @property
     @abstractmethod
     def axes(self):
-        """list of np.ndarray: Axes of the structured grid in standard xyz order."""
+        """list of np.ndarray: Axes of the structured grid (xyz order, all increase)."""
 
     @property
     @abstractmethod
@@ -694,7 +727,7 @@ class StructuredGrid(Grid):
 
     @property
     def cell_axes(self):
-        """list of np.ndarray: Axes of the cell centers (xyz order)."""
+        """list of np.ndarray: Axes of the cell centers (xyz order, all increase)."""
         # use cell centers as stagger locations
         return [((ax[:-1] + ax[1:]) / 2) if len(ax) > 1 else ax for ax in self.axes]
 
@@ -742,8 +775,9 @@ class StructuredGrid(Grid):
 
     @property
     def data_axes(self):
-        """list of np.ndarray: Axes as used for the data."""
+        """list of np.ndarray: Axes as used for the data matrix."""
         axes = self.cell_axes if self.data_location == Location.CELLS else self.axes
+        # reverse axes if needed
         return [
             (axes[i] if self.axes_increase[i] else axes[i][::-1])
             for i in (range(self.dim)[::-1] if self.axes_reversed else range(self.dim))
@@ -751,33 +785,62 @@ class StructuredGrid(Grid):
 
     @property
     def data_axes_names(self):
-        """list of str: Axes names of the data."""
+        """list of str: Axes names of the data matrix."""
         return list(
             reversed(self.axes_names) if self.axes_reversed else self.axes_names
         )
 
     @property
     def data_shape(self):
-        """tuple: Shape of the associated data."""
+        """tuple: Shape of the associated data matrix."""
         dims = np.asarray(self.dims[::-1] if self.axes_reversed else self.dims)
         return tuple(
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
         )
 
-    def __eq__(self, other):
+    def compatible_with(self, other):
+        """
+        Check for compatibility with other Grid.
+
+        Parameters
+        ----------
+        other : instance of Grid
+            Other grid to compatibility with.
+
+        Returns
+        -------
+        bool
+            compatibility
+        """
         if not isinstance(other, Grid):
             return False
 
         if not isinstance(other, StructuredGrid):
             return False
 
-        return (
+        if not (
             self.dim == other.dim
             and self.crs == other.crs
-            and self.order == other.order
             and self.data_location == other.data_location
-            and self.data_shape == other.data_shape
-            and all(np.allclose(a, b) for a, b in zip(self.axes, other.axes))
+        ):
+            return False
+
+        if self.data_shape != (
+            other.data_shape[::-1]
+            if self.axes_reversed != other.axes_reversed
+            else other.data_shape
+        ):
+            return False
+
+        return all(np.allclose(a, b) for a, b in zip(self.axes, other.axes))
+
+    def __eq__(self, other):
+        if not self.compatible_with(other):
+            return False
+
+        return (
+            all(a == b for a, b in zip(self.axes_increase, other.axes_increase))
+            and self.axes_reversed == other.axes_reversed
         )
 
     def export_vtk(
@@ -830,3 +893,93 @@ class StructuredGrid(Grid):
             y = np.ascontiguousarray(self.axes[1] if self.dim > 1 else np.array([1.0]))
             z = np.ascontiguousarray(self.axes[2] if self.dim > 2 else np.array([1.0]))
             gridToVTK(path, x, y, z, **kw)
+
+    def to_canonical(self, data):
+        """
+        Convert grid specific data to canonical form.
+
+        Canonical means, that data axis are in xyz order and
+        following increasing axis values.
+
+        Parameters
+        ----------
+        data : arraylike
+            Data to convert.
+
+        Returns
+        -------
+        arraylike
+            Canonical Data.
+
+        Raises
+        ------
+        ValueError
+            When data has wrong shape.
+        """
+        if not np.array_equal(np.shape(data), self.data_shape):
+            msg = "to_canonical: data has wrong shape."
+            raise ValueError(msg)
+        if self.axes_reversed and np.ndim(data) > 1:
+            data = np.transpose(data)
+        for i, inc in enumerate(self.axes_increase):
+            if not inc:
+                data = np.flip(data, axis=i)
+        return data
+
+    def from_canonical(self, data):
+        """
+        Convert canonical data to grid specific form.
+
+        Canonical means, that data axis are in xyz order and
+        following increasing axis values.
+
+        Parameters
+        ----------
+        data : arraylike
+            Data to convert.
+
+        Returns
+        -------
+        arraylike
+            Grid specific Data.
+
+        Raises
+        ------
+        ValueError
+            When data has wrong shape.
+        """
+        rev = -1 if self.axes_reversed else 1
+        if not np.array_equal(np.shape(data)[::rev], self.data_shape):
+            msg = "from_canonical: data has wrong shape."
+            raise ValueError(msg)
+        for i, inc in enumerate(self.axes_increase):
+            if not inc:
+                data = np.flip(data, axis=i)
+        if self.axes_reversed and np.ndim(data) > 1:
+            data = np.transpose(data)
+        return data
+
+    def get_transform_to(self, other):
+        """
+        Get transformation for compatible grids.
+
+        Parameters
+        ----------
+        other : instance of Grid
+            Other grid to compatibility with.
+
+        Returns
+        -------
+        callable
+            data transformation
+        """
+        if not self.compatible_with(other):
+            raise ValueError("get_transform_to: grids are not compatible.")
+
+        def trans(data):
+            """Transformation."""
+            # could be optimized
+            return other.from_canonical(self.to_canonical(data))
+
+        # only use trans if grids are compatible but NOT equal
+        return None if self == other else trans

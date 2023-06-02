@@ -29,6 +29,7 @@ class Input(IInput, Loggable):
         self._input_info = info
         self._in_info_exchanged = False
         self._cached_data = None
+        self.transform = None
 
     @property
     def name(self):
@@ -133,7 +134,16 @@ class Input(IInput, Loggable):
         return data
 
     def _convert_and_check(self, data):
-        (data, conv) = tools.to_units(
+        # transform compatible data between grids
+        if self.transform is not None:
+            with ErrorLogger(self.logger):
+                data = self.transform(data)
+            self.logger.profile(
+                "converted data between compatible grids (%d entries)", data.size
+            )
+
+        # convert units
+        data, conv = tools.to_units(
             data, self._input_info.units, check_equivalent=True, report_conversion=True
         )
         if conv is not None:
@@ -178,11 +188,11 @@ class Input(IInput, Loggable):
             if not isinstance(info, Info):
                 raise FinamMetaDataError("Metadata must be of type Info")
 
-        in_info = self.source.get_info(info)
+        src_info = self.source.get_info(info)
 
         with ErrorLogger(self.logger):
             fail_info = {}
-            if not info.accepts(in_info, fail_info):
+            if not info.accepts(src_info, fail_info):
                 fail_info = "\n".join(
                     [
                         f"{name} - got {got}, expected {exp}"
@@ -193,11 +203,16 @@ class Input(IInput, Loggable):
                     f"Can't accept incoming data info. Failed entries:\n{fail_info}"
                 )
 
-        self._input_info = in_info.copy_with(
+        self._input_info = src_info.copy_with(
             use_none=False, time=info.time, grid=info.grid, **info.meta
         )
         self._in_info_exchanged = True
-        return in_info
+        with ErrorLogger(self.logger):
+            self.transform = src_info.grid.get_transform_to(self._input_info.grid)
+
+        # pylint: disable-next=fixme
+        # TODO: check if this is correct (was src_info before)
+        return self._input_info
 
     @property
     def has_source(self):

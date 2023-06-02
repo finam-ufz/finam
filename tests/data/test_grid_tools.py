@@ -177,3 +177,31 @@ class TestGridTools(unittest.TestCase):
             check_axes_uniformity([np.asarray([0, 1, 2, 3]), np.asarray([0, 2, 3])]),
             [1, float("nan")],
         )
+
+    def test_compatibility(self):
+        grid1 = EsriGrid(nrows=2, ncols=3)
+        grid2 = UniformGrid((4, 3))
+        data1 = np.arange(6).reshape((2, 3))
+
+        self.assertTrue(grid1.compatible_with(grid2))
+
+        trans = grid1.get_transform_to(grid2)
+        trans2 = grid2.get_transform_to(grid1)
+        self.assertIsNotNone(trans)
+        data2 = trans(data1)
+        data3 = trans2(data2)
+        assert_array_equal(data1.shape, data2.T.shape)
+        assert_array_equal(data1[0], data2.T[1])
+        assert_array_equal(data1[1], data2.T[0])
+        assert_array_equal(data1, data3)
+
+        grid1 = EsriGrid(nrows=2, ncols=3, cellsize=2.0)
+        self.assertFalse(grid1.compatible_with(grid2))
+
+        grid1 = EsriGrid(nrows=3, ncols=3)
+        self.assertFalse(grid1.compatible_with(grid2))
+
+        grid1 = EsriGrid(nrows=2, ncols=3)
+        # layer height info results in 3D grid
+        grid2 = UniformGrid((4, 3, 1))
+        self.assertFalse(grid1.compatible_with(grid2))
