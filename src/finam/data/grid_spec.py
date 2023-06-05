@@ -321,7 +321,7 @@ class UniformGrid(RectilinearGrid):
             )
             path = str(Path(path).with_suffix(""))
             origin = self.origin + (0.0,) * (3 - self.dim)
-            spacing = self.spacing + (1.0,) * (3 - self.dim)
+            spacing = self.spacing + (0.0,) * (3 - self.dim)
             imageToVTK(path, origin, spacing, **kw)
 
 
