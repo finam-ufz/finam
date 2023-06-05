@@ -11,6 +11,7 @@ from .grid_tools import (
     VTK_TYPE_MAP,
     CellType,
     Location,
+    check_mask_equal,
     flatten_cells,
     gen_cells,
     gen_node_centers,
@@ -28,6 +29,11 @@ class GridBase(ABC):
     def name(self):
         """Grid name."""
         return self.__class__.__name__
+
+    @property
+    @abstractmethod
+    def mask(self):
+        """np.ndarray or None: Data mask."""
 
     @property
     @abstractmethod
@@ -50,6 +56,16 @@ class GridBase(ABC):
 
 class Grid(GridBase):
     """Abstract grid specification."""
+
+    @property
+    @abstractmethod
+    def mask(self):
+        """np.ndarray or None: Data mask."""
+
+    @mask.setter
+    @abstractmethod
+    def mask(self, mask):
+        """np.ndarray or None: Data mask."""
 
     @property
     @abstractmethod
@@ -168,6 +184,9 @@ class Grid(GridBase):
             return False
 
         if self.data_shape != other.data_shape:
+            return False
+
+        if not check_mask_equal(self, other):
             return False
 
         return np.allclose(self.data_points, other.data_points)
@@ -375,6 +394,9 @@ class StructuredGrid(Grid):
             if self.axes_reversed != other.axes_reversed
             else other.data_shape
         ):
+            return False
+
+        if not check_mask_equal(self, other):
             return False
 
         return all(np.allclose(a, b) for a, b in zip(self.axes, other.axes))

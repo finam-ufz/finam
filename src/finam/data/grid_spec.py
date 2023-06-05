@@ -10,6 +10,7 @@ from .grid_tools import (
     CellType,
     Location,
     check_axes_monotonicity,
+    check_mask_shape,
     gen_axes,
     prepare_vtk_data,
     prepare_vtk_kwargs,
@@ -21,6 +22,11 @@ class NoGrid(GridBase):
 
     def __init__(self, dim=0):
         self._dim = dim
+
+    @property
+    def mask(self):
+        """None: Data mask."""
+        return None
 
     @property
     def dim(self):
@@ -70,6 +76,8 @@ class RectilinearGrid(StructuredGrid):
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
+    mask : np.ndarray or None, optional
+        Data mask, by default None
     """
 
     def __init__(
@@ -81,6 +89,7 @@ class RectilinearGrid(StructuredGrid):
         axes_attributes=None,
         axes_names=None,
         crs=None,
+        mask=None,
     ):
         # at most 3 axes
         self._axes = [np.asarray(np.atleast_1d(ax), dtype=float) for ax in axes[:3]]
@@ -100,6 +109,23 @@ class RectilinearGrid(StructuredGrid):
 
         self._data_shape = None
         self._data_size = None
+        self._mask = None
+        self.mask = mask
+
+    @property
+    def mask(self):
+        """np.ndarray or None: Data mask."""
+        return self._mask
+
+    @mask.setter
+    def mask(self, mask):
+        if mask is not None:
+            mask = np.asarray(mask, dtype=bool)
+            if not check_mask_shape(mask, self.data_shape):
+                msg = "Grid.mask: given mask has wrong shape."
+                msg += f" Expected: {self.data_shape}, Got: {np.shape(mask)}"
+                raise ValueError(msg)
+        self._mask = mask
 
     def to_unstructured(self):
         """
@@ -118,6 +144,7 @@ class RectilinearGrid(StructuredGrid):
             order=self.order,
             axes_names=self.axes_names,
             crs=self.crs,
+            mask=self.mask,
         )
 
     @property
@@ -214,6 +241,8 @@ class UniformGrid(RectilinearGrid):
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
+    mask : np.ndarray or None, optional
+        Data mask, by default None
     """
 
     def __init__(
@@ -228,6 +257,7 @@ class UniformGrid(RectilinearGrid):
         axes_attributes=None,
         axes_names=None,
         crs=None,
+        mask=None,
     ):
         # at most 3 axes
         dims = tuple(dims)[:3]
@@ -245,6 +275,7 @@ class UniformGrid(RectilinearGrid):
             axes_attributes=axes_attributes,
             axes_names=axes_names,
             crs=crs,
+            mask=mask,
         )
 
     def export_vtk(
@@ -319,6 +350,8 @@ class EsriGrid(UniformGrid):
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
+    mask : np.ndarray or None, optional
+        Data mask, by default None
     """
 
     def __init__(
@@ -332,6 +365,7 @@ class EsriGrid(UniformGrid):
         axes_attributes=None,
         axes_names=None,
         crs=None,
+        mask=None,
     ):
         self.ncols = int(ncols)
         self.nrows = int(nrows)
@@ -348,6 +382,7 @@ class EsriGrid(UniformGrid):
             axes_attributes=axes_attributes,
             axes_names=axes_names,
             crs=crs,
+            mask=mask,
         )
 
     @classmethod
@@ -403,6 +438,8 @@ class UnstructuredGrid(Grid):
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
+    mask : np.ndarray or None, optional
+        Data mask, by default None
     """
 
     def __init__(
@@ -414,6 +451,7 @@ class UnstructuredGrid(Grid):
         order="C",
         axes_names=None,
         crs=None,
+        mask=None,
     ):
         # at most 3 axes
         self._points = np.asarray(np.atleast_2d(points), dtype=float)[:, :3]
@@ -426,6 +464,23 @@ class UnstructuredGrid(Grid):
             raise ValueError("UnstructuredGrid: wrong length of 'axes_names'")
 
         self._crs = crs
+        self._mask = None
+        self.mask = mask
+
+    @property
+    def mask(self):
+        """np.ndarray or None: Data mask."""
+        return self._mask
+
+    @mask.setter
+    def mask(self, mask):
+        if mask is not None:
+            mask = np.asarray(mask, dtype=bool)
+            if not check_mask_shape(mask, self.data_shape):
+                msg = "Grid.mask: given mask has wrong shape."
+                msg += f" Expected: {self.data_shape}, Got: {np.shape(mask)}"
+                raise ValueError(msg)
+        self._mask = mask
 
     @property
     def dim(self):
@@ -511,6 +566,8 @@ class UnstructuredPoints(UnstructuredGrid):
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
+    mask : np.ndarray or None, optional
+        Data mask, by default None
     """
 
     def __init__(
@@ -519,6 +576,7 @@ class UnstructuredPoints(UnstructuredGrid):
         order="C",
         axes_names=None,
         crs=None,
+        mask=None,
     ):
         # at most 3 axes
         pnt_cnt = len(points)
@@ -530,6 +588,7 @@ class UnstructuredPoints(UnstructuredGrid):
             order=order,
             axes_names=axes_names,
             crs=crs,
+            mask=mask,
         )
 
     @property

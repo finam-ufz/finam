@@ -5,6 +5,53 @@ from math import isclose, nan
 import numpy as np
 
 
+def check_mask_equal(grid1, grid2):
+    """
+    Check equality of given grid masks.
+
+    Parameters
+    ----------
+    grid1, grid2 : Grid
+        Grids to check.
+
+    Returns
+    -------
+    bool
+        Mask equality.
+    """
+    mask1, mask2 = grid1.mask, grid2.mask
+    # both None is fine
+    if mask1 is None and mask2 is None:
+        return True
+    # only one None is not fine
+    if mask1 is None or mask2 is None:
+        return False
+    # compare
+    return np.all(grid1.to_cannoical(mask1) == grid2.to_cannoical(mask2))
+
+
+def check_mask_shape(mask, shape):
+    """
+    Check mask shape.
+
+    Parameters
+    ----------
+    mask : np.ndarray or None
+        Given mask.
+    shape : tuple
+        Data shape.
+
+    Returns
+    -------
+    bool
+        Mask shape matching.
+    """
+    # None is always ok
+    if mask is None:
+        return True
+    return mask.shape == shape
+
+
 def point_order(order, axes_reversed=False):
     """
     Determine apparent point order incorporating axes order reversion.
@@ -434,8 +481,8 @@ CELL_DIM = np.array([0, 1, 2, 2, 3, 3], dtype=int)
 
 
 VTK_TYPE_MAP = np.array([1, 3, 5, 9, 10, 12], dtype=int)
-"""np.ndarray: Cell dimension per CellType."""
+"""np.ndarray: VTK type per CellType."""
 
 
 ESMF_TYPE_MAP = np.array([-1, -1, 3, 4, 10, 12], dtype=int)
-"""np.ndarray: Cell dimension per CellType."""
+"""np.ndarray: ESMF type per CellType (-1 for unsupported)."""
