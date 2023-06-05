@@ -5,12 +5,10 @@ import numpy as np
 from pyevtk.hl import imageToVTK
 
 from ..tools.enum_helper import get_enum_value
+from .grid_base import Grid, GridBase, StructuredGrid
 from .grid_tools import (
     CellType,
-    Grid,
-    GridBase,
     Location,
-    StructuredGrid,
     check_axes_monotonicity,
     gen_axes,
     prepare_vtk_data,

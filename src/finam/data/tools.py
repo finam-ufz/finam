@@ -10,7 +10,7 @@ from ..errors import FinamDataError, FinamMetaDataError
 
 # pylint: disable-next=unused-import
 from . import cf_units, grid_spec
-from .grid_tools import Grid, GridBase
+from .grid_base import Grid, GridBase
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here

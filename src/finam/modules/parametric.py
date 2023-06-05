@@ -1,8 +1,8 @@
 """Parametric grid generator components"""
 import numpy as np
 
+from finam.data.grid_base import Grid
 from finam.data.grid_spec import NoGrid, StructuredGrid
-from finam.data.grid_tools import Grid
 from finam.data.tools import Info
 from finam.errors import FinamMetaDataError
 from finam.interfaces import ComponentStatus
