@@ -457,8 +457,8 @@ class StructuredGrid(Grid):
             )
             path = str(Path(path).with_suffix(""))
             x = np.ascontiguousarray(self.axes[0])
-            y = np.ascontiguousarray(self.axes[1] if self.dim > 1 else np.array([1.0]))
-            z = np.ascontiguousarray(self.axes[2] if self.dim > 2 else np.array([1.0]))
+            y = np.ascontiguousarray(self.axes[1] if self.dim > 1 else np.array([0.0]))
+            z = np.ascontiguousarray(self.axes[2] if self.dim > 2 else np.array([0.0]))
             gridToVTK(path, x, y, z, **kw)
 
     def to_canonical(self, data):
