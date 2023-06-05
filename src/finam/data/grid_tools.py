@@ -64,8 +64,6 @@ def gen_node_centers(grid):
     np.ndarray
         Centroids for all cells.
     """
-    if not isinstance(grid, Grid):
-        raise ValueError("gen_node_centers: given grid is not a grid specification.")
     unique_cell_types = np.unique(grid.cell_types)
     result = np.empty((grid.cell_count, grid.dim), dtype=float)
     for ctype in unique_cell_types:

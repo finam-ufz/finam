@@ -137,9 +137,6 @@ class TestGridTools(unittest.TestCase):
             check_axes_monotonicity(axes)
 
     def test_errors(self):
-        # needs a Grid
-        with self.assertRaises(ValueError):
-            gen_node_centers(None)
         # wrong len(axes_increase)
         with self.assertRaises(ValueError):
             UniformGrid((4, 2), axes_increase=[False])
