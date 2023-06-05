@@ -144,7 +144,11 @@ class RectilinearGrid(StructuredGrid):
             order=self.order,
             axes_names=self.axes_names,
             crs=self.crs,
-            mask=self.mask,
+            mask=(
+                self.mask
+                if self.mask is None
+                else self.mask.reshape(-1, order=self.order)
+            ),
         )
 
     @property
