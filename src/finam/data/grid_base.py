@@ -48,6 +48,15 @@ class GridBase(ABC):
         """Convert canonical data to grid specific form."""
         return data
 
+    def to_compressed(self, data):
+        """Compress grid specific data."""
+        return data
+
+    # pylint: disable-next=unused-argument
+    def from_compressed(self, data, nodata=np.nan):
+        """Convert compressed data to grid specific form."""
+        return data
+
     # pylint: disable-next=unused-argument
     def get_transform_to(self, other):
         """Transformation between compatible grids."""
@@ -240,6 +249,51 @@ class Grid(GridBase):
             unstructuredGridToVTK(path, x, y, z, con, off, typ, **kw)
         else:
             raise ValueError(f"export_vtk: unsupported mesh type '{mesh_type}'")
+
+    def to_compressed(self, data):
+        """
+        Compress grid specific data.
+
+        Parameters
+        ----------
+        data : arraylike
+            Data to compress.
+
+        Returns
+        -------
+        arraylike
+            Compressed Data.
+        """
+        if self.mask is None:
+            return np.reshape(data, -1, order=self.order)
+        data = np.reshape(data, -1, order=self.order)
+        mask = np.reshape(self.mask, -1, order=self.order)
+        return data[~mask]
+
+    def from_compressed(self, data, nodata=np.nan):
+        """
+        Convert compressed data to grid specific form.
+
+        Parameters
+        ----------
+        data : arraylike
+            Compressed (unmasked) data to convert. Should be flat.
+        nodata : numeric, optional
+            Value to set at masked positions. Default: np.nan
+
+        Returns
+        -------
+        arraylike
+            Grid specific Data.
+        """
+        if self.mask is None:
+            return np.reshape(data, self.data_shape, order=self.order)
+        data = np.asanyarray(data)
+        out = np.empty(self.data_size, dtype=data.dtype)
+        mask = np.reshape(self.mask, -1, order=self.order)
+        out[mask] = nodata
+        out[~mask] = data
+        return np.reshape(out, self.data_shape, order=self.order)
 
 
 class StructuredGrid(Grid):
