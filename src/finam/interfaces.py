@@ -138,6 +138,11 @@ class IComponent(ABC):
     def status(self):
         """The component's current status."""
 
+    @property
+    @abstractmethod
+    def metadata(self):
+        """The component's meta data."""
+
 
 class ITimeComponent(IComponent, ABC):
     """Interface for components with a time step."""
@@ -452,6 +457,11 @@ class IOutput(ABC):
 
 class IAdapter(IInput, IOutput, ABC):
     """Interface for adapters."""
+
+    @property
+    @abstractmethod
+    def metadata(self):
+        """The adapter's meta data."""
 
 
 class NoBranchAdapter:

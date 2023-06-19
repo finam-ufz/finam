@@ -428,6 +428,34 @@ class Composition(Loggable):
                     f"Expecting one of [{', '.join(map(str, desired_list))}]"
                 )
 
+    @property
+    def metadata(self):
+        """
+        Meta data for all components and adapters.
+        Can only be used after ``connect``.
+
+        Raises
+        ------
+        FinamStatusError
+            Raises the error if ``connect`` was not called.
+        """
+        if not self.is_connected:
+            with ErrorLogger(self.logger):
+                raise FinamStatusError(
+                    "can't get meta data for a composition before connect was called"
+                )
+
+        md = {}
+        for mod in self.modules:
+            key = f"{mod.name}@{id(mod)}"
+            md[key] = mod.metadata
+
+        for ada in self.adapters:
+            key = f"{ada.name}@{id(ada)}"
+            md[key] = ada.metadata
+
+        return md
+
 
 def _collect_adapters_input(inp: IInput, out_adapters: set):
     src = inp.get_source()

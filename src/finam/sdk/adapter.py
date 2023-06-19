@@ -67,6 +67,11 @@ class Adapter(IAdapter, Input, Output, ABC):
         """bool: if the adapter needs push."""
         return False
 
+    @property
+    def metadata(self):
+        """The adapter's meta data."""
+        return {}
+
     @final
     def push_data(self, data, time):
         """Push data into the output.

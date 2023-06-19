@@ -965,6 +965,31 @@ class TestComposition(unittest.TestCase):
         self.assertEqual([1, 8, 13], updates["A"])
         self.assertEqual([1, 2, 5, 8, 11], updates["B"])
 
+    def test_metadata(self):
+        module1 = MockupComponent(
+            callbacks={"Output": lambda t: t.day}, step=timedelta(1.0)
+        )
+        module2 = MockupDependentComponent(step=timedelta(1.0))
+
+        composition = Composition([module2, module1])
+        composition.initialize()
+
+        ada1 = fm.adapters.Scale(1.0)
+        ada2 = fm.adapters.Scale(1.0)
+        module1.outputs["Output"] >> ada1 >> ada2 >> module2.inputs["Input"]
+
+        with self.assertRaises(FinamStatusError) as context:
+            _ = composition.metadata
+
+        composition.connect()
+
+        md = composition.metadata
+
+        self.assertIn(f"{module1.name}@{id(module1)}", md)
+        self.assertIn(f"{module2.name}@{id(module2)}", md)
+        self.assertIn(f"{ada1.name}@{id(ada1)}", md)
+        self.assertIn(f"{ada2.name}@{id(ada2)}", md)
+
 
 if __name__ == "__main__":
     unittest.main()

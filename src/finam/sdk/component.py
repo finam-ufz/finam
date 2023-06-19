@@ -219,6 +219,11 @@ class Component(IComponent, Loggable, ABC):
         return self._name
 
     @property
+    def metadata(self):
+        """The component's meta data."""
+        return {}
+
+    @property
     def logger_name(self):
         """Logger name derived from base logger name and class name."""
         base_logger = logging.getLogger(self.base_logger_name)
