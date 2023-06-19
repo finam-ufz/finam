@@ -69,7 +69,12 @@ class Adapter(IAdapter, Input, Output, ABC):
 
     @property
     def metadata(self):
-        """The adapter's meta data."""
+        """
+        The adapter's meta data.
+        Will only be called after the connect phase of the composition.
+
+        Returns an empty ``dict`` unless overwritten in adapter implementation.
+        """
         return {}
 
     @final

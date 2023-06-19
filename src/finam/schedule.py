@@ -434,6 +434,11 @@ class Composition(Loggable):
         Meta data for all components and adapters.
         Can only be used after ``connect``.
 
+        Returns
+        -------
+        dict
+            A dictionary with keys like ``name@id``. Values are dictionaries containing the meta data.
+
         Raises
         ------
         FinamStatusError

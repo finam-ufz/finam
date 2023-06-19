@@ -141,7 +141,10 @@ class IComponent(ABC):
     @property
     @abstractmethod
     def metadata(self):
-        """The component's meta data."""
+        """
+        The component's meta data.
+        Will only be called after the connect phase of the composition.
+        """
 
 
 class ITimeComponent(IComponent, ABC):
@@ -461,7 +464,10 @@ class IAdapter(IInput, IOutput, ABC):
     @property
     @abstractmethod
     def metadata(self):
-        """The adapter's meta data."""
+        """
+        The adapter's meta data.
+        Will only be called after the connect phase of the composition.
+        """
 
 
 class NoBranchAdapter:

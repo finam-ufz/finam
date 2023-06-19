@@ -220,7 +220,12 @@ class Component(IComponent, Loggable, ABC):
 
     @property
     def metadata(self):
-        """The component's meta data."""
+        """
+        The component's meta data.
+        Will only be called after the connect phase of the composition.
+
+        Returns an empty ``dict`` unless overwritten in component implementation.
+        """
         return {}
 
     @property
