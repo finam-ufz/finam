@@ -295,6 +295,14 @@ class Grid(GridBase):
         out[~mask] = data
         return np.reshape(out, self.data_shape, order=self.order)
 
+    @property
+    def data_points_compressed(self):
+        """Points of the associated compressed data."""
+        if self.mask is None:
+            return self.data_points
+        # return only unmasked data points
+        return self.data_points[~np.reshape(self.mask, -1, order=self.order)]
+
 
 class StructuredGrid(Grid):
     """Abstract structured grid specification."""
