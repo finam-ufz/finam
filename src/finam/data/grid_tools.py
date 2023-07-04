@@ -49,7 +49,41 @@ def check_mask_shape(mask, shape):
     # None is always ok
     if mask is None:
         return True
-    return mask.shape == shape
+    return np.shape(mask) == shape
+
+
+def set_mask(grid, mask):
+    """
+    Set and check mask for given grid.
+
+    Parameters
+    ----------
+    grid : Grid
+        Grid to be masked.
+    mask : np.ndarray or None
+        Given mask.
+
+    Returns
+    -------
+    np.ndarray or None
+        Mask to set
+
+    Raises
+    ------
+    ValueError
+        If mask shape is not matching grid.
+    """
+    if mask is not None:
+        mask = np.asarray(mask, dtype=bool)
+        if not check_mask_shape(mask, grid.data_shape):
+            msg = "Grid.mask: given mask has wrong shape."
+            msg += f" Expected: {grid.data_shape}, Got: {np.shape(mask)}"
+            raise ValueError(msg)
+        if grid.order == "C":
+            return np.ascontiguousarray(mask)
+        if grid.order == "F":
+            return np.asfortranarray(mask)
+    return mask
 
 
 def point_order(order, axes_reversed=False):

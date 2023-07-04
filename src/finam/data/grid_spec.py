@@ -10,10 +10,10 @@ from .grid_tools import (
     CellType,
     Location,
     check_axes_monotonicity,
-    check_mask_shape,
     gen_axes,
     prepare_vtk_data,
     prepare_vtk_kwargs,
+    set_mask,
 )
 
 
@@ -119,13 +119,7 @@ class RectilinearGrid(StructuredGrid):
 
     @mask.setter
     def mask(self, mask):
-        if mask is not None:
-            mask = np.asarray(mask, dtype=bool)
-            if not check_mask_shape(mask, self.data_shape):
-                msg = "Grid.mask: given mask has wrong shape."
-                msg += f" Expected: {self.data_shape}, Got: {np.shape(mask)}"
-                raise ValueError(msg)
-        self._mask = mask
+        self._mask = set_mask(self, mask)
 
     def to_unstructured(self):
         """
@@ -478,13 +472,7 @@ class UnstructuredGrid(Grid):
 
     @mask.setter
     def mask(self, mask):
-        if mask is not None:
-            mask = np.asarray(mask, dtype=bool)
-            if not check_mask_shape(mask, self.data_shape):
-                msg = "Grid.mask: given mask has wrong shape."
-                msg += f" Expected: {self.data_shape}, Got: {np.shape(mask)}"
-                raise ValueError(msg)
-        self._mask = mask
+        self._mask = set_mask(self, mask)
 
     @property
     def dim(self):

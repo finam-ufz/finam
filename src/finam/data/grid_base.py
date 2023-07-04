@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 import numpy as np
+import pint
 from pyevtk.hl import gridToVTK, unstructuredGridToVTK
 
 from .grid_tools import (
@@ -287,12 +288,16 @@ class Grid(GridBase):
             Grid specific Data.
         """
         if self.mask is None:
+            # reshape works with quantities
             return np.reshape(data, self.data_shape, order=self.order)
-        data = np.asanyarray(data)
-        out = np.empty(self.data_size, dtype=data.dtype)
+        if isinstance(data, pint.Quantity):
+            out = np.empty(self.data_size, dtype=data.dtype) * data.units
+        else:
+            data = np.asarray(data)
+            out = np.empty(self.data_size, dtype=data.dtype)
         mask = np.reshape(self.mask, -1, order=self.order)
-        out[mask] = nodata
         out[~mask] = data
+        out[mask] = nodata
         return np.reshape(out, self.data_shape, order=self.order)
 
     @property
