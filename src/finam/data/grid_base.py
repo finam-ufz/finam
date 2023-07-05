@@ -162,7 +162,7 @@ class Grid(GridBase):
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D) {self.data_shape}"
 
-    def compatible_with(self, other):
+    def compatible_with(self, other, check_mask=True):
         """
         Check for compatibility with other Grid.
 
@@ -170,15 +170,14 @@ class Grid(GridBase):
         ----------
         other : instance of Grid
             Other grid to compatibility with.
+        check_mask : bool, optional
+            Whether to check mask equality, by default True
 
         Returns
         -------
         bool
             compatibility
         """
-        return self == other
-
-    def __eq__(self, other):
         if not isinstance(other, Grid):
             return False
 
@@ -196,10 +195,13 @@ class Grid(GridBase):
         if self.data_shape != other.data_shape:
             return False
 
-        if not check_mask_equal(self, other):
+        if check_mask and not check_mask_equal(self, other):
             return False
 
         return np.allclose(self.data_points, other.data_points)
+
+    def __eq__(self, other):
+        return self.compatible_with(other)
 
     def export_vtk(
         self,
@@ -429,7 +431,7 @@ class StructuredGrid(Grid):
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
         )
 
-    def compatible_with(self, other):
+    def compatible_with(self, other, check_mask=True):
         """
         Check for compatibility with other Grid.
 
@@ -437,6 +439,8 @@ class StructuredGrid(Grid):
         ----------
         other : instance of Grid
             Other grid to compatibility with.
+        check_mask : bool, optional
+            Whether to check mask equality, by default True
 
         Returns
         -------
@@ -463,7 +467,7 @@ class StructuredGrid(Grid):
         ):
             return False
 
-        if not check_mask_equal(self, other):
+        if check_mask and not check_mask_equal(self, other):
             return False
 
         return all(np.allclose(a, b) for a, b in zip(self.axes, other.axes))

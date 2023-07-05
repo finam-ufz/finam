@@ -36,7 +36,8 @@ class NoGrid(GridBase):
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D)"
 
-    def compatible_with(self, other):
+    # pylint: disable-next=unused-argument
+    def compatible_with(self, other, check_mask=True):
         """
         Check for compatibility with other Grid.
 
@@ -44,16 +45,18 @@ class NoGrid(GridBase):
         ----------
         other : instance of Grid
             Other grid to compatibility with.
+        check_mask : bool, optional
+            Whether to check mask equality, by default True
 
         Returns
         -------
         bool
             compatibility
         """
-        return self == other
+        return isinstance(other, NoGrid) and self.dim == other.dim
 
     def __eq__(self, other):
-        return isinstance(other, NoGrid) and self.dim == other.dim
+        return self.compatible_with(other)
 
 
 class RectilinearGrid(StructuredGrid):
