@@ -4,13 +4,13 @@ import numpy as np
 from ..interfaces import IInput, IOutput
 
 
-def pull_compressed(input, time):
+def pull_compressed(io, time):
     """
     Pull compressed data from an Input object.
 
     Parameters
     ----------
-    input : IInput
+    io : IInput
         The Input object to pull data from.
     time : :class:`datetime <datetime.datetime>`
         Simulation time to get the data for.
@@ -23,21 +23,21 @@ def pull_compressed(input, time):
     Raises
     ------
     ValueError
-        If input is not an IInput instance.
+        If io is not an IInput instance.
     """
-    if not isinstance(input, IInput):
-        msg = "pull_compressed: Given input is not an Input object."
+    if not isinstance(io, IInput):
+        msg = "pull_compressed: Given io-object is not an IInput instance."
         raise ValueError(msg)
-    return input.info.grid.to_compressed(input.pull_data(time))
+    return io.info.grid.to_compressed(io.pull_data(time))
 
 
-def push_compressed(output, time, data, nodata=np.nan):
+def push_compressed(io, time, data, nodata=np.nan):
     """
     Push compressed data to an Output object.
 
     Parameters
     ----------
-    output : IOutput
+    io : IOutput
         The Output object to push data to.
     time : :class:`datetime <datetime.datetime>`
         Simulation time of the data set.
@@ -50,9 +50,9 @@ def push_compressed(output, time, data, nodata=np.nan):
     Raises
     ------
     ValueError
-        If output is not an IOutput instance.
+        If io is not an IOutput instance.
     """
-    if not isinstance(output, IOutput):
-        msg = "push_compressed: Given output is not an Output object."
+    if not isinstance(io, IOutput):
+        msg = "push_compressed: Given io-object is not an IOutput instance."
         raise ValueError(msg)
-    output.push_data(output.info.grid.from_compressed(data, nodata), time)
+    io.push_data(io.info.grid.from_compressed(data, nodata), time)
