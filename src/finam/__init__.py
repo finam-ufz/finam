@@ -80,6 +80,8 @@ Utilities for data and metadata handling.
 
     Info
     UNITS
+    pull_compressed
+    push_compressed
 
 Interfaces
 ==========
@@ -180,6 +182,7 @@ from .sdk import (
     TimeComponent,
     TimeDelayAdapter,
 )
+from .tools import pull_compressed, push_compressed
 
 try:
     from ._version import __version__
@@ -226,6 +229,7 @@ __all__ += [
 ]
 __all__ += ["CellType", "Location"]
 __all__ += ["UNITS", "Info"]
+__all__ += ["pull_compressed", "push_compressed"]
 __all__ += [
     "FinamCircularCouplingError",
     "FinamConnectError",
