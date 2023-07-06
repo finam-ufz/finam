@@ -15,6 +15,14 @@ Base adapters
     ValueToGrid
     GridToValue
 
+Masking adapters
+================
+
+.. autosummary::
+   :toctree: generated
+
+    Masking
+
 Probe adapters
 ==============
 
@@ -59,8 +67,9 @@ Time adapters
     TimeCachingAdapter
 """
 
-from . import base, probe, regrid, time
+from . import base, masking, probe, regrid, time
 from .base import Callback, GridToValue, Scale, ValueToGrid
+from .masking import Masking
 from .probe import CallbackProbe
 from .regrid import RegridLinear, RegridNearest
 from .stats import Histogram
@@ -84,6 +93,7 @@ __all__ += [
     "ValueToGrid",
     "GridToValue",
 ]
+__all__ += ["Masking"]
 __all__ += ["CallbackProbe"]
 __all__ += [
     "RegridNearest",
