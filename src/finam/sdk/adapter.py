@@ -67,6 +67,16 @@ class Adapter(IAdapter, Input, Output, ABC):
         """bool: if the adapter needs push."""
         return False
 
+    @property
+    def metadata(self):
+        """
+        The adapter's meta data.
+        Will only be called after the connect phase of the composition.
+
+        Returns an empty ``dict`` unless overwritten in adapter implementation.
+        """
+        return {}
+
     @final
     def push_data(self, data, time):
         """Push data into the output.

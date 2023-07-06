@@ -2,6 +2,11 @@
 
 ## [unpublished]
 
+### Features
+
+* Components and adapters can provide a dictionary of meta data (!259)
+* Class `Composition` hat a property `metadata` that collects and returns the meta data from all components and adapters (!259)
+
 ### Documentation
 
 * Adds a book chapter on wrapping existing models for FINAM (!256)
