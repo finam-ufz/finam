@@ -11,6 +11,7 @@ from ..errors import FinamDataError, FinamMetaDataError
 # pylint: disable-next=unused-import
 from . import cf_units, grid_spec
 from .grid_base import Grid, GridBase
+from .grid_tools import check_mask_equal
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here
@@ -657,6 +658,19 @@ class Info:
         if self.grid is not None and not self.grid.compatible_with(incoming.grid):
             if not (ignore_none and incoming.grid is None):
                 fail_info["grid"] = (incoming.grid, self.grid)
+                if not check_mask_equal(self.grid, incoming.grid):
+                    in_mask = (
+                        np.sum(incoming.grid.mask)
+                        if incoming.grid.mask is not None
+                        else 0
+                    )
+                    out_mask = (
+                        np.sum(self.grid.mask) if self.grid.mask is not None else 0
+                    )
+                    fail_info["mask"] = (
+                        f"{in_mask} point(s) masked",
+                        f"{out_mask} point(s) masked",
+                    )
                 success = False
 
         for k, v in self.meta.items():

@@ -24,8 +24,14 @@ def check_mask_equal(grid1, grid2):
     if mask1 is None and mask2 is None:
         return True
     # only one None is not fine
-    if mask1 is None or mask2 is None:
-        return False
+    # if mask1 is None or mask2 is None:
+    #     return False
+
+    # None mask and no masked values are equally fine
+    if mask1 is None:
+        return not np.any(mask2)
+    if mask2 is None:
+        return not np.any(mask1)
     # compare
     return np.all(grid1.to_canonical(mask1) == grid2.to_canonical(mask2))
 
