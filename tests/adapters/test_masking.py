@@ -6,11 +6,7 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from finam import (
-    Composition,
-    EsriGrid,
-    Info,
-)
+from finam import Composition, EsriGrid, Info
 from finam.adapters.masking import Masking
 from finam.modules import debug, generators
 
