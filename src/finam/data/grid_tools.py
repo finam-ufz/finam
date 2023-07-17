@@ -27,7 +27,7 @@ def check_mask_equal(grid1, grid2):
     if mask1 is None or mask2 is None:
         return False
     # compare
-    return np.all(grid1.to_cannoical(mask1) == grid2.to_cannoical(mask2))
+    return np.all(grid1.to_canonical(mask1) == grid2.to_canonical(mask2))
 
 
 def check_mask_shape(mask, shape):
