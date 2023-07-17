@@ -267,9 +267,9 @@ class Grid(GridBase):
         arraylike
             Compressed Data.
         """
-        if self.mask is None:
-            return np.reshape(data, -1, order=self.order)
         data = np.reshape(data, -1, order=self.order)
+        if self.mask is None:
+            return data
         mask = np.reshape(self.mask, -1, order=self.order)
         return data[~mask]
 
