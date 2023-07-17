@@ -3,6 +3,7 @@ Masking adapters.
 """
 import numpy as np
 
+from ..data import tools
 from ..errors import FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
@@ -49,7 +50,9 @@ class Masking(Adapter):
         array_like
             data-set for the requested time.
         """
-        return self._transform(self.pull_data(time, target))
+        return self._transform(
+            tools.strip_time(self.pull_data(time, target), self._sup_grid)
+        )
 
     def _get_info(self, info):
         # info coming from output, set grid None to get the input grid
