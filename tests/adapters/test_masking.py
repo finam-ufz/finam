@@ -53,9 +53,9 @@ class TestMasking(unittest.TestCase):
         source.outputs["Output"] >> Masking() >> sink.inputs["Input"]
 
         composition.connect()
+
         self.assertTrue(np.isnan(sink.data["Input"][0][0, 0]))
         self.assertAlmostEqual(sink.data["Input"][0][0, 1].magnitude, 2.0)
-        print(sink.data["Input"][0])
 
 
 if __name__ == "__main__":
