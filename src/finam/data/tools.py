@@ -658,7 +658,11 @@ class Info:
         if self.grid is not None and not self.grid.compatible_with(incoming.grid):
             if not (ignore_none and incoming.grid is None):
                 fail_info["grid"] = (incoming.grid, self.grid)
-                if not check_mask_equal(self.grid, incoming.grid):
+                if (
+                    incoming.grid is not None
+                    and self.grid is not None
+                    and not check_mask_equal(self.grid, incoming.grid)
+                ):
                     in_mask = (
                         np.sum(incoming.grid.mask)
                         if incoming.grid.mask is not None
