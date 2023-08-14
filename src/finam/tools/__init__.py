@@ -57,22 +57,12 @@ Connect helper
     FromInput
     FromOutput
     FromValue
-
-IO helper
-=========
-
-.. autosummary::
-   :toctree: generated
-
-    pull_compressed
-    push_compressed
 """
 from .connect_helper import ConnectHelper, FromInput, FromOutput, FromValue
 from .cwd_helper import execute_in_cwd, set_directory
 from .date_helper import is_timedelta
 from .enum_helper import get_enum_value
 from .inspect_helper import inspect
-from .io_helper import pull_compressed, push_compressed
 from .log_helper import (
     ErrorLogger,
     LogCStdOutStdErr,
@@ -95,4 +85,3 @@ __all__ += [
     "LogCStdOutStdErr",
 ]
 __all__ += ["ConnectHelper", "FromInput", "FromOutput", "FromValue"]
-__all__ += ["pull_compressed", "push_compressed"]
