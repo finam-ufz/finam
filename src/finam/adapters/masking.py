@@ -1,6 +1,7 @@
 """
 Masking adapters.
 """
+# pylint: disable=E1101
 import numpy as np
 
 from ..data import tools
