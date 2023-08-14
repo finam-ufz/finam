@@ -37,6 +37,11 @@ class GridBase(ABC):
         """np.ndarray or None: Data mask."""
 
     @property
+    def any_masked(self):
+        """bool: Whether any point in the grid is masked."""
+        return self.mask is not None and np.any(self.mask)
+
+    @property
     @abstractmethod
     def dim(self):
         """int: Dimension of the grid or data."""
