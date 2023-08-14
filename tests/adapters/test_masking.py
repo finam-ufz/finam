@@ -46,11 +46,11 @@ class TestMasking(unittest.TestCase):
         composition = Composition([source, sink], log_level="DEBUG")
         composition.initialize()
 
-        source.outputs["Output"] >> Masking() >> sink.inputs["Input"]
+        source.outputs["Output"] >> Masking(nodata=-9999) >> sink.inputs["Input"]
 
         composition.connect()
 
-        self.assertTrue(np.isnan(sink.data["Input"][0][0, 0]))
+        self.assertAlmostEqual(sink.data["Input"][0][0, 0].magnitude, -9999)
         self.assertAlmostEqual(sink.data["Input"][0][0, 1].magnitude, 2.0)
 
 

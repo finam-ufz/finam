@@ -99,6 +99,6 @@ class Masking(Adapter):
     def _transform(self, data):
         if self._canonical_mask is not None:
             data = np.copy(self._sup_grid.to_canonical(data))
-            data[self._canonical_mask] = self.nodata
+            data[self._canonical_mask] = tools.UNITS.Quantity(self.nodata, data.units)
             return self._sub_grid.from_canonical(data)
         return self._sub_grid.from_canonical(self._sup_grid.to_canonical(data))
