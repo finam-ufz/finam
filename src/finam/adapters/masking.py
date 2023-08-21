@@ -28,10 +28,15 @@ class Masking(Adapter):
     Parameters
     ----------
     nodata : numeric, optional
-        Value to set at masked positions. Default: np.nan
+        Value to set at masked positions. Default: None
+        If None, will be determined from outputs "missing_value"
+        meta data or, if that is missing, from the inputs meta data.
+        In- and output "missing_value" can be different but if a
+        nodata value is given and output has a "missing_value", they
+        need to match (will not be overwritten).
     """
 
-    def __init__(self, nodata=np.nan):
+    def __init__(self, nodata=None):
         super().__init__()
         self.nodata = nodata
         self._canonical_mask = None
@@ -57,8 +62,11 @@ class Masking(Adapter):
 
     def _get_info(self, info):
         # info coming from output, set grid None to get the input grid
-        request = info.copy_with(grid=None)
+        request = info.copy_with(grid=None, missing_value=None)
         in_info = self.exchange_info(request)
+        # get missing value from cf-convention meta data (in/out can differ here)
+        out_nodata = info.meta.get("missing_value", None)
+        in_nodata = in_info.meta.get("missing_value", None)
 
         if info.grid is None:
             with ErrorLogger(self.logger):
@@ -81,11 +89,17 @@ class Masking(Adapter):
         # create_selection
         if self._sub_grid.mask is not None:
             self._canonical_mask = self._sub_grid.to_canonical(self._sub_grid.mask)
+            # check no-data value
+            if self.nodata is None:
+                self.nodata = out_nodata if out_nodata is not None else in_nodata
+            if self.nodata is None:
+                with ErrorLogger(self.logger):
+                    raise FinamMetaDataError("Couldn't determine no-data value.")
         else:
             self._canonical_mask = None
 
         # return output info
-        return in_info.copy_with(grid=info.grid)
+        return in_info.copy_with(grid=info.grid, missing_value=self.nodata)
 
     def _masks_compatible(self, sup_grid, sub_grid):
         if sup_grid.mask is None:

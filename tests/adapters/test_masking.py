@@ -25,7 +25,8 @@ class TestMasking(unittest.TestCase):
         in_grid = EsriGrid(ncols=3, nrows=4, order="F")
         out_grid = EsriGrid(ncols=3, nrows=4, mask=mask, order="F")
 
-        in_info = Info(time=time, grid=in_grid, units="m")
+        # missing_value to indicate no-data value in masking adapter
+        in_info = Info(time=time, grid=in_grid, units="m", missing_value=-9999)
 
         in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
         in_data.data[0, 0] = 1.0
@@ -46,7 +47,8 @@ class TestMasking(unittest.TestCase):
         composition = Composition([source, sink], log_level="DEBUG")
         composition.initialize()
 
-        source.outputs["Output"] >> Masking(nodata=-9999) >> sink.inputs["Input"]
+        # no-data value from missing-value (from source)
+        source.outputs["Output"] >> Masking(nodata=None) >> sink.inputs["Input"]
 
         composition.connect()
 
