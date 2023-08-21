@@ -91,7 +91,7 @@ def read_header(file):
     "xllcorner" and "yllcorner" resepectively.
     """
     header_lines = _extract_header(file)
-    return standardize_header({n: v for (n, v) in header_lines})
+    return standardize_header(dict(header_lines))
 
 
 def read_grid(file, dtype=None):
@@ -120,7 +120,7 @@ def read_grid(file, dtype=None):
         If data shape is not matching the given header.
     """
     header_lines = _extract_header(file)
-    header = standardize_header({n: v for (n, v) in header_lines})
+    header = standardize_header(dict(header_lines))
     # last line could already be data if "nodata_value" is missing
     numeric_last = _is_number(header_lines[-1][0])
     header_size = len(header_lines) - int(numeric_last)
