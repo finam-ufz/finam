@@ -4,8 +4,8 @@ import datetime as dt
 import numpy as np
 import opensimplex as ox
 
+from finam.data.grid_base import Grid
 from finam.data.grid_spec import NoGrid, UnstructuredGrid
-from finam.data.grid_tools import Grid
 from finam.data.tools import Info
 from finam.errors import FinamMetaDataError
 from finam.interfaces import ComponentStatus

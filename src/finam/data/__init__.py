@@ -21,15 +21,23 @@ Grid tools
 .. autosummary::
    :toctree: generated
 
-    canonical_data
     check_axes_monotonicity
     check_axes_uniformity
     check_uniformity
     :noindex: CellType
     :noindex: Location
+
+
+Grid abstract base classes
+==========================
+
+.. autosummary::
+   :toctree: generated
+
     GridBase
     Grid
     StructuredGrid
+
 
 Data tools
 ==========
@@ -57,7 +65,8 @@ Data tools
 """
 
 from ..errors import FinamDataError
-from . import grid_spec, grid_tools, tools
+from . import grid_base, grid_spec, grid_tools, tools
+from .grid_base import Grid, GridBase, StructuredGrid
 from .grid_spec import (
     EsriGrid,
     NoGrid,
@@ -68,11 +77,7 @@ from .grid_spec import (
 )
 from .grid_tools import (
     CellType,
-    Grid,
-    GridBase,
     Location,
-    StructuredGrid,
-    canonical_data,
     check_axes_monotonicity,
     check_axes_uniformity,
     check_uniformity,
@@ -97,7 +102,7 @@ from .tools import (
     to_units,
 )
 
-__all__ = ["grid_spec", "grid_tools", "tools"]
+__all__ = ["grid_base", "grid_spec", "grid_tools", "tools"]
 __all__ += [
     "EsriGrid",
     "NoGrid",
@@ -112,7 +117,6 @@ __all__ += [
     "GridBase",
     "Location",
     "StructuredGrid",
-    "canonical_data",
     "check_axes_monotonicity",
     "check_axes_uniformity",
     "check_uniformity",
