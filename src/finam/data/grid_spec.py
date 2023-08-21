@@ -5,6 +5,7 @@ import numpy as np
 from pyevtk.hl import imageToVTK
 
 from ..tools.enum_helper import get_enum_value
+from .esri_tools import read_grid, read_header
 from .grid_base import Grid, GridBase, StructuredGrid
 from .grid_tools import (
     CellType,
@@ -387,7 +388,7 @@ class EsriGrid(UniformGrid):
         )
 
     @classmethod
-    def from_file(cls, file, axes_attributes=None, crs=None):
+    def from_file(cls, file, axes_attributes=None, crs=None, read_mask=False):
         """
         Generate EsriGrid from given file.
 
@@ -399,23 +400,24 @@ class EsriGrid(UniformGrid):
             Axes attributes following the CF convention (xyz order), by default None
         crs : str or None, optional
             The coordinate reference system, by default None
+        read_mask : bool, optional
+            Whether to read the mask from the grid data, by default False
 
         Returns
         -------
         EsriGrid
             The grid specified in the file.
         """
-        header = np.loadtxt(file, dtype=str, max_rows=5)
-        kwargs = {name: (float(v) if "." in v else int(v)) for (name, v) in header}
-        if "xllcenter" in kwargs:
-            kwargs["xllcorner"] = kwargs["xllcenter"] - 0.5 * kwargs["cellsize"]
-            del kwargs["xllcenter"]
-        if "yllcenter" in kwargs:
-            kwargs["yllcorner"] = kwargs["yllcenter"] - 0.5 * kwargs["cellsize"]
-            del kwargs["yllcenter"]
-        kwargs["crs"] = crs
-        kwargs["axes_attributes"] = axes_attributes
-        return cls(**kwargs)
+        header = read_header(file)
+        nodata = header.pop("nodata_value", None)
+        mask = None
+        if read_mask and nodata is not None:
+            _, data = read_grid(file)
+            mask = np.isclose(data, nodata)
+        header["crs"] = crs
+        header["axes_attributes"] = axes_attributes
+        header["mask"] = mask
+        return cls(**header)
 
 
 class UnstructuredGrid(Grid):
