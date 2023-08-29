@@ -433,6 +433,72 @@ def is_quantified(xdata):
     return isinstance(xdata, pint.Quantity)
 
 
+def is_masked_array(xdata):
+    """
+    Check if data is a masked array.
+
+    Parameters
+    ----------
+    xdata : Any
+        The given data array.
+
+    Returns
+    -------
+    bool
+        Whether the data is a MaskedArray.
+    """
+    if is_quantified(xdata):
+        return np.ma.isMaskedArray(xdata.magnitude)
+    return np.ma.isMaskedArray(xdata)
+
+
+def has_masked_values(xdata):
+    """
+    Determine whether the data has masked values.
+
+    Parameters
+    ----------
+    xdata : Any
+        The given data array.
+
+    Returns
+    -------
+    bool
+        Whether the data is a MaskedArray and has any masked values.
+    """
+    if is_quantified(xdata):
+        return np.ma.is_masked(xdata.magnitude)
+    return np.ma.is_masked(xdata)
+
+
+def filled(xdata, fill_value=None):
+    """
+    Return a filled array if the data is masked.
+
+    Parameters
+    ----------
+    xdata : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        The reference object input.
+    fill_value : array_like, optional
+        The value to use for invalid entries. Can be scalar or non-scalar.
+        If non-scalar, the resulting ndarray must be broadcastable over
+        input array. Default is None, in which case, the `fill_value`
+        attribute of the array is used instead.
+
+    Returns
+    -------
+    pint.Quantity or numpy.ndarray
+        New object with the same shape and type as other,
+        with the data filled with fill_value.
+        Units will be taken from the input if present.
+    """
+    if not is_masked_array(xdata):
+        return xdata
+    if is_quantified(xdata):
+        return UNITS.Quantity(xdata.magnitude.filled(fill_value), xdata.units)
+    return xdata.filled(fill_value)
+
+
 def quantify(xdata, units=None):
     """
     Quantifies data.

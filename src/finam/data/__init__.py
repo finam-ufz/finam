@@ -88,12 +88,15 @@ from .tools import (
     assert_type,
     check,
     check_quantified,
+    filled,
     full,
     full_like,
     get_dimensionality,
     get_magnitude,
     get_units,
+    has_masked_values,
     has_time_axis,
+    is_masked_array,
     is_quantified,
     prepare,
     quantify,
@@ -140,4 +143,9 @@ __all__ += [
     "strip_time",
     "to_datetime",
     "to_units",
+]
+__all__ += [
+    "is_masked_array",
+    "has_masked_values",
+    "filled",
 ]
