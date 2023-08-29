@@ -370,10 +370,7 @@ def full(value, info):
     return prepare(np.full([1] + list(shape), value), info)
 
 
-def check(
-    xdata,
-    info,
-):
+def check(xdata, info):
     """
     Check if data matches given info.
 
