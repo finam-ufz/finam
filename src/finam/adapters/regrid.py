@@ -32,7 +32,7 @@ class ARegridding(Adapter, ABC):
         self.output_grid = out_grid
         self.input_meta = None
         self.transformer = None
-
+        self.nodata = None
         self._is_initialized = False
 
     @abstractmethod
@@ -62,13 +62,20 @@ class ARegridding(Adapter, ABC):
 
         self.input_grid = self.input_grid or in_info.grid
         self.output_grid = self.output_grid or info.grid
-
+        # masked input grids are not supported
+        if self.input_grid.any_masked:
+            raise FinamMetaDataError(
+                "Input grid is masked which is not supported by the built-in re-gridder."
+            )
         if self.input_grid.crs is None and self.output_grid.crs is not None:
             raise FinamMetaDataError("Input grid has a CRS, but output grid does not")
         if self.output_grid.crs is None and self.input_grid.crs is not None:
             raise FinamMetaDataError("output grid has a CRS, but input grid does not")
 
         out_info = in_info.copy_with(grid=self.output_grid)
+        self.nodata = info.meta.get(
+            "missing_value", in_info.meta.get("missing_value", None)
+        )
 
         if not self._is_initialized:
             self._update_grid_specs()
@@ -130,11 +137,15 @@ class RegridNearest(ARegridding):
         self.ids = tree.query(out_coords)[1]
 
     def _get_data(self, time, target):
-        in_data = self.pull_data(time, target)
+        in_data = dtools.filled(self.pull_data(time, target))
 
         res = in_data.reshape(-1, order=self.input_grid.order)[self.ids].reshape(
             self.output_grid.data_shape, order=self.output_grid.order
         )
+        if self.output_grid.any_masked:
+            return dtools.to_masked(
+                res, mask=self.output_grid.mask, fill_value=self.nodata
+            )
         return res
 
 
@@ -214,7 +225,7 @@ class RegridLinear(ARegridding):
             self.fill_ids = tree.query(out_points)[1]
 
     def _get_data(self, time, target):
-        in_data = self.pull_data(time, target)
+        in_data = dtools.filled(self.pull_data(time, target))
 
         if isinstance(self.input_grid, StructuredGrid):
             self.inter.values = in_data[0, ...].magnitude
@@ -232,7 +243,12 @@ class RegridLinear(ARegridding):
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values[self.fill_ids, 0]
 
-        return res * dtools.get_units(in_data)
+        res = dtools.quantify(res, dtools.get_units(in_data))
+        if self.output_grid.any_masked:
+            return dtools.to_masked(
+                res, mask=self.output_grid.mask, fill_value=self.nodata
+            )
+        return res
 
 
 def _create_transformer(input_grid, output_grid):
