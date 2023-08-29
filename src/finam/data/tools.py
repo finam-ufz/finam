@@ -20,6 +20,8 @@ UNITS = pint.application_registry
 
 _UNIT_PAIRS_CACHE = {}
 
+_MASK_INDICATORS = ["_FillValue", "missing_value"]
+
 
 def prepare(data, info, time_entries=1, force_copy=False, report_conversion=False):
     """
@@ -666,6 +668,11 @@ class Info:
         units = self.meta.get("units", "")
         units = None if units is None else UNITS.Unit(units)
         self.meta["units"] = units
+
+    @property
+    def is_masked(self):
+        """bool: whether info indicates masked data ("_FillValue" or "missing_value" in meta)."""
+        return any(v in self.meta for v in _MASK_INDICATORS)
 
     def copy(self):
         """Copies the info object"""
