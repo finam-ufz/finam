@@ -42,6 +42,7 @@ class Masking(Adapter):
         self._canonical_mask = None
         self._sup_grid = None
         self._sub_grid = None
+        self.masked = True
 
     def _get_data(self, time, target):
         """Get the output's data-set for the given time.
@@ -86,12 +87,13 @@ class Masking(Adapter):
         self._sup_grid = in_info.grid
         self._sub_grid = info.grid
 
+        # check no-data value
+        if self.nodata is None:
+            self.nodata = out_nodata if out_nodata is not None else in_nodata
+
         # create_selection
         if self._sub_grid.mask is not None:
             self._canonical_mask = self._sub_grid.to_canonical(self._sub_grid.mask)
-            # check no-data value
-            if self.nodata is None:
-                self.nodata = out_nodata if out_nodata is not None else in_nodata
             if self.nodata is None:
                 with ErrorLogger(self.logger):
                     raise FinamMetaDataError("Couldn't determine no-data value.")
@@ -100,8 +102,10 @@ class Masking(Adapter):
 
         # return output info
         self._canonical_mask = None
-        if out_nodata is None:
+        if self.nodata is None:
+            self.masked = False  # no masked array created
             return in_info.copy_with(grid=info.grid)
+
         # if missing value was present, add it again
         return in_info.copy_with(grid=info.grid, missing_value=self.nodata)
 
@@ -118,6 +122,15 @@ class Masking(Adapter):
     def _transform(self, data):
         if self._canonical_mask is not None:
             data = np.copy(self._sup_grid.to_canonical(data))
-            data[self._canonical_mask] = tools.UNITS.Quantity(self.nodata, data.units)
-            return self._sub_grid.from_canonical(data)
-        return self._sub_grid.from_canonical(self._sup_grid.to_canonical(data))
+            return self._sub_grid.from_canonical(
+                tools.to_masked(data, mask=self._canonical_mask, fill_value=self.nodata)
+            )
+
+        out = self._sub_grid.from_canonical(self._sup_grid.to_canonical(data))
+        # if missing_value in info we should create a masked array
+        # return unmasked array if info indicates unmasked data
+        return (
+            tools.to_masked(out, fill_value=self.nodata)
+            if self.masked
+            else tools.filled(out)
+        )

@@ -500,6 +500,30 @@ def filled(xdata, fill_value=None):
     return xdata.filled(fill_value)
 
 
+def to_masked(xdata, **kwargs):
+    """
+    Return a masked version of the data.
+
+    Parameters
+    ----------
+    xdata : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        The reference object input.
+    **kwargs
+        keyword arguments forwarded to :any:`numpy.ma.array`
+
+    Returns
+    -------
+    pint.Quantity or numpy.ma.MaskedArray
+        New object with the same shape and type but as a masked array.
+        Units will be taken from the input if present.
+    """
+    if is_masked_array(xdata) and not kwargs:
+        return xdata
+    if is_quantified(xdata):
+        return UNITS.Quantity(np.ma.array(xdata.magnitude, **kwargs), xdata.units)
+    return np.ma.array(xdata, **kwargs)
+
+
 def quantify(xdata, units=None):
     """
     Quantifies data.
