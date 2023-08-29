@@ -65,9 +65,13 @@ class Masking(Adapter):
         # info coming from output, set grid None to get the input grid
         request = info.copy_with(grid=None, missing_value=None)
         in_info = self.exchange_info(request)
-        # get missing value from cf-convention meta data (in/out can differ here)
-        out_nodata = info.meta.get("missing_value", None)
-        in_nodata = in_info.meta.get("missing_value", None)
+
+        # check no-data value
+        if self.nodata is None:
+            # get missing value from cf-convention meta data (in/out can differ here)
+            self.nodata = info.meta.get(
+                "missing_value", in_info.meta.get("missing_value", None)
+            )
 
         if info.grid is None:
             with ErrorLogger(self.logger):
@@ -86,10 +90,6 @@ class Masking(Adapter):
 
         self._sup_grid = in_info.grid
         self._sub_grid = info.grid
-
-        # check no-data value
-        if self.nodata is None:
-            self.nodata = out_nodata if out_nodata is not None else in_nodata
 
         # create_selection
         if self._sub_grid.mask is not None:
