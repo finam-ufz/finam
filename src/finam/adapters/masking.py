@@ -14,7 +14,7 @@ __all__ = ["Masking"]
 
 class Masking(Adapter):
     """
-    Adapter for compatible grids with output on a sub-grid.
+    Adapter for compatible constantly masked grids with output on a sub-grid.
 
     Examples
     --------
@@ -95,10 +95,14 @@ class Masking(Adapter):
             if self.nodata is None:
                 with ErrorLogger(self.logger):
                     raise FinamMetaDataError("Couldn't determine no-data value.")
-        else:
-            self._canonical_mask = None
+            # return output info
+            return in_info.copy_with(grid=info.grid, missing_value=self.nodata)
 
         # return output info
+        self._canonical_mask = None
+        if out_nodata is None:
+            return in_info.copy_with(grid=info.grid)
+        # if missing value was present, add it again
         return in_info.copy_with(grid=info.grid, missing_value=self.nodata)
 
     def _masks_compatible(self, sup_grid, sub_grid):
