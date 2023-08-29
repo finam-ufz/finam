@@ -61,7 +61,7 @@ def prepare(data, info, time_entries=1, force_copy=False, report_conversion=Fals
     """
     units_converted = None
     units = info.units
-    if isinstance(data, pint.Quantity):
+    if is_quantified(data):
         if not compatible_units(data.units, units):
             raise FinamDataError(
                 f"Given data has incompatible units. "
@@ -73,6 +73,7 @@ def prepare(data, info, time_entries=1, force_copy=False, report_conversion=Fals
         elif force_copy:
             data = data.copy()
     else:
+        # this covers masked arrays as well
         if isinstance(data, np.ndarray):
             if force_copy:
                 data = np.copy(data)
@@ -199,24 +200,6 @@ def to_datetime(date):
     return datetime.datetime.utcfromtimestamp(timestamp)
 
 
-def get_magnitude(xdata):
-    """
-    Get magnitude of given data.
-
-    Parameters
-    ----------
-    xdata : pint.Quantity
-        The given data array.
-
-    Returns
-    -------
-    numpy.ndarray
-        Magnitude of given data.
-    """
-    check_quantified(xdata, "get_magnitude")
-    return xdata.magnitude
-
-
 def strip_time(xdata, grid):
     """Returns a view of the data with the time dimension squeezed if there is only a single entry
 
@@ -247,6 +230,24 @@ def strip_time(xdata, grid):
     return xdata
 
 
+def get_magnitude(xdata):
+    """
+    Get magnitude of given data.
+
+    Parameters
+    ----------
+    xdata : pint.Quantity
+        The given data array.
+
+    Returns
+    -------
+    numpy.ndarray
+        Magnitude of given data.
+    """
+    check_quantified(xdata, "get_magnitude")
+    return xdata.magnitude
+
+
 def get_units(xdata):
     """
     Get units of the data.
@@ -261,6 +262,7 @@ def get_units(xdata):
     pint.Unit
         Units of the data.
     """
+    check_quantified(xdata, "get_units")
     return xdata.units
 
 
@@ -278,6 +280,7 @@ def get_dimensionality(xdata):
     pint.UnitsContainer
         Dimensionality of the data.
     """
+    check_quantified(xdata, "get_dimensionality")
     return xdata.dimensionality
 
 
@@ -341,11 +344,10 @@ def full_like(xdata, value):
         with the data filled with fill_value.
         Units will be taken from the input if present.
     """
-    d = np.full_like(xdata, value)
+    data = np.full_like(xdata, value)
     if is_quantified(xdata):
-        return UNITS.Quantity(d, xdata.units)
-
-    return d
+        return UNITS.Quantity(data, xdata.units)
+    return data
 
 
 def full(value, info):
