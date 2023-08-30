@@ -43,6 +43,7 @@ class Masking(Adapter):
         self._sup_grid = None
         self._sub_grid = None
         self.masked = True
+        self._trans = None
 
     def _get_data(self, time, target):
         """Get the output's data-set for the given time.
@@ -101,6 +102,7 @@ class Masking(Adapter):
             return in_info.copy_with(grid=info.grid, missing_value=self.nodata)
 
         # return output info
+        self._trans = self._sup_grid.get_transform_to(self._sub_grid)
         self._canonical_mask = None
         if self.nodata is None:
             self.masked = False  # no masked array created
@@ -125,8 +127,7 @@ class Masking(Adapter):
             return self._sub_grid.from_canonical(
                 tools.to_masked(data, mask=self._canonical_mask, fill_value=self.nodata)
             )
-
-        out = self._sub_grid.from_canonical(self._sup_grid.to_canonical(data))
+        out = data if self._trans is None else self._trans(data)
         # if missing_value in info we should create a masked array
         # return unmasked array if info indicates unmasked data
         return (
