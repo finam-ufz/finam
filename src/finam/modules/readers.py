@@ -7,7 +7,7 @@ from datetime import datetime
 from finam.interfaces import ComponentStatus
 
 from ..data.grid_spec import NoGrid
-from ..data.tools import UNITS, Info
+from ..data.tools import Info, quantify
 from ..sdk import TimeComponent
 
 
@@ -151,7 +151,7 @@ class CsvReader(TimeComponent):
             time = datetime.strptime(row[self._time_column], self._date_format)
 
         out_data = {
-            name: row[name] * UNITS.Unit(units)
+            name: quantify(row[name], units)
             for name, units in self._output_units.items()
         }
 
