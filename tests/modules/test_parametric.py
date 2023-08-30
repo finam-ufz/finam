@@ -42,7 +42,7 @@ class TestParametricGrid(unittest.TestCase):
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 19))
-        assert_allclose(data[0], in_info.grid.data_axes[0])
+        assert_allclose(data[0].magnitude, in_info.grid.data_axes[0])
 
     def test_parametric_2d(self):
         time = datetime(2000, 1, 1)
@@ -151,7 +151,7 @@ class TestParametricGrid(unittest.TestCase):
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 100))
-        assert_allclose(data[0], [p[0] for p in in_info.grid.points])
+        assert_allclose(data[0].magnitude, [p[0] for p in in_info.grid.points])
 
     def test_parametric_points_2d(self):
         time = datetime(2000, 1, 1)
@@ -187,7 +187,7 @@ class TestParametricGrid(unittest.TestCase):
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 100))
-        assert_allclose(data[0], [p[0] * p[1] for p in in_info.grid.points])
+        assert_allclose(data[0].magnitude, [p[0] * p[1] for p in in_info.grid.points])
 
     def test_parametric_points_3d(self):
         time = datetime(2000, 1, 1)
@@ -223,7 +223,9 @@ class TestParametricGrid(unittest.TestCase):
 
         data = sink.data["Input"]
         self.assertEqual(data.shape, (1, 100))
-        assert_allclose(data[0], [p[0] * p[1] - p[2] for p in in_info.grid.points])
+        assert_allclose(
+            data[0].magnitude, [p[0] * p[1] - p[2] for p in in_info.grid.points]
+        )
 
     def test_parametric_fail_nogrid(self):
         time = datetime(2000, 1, 1)
@@ -290,5 +292,5 @@ class TestStaticParametricGrid(unittest.TestCase):
         composition.run(end_time=None)
 
         data_2 = sink.data["Input"][0, ...]
-        assert_allclose(data_1, data_2)
+        assert_allclose(data_1.magnitude, data_2.magnitude)
         self.assertEqual(data_2.shape, (19, 14))
