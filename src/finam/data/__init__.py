@@ -62,6 +62,11 @@ Data tools
     strip_time
     to_datetime
     to_units
+    is_masked_array
+    has_masked_values
+    filled
+    to_compressed
+    from_compressed
 """
 
 from ..errors import FinamDataError
@@ -89,6 +94,7 @@ from .tools import (
     check,
     check_quantified,
     filled,
+    from_compressed,
     full,
     full_like,
     get_dimensionality,
@@ -101,6 +107,7 @@ from .tools import (
     prepare,
     quantify,
     strip_time,
+    to_compressed,
     to_datetime,
     to_units,
 )
@@ -148,4 +155,6 @@ __all__ += [
     "is_masked_array",
     "has_masked_values",
     "filled",
+    "to_compressed",
+    "from_compressed",
 ]
