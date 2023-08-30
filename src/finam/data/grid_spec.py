@@ -125,7 +125,7 @@ class RectilinearGrid(StructuredGrid):
     def mask(self, mask):
         self._mask = set_mask(self, mask)
 
-    def to_unstructured(self):
+    def to_unstructured(self, ignore_mask=True):
         """
         Cast grid to an unstructured grid.
 
@@ -134,6 +134,12 @@ class RectilinearGrid(StructuredGrid):
         UnstructuredGrid
             Grid as unstructured grid.
         """
+        if not ignore_mask and self.any_masked:
+            msg = (
+                "Casting masked structured grid to "
+                "unstructured is not implemented yet."
+            )
+            raise NotImplementedError(msg)
         return UnstructuredGrid(
             points=self.points,
             cells=self.cells,
@@ -142,11 +148,6 @@ class RectilinearGrid(StructuredGrid):
             order=self.order,
             axes_names=self.axes_names,
             crs=self.crs,
-            mask=(
-                self.mask
-                if self.mask is None
-                else self.mask.reshape(-1, order=self.order)
-            ),
         )
 
     @property
@@ -454,7 +455,6 @@ class UnstructuredGrid(Grid):
         order="C",
         axes_names=None,
         crs=None,
-        mask=None,
     ):
         # at most 3 axes
         self._points = np.asarray(np.atleast_2d(points), dtype=float)[:, :3]
@@ -467,17 +467,11 @@ class UnstructuredGrid(Grid):
             raise ValueError("UnstructuredGrid: wrong length of 'axes_names'")
 
         self._crs = crs
-        self._mask = None
-        self.mask = mask
 
     @property
     def mask(self):
-        """np.ndarray or None: Data mask."""
-        return self._mask
-
-    @mask.setter
-    def mask(self, mask):
-        self._mask = set_mask(self, mask)
+        """None: Data mask."""
+        return None
 
     @property
     def dim(self):
@@ -573,7 +567,6 @@ class UnstructuredPoints(UnstructuredGrid):
         order="C",
         axes_names=None,
         crs=None,
-        mask=None,
     ):
         # at most 3 axes
         pnt_cnt = len(points)
@@ -585,7 +578,6 @@ class UnstructuredPoints(UnstructuredGrid):
             order=order,
             axes_names=axes_names,
             crs=crs,
-            mask=mask,
         )
 
     @property

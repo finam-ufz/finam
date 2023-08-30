@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 import numpy as np
-import pint
 from pyevtk.hl import gridToVTK, unstructuredGridToVTK
 
 from .grid_tools import (
@@ -54,15 +53,6 @@ class GridBase(ABC):
         """Convert canonical data to grid specific form."""
         return data
 
-    def to_compressed(self, data):
-        """Compress grid specific data."""
-        return data
-
-    # pylint: disable-next=unused-argument
-    def from_compressed(self, data, nodata=np.nan):
-        """Convert compressed data to grid specific form."""
-        return data
-
     # pylint: disable-next=unused-argument
     def get_transform_to(self, other):
         """Transformation between compatible grids."""
@@ -75,11 +65,6 @@ class Grid(GridBase):
     @property
     @abstractmethod
     def mask(self):
-        """np.ndarray or None: Data mask."""
-
-    @mask.setter
-    @abstractmethod
-    def mask(self, mask):
         """np.ndarray or None: Data mask."""
 
     @property
@@ -258,66 +243,19 @@ class Grid(GridBase):
         else:
             raise ValueError(f"export_vtk: unsupported mesh type '{mesh_type}'")
 
-    def to_compressed(self, data):
-        """
-        Compress grid specific data.
-
-        Parameters
-        ----------
-        data : arraylike
-            Data to compress.
-
-        Returns
-        -------
-        arraylike
-            Compressed Data.
-        """
-        data = np.reshape(data, -1, order=self.order)
-        if self.mask is None:
-            return data
-        mask = np.reshape(self.mask, -1, order=self.order)
-        return data[~mask]
-
-    def from_compressed(self, data, nodata=np.nan):
-        """
-        Convert compressed data to grid specific form.
-
-        Parameters
-        ----------
-        data : arraylike
-            Compressed (unmasked) data to convert. Should be flat.
-        nodata : numeric, optional
-            Value to set at masked positions. Default: np.nan
-
-        Returns
-        -------
-        arraylike
-            Grid specific Data.
-        """
-        if self.mask is None:
-            # reshape works with quantities
-            return np.reshape(data, self.data_shape, order=self.order)
-        if isinstance(data, pint.Quantity):
-            out = np.empty(self.data_size, dtype=data.dtype) * data.units
-        else:
-            data = np.asarray(data)
-            out = np.empty(self.data_size, dtype=data.dtype)
-        mask = np.reshape(self.mask, -1, order=self.order)
-        out[~mask] = data
-        out[mask] = nodata
-        return np.reshape(out, self.data_shape, order=self.order)
-
-    @property
-    def data_points_compressed(self):
-        """Points of the associated compressed data."""
-        if self.mask is None:
-            return self.data_points
-        # return only unmasked data points
-        return self.data_points[~np.reshape(self.mask, -1, order=self.order)]
-
 
 class StructuredGrid(Grid):
     """Abstract structured grid specification."""
+
+    @property
+    @abstractmethod
+    def mask(self):
+        """np.ndarray or None: Data mask."""
+
+    @mask.setter
+    @abstractmethod
+    def mask(self, mask):
+        """np.ndarray or None: Data mask."""
 
     @property
     @abstractmethod

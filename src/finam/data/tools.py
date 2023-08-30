@@ -393,7 +393,7 @@ def check(xdata, info):
     if not has_time_axis(xdata, info.grid):
         raise FinamDataError("check: given data should have a time dimension.")
 
-    _check_shape(xdata, info.grid)
+    _check_shape(xdata.shape[1:], info.grid)
 
     # check units
     if not compatible_units(info.units, xdata):
@@ -403,17 +403,16 @@ def check(xdata, info):
         )
 
 
-def _check_shape(xdata, grid):
-    in_shape = xdata.shape[1:]
-    if isinstance(grid, Grid) and in_shape != grid.data_shape:
+def _check_shape(shape, grid):
+    if isinstance(grid, Grid) and shape != grid.data_shape:
         raise FinamDataError(
             f"check: given data has wrong shape. "
-            f"Got {in_shape}, expected {grid.data_shape}"
+            f"Got {shape}, expected {grid.data_shape}"
         )
-    if isinstance(grid, grid_spec.NoGrid) and len(in_shape) != grid.dim:
+    if isinstance(grid, grid_spec.NoGrid) and len(shape) != grid.dim:
         raise FinamDataError(
             f"check: given data has wrong number of dimensions. "
-            f"Got {len(in_shape)}, expected {grid.dim}"
+            f"Got {len(shape)}, expected {grid.dim}"
         )
 
 
@@ -434,13 +433,13 @@ def is_quantified(xdata):
     return isinstance(xdata, pint.Quantity)
 
 
-def is_masked_array(xdata):
+def is_masked_array(data):
     """
     Check if data is a masked array.
 
     Parameters
     ----------
-    xdata : Any
+    data : Any
         The given data array.
 
     Returns
@@ -448,18 +447,18 @@ def is_masked_array(xdata):
     bool
         Whether the data is a MaskedArray.
     """
-    if is_quantified(xdata):
-        return np.ma.isMaskedArray(xdata.magnitude)
-    return np.ma.isMaskedArray(xdata)
+    if is_quantified(data):
+        return np.ma.isMaskedArray(data.magnitude)
+    return np.ma.isMaskedArray(data)
 
 
-def has_masked_values(xdata):
+def has_masked_values(data):
     """
     Determine whether the data has masked values.
 
     Parameters
     ----------
-    xdata : Any
+    data : Any
         The given data array.
 
     Returns
@@ -467,18 +466,16 @@ def has_masked_values(xdata):
     bool
         Whether the data is a MaskedArray and has any masked values.
     """
-    if is_quantified(xdata):
-        return np.ma.is_masked(xdata.magnitude)
-    return np.ma.is_masked(xdata)
+    return np.ma.is_masked(data)
 
 
-def filled(xdata, fill_value=None):
+def filled(data, fill_value=None):
     """
     Return a filled array if the data is masked.
 
     Parameters
     ----------
-    xdata : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+    data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
         The reference object input.
     fill_value : array_like, optional
         The value to use for invalid entries. Can be scalar or non-scalar.
@@ -493,20 +490,20 @@ def filled(xdata, fill_value=None):
         with the data filled with fill_value.
         Units will be taken from the input if present.
     """
-    if not is_masked_array(xdata):
-        return xdata
-    if is_quantified(xdata):
-        return UNITS.Quantity(xdata.magnitude.filled(fill_value), xdata.units)
-    return xdata.filled(fill_value)
+    if not is_masked_array(data):
+        return data
+    if is_quantified(data):
+        return UNITS.Quantity(data.magnitude.filled(fill_value), data.units)
+    return data.filled(fill_value)
 
 
-def to_masked(xdata, **kwargs):
+def to_masked(data, **kwargs):
     """
     Return a masked version of the data.
 
     Parameters
     ----------
-    xdata : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+    data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
         The reference object input.
     **kwargs
         keyword arguments forwarded to :any:`numpy.ma.array`
@@ -517,11 +514,99 @@ def to_masked(xdata, **kwargs):
         New object with the same shape and type but as a masked array.
         Units will be taken from the input if present.
     """
-    if is_masked_array(xdata) and not kwargs:
-        return xdata
-    if is_quantified(xdata):
-        return UNITS.Quantity(np.ma.array(xdata.magnitude, **kwargs), xdata.units)
-    return np.ma.array(xdata, **kwargs)
+    if is_masked_array(data) and not kwargs:
+        return data
+    if is_quantified(data):
+        return UNITS.Quantity(np.ma.array(data.magnitude, **kwargs), data.units)
+    return np.ma.array(data, **kwargs)
+
+
+def to_compressed(xdata, grid=None, order="C"):
+    """
+    Return compressed version of the data.
+
+    Parameters
+    ----------
+    data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        The reference object input.
+    grid : GridBase
+        Reference grid for the data.
+    order : str
+        order argument for :any:`numpy.ravel`
+    **kwargs
+        keyword arguments forwarded to :any:`numpy.ma.array`
+
+    Returns
+    -------
+    :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        New object with the flat shape and only unmasked data but and same type as input.
+        Units will be taken from the input if present.
+    """
+    order = (
+        grid.order
+        if not (grid is None or isinstance(grid, grid_spec.NoGrid))
+        else order
+    )
+    if is_masked_array(xdata):
+        data = np.ravel(xdata.data, order)
+        if xdata.mask is not np.ma.nomask:
+            data = data.compress(np.logical_not(np.ravel(xdata.mask, order)))
+        return quantify(data, xdata.units) if is_quantified(xdata) else data
+    return np.reshape(xdata, -1, order=order)
+
+
+def from_compressed(xdata, grid=None, shape=None, order="C", **kwargs):
+    """
+    Return uncompressed version of the data.
+
+    Parameters
+    ----------
+    data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        The reference object input.
+    grid : GridBase
+        Reference grid for the data.
+    shape : str
+        order argument for :any:`numpy.ravel`
+    order : str
+        order argument for :any:`numpy.ravel`
+    **kwargs
+        keyword arguments forwarded to :any:`numpy.ma.array`
+
+    Returns
+    -------
+    :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        New object with the desired shape and same type as input.
+        Units will be taken from the input if present.
+    """
+    if (grid is None or isinstance(grid, grid_spec.NoGrid)) and shape is None:
+        raise ValueError("from_compressed: either 'grid' or 'shape' needed")
+    if isinstance(grid, grid_spec.NoGrid) and len(shape) != grid.dim:
+        msg = (
+            f"from_compressed: given shape has wrong number of dimensions. "
+            f"Got {len(shape)}, expected {grid.dim}"
+        )
+        raise FinamDataError(msg)
+    if grid is not None:
+        if not isinstance(grid, grid_spec.NoGrid):
+            order = grid.order
+            shape = grid.data_shape
+        if grid.mask is not None:
+            kwargs.setdefault("mask", grid.mask)
+    if kwargs:
+        if "mask" in kwargs:
+            mask = np.reshape(kwargs["mask"], -1, order=order)
+            if is_quantified(xdata):
+                # pylint: disable-next=unexpected-keyword-arg
+                data = quantify(np.empty_like(xdata, shape=np.size(mask)), xdata.units)
+            else:
+                # pylint: disable-next=unexpected-keyword-arg
+                data = np.empty_like(xdata, shape=np.size(mask))
+            data[~mask] = xdata
+            data = np.reshape(data, shape, order=order)
+        else:
+            data = np.reshape(xdata, shape, order=order)
+        return to_masked(data, **kwargs) if kwargs else data
+    return np.reshape(xdata, shape, order=order)
 
 
 def quantify(xdata, units=None):
