@@ -67,6 +67,7 @@ Data tools
     filled
     to_compressed
     from_compressed
+    check_data_covers_domain
 """
 
 from ..errors import FinamDataError
@@ -92,6 +93,7 @@ from .tools import (
     Info,
     assert_type,
     check,
+    check_data_covers_domain,
     check_quantified,
     filled,
     from_compressed,
@@ -157,4 +159,5 @@ __all__ += [
     "filled",
     "to_compressed",
     "from_compressed",
+    "check_data_covers_domain",
 ]

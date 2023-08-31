@@ -605,8 +605,39 @@ def from_compressed(xdata, grid=None, shape=None, order="C", **kwargs):
             data = np.reshape(data, shape, order=order)
         else:
             data = np.reshape(xdata, shape, order=order)
-        return to_masked(data, **kwargs) if kwargs else data
+        return to_masked(data, **kwargs)
     return np.reshape(xdata, shape, order=order)
+
+
+def check_data_covers_domain(data, mask=None):
+    """
+    Check if the given data covers a domain defined by a mask on the same grid.
+
+    Parameters
+    ----------
+    data : Any
+        The given data array.
+    mask : None or bool or array of bool, optional
+        Mask describing the target domain on the same grid as the data,
+        by default None
+
+    Returns
+    -------
+    bool
+        Whether the data covers the desired domain.
+
+    Raises
+    ------
+    ValueError
+        If the mask and the data don't have the same shape.
+    """
+    if mask and np.shape(mask) != np.shape(data):
+        raise ValueError("check_data_covers_domain: mask and data shape differ.")
+    if not has_masked_values(data):
+        return True
+    if not mask:
+        return False
+    return np.all(mask[data.mask])
 
 
 def quantify(xdata, units=None):
