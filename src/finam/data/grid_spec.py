@@ -5,7 +5,7 @@ import numpy as np
 from pyevtk.hl import imageToVTK
 
 from ..tools.enum_helper import get_enum_value
-from .esri_tools import read_grid, read_header
+from .esri_tools import read_header
 from .grid_base import Grid, GridBase, StructuredGrid
 from .grid_tools import (
     CellType,
@@ -14,7 +14,6 @@ from .grid_tools import (
     gen_axes,
     prepare_vtk_data,
     prepare_vtk_kwargs,
-    set_mask,
 )
 
 
@@ -25,11 +24,6 @@ class NoGrid(GridBase):
         self._dim = dim
 
     @property
-    def mask(self):
-        """None: Data mask."""
-        return None
-
-    @property
     def dim(self):
         """int: Dimension of the grid or data."""
         return self._dim
@@ -38,7 +32,7 @@ class NoGrid(GridBase):
         return f"{self.__class__.__name__} ({self.dim}D)"
 
     # pylint: disable-next=unused-argument
-    def compatible_with(self, other, check_mask=True):
+    def compatible_with(self, other):
         """
         Check for compatibility with other Grid.
 
@@ -46,8 +40,6 @@ class NoGrid(GridBase):
         ----------
         other : instance of Grid
             Other grid to compatibility with.
-        check_mask : bool, optional
-            Whether to check mask equality, by default True
 
         Returns
         -------
@@ -80,8 +72,6 @@ class RectilinearGrid(StructuredGrid):
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
-    mask : np.ndarray or None, optional
-        Data mask, by default None
     """
 
     def __init__(
@@ -93,7 +83,6 @@ class RectilinearGrid(StructuredGrid):
         axes_attributes=None,
         axes_names=None,
         crs=None,
-        mask=None,
     ):
         # at most 3 axes
         self._axes = [np.asarray(np.atleast_1d(ax), dtype=float) for ax in axes[:3]]
@@ -113,19 +102,8 @@ class RectilinearGrid(StructuredGrid):
 
         self._data_shape = None
         self._data_size = None
-        self._mask = None
-        self.mask = mask
 
-    @property
-    def mask(self):
-        """np.ndarray or None: Data mask."""
-        return self._mask
-
-    @mask.setter
-    def mask(self, mask):
-        self._mask = set_mask(self, mask)
-
-    def to_unstructured(self, ignore_mask=True):
+    def to_unstructured(self):
         """
         Cast grid to an unstructured grid.
 
@@ -134,12 +112,6 @@ class RectilinearGrid(StructuredGrid):
         UnstructuredGrid
             Grid as unstructured grid.
         """
-        if not ignore_mask and self.any_masked:
-            msg = (
-                "Casting masked structured grid to "
-                "unstructured is not implemented yet."
-            )
-            raise NotImplementedError(msg)
         return UnstructuredGrid(
             points=self.points,
             cells=self.cells,
@@ -244,8 +216,6 @@ class UniformGrid(RectilinearGrid):
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
-    mask : np.ndarray or None, optional
-        Data mask, by default None
     """
 
     def __init__(
@@ -260,7 +230,6 @@ class UniformGrid(RectilinearGrid):
         axes_attributes=None,
         axes_names=None,
         crs=None,
-        mask=None,
     ):
         # at most 3 axes
         dims = tuple(dims)[:3]
@@ -278,7 +247,6 @@ class UniformGrid(RectilinearGrid):
             axes_attributes=axes_attributes,
             axes_names=axes_names,
             crs=crs,
-            mask=mask,
         )
 
     def export_vtk(
@@ -353,8 +321,6 @@ class EsriGrid(UniformGrid):
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
-    mask : np.ndarray or None, optional
-        Data mask, by default None
     """
 
     def __init__(
@@ -368,7 +334,6 @@ class EsriGrid(UniformGrid):
         axes_attributes=None,
         axes_names=None,
         crs=None,
-        mask=None,
     ):
         self.ncols = int(ncols)
         self.nrows = int(nrows)
@@ -385,11 +350,10 @@ class EsriGrid(UniformGrid):
             axes_attributes=axes_attributes,
             axes_names=axes_names,
             crs=crs,
-            mask=mask,
         )
 
     @classmethod
-    def from_file(cls, file, axes_attributes=None, crs=None, read_mask=False):
+    def from_file(cls, file, axes_attributes=None, crs=None):
         """
         Generate EsriGrid from given file.
 
@@ -401,8 +365,6 @@ class EsriGrid(UniformGrid):
             Axes attributes following the CF convention (xyz order), by default None
         crs : str or None, optional
             The coordinate reference system, by default None
-        read_mask : bool, optional
-            Whether to read the mask from the grid data, by default False
 
         Returns
         -------
@@ -410,14 +372,9 @@ class EsriGrid(UniformGrid):
             The grid specified in the file.
         """
         header = read_header(file)
-        nodata = header.pop("nodata_value", None)
-        mask = None
-        if read_mask and nodata is not None:
-            _, data = read_grid(file)
-            mask = np.isclose(data, nodata)
+        header.pop("nodata_value", None)
         header["crs"] = crs
         header["axes_attributes"] = axes_attributes
-        header["mask"] = mask
         return cls(**header)
 
 
@@ -442,8 +399,6 @@ class UnstructuredGrid(Grid):
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
-    mask : np.ndarray or None, optional
-        Data mask, by default None
     """
 
     def __init__(
@@ -467,11 +422,6 @@ class UnstructuredGrid(Grid):
             raise ValueError("UnstructuredGrid: wrong length of 'axes_names'")
 
         self._crs = crs
-
-    @property
-    def mask(self):
-        """None: Data mask."""
-        return None
 
     @property
     def dim(self):
@@ -557,8 +507,6 @@ class UnstructuredPoints(UnstructuredGrid):
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
-    mask : np.ndarray or None, optional
-        Data mask, by default None
     """
 
     def __init__(

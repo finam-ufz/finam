@@ -11,7 +11,6 @@ from ..errors import FinamDataError, FinamMetaDataError
 # pylint: disable-next=unused-import
 from . import cf_units, grid_spec
 from .grid_base import Grid, GridBase
-from .grid_tools import check_mask_equal
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here
@@ -521,7 +520,7 @@ def to_masked(data, **kwargs):
     return np.ma.array(data, **kwargs)
 
 
-def to_compressed(xdata, grid=None, order="C"):
+def to_compressed(xdata, order="C"):
     """
     Return compressed version of the data.
 
@@ -529,8 +528,6 @@ def to_compressed(xdata, grid=None, order="C"):
     ----------
     data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
         The reference object input.
-    grid : GridBase
-        Reference grid for the data.
     order : str
         order argument for :any:`numpy.ravel`
     **kwargs
@@ -542,11 +539,6 @@ def to_compressed(xdata, grid=None, order="C"):
         New object with the flat shape and only unmasked data but and same type as input.
         Units will be taken from the input if present.
     """
-    order = (
-        grid.order
-        if not (grid is None or isinstance(grid, grid_spec.NoGrid))
-        else order
-    )
     if is_masked_array(xdata):
         data = np.ravel(xdata.data, order)
         if xdata.mask is not np.ma.nomask:
@@ -555,7 +547,7 @@ def to_compressed(xdata, grid=None, order="C"):
     return np.reshape(xdata, -1, order=order)
 
 
-def from_compressed(xdata, grid=None, shape=None, order="C", **kwargs):
+def from_compressed(xdata, shape, order="C", **kwargs):
     """
     Return uncompressed version of the data.
 
@@ -563,8 +555,6 @@ def from_compressed(xdata, grid=None, shape=None, order="C", **kwargs):
     ----------
     data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
         The reference object input.
-    grid : GridBase
-        Reference grid for the data.
     shape : str
         order argument for :any:`numpy.ravel`
     order : str
@@ -578,20 +568,6 @@ def from_compressed(xdata, grid=None, shape=None, order="C", **kwargs):
         New object with the desired shape and same type as input.
         Units will be taken from the input if present.
     """
-    if (grid is None or isinstance(grid, grid_spec.NoGrid)) and shape is None:
-        raise ValueError("from_compressed: either 'grid' or 'shape' needed")
-    if isinstance(grid, grid_spec.NoGrid) and len(shape) != grid.dim:
-        msg = (
-            f"from_compressed: given shape has wrong number of dimensions. "
-            f"Got {len(shape)}, expected {grid.dim}"
-        )
-        raise FinamDataError(msg)
-    if grid is not None:
-        if not isinstance(grid, grid_spec.NoGrid):
-            order = grid.order
-            shape = grid.data_shape
-        if grid.mask is not None:
-            kwargs.setdefault("mask", grid.mask)
     if kwargs:
         if "mask" in kwargs:
             mask = np.reshape(kwargs["mask"], -1, order=order)
@@ -616,7 +592,7 @@ def check_data_covers_domain(data, mask=None):
     Parameters
     ----------
     data : Any
-        The given data array.
+        The given data array for a single time-step.
     mask : None or bool or array of bool, optional
         Mask describing the target domain on the same grid as the data,
         by default None
@@ -870,23 +846,6 @@ class Info:
         if self.grid is not None and not self.grid.compatible_with(incoming.grid):
             if not (ignore_none and incoming.grid is None):
                 fail_info["grid"] = (incoming.grid, self.grid)
-                if (
-                    incoming.grid is not None
-                    and self.grid is not None
-                    and not check_mask_equal(self.grid, incoming.grid)
-                ):
-                    in_mask = (
-                        np.sum(incoming.grid.mask)
-                        if incoming.grid.mask is not None
-                        else 0
-                    )
-                    out_mask = (
-                        np.sum(self.grid.mask) if self.grid.mask is not None else 0
-                    )
-                    fail_info["mask"] = (
-                        f"{in_mask} point(s) masked",
-                        f"{out_mask} point(s) masked",
-                    )
                 success = False
 
         for k, v in self.meta.items():

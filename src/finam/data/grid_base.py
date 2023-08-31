@@ -11,7 +11,6 @@ from .grid_tools import (
     VTK_TYPE_MAP,
     CellType,
     Location,
-    check_mask_equal,
     flatten_cells,
     gen_cells,
     gen_node_centers,
@@ -29,16 +28,6 @@ class GridBase(ABC):
     def name(self):
         """Grid name."""
         return self.__class__.__name__
-
-    @property
-    @abstractmethod
-    def mask(self):
-        """np.ndarray or None: Data mask."""
-
-    @property
-    def any_masked(self):
-        """bool: Whether any point in the grid is masked."""
-        return self.mask is not None and np.any(self.mask)
 
     @property
     @abstractmethod
@@ -61,11 +50,6 @@ class GridBase(ABC):
 
 class Grid(GridBase):
     """Abstract grid specification."""
-
-    @property
-    @abstractmethod
-    def mask(self):
-        """np.ndarray or None: Data mask."""
 
     @property
     @abstractmethod
@@ -152,7 +136,7 @@ class Grid(GridBase):
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D) {self.data_shape}"
 
-    def compatible_with(self, other, check_mask=True):
+    def compatible_with(self, other):
         """
         Check for compatibility with other Grid.
 
@@ -160,8 +144,6 @@ class Grid(GridBase):
         ----------
         other : instance of Grid
             Other grid to compatibility with.
-        check_mask : bool, optional
-            Whether to check mask equality, by default True
 
         Returns
         -------
@@ -183,9 +165,6 @@ class Grid(GridBase):
             return False
 
         if self.data_shape != other.data_shape:
-            return False
-
-        if check_mask and not check_mask_equal(self, other):
             return False
 
         return np.allclose(self.data_points, other.data_points)
@@ -246,16 +225,6 @@ class Grid(GridBase):
 
 class StructuredGrid(Grid):
     """Abstract structured grid specification."""
-
-    @property
-    @abstractmethod
-    def mask(self):
-        """np.ndarray or None: Data mask."""
-
-    @mask.setter
-    @abstractmethod
-    def mask(self, mask):
-        """np.ndarray or None: Data mask."""
 
     @property
     @abstractmethod
@@ -374,7 +343,7 @@ class StructuredGrid(Grid):
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
         )
 
-    def compatible_with(self, other, check_mask=True):
+    def compatible_with(self, other):
         """
         Check for compatibility with other Grid.
 
@@ -382,8 +351,6 @@ class StructuredGrid(Grid):
         ----------
         other : instance of Grid
             Other grid to compatibility with.
-        check_mask : bool, optional
-            Whether to check mask equality, by default True
 
         Returns
         -------
@@ -408,9 +375,6 @@ class StructuredGrid(Grid):
             if self.axes_reversed != other.axes_reversed
             else other.data_shape
         ):
-            return False
-
-        if check_mask and not check_mask_equal(self, other):
             return False
 
         return all(np.allclose(a, b) for a, b in zip(self.axes, other.axes))
