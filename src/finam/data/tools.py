@@ -567,6 +567,7 @@ def from_compressed(xdata, shape, order="C", **kwargs):
     :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
         New object with the desired shape and same type as input.
         Units will be taken from the input if present.
+        Will only be a masked array if kwargs are given.
     """
     if kwargs:
         if "mask" in kwargs:
@@ -594,7 +595,7 @@ def check_data_covers_domain(data, mask=None):
     data : Any
         The given data array for a single time-step.
     mask : None or bool or array of bool, optional
-        Mask describing the target domain on the same grid as the data,
+        Mask defining the target domain on the same grid as the data,
         by default None
 
     Returns
@@ -605,7 +606,7 @@ def check_data_covers_domain(data, mask=None):
     Raises
     ------
     ValueError
-        If the mask and the data don't have the same shape.
+        When mask is given and mask and data don't share the same shape.
     """
     if mask and np.shape(mask) != np.shape(data):
         raise ValueError("check_data_covers_domain: mask and data shape differ.")
