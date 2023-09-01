@@ -608,13 +608,17 @@ def check_data_covers_domain(data, mask=None):
     ValueError
         When mask is given and mask and data don't share the same shape.
     """
-    if mask and np.shape(mask) != np.shape(data):
+    if not _is_single_mask_value(mask) and np.shape(mask) != np.shape(data):
         raise ValueError("check_data_covers_domain: mask and data shape differ.")
     if not has_masked_values(data):
         return True
-    if not mask:
+    if mask is None or mask is np.ma.nomask:
         return False
     return np.all(mask[data.mask])
+
+
+def _is_single_mask_value(mask):
+    return mask is None or mask is np.ma.nomask or mask is False or mask is True
 
 
 def quantify(xdata, units=None):
