@@ -65,6 +65,7 @@ Data tools
     is_masked_array
     has_masked_values
     filled
+    to_masked
     to_compressed
     from_compressed
     check_data_covers_domain
@@ -111,6 +112,7 @@ from .tools import (
     strip_time,
     to_compressed,
     to_datetime,
+    to_masked,
     to_units,
 )
 
@@ -157,6 +159,7 @@ __all__ += [
     "is_masked_array",
     "has_masked_values",
     "filled",
+    "to_masked",
     "to_compressed",
     "from_compressed",
     "check_data_covers_domain",
