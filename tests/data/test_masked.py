@@ -17,8 +17,8 @@ def gen_masked(seed, shape):
     return np.ma.masked_array(data, mask, fill_value=np.nan)
 
 
-class TestRegrid(unittest.TestCase):
-    def test_rescale_masekd(self):
+class TestMasked(unittest.TestCase):
+    def test_rescale_masked(self):
         time = datetime(2000, 1, 1)
 
         in_info = fm.Info(
@@ -51,9 +51,7 @@ class TestRegrid(unittest.TestCase):
 
         composition = fm.Composition([source, sink])
         composition.initialize()
-
         source.outputs["Output"] >> fm.adapters.Scale(scale=2.0) >> sink.inputs["Input"]
-
         composition.connect()
 
         self.assertTrue(sink.data["Input"][0][0, 0].mask)
