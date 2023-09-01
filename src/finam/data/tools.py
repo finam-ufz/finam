@@ -612,8 +612,8 @@ def check_data_covers_domain(data, mask=None):
         raise ValueError("check_data_covers_domain: mask and data shape differ.")
     if not has_masked_values(data):
         return True
-    if mask is None or mask is np.ma.nomask:
-        return False
+    if _is_single_mask_value(mask):
+        return bool(mask)
     return np.all(mask[data.mask])
 
 
