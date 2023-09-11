@@ -529,7 +529,7 @@ def to_masked(data, **kwargs):
 
 def to_compressed(xdata, order="C"):
     """
-    Return compressed version of the data.
+    Return all the non-masked data as a 1-D array respecting the given array order.
 
     Parameters
     ----------
@@ -545,6 +545,11 @@ def to_compressed(xdata, order="C"):
     :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
         New object with the flat shape and only unmasked data but and same type as input.
         Units will be taken from the input if present.
+
+    See also
+    --------
+    :any:`np.ma.compressed`:
+        Numpy routine doing the same but only for C-order.
     """
     if is_masked_array(xdata):
         data = np.ravel(xdata.data, order)
@@ -556,16 +561,20 @@ def to_compressed(xdata, order="C"):
 
 def from_compressed(xdata, shape, order="C", **kwargs):
     """
-    Return uncompressed version of the data.
+    Fill a (masked) array following a given mask or shape with the provided data.
+
+    This will only create a masked array if kwargs are given (especially a mask).
+    Otherwise this is simply reshaping the given data.
+    Filling is performed in the given array order.
 
     Parameters
     ----------
     data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
         The reference object input.
     shape : str
-        order argument for :any:`numpy.ravel`
+        shape argument for :any:`numpy.reshape`
     order : str
-        order argument for :any:`numpy.ravel`
+        order argument for :any:`numpy.reshape`
     **kwargs
         keyword arguments forwarded to :any:`numpy.ma.array`
 
@@ -575,6 +584,19 @@ def from_compressed(xdata, shape, order="C", **kwargs):
         New object with the desired shape and same type as input.
         Units will be taken from the input if present.
         Will only be a masked array if kwargs are given.
+
+    See also
+    --------
+    to_compressed:
+        Inverse operation.
+    :any:`numpy.ma.array`:
+        Routine consuming kwargs to create a masked array.
+    :any:`np.reshape`:
+        Equivalent routine if no mask is provided.
+
+    Notes
+    -----
+    If both `mask` and `shape` are given, they need to match in size.
     """
     if kwargs:
         if "mask" in kwargs:
