@@ -470,7 +470,9 @@ def has_masked_values(data):
 
 def filled(data, fill_value=None):
     """
-    Return a filled array if the data is masked.
+    Return input as an array with masked data replaced by a fill value.
+
+    This routine respects quantified and un-quantified data.
 
     Parameters
     ----------
@@ -488,6 +490,11 @@ def filled(data, fill_value=None):
         New object with the same shape and type as other,
         with the data filled with fill_value.
         Units will be taken from the input if present.
+
+    See also
+    --------
+    :any:`np.ma.filled`:
+        Numpy routine doing the same.
     """
     if not is_masked_array(data):
         return data
