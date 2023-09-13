@@ -89,6 +89,9 @@ class RegridNearest(ARegridding):
     See package `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_ for more advanced regridding
     using `ESMPy <https://earthsystemmodeling.org/esmpy/>`_.
 
+    .. warning::
+        Does currently not support masked input data. Raises a ``NotImplementedError`` in that case.
+
     Examples
     --------
 
@@ -129,7 +132,12 @@ class RegridNearest(ARegridding):
         self.ids = tree.query(out_coords)[1]
 
     def _get_data(self, time, target):
-        in_data = dtools.filled(self.pull_data(time, target)[0])
+        in_data = self.pull_data(time, target)
+
+        if dtools.is_masked_array(in_data):
+            with ErrorLogger(self.logger):
+                msg = "Regridding is currently not implemented for masked data"
+                raise NotImplementedError(msg)
 
         res = in_data.reshape(-1, order=self.input_grid.order)[self.ids].reshape(
             self.output_grid.data_shape, order=self.output_grid.order
@@ -148,6 +156,9 @@ class RegridLinear(ARegridding):
 
     See package `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_ for more advanced regridding
     using `ESMPy <https://earthsystemmodeling.org/esmpy/>`_.
+
+    .. warning::
+        Does currently not support masked input data. Raises a ``NotImplementedError`` in that case.
 
     Examples
     --------
@@ -215,8 +226,13 @@ class RegridLinear(ARegridding):
     def _get_data(self, time, target):
         in_data = self.pull_data(time, target)
 
+        if dtools.is_masked_array(in_data):
+            with ErrorLogger(self.logger):
+                msg = "Regridding is currently not implemented for masked data"
+                raise NotImplementedError(msg)
+
         if isinstance(self.input_grid, StructuredGrid):
-            self.inter.values = dtools.filled(in_data[0, ...]).magnitude
+            self.inter.values = in_data[0, ...].magnitude
             res = self.inter(self.out_coords)
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values.flatten(
