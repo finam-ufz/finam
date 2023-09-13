@@ -72,6 +72,49 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink.data["Input"][0, 2, 0], 0.0 * UNITS.meter)
         self.assertEqual(sink.data["Input"][0, 2, 2], 0.0 * UNITS.meter)
 
+    def test_regrid_nearest_masked(self):
+        time = datetime(2000, 1, 1)
+
+        in_info = Info(
+            time=time,
+            grid=UniformGrid(
+                dims=(5, 10), spacing=(3.0, 3.0, 3.0), data_location=Location.POINTS
+            ),
+            units="m",
+        )
+
+        out_spec = UniformGrid(dims=(14, 29), data_location=Location.POINTS)
+
+        in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
+        in_data.data[0, 0] = 1.0
+
+        in_data = np.ma.masked_where(in_data > 0, in_data)
+
+        source = generators.CallbackGenerator(
+            callbacks={
+                "Output": (
+                    lambda t: in_data.copy(),
+                    in_info,
+                )
+            },
+            start=time,
+            step=timedelta(days=1),
+        )
+
+        sink = debug.DebugConsumer(
+            {"Input": Info(None, grid=out_spec, units=None)},
+            start=time,
+            step=timedelta(days=1),
+        )
+
+        composition = Composition([source, sink], log_level="DEBUG")
+        composition.initialize()
+
+        (source.outputs["Output"] >> RegridNearest() >> sink.inputs["Input"])
+
+        with self.assertRaises(NotImplementedError):
+            composition.connect()
+
     def test_regrid_nearest_crs(self):
         time = datetime(2000, 1, 1)
         in_info = Info(
@@ -165,6 +208,53 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink.data["Input"][0, 0, 1], 0.5 * UNITS.meter)
         self.assertEqual(sink.data["Input"][0, 1, 0], 0.5 * UNITS.meter)
         self.assertEqual(sink.data["Input"][0, 1, 1], 0.25 * UNITS.meter)
+
+    def test_regrid_linear_masked(self):
+        time = datetime(2000, 1, 1)
+
+        in_info = Info(
+            time=time,
+            grid=UniformGrid(
+                dims=(5, 10), spacing=(3.0, 3.0, 3.0), data_location=Location.POINTS
+            ),
+            units="m",
+        )
+
+        out_spec = UniformGrid(dims=(14, 29), data_location=Location.POINTS)
+
+        in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
+        in_data.data[0, 0] = 1.0
+
+        in_data = np.ma.masked_where(in_data > 0, in_data)
+
+        source = generators.CallbackGenerator(
+            callbacks={
+                "Output": (
+                    lambda t: in_data.copy(),
+                    in_info,
+                )
+            },
+            start=time,
+            step=timedelta(days=1),
+        )
+
+        sink = debug.DebugConsumer(
+            {"Input": Info(None, grid=out_spec, units=None)},
+            start=time,
+            step=timedelta(days=1),
+        )
+
+        composition = Composition([source, sink], log_level="DEBUG")
+        composition.initialize()
+
+        (
+            source.outputs["Output"]
+            >> RegridLinear(fill_with_nearest=True)
+            >> sink.inputs["Input"]
+        )
+
+        with self.assertRaises(NotImplementedError):
+            composition.connect()
 
     def test_regrid_linear_crs(self):
         time = datetime(2000, 1, 1)
