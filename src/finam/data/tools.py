@@ -591,7 +591,7 @@ def from_compressed(xdata, shape, order="C", **kwargs):
         Inverse operation.
     :any:`numpy.ma.array`:
         Routine consuming kwargs to create a masked array.
-    :any:`np.reshape`:
+    :any:`numpy.reshape`:
         Equivalent routine if no mask is provided.
 
     Notes
