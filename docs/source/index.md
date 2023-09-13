@@ -67,7 +67,7 @@ See our gallery of examples that use FINAM.
 
 ## News
 
-News from the [FINAM Blog](blog/index). See also the [Changelog](changelog).
+News from the [FINAM Blog](blog/index). See also the [Changelog](about/changelog).
 
 ```{postlist} 3
 :format: "{title}"
