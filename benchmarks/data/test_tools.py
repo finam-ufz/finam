@@ -339,7 +339,7 @@ class TestUnitsTools(unittest.TestCase):
 
 
 def set_units_mul(data, units):
-    return data * units
+    return units * data
 
 
 def set_units_qua(data, units):

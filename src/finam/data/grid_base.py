@@ -3,7 +3,6 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 
 import numpy as np
-import pint
 from pyevtk.hl import gridToVTK, unstructuredGridToVTK
 
 from .grid_tools import (
@@ -12,7 +11,6 @@ from .grid_tools import (
     VTK_TYPE_MAP,
     CellType,
     Location,
-    check_mask_equal,
     flatten_cells,
     gen_cells,
     gen_node_centers,
@@ -33,16 +31,6 @@ class GridBase(ABC):
 
     @property
     @abstractmethod
-    def mask(self):
-        """np.ndarray or None: Data mask."""
-
-    @property
-    def any_masked(self):
-        """bool: Whether any point in the grid is masked."""
-        return self.mask is not None and np.any(self.mask)
-
-    @property
-    @abstractmethod
     def dim(self):
         """int: Dimension of the grid or data."""
 
@@ -54,15 +42,6 @@ class GridBase(ABC):
         """Convert canonical data to grid specific form."""
         return data
 
-    def to_compressed(self, data):
-        """Compress grid specific data."""
-        return data
-
-    # pylint: disable-next=unused-argument
-    def from_compressed(self, data, nodata=np.nan):
-        """Convert compressed data to grid specific form."""
-        return data
-
     # pylint: disable-next=unused-argument
     def get_transform_to(self, other):
         """Transformation between compatible grids."""
@@ -71,16 +50,6 @@ class GridBase(ABC):
 
 class Grid(GridBase):
     """Abstract grid specification."""
-
-    @property
-    @abstractmethod
-    def mask(self):
-        """np.ndarray or None: Data mask."""
-
-    @mask.setter
-    @abstractmethod
-    def mask(self, mask):
-        """np.ndarray or None: Data mask."""
 
     @property
     @abstractmethod
@@ -167,7 +136,7 @@ class Grid(GridBase):
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D) {self.data_shape}"
 
-    def compatible_with(self, other, check_mask=True):
+    def compatible_with(self, other):
         """
         Check for compatibility with other Grid.
 
@@ -175,8 +144,6 @@ class Grid(GridBase):
         ----------
         other : instance of Grid
             Other grid to compatibility with.
-        check_mask : bool, optional
-            Whether to check mask equality, by default True
 
         Returns
         -------
@@ -198,9 +165,6 @@ class Grid(GridBase):
             return False
 
         if self.data_shape != other.data_shape:
-            return False
-
-        if check_mask and not check_mask_equal(self, other):
             return False
 
         return np.allclose(self.data_points, other.data_points)
@@ -257,63 +221,6 @@ class Grid(GridBase):
             unstructuredGridToVTK(path, x, y, z, con, off, typ, **kw)
         else:
             raise ValueError(f"export_vtk: unsupported mesh type '{mesh_type}'")
-
-    def to_compressed(self, data):
-        """
-        Compress grid specific data.
-
-        Parameters
-        ----------
-        data : arraylike
-            Data to compress.
-
-        Returns
-        -------
-        arraylike
-            Compressed Data.
-        """
-        data = np.reshape(data, -1, order=self.order)
-        if self.mask is None:
-            return data
-        mask = np.reshape(self.mask, -1, order=self.order)
-        return data[~mask]
-
-    def from_compressed(self, data, nodata=np.nan):
-        """
-        Convert compressed data to grid specific form.
-
-        Parameters
-        ----------
-        data : arraylike
-            Compressed (unmasked) data to convert. Should be flat.
-        nodata : numeric, optional
-            Value to set at masked positions. Default: np.nan
-
-        Returns
-        -------
-        arraylike
-            Grid specific Data.
-        """
-        if self.mask is None:
-            # reshape works with quantities
-            return np.reshape(data, self.data_shape, order=self.order)
-        if isinstance(data, pint.Quantity):
-            out = np.empty(self.data_size, dtype=data.dtype) * data.units
-        else:
-            data = np.asarray(data)
-            out = np.empty(self.data_size, dtype=data.dtype)
-        mask = np.reshape(self.mask, -1, order=self.order)
-        out[~mask] = data
-        out[mask] = nodata
-        return np.reshape(out, self.data_shape, order=self.order)
-
-    @property
-    def data_points_compressed(self):
-        """Points of the associated compressed data."""
-        if self.mask is None:
-            return self.data_points
-        # return only unmasked data points
-        return self.data_points[~np.reshape(self.mask, -1, order=self.order)]
 
 
 class StructuredGrid(Grid):
@@ -436,7 +343,7 @@ class StructuredGrid(Grid):
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
         )
 
-    def compatible_with(self, other, check_mask=True):
+    def compatible_with(self, other):
         """
         Check for compatibility with other Grid.
 
@@ -444,8 +351,6 @@ class StructuredGrid(Grid):
         ----------
         other : instance of Grid
             Other grid to compatibility with.
-        check_mask : bool, optional
-            Whether to check mask equality, by default True
 
         Returns
         -------
@@ -470,9 +375,6 @@ class StructuredGrid(Grid):
             if self.axes_reversed != other.axes_reversed
             else other.data_shape
         ):
-            return False
-
-        if check_mask and not check_mask_equal(self, other):
             return False
 
         return all(np.allclose(a, b) for a, b in zip(self.axes, other.axes))

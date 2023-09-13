@@ -4,7 +4,7 @@ Basic data transformation adapters.
 import numpy as np
 
 from ..data.grid_spec import NoGrid
-from ..data.tools import get_magnitude, get_units
+from ..data.tools import get_magnitude, get_units, quantify
 from ..errors import FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
@@ -139,9 +139,12 @@ class ValueToGrid(Adapter):
             data-set for the requested time.
         """
         value = self.pull_data(time, target)
-        return np.full(
-            self._info.grid.data_shape, get_magnitude(value), dtype=value.dtype
-        ) * get_units(value)
+        return quantify(
+            np.full(
+                self._info.grid.data_shape, get_magnitude(value), dtype=value.dtype
+            ),
+            get_units(value),
+        )
 
     def _get_info(self, info):
         up_info = info.copy_with(grid=NoGrid())
@@ -196,7 +199,7 @@ class GridToValue(Adapter):
         """
         grid = self.pull_data(time, target)
 
-        func_result = self.func(get_magnitude(grid)) * get_units(grid)
+        func_result = quantify(self.func(get_magnitude(grid)), get_units(grid))
 
         return func_result
 

@@ -261,10 +261,10 @@ class TestDataTools(unittest.TestCase):
             finam.Info(time, grid=finam.NoGrid()),
         )
 
-        finam.data.tools._check_shape(xdata, finam.NoGrid())
+        finam.data.tools._check_shape(xdata.shape[1:], finam.NoGrid())
 
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.tools._check_shape(xdata, finam.NoGrid(dim=1))
+            finam.data.tools._check_shape(xdata.shape[1:], finam.NoGrid(dim=1))
 
     def test_quantify(self):
         xdata = np.asarray([1.0])

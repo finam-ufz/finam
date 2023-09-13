@@ -11,7 +11,6 @@ from ..errors import FinamDataError, FinamMetaDataError
 # pylint: disable-next=unused-import
 from . import cf_units, grid_spec
 from .grid_base import Grid, GridBase
-from .grid_tools import check_mask_equal
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here
@@ -19,6 +18,8 @@ pint.application_registry.default_format = "cf"
 UNITS = pint.application_registry
 
 _UNIT_PAIRS_CACHE = {}
+
+_MASK_INDICATORS = ["_FillValue", "missing_value"]
 
 
 def prepare(data, info, time_entries=1, force_copy=False, report_conversion=False):
@@ -61,7 +62,7 @@ def prepare(data, info, time_entries=1, force_copy=False, report_conversion=Fals
     """
     units_converted = None
     units = info.units
-    if isinstance(data, pint.Quantity):
+    if is_quantified(data):
         if not compatible_units(data.units, units):
             raise FinamDataError(
                 f"Given data has incompatible units. "
@@ -73,6 +74,7 @@ def prepare(data, info, time_entries=1, force_copy=False, report_conversion=Fals
         elif force_copy:
             data = data.copy()
     else:
+        # this covers masked arrays as well
         if isinstance(data, np.ndarray):
             if force_copy:
                 data = np.copy(data)
@@ -199,24 +201,6 @@ def to_datetime(date):
     return datetime.datetime.utcfromtimestamp(timestamp)
 
 
-def get_magnitude(xdata):
-    """
-    Get magnitude of given data.
-
-    Parameters
-    ----------
-    xdata : pint.Quantity
-        The given data array.
-
-    Returns
-    -------
-    numpy.ndarray
-        Magnitude of given data.
-    """
-    check_quantified(xdata, "get_magnitude")
-    return xdata.magnitude
-
-
 def strip_time(xdata, grid):
     """Returns a view of the data with the time dimension squeezed if there is only a single entry
 
@@ -247,6 +231,24 @@ def strip_time(xdata, grid):
     return xdata
 
 
+def get_magnitude(xdata):
+    """
+    Get magnitude of given data.
+
+    Parameters
+    ----------
+    xdata : pint.Quantity
+        The given data array.
+
+    Returns
+    -------
+    numpy.ndarray
+        Magnitude of given data.
+    """
+    check_quantified(xdata, "get_magnitude")
+    return xdata.magnitude
+
+
 def get_units(xdata):
     """
     Get units of the data.
@@ -261,6 +263,7 @@ def get_units(xdata):
     pint.Unit
         Units of the data.
     """
+    check_quantified(xdata, "get_units")
     return xdata.units
 
 
@@ -278,6 +281,7 @@ def get_dimensionality(xdata):
     pint.UnitsContainer
         Dimensionality of the data.
     """
+    check_quantified(xdata, "get_dimensionality")
     return xdata.dimensionality
 
 
@@ -341,11 +345,10 @@ def full_like(xdata, value):
         with the data filled with fill_value.
         Units will be taken from the input if present.
     """
-    d = np.full_like(xdata, value)
+    data = np.full_like(xdata, value)
     if is_quantified(xdata):
-        return UNITS.Quantity(d, xdata.units)
-
-    return d
+        return UNITS.Quantity(data, xdata.units)
+    return data
 
 
 def full(value, info):
@@ -368,10 +371,7 @@ def full(value, info):
     return prepare(np.full([1] + list(shape), value), info)
 
 
-def check(
-    xdata,
-    info,
-):
+def check(xdata, info):
     """
     Check if data matches given info.
 
@@ -392,7 +392,7 @@ def check(
     if not has_time_axis(xdata, info.grid):
         raise FinamDataError("check: given data should have a time dimension.")
 
-    _check_shape(xdata, info.grid)
+    _check_shape(xdata.shape[1:], info.grid)
 
     # check units
     if not compatible_units(info.units, xdata):
@@ -402,17 +402,16 @@ def check(
         )
 
 
-def _check_shape(xdata, grid):
-    in_shape = xdata.shape[1:]
-    if isinstance(grid, Grid) and in_shape != grid.data_shape:
+def _check_shape(shape, grid):
+    if isinstance(grid, Grid) and shape != grid.data_shape:
         raise FinamDataError(
             f"check: given data has wrong shape. "
-            f"Got {in_shape}, expected {grid.data_shape}"
+            f"Got {shape}, expected {grid.data_shape}"
         )
-    if isinstance(grid, grid_spec.NoGrid) and len(in_shape) != grid.dim:
+    if isinstance(grid, grid_spec.NoGrid) and len(shape) != grid.dim:
         raise FinamDataError(
             f"check: given data has wrong number of dimensions. "
-            f"Got {len(in_shape)}, expected {grid.dim}"
+            f"Got {len(shape)}, expected {grid.dim}"
         )
 
 
@@ -431,6 +430,224 @@ def is_quantified(xdata):
         Whether the data is a quantified DataArray.
     """
     return isinstance(xdata, pint.Quantity)
+
+
+def is_masked_array(data):
+    """
+    Check if data is a masked array.
+
+    Parameters
+    ----------
+    data : Any
+        The given data array.
+
+    Returns
+    -------
+    bool
+        Whether the data is a MaskedArray.
+    """
+    if is_quantified(data):
+        return np.ma.isMaskedArray(data.magnitude)
+    return np.ma.isMaskedArray(data)
+
+
+def has_masked_values(data):
+    """
+    Determine whether the data has masked values.
+
+    Parameters
+    ----------
+    data : Any
+        The given data array.
+
+    Returns
+    -------
+    bool
+        Whether the data is a MaskedArray and has any masked values.
+    """
+    return np.ma.is_masked(data)
+
+
+def filled(data, fill_value=None):
+    """
+    Return input as an array with masked data replaced by a fill value.
+
+    This routine respects quantified and un-quantified data.
+
+    Parameters
+    ----------
+    data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        The reference object input.
+    fill_value : array_like, optional
+        The value to use for invalid entries. Can be scalar or non-scalar.
+        If non-scalar, the resulting ndarray must be broadcastable over
+        input array. Default is None, in which case, the `fill_value`
+        attribute of the array is used instead.
+
+    Returns
+    -------
+    pint.Quantity or numpy.ndarray
+        New object with the same shape and type as other,
+        with the data filled with fill_value.
+        Units will be taken from the input if present.
+
+    See also
+    --------
+    :any:`np.ma.filled`:
+        Numpy routine doing the same.
+    """
+    if not is_masked_array(data):
+        return data
+    if is_quantified(data):
+        return UNITS.Quantity(data.magnitude.filled(fill_value), data.units)
+    return data.filled(fill_value)
+
+
+def to_masked(data, **kwargs):
+    """
+    Return a masked version of the data.
+
+    Parameters
+    ----------
+    data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        The reference object input.
+    **kwargs
+        keyword arguments forwarded to :any:`numpy.ma.array`
+
+    Returns
+    -------
+    pint.Quantity or numpy.ma.MaskedArray
+        New object with the same shape and type but as a masked array.
+        Units will be taken from the input if present.
+    """
+    if is_masked_array(data) and not kwargs:
+        return data
+    if is_quantified(data):
+        return UNITS.Quantity(np.ma.array(data.magnitude, **kwargs), data.units)
+    return np.ma.array(data, **kwargs)
+
+
+def to_compressed(xdata, order="C"):
+    """
+    Return all the non-masked data as a 1-D array respecting the given array order.
+
+    Parameters
+    ----------
+    data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        The reference object input.
+    order : str
+        order argument for :any:`numpy.ravel`
+    **kwargs
+        keyword arguments forwarded to :any:`numpy.ma.array`
+
+    Returns
+    -------
+    :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        New object with the flat shape and only unmasked data but and same type as input.
+        Units will be taken from the input if present.
+
+    See also
+    --------
+    :any:`np.ma.compressed`:
+        Numpy routine doing the same but only for C-order.
+    """
+    if is_masked_array(xdata):
+        data = np.ravel(xdata.data, order)
+        if xdata.mask is not np.ma.nomask:
+            data = data.compress(np.logical_not(np.ravel(xdata.mask, order)))
+        return quantify(data, xdata.units) if is_quantified(xdata) else data
+    return np.reshape(xdata, -1, order=order)
+
+
+def from_compressed(xdata, shape, order="C", **kwargs):
+    """
+    Fill a (masked) array following a given mask or shape with the provided data.
+
+    This will only create a masked array if kwargs are given (especially a mask).
+    Otherwise this is simply reshaping the given data.
+    Filling is performed in the given array order.
+
+    Parameters
+    ----------
+    data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        The reference object input.
+    shape : str
+        shape argument for :any:`numpy.reshape`
+    order : str
+        order argument for :any:`numpy.reshape`
+    **kwargs
+        keyword arguments forwarded to :any:`numpy.ma.array`
+
+    Returns
+    -------
+    :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        New object with the desired shape and same type as input.
+        Units will be taken from the input if present.
+        Will only be a masked array if kwargs are given.
+
+    See also
+    --------
+    to_compressed:
+        Inverse operation.
+    :any:`numpy.ma.array`:
+        Routine consuming kwargs to create a masked array.
+    :any:`numpy.reshape`:
+        Equivalent routine if no mask is provided.
+
+    Notes
+    -----
+    If both `mask` and `shape` are given, they need to match in size.
+    """
+    if kwargs:
+        if "mask" in kwargs:
+            mask = np.reshape(kwargs["mask"], -1, order=order)
+            if is_quantified(xdata):
+                # pylint: disable-next=unexpected-keyword-arg
+                data = quantify(np.empty_like(xdata, shape=np.size(mask)), xdata.units)
+            else:
+                # pylint: disable-next=unexpected-keyword-arg
+                data = np.empty_like(xdata, shape=np.size(mask))
+            data[~mask] = xdata
+            data = np.reshape(data, shape, order=order)
+        else:
+            data = np.reshape(xdata, shape, order=order)
+        return to_masked(data, **kwargs)
+    return np.reshape(xdata, shape, order=order)
+
+
+def check_data_covers_domain(data, mask=None):
+    """
+    Check if the given data covers a domain defined by a mask on the same grid.
+
+    Parameters
+    ----------
+    data : Any
+        The given data array for a single time-step.
+    mask : None or bool or array of bool, optional
+        Mask defining the target domain on the same grid as the data,
+        by default None
+
+    Returns
+    -------
+    bool
+        Whether the data covers the desired domain.
+
+    Raises
+    ------
+    ValueError
+        When mask is given and mask and data don't share the same shape.
+    """
+    if not _is_single_mask_value(mask) and np.shape(mask) != np.shape(data):
+        raise ValueError("check_data_covers_domain: mask and data shape differ.")
+    if not has_masked_values(data):
+        return True
+    if _is_single_mask_value(mask):
+        return bool(mask)
+    return np.all(mask[data.mask])
+
+
+def _is_single_mask_value(mask):
+    return mask is None or mask is np.ma.nomask or mask is False or mask is True
 
 
 def quantify(xdata, units=None):
@@ -602,6 +819,11 @@ class Info:
         units = None if units is None else UNITS.Unit(units)
         self.meta["units"] = units
 
+    @property
+    def is_masked(self):
+        """bool: whether info indicates masked data ("_FillValue" or "missing_value" in meta)."""
+        return any(v in self.meta for v in _MASK_INDICATORS)
+
     def copy(self):
         """Copies the info object"""
         return copy.copy(self)
@@ -658,23 +880,6 @@ class Info:
         if self.grid is not None and not self.grid.compatible_with(incoming.grid):
             if not (ignore_none and incoming.grid is None):
                 fail_info["grid"] = (incoming.grid, self.grid)
-                if (
-                    incoming.grid is not None
-                    and self.grid is not None
-                    and not check_mask_equal(self.grid, incoming.grid)
-                ):
-                    in_mask = (
-                        np.sum(incoming.grid.mask)
-                        if incoming.grid.mask is not None
-                        else 0
-                    )
-                    out_mask = (
-                        np.sum(self.grid.mask) if self.grid.mask is not None else 0
-                    )
-                    fail_info["mask"] = (
-                        f"{in_mask} point(s) masked",
-                        f"{out_mask} point(s) masked",
-                    )
                 success = False
 
         for k, v in self.meta.items():
