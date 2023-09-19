@@ -7,7 +7,7 @@ This chapter explains data and metadata in FINAM.
 Data arrays
 -----------
 
-Internally, all data is passed as :class:`numpy.ndarray`, wrapped in :class:`pint.Quantity`.
+Internally, all data is passed as :class:`numpy.ndarray` (or :class:`numpy.ma.MaskedArray`, see `Masked arrays`_), wrapped in :class:`pint.Quantity`.
 In addition, a time axis with a single entry is added at index 0.
 
 Data can be pushed to outputs as any type that can be wrapped in :class:`numpy.ndarray`.
@@ -35,6 +35,35 @@ Several tool functions are provided in :mod:`.data` to convert to and from the i
   Gets the :mod:`pint` dimensionality of the data (like length, mass, ...)
 * :func:`has_time_axis(xdata, grid) <.data.has_time_axis>`
   Checks if the data has a time axis
+
+Masked arrays
+^^^^^^^^^^^^^
+
+FINAM uses :class:`numpy.ma.MaskedArray` inside :class:`pint.Quantity` to represent masked data.
+Masked data does not require any special treatment and can be used like usual numpy arrays.
+
+Convenience functions for masked arrays are:
+
+* :func:`is_masked_array <.data.is_masked_array>` to check if the given data is a masked array
+* :func:`has_masked_values <.data.has_masked_values>` to check if the given data is a masked array and has some values masked
+* :func:`filled <.data.filled>` to create a copy of the data with masked entries filled with a given value, if it is a masked array
+
+.. warning::
+    Due to a :mod:`numpy` bug, quantities should not be created from masked data using multiplication syntax (i.e. ``magnitude * units``).
+    Instead, use method ``Quantity`` of :data:`.UNITS`.
+
+    .. testcode:: create-units-masked
+        :hide:
+
+        import finam
+        magnitude = 1.0
+
+    .. testcode:: create-units-masked
+
+        data = finam.UNITS.Quantity(magnitude, "m")
+
+    (See issues `pint#633 <https://github.com/hgrecco/pint/issues/633>`_, `numpy#15200 <https://github.com/numpy/numpy/issues/15200>`_)
+
 
 Metadata
 --------
