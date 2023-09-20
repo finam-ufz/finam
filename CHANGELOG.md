@@ -1,19 +1,29 @@
 # Release notes
 
-## [unpublished]
+## [v0.5.0]
 
 ### Features
 
 * Components and adapters can provide a dictionary of meta data (!259)
 * Class `Composition` hat a property `metadata` that collects and returns the meta data from all components and adapters (!259)
+* Automatic conversion between compatible grids (!255)
+* Adds methods `to_canonical`, `from_canonical` and `get_transform_to` to grid classes (!255)
+* Adds support for masked grids using `numpy.ma.MaskedArray` (!258, !260)
+* Adds convenience functions for dealing with masked arrays in `data.tools` (!260):  
+  `is_masked_array`, `has_masked_values`, `filled`, `to_compressed`, `from_compressed`, `check_data_covers_domain`
 
 ### Documentation
 
 * Adds a book chapter on wrapping existing models for FINAM (!256)
+* Adds a book section on masked data (!262)
 
 ### Bug fixes
 
 * No more logging of expected `FinamNoDataError` in inputs during the connect phase (!257)
+
+### Other
+
+* FINAM is now available on Conda via conda-forge
 
 ## [v0.4.0]
 
