@@ -195,6 +195,7 @@
 
 * initial release of FINAM
 
+
 [unpublished]: https://git.ufz.de/FINAM/finam/-/compare/v0.5.0...main
 [v0.5.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0-rc.2...v0.4.0
