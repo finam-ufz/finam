@@ -102,7 +102,7 @@ pypi_test_release:
     - build
   script:
     - pip install twine
-    - python -m twine upload --skip-existing -r testpypi -u __token__ -p ${TEST_PYPI_TOKEN} dist/*
+    - python -m twine upload --skip-existing -r testpypi -u __token__ -p ${OLD_TEST_PYPI_TOKEN} dist/*
   artifacts:
     paths:
       - dist
@@ -116,7 +116,7 @@ pypi_release:
     - build
   script:
     - pip install twine
-    - python -m twine upload -u __token__ -p ${PYPI_TOKEN} dist/*
+    - python -m twine upload -u __token__ -p ${OLD_PYPI_TOKEN} dist/*
   artifacts:
     paths:
       - dist
