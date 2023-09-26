@@ -98,14 +98,11 @@ build:
 
 pypi_test_release:
   stage: release
-  variables:
-    TWINE_USERNAME: __token__
-    TWINE_PASSWORD: ${TEST_PYPI_TOKEN}
   dependencies:
     - build
   script:
     - pip install twine
-    - python -m twine upload --skip-existing -r testpypi dist/*
+    - python -m twine upload --verbose --skip-existing -r testpypi -u __token__ -p ${TEST_PYPI_TOKEN} dist/*
   artifacts:
     paths:
       - dist
@@ -115,14 +112,11 @@ pypi_test_release:
 
 pypi_release:
   stage: release
-  variables:
-    TWINE_USERNAME: __token__
-    TWINE_PASSWORD: ${PYPI_TOKEN}
   dependencies:
     - build
   script:
     - pip install twine
-    - python -m twine upload dist/*
+    - python -m twine upload --verbose -u __token__ -p ${PYPI_TOKEN} dist/*
   artifacts:
     paths:
       - dist
