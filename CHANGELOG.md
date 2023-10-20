@@ -1,5 +1,11 @@
 # Release notes
 
+## [v0.5.1]
+
+### Bug fixes
+
+* Fix unquantified masked arrays loosing mask in `fm.data.prepare()` (#115, !270)
+
 ## [v0.5.0]
 
 ### Features
@@ -196,7 +202,8 @@
 * initial release of FINAM
 
 
-[unpublished]: https://git.ufz.de/FINAM/finam/-/compare/v0.5.0...main
+[unpublished]: https://git.ufz.de/FINAM/finam/-/compare/v0.5.1...main
+[v0.5.1]: https://git.ufz.de/FINAM/finam/-/compare/v0.5.0...v0.5.1
 [v0.5.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0-rc.2...v0.4.0
 [v0.4.0-rc.2]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0-rc.1...v0.4.0-rc.2

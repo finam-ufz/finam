@@ -207,6 +207,29 @@ class TestDataTools(unittest.TestCase):
         xdata2[0, 0] = 0 * finam.UNITS("m")
         self.assertNotEqual(0.0, data[0])
 
+    def test_prepare_masked(self):
+        time = dt(2000, 1, 1)
+
+        info = finam.Info(
+            time,
+            grid=finam.UniformGrid((3, 4), data_location=finam.Location.POINTS),
+            units="",
+        )
+
+        in_data = np.ma.MaskedArray(np.ndarray((3, 4)), mask=False)
+        in_data.mask[0, 0] = True
+
+        xdata = finam.data.prepare(in_data, info, force_copy=True)
+        self.assertTrue(finam.data.is_masked_array(xdata))
+        self.assertTrue(xdata.mask[0, 0, 0])
+        self.assertFalse(xdata.mask[0, 1, 0])
+
+        in_data = finam.data.quantify(in_data)
+        xdata = finam.data.prepare(in_data, info, force_copy=True)
+        self.assertTrue(finam.data.is_masked_array(xdata))
+        self.assertTrue(xdata.mask[0, 0, 0])
+        self.assertFalse(xdata.mask[0, 1, 0])
+
     def test_assert_type(self):
         finam.data.assert_type(self, "A", 1, [int, float])
 

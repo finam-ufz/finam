@@ -77,7 +77,7 @@ def prepare(data, info, time_entries=1, force_copy=False, report_conversion=Fals
         # this covers masked arrays as well
         if isinstance(data, np.ndarray):
             if force_copy:
-                data = np.copy(data)
+                data = data.copy()
             data = UNITS.Quantity(data, units)
         else:
             if force_copy:
