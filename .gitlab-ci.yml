@@ -10,7 +10,7 @@ stages:
 check:
   stage: test
   before_script:
-    - pip3 install 'black>=23,<24' 'pylint<3' 'isort[colors]<6'
+    - pip3 install 'black>=23,<24' 'pylint>=3' 'isort[colors]<6'
   script:
     - pip3 install --editable .
     - black --check --diff --color .
