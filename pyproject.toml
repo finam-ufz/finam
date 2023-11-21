@@ -63,6 +63,7 @@ doc = [
     "matplotlib>=3",
 ]
 test = [
+    "pygal==3.0.0",
     "pytest-cov>=3",
     "pytest-benchmark[histogram]>=4.0",
 ]
