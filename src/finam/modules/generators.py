@@ -148,8 +148,8 @@ class StaticCallbackGenerator(Component):
 
         generator = fm.modules.StaticCallbackGenerator(
             callbacks={
-                "Out1": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
-                "Out2": (lambda t: t.month, fm.Info(time=None, grid=fm.NoGrid()))
+                "Out1": (lambda: 1.0, fm.Info(time=None, grid=fm.NoGrid())),
+                "Out2": (lambda: 2.0, fm.Info(time=None, grid=fm.NoGrid()))
             },
         )
 

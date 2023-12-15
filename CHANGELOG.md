@@ -1,5 +1,11 @@
 # Release notes
 
+## [unpublished]
+
+### Documentation
+
+* Minor fixes in documentation examples and links (!272)
+
 ## [v0.5.1]
 
 ### Bug fixes

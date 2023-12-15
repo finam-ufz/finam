@@ -493,7 +493,7 @@ def filled(data, fill_value=None):
 
     See also
     --------
-    :any:`np.ma.filled`:
+    :func:`numpy.ma.filled`:
         Numpy routine doing the same.
     """
     if not is_masked_array(data):
@@ -548,7 +548,7 @@ def to_compressed(xdata, order="C"):
 
     See also
     --------
-    :any:`np.ma.compressed`:
+    :func:`numpy.ma.compressed`:
         Numpy routine doing the same but only for C-order.
     """
     if is_masked_array(xdata):
