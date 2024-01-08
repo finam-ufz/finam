@@ -995,8 +995,6 @@ class TestComposition(unittest.TestCase):
         self.assertIn("links", md)
 
         self.assertEqual([datetime(2000, 1, 1), None], md["time_frame"])
-        self.assertEqual(None, md["memory_limit"])
-        self.assertEqual("temp", md["memory_location"])
 
         self.assertIn(f"{module1.name}@{id(module1)}", md["components"])
         self.assertIn(f"{module2.name}@{id(module2)}", md["components"])

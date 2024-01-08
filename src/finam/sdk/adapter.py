@@ -71,7 +71,7 @@ class Adapter(IAdapter, Input, Output, ABC):
     def metadata(self):
         """
         The adapter's metadata.
-        Will only be called after the connect phase of the composition.
+        Will only be called after the connect phase from :attr:`Composition.metadata`.
 
         Adapters can overwrite this property to add their own specific metadata:
 
