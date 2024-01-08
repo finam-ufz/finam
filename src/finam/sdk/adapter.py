@@ -70,10 +70,33 @@ class Adapter(IAdapter, Input, Output, ABC):
     @property
     def metadata(self):
         """
-        The adapter's meta data.
+        The adapter's metadata.
         Will only be called after the connect phase of the composition.
 
-        Returns an empty ``dict`` unless overwritten in adapter implementation.
+        Adapters can overwrite this property to add their own specific metadata:
+
+        .. code-block:: Python
+
+            class MyAdapter(Adapter):
+
+                @property
+                def metadata(self):
+                    // Get the default metadata
+                    md = super().metadata
+
+                    // Add your own metadata
+                    md["my_field"] = "some value"
+
+                    // Return the dictionary
+                    return md
+
+
+        Returns
+        -------
+        dict
+            A ``dict`` with the following default metadata:
+              - ``name`` - the component's name
+              - ``class`` - the component's class
         """
         meta = {
             "name": self.name,

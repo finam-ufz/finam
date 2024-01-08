@@ -221,16 +221,36 @@ class Component(IComponent, Loggable, ABC):
     @property
     def metadata(self):
         """
-        The component's meta data.
+        The component's metadata.
         Will only be called after the connect phase of the composition.
 
-        Returns an empty ``dict`` unless overwritten in component implementation.
-        """
-        meta = {
-            "name": self.name,
-            "class": self.__class__.__module__ + "." + self.__class__.__qualname__,
-        }
+        Components can overwrite this property to add their own specific metadata:
 
+        .. code-block:: Python
+
+            class MyComponent(Component):
+
+                @property
+                def metadata(self):
+                    // Get the default metadata
+                    md = super().metadata
+
+                    // Add your own metadata
+                    md["my_field"] = "some value"
+
+                    // Return the dictionary
+                    return md
+
+
+        Returns
+        -------
+        dict
+            A ``dict`` with the following default metadata:
+              - ``name`` - the component's name
+              - ``class`` - the component's class
+              - ``inputs`` - ``dict`` of metadata for all inputs
+              - ``outputs`` - ``dict`` of metadata for all outputs
+        """
         inputs = {}
         outputs = {}
 
@@ -249,10 +269,12 @@ class Component(IComponent, Loggable, ABC):
                 "has_targets": out.has_targets,
             }
 
-        meta["inputs"] = inputs
-        meta["outputs"] = outputs
-
-        return meta
+        return {
+            "name": self.name,
+            "class": self.__class__.__module__ + "." + self.__class__.__qualname__,
+            "inputs": inputs,
+            "outputs": outputs,
+        }
 
     @property
     def logger_name(self):

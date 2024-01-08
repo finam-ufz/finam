@@ -444,7 +444,14 @@ class Composition(Loggable):
         Returns
         -------
         dict
-            A dictionary with keys like ``name@id``. Values are dictionaries containing the meta data.
+            A dictionary with the following metadata keys:
+              - ``components``
+              - ``adapters``
+              - ``links``
+              - ``time_frame``
+              - ``memory_limit``
+              - ``memory_location``
+            Component and adapter sub-dictionaries use keys like ``name@id``.
 
         Raises
         ------
