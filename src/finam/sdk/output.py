@@ -128,7 +128,8 @@ class Output(IOutput, Loggable):
 
         self._targets.append(target)
 
-    def get_targets(self):
+    @property
+    def targets(self):
         """Get target inputs and adapters for this output.
 
         Returns

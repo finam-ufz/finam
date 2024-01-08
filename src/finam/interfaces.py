@@ -202,8 +202,9 @@ class IInput(ABC):
             source output or adapter
         """
 
+    @property
     @abstractmethod
-    def get_source(self):
+    def source(self):
         """Get the input's source output or adapter
 
         Returns
@@ -338,8 +339,9 @@ class IOutput(ABC):
             The target to add.
         """
 
+    @property
     @abstractmethod
-    def get_targets(self):
+    def targets(self):
         """Get target inputs and adapters for this output.
 
         Returns

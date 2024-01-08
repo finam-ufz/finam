@@ -463,7 +463,7 @@ class Composition(Loggable):
 
 
 def _collect_adapters_input(inp: IInput, out_adapters: set):
-    src = inp.get_source()
+    src = inp.source
     if src is None:
         return
 
@@ -473,7 +473,7 @@ def _collect_adapters_input(inp: IInput, out_adapters: set):
 
 
 def _collect_adapters_output(out: IOutput, out_adapters: set):
-    for trg in out.get_targets():
+    for trg in out.targets:
         if isinstance(trg, IAdapter):
             out_adapters.add(trg)
             _collect_adapters_output(trg, out_adapters)
@@ -521,14 +521,14 @@ def _collect_inputs_outputs(modules):
     for mod in modules:
         for _, inp in mod.inputs.items():
             while isinstance(inp, IInput):
-                inp = inp.get_source()
+                inp = inp.source
             all_outputs.add(inp)
 
         for _, out in mod.outputs.items():
             targets = {out}
             while len(targets) > 0:
                 target = targets.pop()
-                curr_targets = target.get_targets()
+                curr_targets = target.targets
                 for target in curr_targets:
                     if isinstance(target, IOutput):
                         targets.add(target)
@@ -545,7 +545,7 @@ def _check_branching(module, out):
         target, no_branch = targets.pop()
         no_branch = no_branch or isinstance(target, NoBranchAdapter)
 
-        curr_targets = target.get_targets()
+        curr_targets = target.targets
 
         if no_branch and len(curr_targets) > 1:
             raise FinamConnectError(
@@ -562,11 +562,11 @@ def _check_input_connected(module, inp):
     static = inp.is_static
 
     while isinstance(inp, IInput):
-        if inp.get_source() is None:
+        if inp.source is None:
             raise FinamConnectError(
                 f"Unconnected input '{inp.name}' for target module {module.name}"
             )
-        inp = inp.get_source()
+        inp = inp.source
 
     if static and not inp.is_static:
         raise FinamConnectError("Can't connect a static input to a non-static output.")
@@ -575,7 +575,7 @@ def _check_input_connected(module, inp):
 def _check_dead_links(module, inp):
     chain = [inp]
     while isinstance(inp, IInput):
-        inp = inp.get_source()
+        inp = inp.source
         chain.append(inp)
 
     first_index = -1
@@ -600,7 +600,7 @@ def _find_dependencies(module, output_owners, target_time):
         local_time = target_time
         delayed = False
         while isinstance(inp, IInput):
-            inp = inp.get_source()
+            inp = inp.source
             if isinstance(inp, NoDependencyAdapter):
                 break
             if isinstance(inp, ITimeDelayAdapter):

@@ -55,6 +55,17 @@ class Input(IInput, Loggable):
         """bool: if the input needs push."""
         return False
 
+    @property
+    def source(self):
+        """Get the input's source output or adapter
+
+        Returns
+        -------
+        :class:`.IOutput`
+            The input's source.
+        """
+        return self._source
+
     def set_source(self, source):
         """Set the input's source output or adapter
 
@@ -75,16 +86,6 @@ class Input(IInput, Loggable):
                 raise ValueError("Only IOutput can be set as source for Input")
 
         self._source = source
-
-    def get_source(self):
-        """Get the input's source output or adapter
-
-        Returns
-        -------
-        :class:`.IOutput`
-            The input's source.
-        """
-        return self._source
 
     def source_updated(self, time):
         """Informs the input that a new output is available.

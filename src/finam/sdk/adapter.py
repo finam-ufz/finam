@@ -128,7 +128,7 @@ class Adapter(IAdapter, Input, Output, ABC):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
 
-        for target in self.get_targets():
+        for target in self.targets:
             target.source_updated(time)
 
     def _source_updated(self, time):

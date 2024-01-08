@@ -369,7 +369,7 @@ class ScheduleLogger(Component):
             for _, inp in self.inputs.items():
                 out = inp
                 while isinstance(out, IInput):
-                    out = out.get_source()
+                    out = out.source
                 self._output_map[inp] = out
 
         self._schedule[caller].append(time)
