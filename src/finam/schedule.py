@@ -444,13 +444,12 @@ class Composition(Loggable):
         Returns
         -------
         dict
-            A dictionary with the following metadata keys:
-              - ``components``
-              - ``adapters``
-              - ``links``
-              - ``time_frame``
-              - ``memory_limit``
-              - ``memory_location``
+            A ``dict`` with the following metadata keys:
+              - ``components`` - A `dict` containing metadata for all components
+              - ``adapters`` - A `dict` containing metadata for all adapters
+              - ``links`` - A list of all coupling connections
+              - ``time_frame`` - A list of two items: simulation start and end time
+            
             Component and adapter sub-dictionaries use keys like ``name@id``.
 
         Raises
@@ -527,8 +526,6 @@ class Composition(Loggable):
             "adapters": adas,
             "links": links,
             "time_frame": list(self._time_frame),
-            "memory_limit": self._slot_memory_limit,
-            "memory_location": self._slot_memory_location,
         }
 
 

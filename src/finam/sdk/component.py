@@ -226,21 +226,28 @@ class Component(IComponent, Loggable, ABC):
 
         Components can overwrite this property to add their own specific metadata:
 
-        .. code-block:: Python
+        .. testcode:: metadata
 
-            class MyComponent(Component):
+            import finam as fm
+
+            class MyComponent(fm.Component):
 
                 @property
                 def metadata(self):
-                    // Get the default metadata
+                    # Get the default metadata
                     md = super().metadata
 
-                    // Add your own metadata
+                    # Add your own metadata
                     md["my_field"] = "some value"
 
-                    // Return the dictionary
+                    # Return the dictionary
                     return md
 
+        .. testcode:: metadata
+            :hide:
+
+            comp = MyComponent()
+            md = comp.metadata
 
         Returns
         -------

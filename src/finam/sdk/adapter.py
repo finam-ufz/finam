@@ -75,20 +75,28 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Adapters can overwrite this property to add their own specific metadata:
 
-        .. code-block:: Python
+        .. testcode:: metadata
 
-            class MyAdapter(Adapter):
+            import finam as fm
+
+            class MyAdapter(fm.Adapter):
 
                 @property
                 def metadata(self):
-                    // Get the default metadata
+                    # Get the default metadata
                     md = super().metadata
 
-                    // Add your own metadata
+                    # Add your own metadata
                     md["my_field"] = "some value"
 
-                    // Return the dictionary
+                    # Return the dictionary
                     return md
+
+        .. testcode:: metadata
+            :hide:
+
+            ada = MyAdapter()
+            md = ada.metadata
 
 
         Returns
