@@ -117,15 +117,15 @@ class Composition(Loggable):
                     raise ValueError(
                         "Composition: modules need to be instances of 'IComponent'."
                     )
-        self.modules = modules
-        self.adapters = set()
-        self.dependencies = None
-        self.output_owners = None
-        self.is_initialized = False
-        self.is_connected = False
+        self._modules = modules
+        self._adapters = set()
+        self._dependencies = None
+        self._output_owners = None
+        self._is_initialized = False
+        self._is_connected = False
 
-        self.slot_memory_limit = slot_memory_limit
-        self.slot_memory_location = slot_memory_location
+        self._slot_memory_limit = slot_memory_limit
+        self._slot_memory_location = slot_memory_location
 
     def initialize(self):
         """Initialize all modules.
@@ -133,16 +133,16 @@ class Composition(Loggable):
         After the call, module inputs and outputs are available for linking.
         """
         self.logger.info("init composition")
-        if self.is_initialized:
+        if self._is_initialized:
             raise FinamStatusError("Composition was already initialized.")
 
-        for mod in self.modules:
+        for mod in self._modules:
             self._check_status(mod, [ComponentStatus.CREATED])
 
-        if self.slot_memory_location is not None:
-            os.makedirs(self.slot_memory_location, exist_ok=True)
+        if self._slot_memory_location is not None:
+            os.makedirs(self._slot_memory_location, exist_ok=True)
 
-        for mod in self.modules:
+        for mod in self._modules:
             if is_loggable(mod) and mod.uses_base_logger_name:
                 mod.base_logger_name = self.logger_name
             mod.initialize()
@@ -153,13 +153,13 @@ class Composition(Loggable):
 
             for _, out in mod.outputs.items():
                 if out.memory_limit is None:
-                    out.memory_limit = self.slot_memory_limit
+                    out.memory_limit = self._slot_memory_limit
                 if out.memory_location is None:
-                    out.memory_location = self.slot_memory_location
+                    out.memory_location = self._slot_memory_location
 
             self._check_status(mod, [ComponentStatus.INITIALIZED])
 
-        self.is_initialized = True
+        self._is_initialized = True
 
     def connect(self, start_time=None):
         """Performs the connect and validate phases of the composition
@@ -173,10 +173,10 @@ class Composition(Loggable):
             If provided, it should be the starting time of the earliest component.
             If not provided, the composition tries to determine the starting time automatically.
         """
-        if self.is_connected:
+        if self._is_connected:
             raise FinamStatusError("Composition was already connected.")
 
-        time_modules = [m for m in self.modules if isinstance(m, ITimeComponent)]
+        time_modules = [m for m in self._modules if isinstance(m, ITimeComponent)]
 
         with ErrorLogger(self.logger):
             if len(time_modules) == 0:
@@ -195,22 +195,22 @@ class Composition(Loggable):
         self._collect_adapters()
         self._validate_composition()
 
-        for ada in self.adapters:
+        for ada in self._adapters:
             if ada.memory_limit is None:
-                ada.memory_limit = self.slot_memory_limit
+                ada.memory_limit = self._slot_memory_limit
             if ada.memory_location is None:
-                ada.memory_location = self.slot_memory_location
+                ada.memory_location = self._slot_memory_location
 
         self._connect_components(start_time)
 
         self.logger.info("validate components")
-        for mod in self.modules:
+        for mod in self._modules:
             mod.validate()
             self._check_status(mod, [ComponentStatus.VALIDATED])
 
-        self.output_owners = _map_outputs(self.modules)
+        self._output_owners = _map_outputs(self._modules)
 
-        self.is_connected = True
+        self._is_connected = True
 
     def run(self, start_time=None, end_time=None):
         """Run this composition using the loop-based update strategy.
@@ -228,7 +228,7 @@ class Composition(Loggable):
             Simulation time up to which to simulate.
             Should be ``None`` if no components with time are present.
         """
-        time_modules = [m for m in self.modules if isinstance(m, ITimeComponent)]
+        time_modules = [m for m in self._modules if isinstance(m, ITimeComponent)]
 
         with ErrorLogger(self.logger):
             if len(time_modules) == 0:
@@ -242,7 +242,7 @@ class Composition(Loggable):
                         "end must be of type datetime for a composition with time components"
                     )
 
-        if not self.is_connected:
+        if not self._is_connected:
             self.connect(start_time)
 
         self.logger.info("run composition")
@@ -291,10 +291,10 @@ class Composition(Loggable):
         if isinstance(module, ITimeComponent):
             target_time = module.next_time
 
-        deps = _find_dependencies(module, self.output_owners, target_time)
+        deps = _find_dependencies(module, self._output_owners, target_time)
 
         for dep, (local_time, delayed) in deps.items():
-            comp = self.output_owners[dep]
+            comp = self._output_owners[dep]
             if isinstance(comp, ITimeComponent):
                 if dep.time < local_time:
                     chain[module] = (local_time - dep.time, delayed)
@@ -316,16 +316,16 @@ class Composition(Loggable):
         return None
 
     def _collect_adapters(self):
-        for mod in self.modules:
+        for mod in self._modules:
             for _, inp in mod.inputs.items():
-                _collect_adapters_input(inp, self.adapters)
+                _collect_adapters_input(inp, self._adapters)
             for _, out in mod.outputs.items():
-                _collect_adapters_output(out, self.adapters)
+                _collect_adapters_output(out, self._adapters)
 
     def _validate_composition(self):
         """Validates the coupling setup by checking for dangling inputs and disallowed branching connections."""
         self.logger.info("validate composition")
-        for mod in self.modules:
+        for mod in self._modules:
             with ErrorLogger(mod.logger if is_loggable(mod) else self.logger):
                 for inp in mod.inputs.values():
                     _check_input_connected(mod, inp)
@@ -335,7 +335,7 @@ class Composition(Loggable):
                     _check_branching(mod, out)
 
         with ErrorLogger(self.logger):
-            _check_missing_modules(self.modules)
+            _check_missing_modules(self._modules)
 
     def _connect_components(self, time):
         self.logger.info("connect components")
@@ -344,7 +344,7 @@ class Composition(Loggable):
             self.logger.debug("connect iteration %d", counter)
             any_unconnected = False
             any_new_connection = False
-            for mod in self.modules:
+            for mod in self._modules:
                 if mod.status != ComponentStatus.CONNECTED:
                     mod.connect(time)
                     self._check_status(
@@ -368,7 +368,7 @@ class Composition(Loggable):
             if not any_new_connection:
                 unconn = [
                     m.name
-                    for m in self.modules
+                    for m in self._modules
                     if m.status != ComponentStatus.CONNECTED
                 ]
                 with ErrorLogger(self.logger):
@@ -381,7 +381,7 @@ class Composition(Loggable):
 
     def _finalize_components(self):
         self.logger.info("finalize components")
-        for mod in self.modules:
+        for mod in self._modules:
             self._check_status(
                 mod,
                 [
@@ -400,7 +400,7 @@ class Composition(Loggable):
             mod.finalize()
             self._check_status(mod, [ComponentStatus.FINALIZED])
 
-        for ada in self.adapters:
+        for ada in self._adapters:
             ada.finalize()
 
     def _finalize_composition(self):
@@ -444,18 +444,18 @@ class Composition(Loggable):
         FinamStatusError
             Raises the error if ``connect`` was not called.
         """
-        if not self.is_connected:
+        if not self._is_connected:
             with ErrorLogger(self.logger):
                 raise FinamStatusError(
                     "can't get meta data for a composition before connect was called"
                 )
 
         md = {}
-        for mod in self.modules:
+        for mod in self._modules:
             key = f"{mod.name}@{id(mod)}"
             md[key] = mod.metadata
 
-        for ada in self.adapters:
+        for ada in self._adapters:
             key = f"{ada.name}@{id(ada)}"
             md[key] = ada.metadata
 
