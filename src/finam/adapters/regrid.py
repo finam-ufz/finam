@@ -77,7 +77,7 @@ class ARegridding(Adapter, ABC):
 
         return out_info
 
-    def _transform(self, points):
+    def _do_transform(self, points):
         if self.transformer is None:
             return points
         return np.asarray(list(self.transformer.itransform(points)))
@@ -123,7 +123,7 @@ class RegridNearest(ARegridding):
 
     def _update_grid_specs(self):
         self.transformer = _create_transformer(self.output_grid, self.input_grid)
-        out_coords = self._transform(self.output_grid.data_points)
+        out_coords = self._do_transform(self.output_grid.data_points)
 
         # generate IDs to select data
         kw = self.tree_options or {}
@@ -200,7 +200,7 @@ class RegridLinear(ARegridding):
 
     def _update_grid_specs(self):
         self.transformer = _create_transformer(self.output_grid, self.input_grid)
-        self.out_coords = self._transform(self.output_grid.data_points)
+        self.out_coords = self._do_transform(self.output_grid.data_points)
 
         if isinstance(self.input_grid, StructuredGrid):
             self.inter = RegularGridInterpolator(

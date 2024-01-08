@@ -26,7 +26,7 @@ class Output(IOutput, Loggable):
 
     def __init__(self, name=None, info=None, static=False, **info_kwargs):
         Loggable.__init__(self)
-        self.targets = []
+        self._targets = []
         self.data = []
         self._output_info = None
         self.base_logger_name = None
@@ -126,7 +126,7 @@ class Output(IOutput, Loggable):
             with ErrorLogger(self.logger):
                 raise ValueError("Only IInput can added as target for IOutput")
 
-        self.targets.append(target)
+        self._targets.append(target)
 
     def get_targets(self):
         """Get target inputs and adapters for this output.
@@ -136,7 +136,7 @@ class Output(IOutput, Loggable):
         list
             List of targets.
         """
-        return self.targets
+        return self._targets
 
     def pinged(self, source):
         """Called when receiving a ping from a downstream input."""
@@ -226,7 +226,7 @@ class Output(IOutput, Loggable):
         with ErrorLogger(self.logger):
             _check_time(time, self.is_static)
 
-        for target in self.targets:
+        for target in self._targets:
             target.source_updated(time)
 
     def get_data(self, time, target):
@@ -444,7 +444,7 @@ class Output(IOutput, Loggable):
     @property
     def has_targets(self):
         """Flag if this output instance has any targets."""
-        return bool(self.targets)
+        return bool(self._targets)
 
     @property
     def logger_name(self):

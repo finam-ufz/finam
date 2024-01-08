@@ -144,11 +144,11 @@ class TestChaining(unittest.TestCase):
 
         adapter1 >> adapter2 >> adapter3
 
-        self.assertEqual(adapter1.targets, [adapter2])
-        self.assertEqual(adapter2.targets, [adapter3])
+        self.assertEqual(adapter1.get_targets(), [adapter2])
+        self.assertEqual(adapter2.get_targets(), [adapter3])
 
-        self.assertEqual(adapter2.source, adapter1)
-        self.assertEqual(adapter3.source, adapter2)
+        self.assertEqual(adapter2.get_source(), adapter1)
+        self.assertEqual(adapter3.get_source(), adapter2)
 
     def test_multiple_sources(self):
         adapter1 = MockupAdapter()
