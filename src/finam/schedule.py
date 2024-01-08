@@ -519,9 +519,9 @@ class Composition(Loggable):
             "components": comps,
             "adapters": adas,
             "links": links,
-            "timeFrame": list(self._time_frame),
-            "memoryLimit": self._slot_memory_limit,
-            "memoryLocation": self._slot_memory_location,
+            "time_frame": list(self._time_frame),
+            "memory_limit": self._slot_memory_limit,
+            "memory_location": self._slot_memory_location,
         }
 
 
