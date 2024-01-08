@@ -2,6 +2,12 @@
 
 ## [unpublished]
 
+### Breaking changes
+
+* All fields of `Composition` are now private (!273)
+* `Input.source` is private, `Input.get_source()` becomes property `Input.source` (!273)
+* `Output.targets` is private, `Output.get_targets()` becomes property `Output.targets` (!273)
+
 ### Documentation
 
 * Minor fixes in documentation examples and links (!272)
