@@ -226,7 +226,33 @@ class Component(IComponent, Loggable, ABC):
 
         Returns an empty ``dict`` unless overwritten in component implementation.
         """
-        return {}
+        meta = {
+            "name": self.name,
+            "class": self.__class__.__module__ + "." + self.__class__.__qualname__,
+        }
+
+        inputs = {}
+        outputs = {}
+
+        for name, inp in self.inputs.items():
+            inputs[name] = {
+                "name": name,
+                "class": inp.__class__.__module__ + "." + inp.__class__.__qualname__,
+                "isStatic": inp.is_static,
+            }
+
+        for name, out in self.outputs.items():
+            outputs[name] = {
+                "name": name,
+                "class": out.__class__.__module__ + "." + out.__class__.__qualname__,
+                "isStatic": out.is_static,
+                "has_targets": out.has_targets,
+            }
+
+        meta["inputs"] = inputs
+        meta["outputs"] = outputs
+
+        return meta
 
     @property
     def logger_name(self):

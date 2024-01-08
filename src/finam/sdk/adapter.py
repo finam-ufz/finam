@@ -75,7 +75,12 @@ class Adapter(IAdapter, Input, Output, ABC):
 
         Returns an empty ``dict`` unless overwritten in adapter implementation.
         """
-        return {}
+        meta = {
+            "name": self.name,
+            "class": self.__class__.__module__ + "." + self.__class__.__qualname__,
+        }
+
+        return meta
 
     @final
     def push_data(self, data, time):

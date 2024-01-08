@@ -120,9 +120,12 @@ class Composition(Loggable):
         self._modules = modules
         self._adapters = set()
         self._dependencies = None
+        self._input_owners = None
         self._output_owners = None
         self._is_initialized = False
         self._is_connected = False
+
+        self._time_frame = (None, None)
 
         self._slot_memory_limit = slot_memory_limit
         self._slot_memory_location = slot_memory_location
@@ -209,8 +212,10 @@ class Composition(Loggable):
             self._check_status(mod, [ComponentStatus.VALIDATED])
 
         self._output_owners = _map_outputs(self._modules)
+        self._input_owners = _map_inputs(self._modules)
 
         self._is_connected = True
+        self._time_frame = (start_time, None)
 
     def run(self, start_time=None, end_time=None):
         """Run this composition using the loop-based update strategy.
@@ -244,6 +249,8 @@ class Composition(Loggable):
 
         if not self._is_connected:
             self.connect(start_time)
+
+        self._time_frame = (self._time_frame[0], end_time)
 
         self.logger.info("run composition")
         while len(time_modules) > 0:
@@ -450,16 +457,72 @@ class Composition(Loggable):
                     "can't get meta data for a composition before connect was called"
                 )
 
-        md = {}
+        comps = {}
         for mod in self._modules:
             key = f"{mod.name}@{id(mod)}"
-            md[key] = mod.metadata
+            comps[key] = mod.metadata
 
+        adas = {}
         for ada in self._adapters:
             key = f"{ada.name}@{id(ada)}"
-            md[key] = ada.metadata
+            adas[key] = ada.metadata
 
-        return md
+        links = []
+
+        for mod in self._modules:
+            for out_name, out in mod.outputs.items():
+                for target in out.targets:
+                    if isinstance(target, IAdapter):
+                        to = {
+                            "adapter": f"{target.name}@{id(target)}",
+                        }
+                    else:
+                        owner = self._input_owners[target]
+                        to = {
+                            "component": f"{owner.name}@{id(owner)}",
+                            "input": target.name,
+                        }
+
+                    links.append(
+                        {
+                            "from": {
+                                "component": f"{mod.name}@{id(mod)}",
+                                "output": out_name,
+                            },
+                            "to": to,
+                        }
+                    )
+
+        for ada in self._adapters:
+            for target in ada.targets:
+                if isinstance(target, IAdapter):
+                    to = {
+                        "adapter": f"{target.name}@{id(target)}",
+                    }
+                else:
+                    owner = self._input_owners[target]
+                    to = {
+                        "component": f"{owner.name}@{id(owner)}",
+                        "input": target.name,
+                    }
+
+                links.append(
+                    {
+                        "from": {
+                            "adapter": f"{ada.name}@{id(ada)}",
+                        },
+                        "to": to,
+                    }
+                )
+
+        return {
+            "components": comps,
+            "adapters": adas,
+            "links": links,
+            "timeFrame": list(self._time_frame),
+            "memoryLimit": self._slot_memory_limit,
+            "memoryLocation": self._slot_memory_location,
+        }
 
 
 def _collect_adapters_input(inp: IInput, out_adapters: set):
@@ -592,6 +655,14 @@ def _map_outputs(modules):
         for _, out in mod.outputs.items():
             out_map[out] = mod
     return out_map
+
+
+def _map_inputs(modules):
+    in_map = {}
+    for mod in modules:
+        for _, inp in mod.inputs.items():
+            in_map[inp] = mod
+    return in_map
 
 
 def _find_dependencies(module, output_owners, target_time):
