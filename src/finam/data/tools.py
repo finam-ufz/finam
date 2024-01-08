@@ -931,3 +931,11 @@ class Info:
             f"{k}=" + ("None" if v is None else f"'{v}'") for k, v in self.meta.items()
         )
         return f"Info(grid={grid}{meta})"
+
+    def as_dict(self):
+        """Returns a ``dict`` containing all metadata in this Info."""
+        return {
+            **self.meta,
+            "grid": f"{self.grid}",
+            "units": f"{self.units:~}",
+        }

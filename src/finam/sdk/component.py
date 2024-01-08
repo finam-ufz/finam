@@ -266,6 +266,7 @@ class Component(IComponent, Loggable, ABC):
                 "name": name,
                 "class": inp.__class__.__module__ + "." + inp.__class__.__qualname__,
                 "is_static": inp.is_static,
+                "info": inp.info.as_dict(),
             }
 
         for name, out in self.outputs.items():
@@ -274,6 +275,7 @@ class Component(IComponent, Loggable, ABC):
                 "class": out.__class__.__module__ + "." + out.__class__.__qualname__,
                 "is_static": out.is_static,
                 "has_targets": out.has_targets,
+                "info": out.info.as_dict(),
             }
 
         return {

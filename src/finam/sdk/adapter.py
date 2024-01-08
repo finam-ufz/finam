@@ -96,7 +96,6 @@ class Adapter(IAdapter, Input, Output, ABC):
             :hide:
 
             ada = MyAdapter()
-            md = ada.metadata
 
 
         Returns
@@ -109,7 +108,11 @@ class Adapter(IAdapter, Input, Output, ABC):
         meta = {
             "name": self.name,
             "class": self.__class__.__module__ + "." + self.__class__.__qualname__,
+            "out_info": self._output_info.as_dict(),
         }
+
+        if self._input_info is not None:
+            meta["in_info"] = self._input_info.as_dict()
 
         return meta
 
