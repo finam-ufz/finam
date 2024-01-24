@@ -66,7 +66,8 @@ class Input(IInput, Loggable):
         """
         return self._source
 
-    def set_source(self, source):
+    @source.setter
+    def source(self, source):
         """Set the input's source output or adapter
 
         Parameters

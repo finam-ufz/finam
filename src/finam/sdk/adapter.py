@@ -268,7 +268,19 @@ class Adapter(IAdapter, Input, Output, ABC):
         self._output_info = in_info
         return in_info
 
-    def set_source(self, source):
+    @property
+    def source(self):
+        """Get the input's source output or adapter
+
+        Returns
+        -------
+        :class:`.IOutput`
+            The input's source.
+        """
+        return super().source
+
+    @source.setter
+    def source(self, source):
         """Set the adapter input's source output or adapter
 
         Parameters

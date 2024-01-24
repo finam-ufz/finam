@@ -192,16 +192,6 @@ class IInput(ABC):
     def needs_push(self):
         """bool: if the input needs push."""
 
-    @abstractmethod
-    def set_source(self, source):
-        """Set the input's source output or adapter
-
-        Parameters
-        ----------
-        source : :class:`.IOutput`
-            source output or adapter
-        """
-
     @property
     @abstractmethod
     def source(self):
@@ -211,6 +201,17 @@ class IInput(ABC):
         -------
         :class:`.IOutput`
             The input's source.
+        """
+
+    @source.setter
+    @abstractmethod
+    def source(self, source):
+        """Set the input's source output or adapter
+
+        Parameters
+        ----------
+        source : :class:`.IOutput`
+            source output or adapter
         """
 
     @abstractmethod

@@ -452,12 +452,12 @@ class TestInput(unittest.TestCase):
         outp = Output(name="Out", time=time, grid=NoGrid())
 
         with self.assertRaises(ValueError):
-            inp.set_source(0)
+            inp.source = 0
 
-        inp.set_source(outp)
+        inp.source = outp
 
         with self.assertRaises(ValueError):
-            inp.set_source(outp)
+            inp.source = outp
 
     def test_fail_accept(self):
         t = datetime(2000, 1, 1)
@@ -708,7 +708,7 @@ class TestAdapter(unittest.TestCase):
             adapter.exchange_info(0)
 
         with self.assertRaises(FinamLogError):
-            adapter.set_source(0)
+            adapter.source = 0
 
         self.assertEqual(adapter.info, None)
 

@@ -439,7 +439,7 @@ class Output(IOutput, Loggable):
         """
         self.logger.trace("chain")
         self.add_target(other)
-        other.set_source(self)
+        other.source = self
         return other
 
     @property
