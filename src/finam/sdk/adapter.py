@@ -35,8 +35,8 @@ class Adapter(IAdapter, Input, Output, ABC):
         Input.__init__(self, name=self.__class__.__name__)
         Output.__init__(self, name=self.__class__.__name__)
         self._name = self.__class__.__name__
-        self.source = None
-        self.targets = []
+        self._source = None
+        self._targets = []
 
     def with_name(self, name):
         """Renames the adapter and returns self."""
@@ -239,7 +239,7 @@ class Adapter(IAdapter, Input, Output, ABC):
 
     def pinged(self, source):
         """Called when receiving a ping from a downstream input."""
-        self.source.pinged(self if self.needs_push else source)
+        self._source.pinged(self if self.needs_push else source)
 
     @final
     def exchange_info(self, info=None):
@@ -262,13 +262,25 @@ class Adapter(IAdapter, Input, Output, ABC):
             if not isinstance(info, Info):
                 raise FinamMetaDataError("Metadata must be of type Info")
 
-        in_info = self.source.get_info(info)
+        in_info = self._source.get_info(info)
 
         self._input_info = in_info
         self._output_info = in_info
         return in_info
 
-    def set_source(self, source):
+    @property
+    def source(self):
+        """Get the input's source output or adapter
+
+        Returns
+        -------
+        :class:`.IOutput`
+            The input's source.
+        """
+        return super().source
+
+    @source.setter
+    def source(self, source):
         """Set the adapter input's source output or adapter
 
         Parameters
@@ -287,7 +299,7 @@ class Adapter(IAdapter, Input, Output, ABC):
             self.base_logger_name = source.logger_name
 
         with ErrorLogger(self.logger):
-            if self.source is not None:
+            if self._source is not None:
                 raise ValueError(
                     "Source of input is already set! "
                     "(You probably tried to connect multiple outputs to a single input)"
@@ -295,7 +307,7 @@ class Adapter(IAdapter, Input, Output, ABC):
             if not isinstance(source, IOutput):
                 raise ValueError("Only IOutput can be set as source for Input")
 
-        self.source = source
+        self._source = source
 
     @property
     def logger_name(self):

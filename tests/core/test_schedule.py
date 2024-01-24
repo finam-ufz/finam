@@ -321,7 +321,7 @@ class TestComposition(unittest.TestCase):
 
         composition.connect()
 
-        self.assertEqual({ada}, composition.adapters)
+        self.assertEqual({ada}, composition._adapters)
 
     def test_fail_time(self):
         module1 = MockupComponent(
@@ -505,19 +505,19 @@ class TestComposition(unittest.TestCase):
 
         self.assertEqual(
             _find_dependencies(
-                module1, composition.output_owners, datetime(2000, 1, 5)
+                module1, composition._output_owners, datetime(2000, 1, 5)
             ),
             {},
         )
         self.assertEqual(
             _find_dependencies(
-                module2, composition.output_owners, datetime(2000, 1, 1)
+                module2, composition._output_owners, datetime(2000, 1, 1)
             ),
             {},
         )
         self.assertEqual(
             _find_dependencies(
-                module2, composition.output_owners, datetime(2000, 1, 5)
+                module2, composition._output_owners, datetime(2000, 1, 5)
             ),
             {module1.outputs["Output"]: (datetime(2000, 1, 5), False)},
         )
@@ -547,38 +547,38 @@ class TestComposition(unittest.TestCase):
 
         self.assertEqual(
             _find_dependencies(
-                module1, composition.output_owners, datetime(2000, 1, 5)
+                module1, composition._output_owners, datetime(2000, 1, 5)
             ),
             {},
         )
         self.assertEqual(
             _find_dependencies(
-                module2, composition.output_owners, datetime(2000, 1, 5)
+                module2, composition._output_owners, datetime(2000, 1, 5)
             ),
             {module1.outputs["Output"]: (datetime(2000, 1, 5), False)},
         )
         self.assertEqual(
             _find_dependencies(
-                module3, composition.output_owners, datetime(2000, 1, 5)
+                module3, composition._output_owners, datetime(2000, 1, 5)
             ),
             {module1.outputs["Output"]: (datetime(2000, 1, 5), False)},
         )
 
         self.assertEqual(
             _find_dependencies(
-                module4, composition.output_owners, datetime(2000, 1, 1)
+                module4, composition._output_owners, datetime(2000, 1, 1)
             ),
             {},
         )
         self.assertEqual(
             _find_dependencies(
-                module4, composition.output_owners, datetime(2000, 1, 2)
+                module4, composition._output_owners, datetime(2000, 1, 2)
             ),
             {},
         )
         self.assertEqual(
             _find_dependencies(
-                module4, composition.output_owners, datetime(2000, 1, 5)
+                module4, composition._output_owners, datetime(2000, 1, 5)
             ),
             {module3.outputs["Output"]: (datetime(2000, 1, 3), True)},
         )

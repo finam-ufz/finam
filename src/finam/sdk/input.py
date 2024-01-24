@@ -16,7 +16,7 @@ class Input(IInput, Loggable):
 
     def __init__(self, name, info=None, static=False, **info_kwargs):
         Loggable.__init__(self)
-        self.source = None
+        self._source = None
         self.base_logger_name = None
         if name is None:
             raise ValueError("Input: needs a name.")
@@ -29,7 +29,7 @@ class Input(IInput, Loggable):
         self._input_info = info
         self._in_info_exchanged = False
         self._cached_data = None
-        self.transform = None
+        self._transform = None
 
     @property
     def name(self):
@@ -55,7 +55,19 @@ class Input(IInput, Loggable):
         """bool: if the input needs push."""
         return False
 
-    def set_source(self, source):
+    @property
+    def source(self):
+        """Get the input's source output or adapter
+
+        Returns
+        -------
+        :class:`.IOutput`
+            The input's source.
+        """
+        return self._source
+
+    @source.setter
+    def source(self, source):
         """Set the input's source output or adapter
 
         Parameters
@@ -66,7 +78,7 @@ class Input(IInput, Loggable):
         self.logger.trace("set source")
 
         with ErrorLogger(self.logger):
-            if self.source is not None:
+            if self._source is not None:
                 raise ValueError(
                     "Source of input is already set! "
                     "(You probably tried to connect multiple outputs to a single input)"
@@ -74,17 +86,7 @@ class Input(IInput, Loggable):
             if not isinstance(source, IOutput):
                 raise ValueError("Only IOutput can be set as source for Input")
 
-        self.source = source
-
-    def get_source(self):
-        """Get the input's source output or adapter
-
-        Returns
-        -------
-        :class:`.IOutput`
-            The input's source.
-        """
-        return self.source
+        self._source = source
 
     def source_updated(self, time):
         """Informs the input that a new output is available.
@@ -122,12 +124,12 @@ class Input(IInput, Loggable):
 
         if self.is_static:
             if self._cached_data is None:
-                data = self.source.get_data(time, target or self)
+                data = self._source.get_data(time, target or self)
                 with ErrorLogger(self.logger):
                     self._cached_data = self._convert_and_check(data)
             data = self._cached_data
         else:
-            data = self.source.get_data(time, target or self)
+            data = self._source.get_data(time, target or self)
             with ErrorLogger(self.logger):
                 data = self._convert_and_check(data)
 
@@ -135,9 +137,9 @@ class Input(IInput, Loggable):
 
     def _convert_and_check(self, data):
         # transform compatible data between grids
-        if self.transform is not None:
+        if self._transform is not None:
             with ErrorLogger(self.logger):
-                data = self.transform(data)
+                data = self._transform(data)
             self.logger.profile(
                 "converted data between compatible grids (%d entries)", data.size
             )
@@ -158,7 +160,7 @@ class Input(IInput, Loggable):
 
         Must be called after linking and before the connect phase.
         """
-        self.source.pinged(self)
+        self._source.pinged(self)
 
     def exchange_info(self, info=None):
         """Exchange the data info with the input's source.
@@ -188,7 +190,7 @@ class Input(IInput, Loggable):
             if not isinstance(info, Info):
                 raise FinamMetaDataError("Metadata must be of type Info")
 
-        src_info = self.source.get_info(info)
+        src_info = self._source.get_info(info)
 
         with ErrorLogger(self.logger):
             fail_info = {}
@@ -208,7 +210,7 @@ class Input(IInput, Loggable):
         )
         self._in_info_exchanged = True
         with ErrorLogger(self.logger):
-            self.transform = src_info.grid.get_transform_to(self._input_info.grid)
+            self._transform = src_info.grid.get_transform_to(self._input_info.grid)
 
         # pylint: disable-next=fixme
         # TODO: check if this is correct (was src_info before)
@@ -217,7 +219,7 @@ class Input(IInput, Loggable):
     @property
     def has_source(self):
         """Flag if this input instance has a source."""
-        return self.source is not None
+        return self._source is not None
 
     @property
     def logger_name(self):

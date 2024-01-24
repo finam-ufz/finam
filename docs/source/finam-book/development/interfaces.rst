@@ -84,8 +84,8 @@ They should suffice most use cases.
 
 :class:`.IInput` represents a data exchange input slot, with the following methods:
 
-* :meth:`.IInput.set_source` sets an :class:`.IOutput` as source for this input
-* :meth:`.IInput.get_source` returns the :class:`.IOutput` that is the source for this input
+* :meth:`.IInput.source` = ... sets an :class:`.IOutput` as source for this input
+* :meth:`.IInput.source` returns the :class:`.IOutput` that is the source for this input
 * :meth:`.IInput.source_updated` informs the input that the connected :class:`.IOutput` has new data available
 * :meth:`.IInput.pull_data` retrieves and returns the connected :class:`.IOutput`'s data
 
