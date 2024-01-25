@@ -3,6 +3,7 @@ Unit tests for the driver/scheduler.
 """
 import logging
 import os
+import pprint
 import unittest
 from datetime import datetime, timedelta
 from tempfile import TemporaryDirectory
@@ -970,13 +971,15 @@ class TestComposition(unittest.TestCase):
             callbacks={"Output": lambda t: t.day}, step=timedelta(1.0)
         )
         module2 = MockupDependentComponent(step=timedelta(1.0))
+        module3 = MockupDependentComponent(step=timedelta(1.0))
 
-        composition = Composition([module2, module1])
+        composition = Composition([module2, module1, module3])
         composition.initialize()
 
         ada1 = fm.adapters.Scale(1.0)
         ada2 = fm.adapters.Scale(1.0)
         module1.outputs["Output"] >> ada1 >> ada2 >> module2.inputs["Input"]
+        module1.outputs["Output"] >> module3.inputs["Input"]
 
         with self.assertRaises(FinamStatusError) as context:
             _ = composition.metadata
@@ -985,10 +988,54 @@ class TestComposition(unittest.TestCase):
 
         md = composition.metadata
 
-        self.assertIn(f"{module1.name}@{id(module1)}", md)
-        self.assertIn(f"{module2.name}@{id(module2)}", md)
-        self.assertIn(f"{ada1.name}@{id(ada1)}", md)
-        self.assertIn(f"{ada2.name}@{id(ada2)}", md)
+        pprint.pprint(md)
+
+        self.assertIn("components", md)
+        self.assertIn("adapters", md)
+        self.assertIn("links", md)
+
+        self.assertEqual([datetime(2000, 1, 1), None], md["time_frame"])
+
+        self.assertIn(f"{module1.name}@{id(module1)}", md["components"])
+        self.assertIn(f"{module2.name}@{id(module2)}", md["components"])
+        self.assertIn(f"{ada1.name}@{id(ada1)}", md["adapters"])
+        self.assertIn(f"{ada2.name}@{id(ada2)}", md["adapters"])
+
+        self.assertEqual(4, len(md["links"]))
+        self.assertTrue(
+            {
+                "from": {
+                    "component": f"{module1.name}@{id(module1)}",
+                    "output": "Output",
+                },
+                "to": {"component": f"{module3.name}@{id(module3)}", "input": "Input"},
+            }
+            in md["links"]
+        )
+        self.assertTrue(
+            {
+                "from": {
+                    "component": f"{module1.name}@{id(module1)}",
+                    "output": "Output",
+                },
+                "to": {"adapter": f"{ada1.name}@{id(ada1)}"},
+            }
+            in md["links"]
+        )
+        self.assertTrue(
+            {
+                "from": {"adapter": f"{ada1.name}@{id(ada1)}"},
+                "to": {"adapter": f"{ada2.name}@{id(ada2)}"},
+            }
+            in md["links"]
+        )
+        self.assertTrue(
+            {
+                "from": {"adapter": f"{ada2.name}@{id(ada2)}"},
+                "to": {"component": f"{module2.name}@{id(module2)}", "input": "Input"},
+            }
+            in md["links"]
+        )
 
 
 if __name__ == "__main__":

@@ -221,12 +221,69 @@ class Component(IComponent, Loggable, ABC):
     @property
     def metadata(self):
         """
-        The component's meta data.
-        Will only be called after the connect phase of the composition.
+        The component's metadata.
+        Will only be called after the connect phase from :attr:`Composition.metadata`.
 
-        Returns an empty ``dict`` unless overwritten in component implementation.
+        Components can overwrite this property to add their own specific metadata:
+
+        .. testcode:: metadata
+
+            import finam as fm
+
+            class MyComponent(fm.Component):
+
+                @property
+                def metadata(self):
+                    # Get the default metadata
+                    md = super().metadata
+
+                    # Add your own metadata
+                    md["my_field"] = "some value"
+
+                    # Return the dictionary
+                    return md
+
+        .. testcode:: metadata
+            :hide:
+
+            comp = MyComponent()
+            md = comp.metadata
+
+        Returns
+        -------
+        dict
+            A ``dict`` with the following default metadata:
+              - ``name`` - the component's name
+              - ``class`` - the component's class
+              - ``inputs`` - ``dict`` of metadata for all inputs
+              - ``outputs`` - ``dict`` of metadata for all outputs
         """
-        return {}
+        inputs = {}
+        outputs = {}
+
+        for name, inp in self.inputs.items():
+            inputs[name] = {
+                "name": name,
+                "class": inp.__class__.__module__ + "." + inp.__class__.__qualname__,
+                "is_static": inp.is_static,
+                "info": inp.info.as_dict(),
+            }
+
+        for name, out in self.outputs.items():
+            outputs[name] = {
+                "name": name,
+                "class": out.__class__.__module__ + "." + out.__class__.__qualname__,
+                "is_static": out.is_static,
+                "has_targets": out.has_targets,
+                "info": out.info.as_dict(),
+            }
+
+        return {
+            "name": self.name,
+            "class": self.__class__.__module__ + "." + self.__class__.__qualname__,
+            "inputs": inputs,
+            "outputs": outputs,
+        }
 
     @property
     def logger_name(self):

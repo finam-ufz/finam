@@ -70,12 +70,51 @@ class Adapter(IAdapter, Input, Output, ABC):
     @property
     def metadata(self):
         """
-        The adapter's meta data.
-        Will only be called after the connect phase of the composition.
+        The adapter's metadata.
+        Will only be called after the connect phase from :attr:`Composition.metadata`.
 
-        Returns an empty ``dict`` unless overwritten in adapter implementation.
+        Adapters can overwrite this property to add their own specific metadata:
+
+        .. testcode:: metadata
+
+            import finam as fm
+
+            class MyAdapter(fm.Adapter):
+
+                @property
+                def metadata(self):
+                    # Get the default metadata
+                    md = super().metadata
+
+                    # Add your own metadata
+                    md["my_field"] = "some value"
+
+                    # Return the dictionary
+                    return md
+
+        .. testcode:: metadata
+            :hide:
+
+            ada = MyAdapter()
+
+
+        Returns
+        -------
+        dict
+            A ``dict`` with the following default metadata:
+              - ``name`` - the component's name
+              - ``class`` - the component's class
         """
-        return {}
+        meta = {
+            "name": self.name,
+            "class": self.__class__.__module__ + "." + self.__class__.__qualname__,
+            "out_info": self._output_info.as_dict(),
+        }
+
+        if self._input_info is not None:
+            meta["in_info"] = self._input_info.as_dict()
+
+        return meta
 
     @final
     def push_data(self, data, time):

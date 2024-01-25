@@ -256,3 +256,14 @@ Metadata flow
 
 For details on how metadata is provided, and how it is passed around during coupling,
 see chapter :doc:`./connect_phase`.
+
+
+Composition metadata
+--------------------
+
+Besides metadata for data exchange, FINAM provides functionality to access metadata that describes a given :class:`.Composition` and corresponding simulation.
+Users can call :attr:`.Composition.metadata` to retrieve a nested `dict` of all metadata.
+This encompasses general metadata like the simulation time frame, as well as metadata for individual components and adapters and the coupling links.
+
+:class:`.Component` as well as :class:`.Adapter` provide default implementations of :attr:`.Component.metadata` and :attr:`.Adapter.metadata`, respectively.
+Developers can overwrite these properties to add their own specific metadata. For examples, see the API docs for :attr:`.Component.metadata` and :attr:`.Adapter.metadata`.
