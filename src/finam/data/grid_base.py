@@ -74,12 +74,28 @@ class Grid(GridBase):
     @property
     @abstractmethod
     def cells(self):
-        """np.ndarray: Cell nodes in ESMF format."""
+        """np.ndarray: Cell nodes as 2D array."""
 
     @property
     @abstractmethod
     def cell_types(self):
         """np.ndarray: Cell types."""
+
+    @property
+    def cells_connectivity(self):
+        """np.ndarray: Cells connectivity in ESMF format (list of node IDs)."""
+        return flatten_cells(self.cells)
+
+    @property
+    def cells_definition(self):
+        """np.ndarray: Cell definition in VTK format (list of number of nodes with node IDs)."""
+        return flatten_cells(
+            np.squeeze(
+                np.hstack(
+                    (np.atleast_2d(self.cell_node_counts).T, np.atleast_2d(self.cells))
+                )
+            )
+        )
 
     @property
     def cell_centers(self):
@@ -215,8 +231,8 @@ class Grid(GridBase):
             x = np.ascontiguousarray(points[:, 0])
             y = np.ascontiguousarray(points[:, 1] if self.dim > 1 else np.zeros_like(x))
             z = np.ascontiguousarray(points[:, 2] if self.dim > 2 else np.zeros_like(x))
-            con = flatten_cells(self.cells)
-            off = np.cumsum(NODE_COUNT[self.cell_types])
+            con = self.cells_connectivity
+            off = np.cumsum(self.cell_node_counts)
             typ = VTK_TYPE_MAP[self.cell_types]
             unstructuredGridToVTK(path, x, y, z, con, off, typ, **kw)
         else:
