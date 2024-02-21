@@ -12,6 +12,7 @@ from finam.data.grid_tools import (
     gen_cells,
     gen_node_centers,
     gen_points,
+    get_cells_matrix,
     order_map,
     point_order,
 )
@@ -189,3 +190,57 @@ class TestGridTools(unittest.TestCase):
         # layer height info results in 3D grid
         grid2 = UniformGrid((4, 3, 1))
         self.assertFalse(grid1.compatible_with(grid2))
+
+    def test_cells_definition(self):
+        # number of nodes with node IDs
+        c_def = np.array(
+            [3, 0, 6, 5]
+            + [3, 0, 1, 6]
+            + [4, 1, 2, 7, 6]
+            + [3, 2, 8, 7]
+            + [3, 2, 3, 8]
+            + [4, 3, 4, 9, 8]
+        )
+        # node IDs
+        c_con = np.array(
+            [0, 6, 5] + [0, 1, 6] + [1, 2, 7, 6] + [2, 8, 7] + [2, 3, 8] + [3, 4, 9, 8]
+        )
+        # cell offsets: start of cell definition in connectivity plus size of connectivity
+        c_off = np.array([0, 3, 6, 10, 13, 16, 20])
+        # node IDs as matrix
+        c_mat = np.array(
+            [
+                [0, 6, 5, -1],
+                [0, 1, 6, -1],
+                [1, 2, 7, 6],
+                [2, 8, 7, -1],
+                [2, 3, 8, -1],
+                [3, 4, 9, 8],
+            ]
+        )
+        cell_types = np.array([2, 2, 3, 2, 2, 3])
+        pnts = np.array(
+            [
+                [0.0, 0.0],
+                [1.0, 0.0],
+                [2.0, 0.0],
+                [3.0, 0.0],
+                [4.0, 0.0],
+                [0.0, 1.0],
+                [1.0, 1.0],
+                [2.0, 1.0],
+                [3.0, 1.0],
+                [4.0, 1.0],
+            ]
+        )
+        grid = UnstructuredGrid(points=pnts, cells=c_mat, cell_types=cell_types)
+
+        assert_array_equal(grid.cells_connectivity, c_con)
+        assert_array_equal(grid.cells_definition, c_def)
+        assert_array_equal(grid.cells_offset, c_off)
+        self.assertEqual(grid.cells_offset[0], 0)
+        self.assertEqual(grid.cells_offset[-1], len(c_con))
+        assert_array_equal(get_cells_matrix(grid.cell_types, c_def), c_mat)
+        assert_array_equal(
+            get_cells_matrix(grid.cell_types, c_con, connectivity=True), c_mat
+        )
