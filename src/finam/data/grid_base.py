@@ -100,7 +100,9 @@ class Grid(GridBase):
     @property
     def cells_offset(self):
         """np.ndarray: The location of the start of each cell in cells_connectivity."""
-        return np.cumsum(self.cell_node_counts)
+        return np.concatenate(
+            (np.array([0], dtype=int), np.cumsum(self.cell_node_counts))
+        )
 
     @property
     def cell_centers(self):
@@ -237,7 +239,8 @@ class Grid(GridBase):
             y = np.ascontiguousarray(points[:, 1] if self.dim > 1 else np.zeros_like(x))
             z = np.ascontiguousarray(points[:, 2] if self.dim > 2 else np.zeros_like(x))
             con = self.cells_connectivity
-            off = self.cells_offset
+            # pyevtk only needs the ends of the cell definition
+            off = self.cells_offset[1:]
             typ = VTK_TYPE_MAP[self.cell_types]
             unstructuredGridToVTK(path, x, y, z, con, off, typ, **kw)
         else:
