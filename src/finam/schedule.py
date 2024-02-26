@@ -16,6 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from time import strftime
 
+from ._version import __version__
 from .errors import (
     FinamCircularCouplingError,
     FinamConnectError,
@@ -524,6 +525,7 @@ class Composition(Loggable):
                 )
 
         return {
+            "version": __version__,
             "components": comps,
             "adapters": adas,
             "links": links,

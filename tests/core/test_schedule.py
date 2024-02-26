@@ -28,6 +28,7 @@ from finam import (
     Output,
     TimeComponent,
 )
+from finam._version import __version__
 from finam.adapters.base import Scale
 from finam.adapters.time import DelayFixed, NextTime
 from finam.modules import CallbackComponent, CallbackGenerator, DebugPushConsumer, debug
@@ -1036,6 +1037,8 @@ class TestComposition(unittest.TestCase):
             }
             in md["links"]
         )
+
+        self.assertEqual(__version__, md["version"])
 
 
 if __name__ == "__main__":

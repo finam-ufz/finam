@@ -11,7 +11,7 @@
 
 ### Features
 
-* Components and adapters automatically provide default metadata that can be extended by implementations (!274)
+* Components and adapters automatically provide default metadata that can be extended by implementations (!274, !276)
 
 ### Documentation
 
