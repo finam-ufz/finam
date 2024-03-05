@@ -5,6 +5,10 @@ from numpy.testing import assert_allclose, assert_array_equal
 
 from finam import CellType, EsriGrid, NoGrid, UniformGrid, UnstructuredGrid
 from finam.data.grid_tools import (
+    CELL_DIM,
+    INV_VTK_TYPE_MAP,
+    VTK_CELL_DIM,
+    VTK_TYPE_MAP,
     check_axes_monotonicity,
     check_axes_uniformity,
     flatten_cells,
@@ -15,10 +19,6 @@ from finam.data.grid_tools import (
     get_cells_matrix,
     order_map,
     point_order,
-    VTK_TYPE_MAP,
-    INV_VTK_TYPE_MAP,
-    VTK_CELL_DIM,
-    CELL_DIM,
 )
 
 
