@@ -11,7 +11,7 @@
 
 ### Features
 
-* Components and adapters automatically provide default metadata that can be extended by implementations (!274)
+* Components and adapters automatically provide default metadata that can be extended by implementations (!274, !276)
 * Grid class now have attributes providing connectivity information for the contained cells (!275)
   * `cells_connectivity`: connectivity array as used by ESMF and VTK
   * `cells_definition`: cell definition as used by PyVista and legacy VTK
