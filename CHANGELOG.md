@@ -12,6 +12,14 @@
 ### Features
 
 * Components and adapters automatically provide default metadata that can be extended by implementations (!274, !276)
+* Grid class now have attributes providing connectivity information for the contained cells (!275)
+  * `cells_connectivity`: connectivity array as used by ESMF and VTK
+  * `cells_definition`: cell definition as used by PyVista and legacy VTK
+  * `cells_offset`: location of the start of each cell in `cells_connectivity`
+* added convenience functions and constants to `grid_tools`  (!275)
+  * `get_cells_matrix`: convert `cells_connectivity` or `cells_definition` back to the default cells matrix used in the Grid class (can be used to convert VTK-grids into FINAM-grids)
+  * `INV_VTK_TYPE_MAP`: inverse mapping to `VTK_TYPE_MAP` - FINAM cell type to VTK cell type
+  * `VTK_CELL_DIM`: parametric dimension for each VTK cell type
 
 ### Documentation
 
@@ -33,7 +41,7 @@
 * Automatic conversion between compatible grids (!255)
 * Adds methods `to_canonical`, `from_canonical` and `get_transform_to` to grid classes (!255)
 * Adds support for masked grids using `numpy.ma.MaskedArray` (!258, !260)
-* Adds convenience functions for dealing with masked arrays in `data.tools` (!260):  
+* Adds convenience functions for dealing with masked arrays in `data.tools` (!260):
   `is_masked_array`, `has_masked_values`, `filled`, `to_compressed`, `from_compressed`, `check_data_covers_domain`
 
 ### Documentation
@@ -56,7 +64,7 @@
 * FINAM uses a new scheduling algorithm that allows components to use future data instead of only past/current (!157, !159)
 * New adapters to resolve circular coupling through the use of delayed data (!187)
 * It is now possible to set up static couplings that run only once and have no explicit time or stepping (!166)
-* FINAM can handle different starting times of components by pushing initial data twice (!206):  
+* FINAM can handle different starting times of components by pushing initial data twice (!206):
   Once for the common starting time, and once for the actual component time
 * Components are no longer required to push all outputs on every step (!208)
 

@@ -399,6 +399,61 @@ def flatten_cells(cells):
     return np.ma.masked_values(cells, -1).compressed()
 
 
+def get_cells_matrix(cell_types, cells, connectivity=False):
+    """
+    Create the cells matrix as used in the Grid class.
+
+    Parameters
+    ----------
+    cell_types : np.ndarray
+        Cell types.
+
+    cells : np.ndarray
+        Either cell definitions given as list of number of nodes with node IDs:
+        ``[n0, p0_0, p0_1, ..., p0_n, n1, p1_0, p1_1, ..., p1_n, ...]``
+
+        Or cell connectivity given as list of node IDs:
+        ``[p0_0, p0_1, ..., p0_n, p1_0, p1_1, ..., p1_n, ...]``
+
+    connectivity : bool, optional
+        Indicate that cells are given by connectivity. Default: False
+
+    Returns
+    -------
+    np.ndarray
+        Cell nodes as 2D array.
+    """
+    unique_cell_types = np.unique(cell_types)
+    max_nodes = np.max(NODE_COUNT[unique_cell_types])
+    cells_matrix = np.full((len(cell_types), max_nodes), fill_value=-1, dtype=int)
+    cell_sizes = NODE_COUNT[cell_types]
+
+    if connectivity:
+        cell_ends = np.cumsum(cell_sizes)
+        cell_starts = np.concatenate(
+            [np.array([0], dtype=cell_ends.dtype), cell_ends[:-1]]
+        )
+    else:
+        # adding one to skip cell size entry in cell definitions array
+        # [(n0), p0_0, p0_1, ..., p0_n, (n1), p1_0, p1_1, ..., p1_n, ...]
+        cell_ends = np.cumsum(cell_sizes + 1)
+        cell_starts = (
+            np.concatenate([np.array([0], dtype=cell_ends.dtype), cell_ends[:-1]]) + 1
+        )
+
+    for cell_type in unique_cell_types:
+        cell_size = NODE_COUNT[cell_type]
+        mask = cell_types == cell_type
+        current_cell_starts = cell_starts[mask]
+
+        cells_inds = current_cell_starts[..., np.newaxis] + np.arange(cell_size)[
+            np.newaxis
+        ].astype(cell_starts.dtype)
+        cells_matrix[:, :cell_size][mask] = cells[cells_inds]
+
+    return cells_matrix
+
+
 class Location(Enum):
     """Data location in the grid."""
 
@@ -433,9 +488,37 @@ CELL_DIM = np.array([0, 1, 2, 2, 3, 3], dtype=int)
 """np.ndarray: Cell dimension per CellType."""
 
 
-VTK_TYPE_MAP = np.array([1, 3, 5, 9, 10, 12], dtype=int)
+ESMF_TYPE_MAP = np.array([-1, -1, 3, 4, 10, 12], dtype=int)
+"""np.ndarray: ESMF type per CellType (-1 for unsupported)."""
+
+
+VTK_TYPE_MAP = np.array((vtk_t := [1, 3, 5, 9, 10, 12]), dtype=int)
 """np.ndarray: VTK type per CellType."""
 
 
-ESMF_TYPE_MAP = np.array([-1, -1, 3, 4, 10, 12], dtype=int)
-"""np.ndarray: ESMF type per CellType (-1 for unsupported)."""
+INV_VTK_TYPE_MAP = np.array(
+    [vtk_t.index(i) if i in vtk_t else -1 for i in range(82)],
+    dtype=int,
+)
+"""np.ndarray: CellType per VTK type."""
+
+
+# VTK v9.3
+VTK_CELL_DIM = np.array(
+    # Linear cells (0-16)
+    [0, 0, 0, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3] + 4 * [-1]
+    # Quadratic / Cubic, isoparametric cells (21-37)
+    + [1, 2, 2, 3, 3, 3, 3, 2, 3, 2, 3, 3, 3, 2, 1, 2, 3] + 3 * [-1]
+    # Special class and Polyhedron cell (41-42)
+    + [1, 3] + 8 * [-1]
+    # Higher order cells in parametric form (51-56)
+    + [1, 2, 2, 2, 3, 3] + 3 * [-1]
+    # Higher order cells (60-67)
+    + [1, 2, 2, 2, 3, 3, 3, 3]
+    # Arbitrary order Lagrange elements (68-74)
+    + [1, 2, 2, 3, 3, 3, 3]
+    # Arbitrary order Bezier elements (75-81)
+    + [1, 2, 2, 3, 3, 3, 3],
+    dtype=int,
+)
+"""np.ndarray: Cell dimension per VTK type."""
