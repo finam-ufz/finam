@@ -15,6 +15,10 @@ from finam.data.grid_tools import (
     get_cells_matrix,
     order_map,
     point_order,
+    VTK_TYPE_MAP,
+    INV_VTK_TYPE_MAP,
+    VTK_CELL_DIM,
+    CELL_DIM,
 )
 
 
@@ -244,3 +248,10 @@ class TestGridTools(unittest.TestCase):
         assert_array_equal(
             get_cells_matrix(grid.cell_types, c_con, connectivity=True), c_mat
         )
+
+    def test_vtk_maps(self):
+        test_dims = VTK_CELL_DIM[VTK_TYPE_MAP]
+        assert_array_equal(test_dims, CELL_DIM)
+
+        test_type = INV_VTK_TYPE_MAP[VTK_TYPE_MAP]
+        assert_array_equal(test_type, range(6))

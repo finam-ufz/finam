@@ -488,9 +488,37 @@ CELL_DIM = np.array([0, 1, 2, 2, 3, 3], dtype=int)
 """np.ndarray: Cell dimension per CellType."""
 
 
-VTK_TYPE_MAP = np.array([1, 3, 5, 9, 10, 12], dtype=int)
+ESMF_TYPE_MAP = np.array([-1, -1, 3, 4, 10, 12], dtype=int)
+"""np.ndarray: ESMF type per CellType (-1 for unsupported)."""
+
+
+VTK_TYPE_MAP = np.array((vtk_t := [1, 3, 5, 9, 10, 12]), dtype=int)
 """np.ndarray: VTK type per CellType."""
 
 
-ESMF_TYPE_MAP = np.array([-1, -1, 3, 4, 10, 12], dtype=int)
-"""np.ndarray: ESMF type per CellType (-1 for unsupported)."""
+INV_VTK_TYPE_MAP = np.array(
+    [vtk_t.index(i) if i in vtk_t else -1 for i in range(82)],
+    dtype=int,
+)
+"""np.ndarray: CellType per VTK type."""
+
+
+# VTK v9.3
+VTK_CELL_DIM = np.array(
+    # Linear cells (0-16)
+    [0, 0, 0, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3] + 4 * [-1]
+    # Quadratic / Cubic, isoparametric cells (21-37)
+    + [1, 2, 2, 3, 3, 3, 3, 2, 3, 2, 3, 3, 3, 2, 1, 2, 3] + 3 * [-1]
+    # Special class and Polyhedron cell (41-42)
+    + [1, 3] + 8 * [-1]
+    # Higher order cells in parametric form (51-56)
+    + [1, 2, 2, 2, 3, 3] + 3 * [-1]
+    # Higher order cells (60-67)
+    + [1, 2, 2, 2, 3, 3, 3, 3]
+    # Arbitrary order Lagrange elements (68-74)
+    + [1, 2, 2, 3, 3, 3, 3]
+    # Arbitrary order Bezier elements (75-81)
+    + [1, 2, 2, 3, 3, 3, 3],
+    dtype=int,
+)
+"""np.ndarray: Cell dimension per VTK type."""
