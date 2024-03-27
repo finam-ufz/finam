@@ -280,7 +280,8 @@ Update
 Method :meth:`.TimeComponent._update()` is where the actual work happens.
 It is called every time the :doc:`../principles/coupling_scheduling` decides that the component is on turn to make an update.
 
-In :meth:`.TimeComponent._update`, we get the component's input data, do a "model step", increment the time, and push results to the output slot.
+In :meth:`.TimeComponent._update`, we increment the time step,
+get the component's input data, do a "model step", and push results to the output slot.
 
 .. code-block:: Python
 
