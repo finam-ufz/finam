@@ -7,7 +7,6 @@ from pathlib import Path
 import numpy as np
 from pyevtk.hl import gridToVTK, unstructuredGridToVTK
 
-from ..tools.enum_helper import get_enum_value
 from .grid_tools import (
     CELL_DIM,
     NODE_COUNT,
@@ -190,13 +189,6 @@ class Grid(GridBase):
 
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D) {self.data_shape}"
-
-    def _check_location(self, data_location):
-        location = get_enum_value(data_location, Location)
-        if location not in self.valid_locations:
-            msg = f"{self.name}: data location {location} not valid."
-            raise ValueError(msg)
-        return location
 
     def compatible_with(self, other):
         """

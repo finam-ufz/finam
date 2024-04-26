@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 from pyevtk.hl import imageToVTK
 
+from ..tools.enum_helper import get_enum_value
 from .esri_tools import read_header
 from .grid_base import Grid, GridBase, StructuredGrid
 from .grid_tools import (
@@ -15,6 +16,15 @@ from .grid_tools import (
     prepare_vtk_data,
     prepare_vtk_kwargs,
 )
+
+
+def _check_location(grid, data_location):
+    # need to define this here to prevent circular imports
+    location = get_enum_value(data_location, Location)
+    if location not in grid.valid_locations:
+        msg = f"{grid.name}: data location {location} not valid."
+        raise ValueError(msg)
+    return location
 
 
 class NoGrid(GridBase):
@@ -192,7 +202,7 @@ class RectilinearGrid(StructuredGrid):
     @data_location.setter
     def data_location(self, data_location):
         """Set location of the associated data (either CELLS or POINTS)."""
-        self._data_location = self._check_location(data_location)
+        self._data_location = _check_location(self, data_location)
 
 
 class UniformGrid(RectilinearGrid):
@@ -542,7 +552,7 @@ class UnstructuredGrid(Grid):
     @data_location.setter
     def data_location(self, data_location):
         """Set location of the associated data (either CELLS or POINTS)."""
-        self._data_location = self._check_location(data_location)
+        self._data_location = _check_location(self, data_location)
 
     @property
     def order(self):
