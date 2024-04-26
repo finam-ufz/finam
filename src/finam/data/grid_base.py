@@ -1,4 +1,6 @@
 """Grid abstract base classes for FINAM."""
+
+import copy as cp
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -34,6 +36,22 @@ class GridBase(ABC):
     def dim(self):
         """int: Dimension of the grid or data."""
 
+    def copy(self, deep=False):
+        """
+        Copy of this grid.
+
+        Parameters
+        ----------
+        deep : bool, optional
+            If false, only a shallow copy is returned to safe memory, by default False
+
+        Returns
+        -------
+        Grid
+            The grid copy.
+        """
+        return cp.deepcopy(self) if deep else cp.copy(self)
+
     def to_canonical(self, data):
         """Convert grid specific data to canonical form."""
         return data
@@ -50,6 +68,9 @@ class GridBase(ABC):
 
 class Grid(GridBase):
     """Abstract grid specification."""
+
+    valid_locations = (Location.CELLS, Location.POINTS)
+    """tuple: Valid locations for the grid."""
 
     @property
     @abstractmethod
@@ -124,6 +145,11 @@ class Grid(GridBase):
     def data_location(self):
         """Location of the associated data (either CELLS or POINTS)."""
 
+    @data_location.setter
+    @abstractmethod
+    def data_location(self, data_location):
+        """Set location of the associated data (either CELLS or POINTS)."""
+
     @property
     def data_points(self):
         """Points of the associated data (either cell_centers or points)."""
@@ -158,6 +184,11 @@ class Grid(GridBase):
 
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D) {self.data_shape}"
+
+    def _check_location(self):
+        if self.data_location not in self.valid_locations:
+            msg = f"{self.name}: data location {self._data_location} not valid."
+            raise ValueError(msg)
 
     def compatible_with(self, other):
         """

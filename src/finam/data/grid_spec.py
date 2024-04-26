@@ -1,4 +1,5 @@
 """Grid specifications to handle spatial data with FINAM."""
+
 from pathlib import Path
 
 import numpy as np
@@ -89,7 +90,8 @@ class RectilinearGrid(StructuredGrid):
         # all axes made increasing
         self._axes_increase = check_axes_monotonicity(self.axes)
         self._dim = len(self.dims)
-        self._data_location = get_enum_value(data_location, Location)
+        self._data_location = None
+        self.data_location = data_location
         self._order = order
         self._axes_reversed = bool(axes_reversed)
         self._axes_attributes = axes_attributes or (self.dim * [{}])
@@ -186,6 +188,12 @@ class RectilinearGrid(StructuredGrid):
     def data_location(self):
         """Location of the associated data (either CELLS or POINTS)."""
         return self._data_location
+
+    @data_location.setter
+    def data_location(self, data_location):
+        """Set location of the associated data (either CELLS or POINTS)."""
+        self._data_location = get_enum_value(data_location, Location)
+        self._check_location()
 
 
 class UniformGrid(RectilinearGrid):
@@ -322,6 +330,9 @@ class EsriGrid(UniformGrid):
     crs : str or None, optional
         The coordinate reference system, by default None
     """
+
+    valid_locations = (Location.CELLS,)
+    """tuple: Valid locations for the grid."""
 
     def __init__(
         self,
@@ -481,6 +492,12 @@ class UnstructuredGrid(Grid):
         """Location of the associated data (either CELLS or POINTS)."""
         return self._data_location
 
+    @data_location.setter
+    def data_location(self, data_location):
+        """Set location of the associated data (either CELLS or POINTS)."""
+        self._data_location = get_enum_value(data_location, Location)
+        self._check_location()
+
     @property
     def order(self):
         """str: Point, cell and data order (C-like or F-like for flatten)."""
@@ -508,6 +525,9 @@ class UnstructuredPoints(UnstructuredGrid):
     crs : str or None, optional
         The coordinate reference system, by default None
     """
+
+    valid_locations = (Location.POINTS,)
+    """tuple: Valid locations for the grid."""
 
     def __init__(
         self,
