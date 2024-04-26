@@ -219,6 +219,9 @@ class TestGridSpec(unittest.TestCase):
         self.assertEqual(grid2.mesh_dim, 0)
         assert_allclose(grid2.cell_node_counts, 1)
 
+        with self.assertRaises(ValueError):
+            grid2.data_location = Location.CELLS
+
     def test_esri(self):
         header = {
             "ncols": 520,
@@ -237,6 +240,20 @@ class TestGridSpec(unittest.TestCase):
         self.assertAlmostEqual(grid.cellsize, header["cellsize"])
         self.assertAlmostEqual(grid.xllcorner, 4375000)
         self.assertAlmostEqual(grid.yllcorner, 2700000)
+
+        # casting
+        grid2 = grid.to_uniform()
+        grid3 = grid.to_rectilinear()
+        grid4 = grid2.to_rectilinear()
+        self.assertTrue(grid == grid2)
+        self.assertTrue(grid == grid3)
+        self.assertTrue(grid == grid4)
+        self.assertTrue(grid2 == grid3)
+        self.assertTrue(grid2 == grid4)
+        self.assertTrue(grid3 == grid4)
+
+        with self.assertRaises(ValueError):
+            grid.data_location = Location.POINTS
 
     def test_data_location(self):
         grid1 = UniformGrid((1,), data_location=0)
@@ -257,6 +274,23 @@ class TestGridSpec(unittest.TestCase):
         us_grid = grid.to_unstructured()
         assert_allclose(grid.data_points, us_grid.data_points)
         self.assertIsInstance(us_grid, UnstructuredGrid)
+
+    def test_copy(self):
+        grid = EsriGrid(3, 2)
+        us_grid = grid.to_unstructured()
+        assert_allclose(grid.data_points, us_grid.data_points)
+        self.assertIsInstance(us_grid, UnstructuredGrid)
+
+        cp_grid1 = us_grid.copy()
+        cp_grid2 = us_grid.copy(deep=True)
+
+        self.assertTrue(us_grid == cp_grid1)
+        self.assertTrue(us_grid == cp_grid2)
+
+        # shallow copy has shares info
+        cp_grid1.points[0, 0] = 0.1
+        self.assertTrue(us_grid == cp_grid1)
+        self.assertFalse(us_grid == cp_grid2)
 
     def test_equality(self):
         grid1 = UniformGrid((2, 2), data_location=0)
