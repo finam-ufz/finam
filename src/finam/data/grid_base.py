@@ -192,7 +192,7 @@ class Grid(GridBase):
 
     def _check_location(self):
         if self.data_location not in self.valid_locations:
-            msg = f"{self.name}: data location {self._data_location} not valid."
+            msg = f"{self.name}: data location {self.data_location} not valid."
             raise ValueError(msg)
 
     def compatible_with(self, other):
