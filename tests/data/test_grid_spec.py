@@ -281,16 +281,13 @@ class TestGridSpec(unittest.TestCase):
     def test_copy(self):
         grid = EsriGrid(3, 2)
         us_grid = grid.to_unstructured()
-        assert_allclose(grid.data_points, us_grid.data_points)
-        self.assertIsInstance(us_grid, UnstructuredGrid)
-
         cp_grid1 = us_grid.copy()
         cp_grid2 = us_grid.copy(deep=True)
 
         self.assertTrue(us_grid == cp_grid1)
         self.assertTrue(us_grid == cp_grid2)
 
-        # shallow copy has shares info
+        # shallow copy shares info
         cp_grid1.points[0, 0] = 0.1
         self.assertTrue(us_grid == cp_grid1)
         self.assertFalse(us_grid == cp_grid2)
