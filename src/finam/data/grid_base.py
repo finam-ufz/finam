@@ -178,6 +178,11 @@ class Grid(GridBase):
         """list of str: Axes names (xyz order)."""
 
     @property
+    @abstractmethod
+    def axes_attributes(self):
+        """list of dict: Axes attributes following the CF convention (xyz order)."""
+
+    @property
     def data_axes_names(self):
         """list of str: Axes names of the data."""
         return ["id"]
@@ -302,11 +307,6 @@ class StructuredGrid(Grid):
     def axes_increase(self):
         """list of bool: False to indicate a bottom up axis (xyz order)."""
         # esri grids and some netcdf are given bottom up (northing/lat inverted)
-
-    @property
-    @abstractmethod
-    def axes_attributes(self):
-        """list of dict: Axes attributes following the CF convention (xyz order)."""
 
     @property
     @abstractmethod

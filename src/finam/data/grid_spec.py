@@ -447,6 +447,8 @@ class UnstructuredGrid(Grid):
     order : str, optional
         Data ordering.
         Either Fortran-like ("F") or C-like ("C"), by default "C"
+    axes_attributes : list of dict or None, optional
+        Axes attributes following the CF convention (in xyz order), by default None
     axes_names : list of str or None, optional
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
@@ -460,6 +462,7 @@ class UnstructuredGrid(Grid):
         cell_types,
         data_location=Location.CELLS,
         order="C",
+        axes_attributes=None,
         axes_names=None,
         crs=None,
     ):
@@ -469,6 +472,9 @@ class UnstructuredGrid(Grid):
         self._cell_types = np.asarray(np.atleast_1d(cell_types), dtype=int)
         self._data_location = get_enum_value(data_location, Location)
         self._order = order
+        self._axes_attributes = axes_attributes or (self.dim * [{}])
+        if len(self.axes_attributes) != self.dim:
+            raise ValueError("UnstructuredGrid: wrong length of 'axes_attributes'")
         self._axes_names = axes_names or ["x", "y", "z"][: self.dim]
         if len(self.axes_names) != self.dim:
             raise ValueError("UnstructuredGrid: wrong length of 'axes_names'")
@@ -545,6 +551,11 @@ class UnstructuredGrid(Grid):
         return self._order
 
     @property
+    def axes_attributes(self):
+        """list of dict: Axes attributes following the CF convention (xyz order)."""
+        return self._axes_attributes
+
+    @property
     def axes_names(self):
         """list of str: Axes names (xyz order)."""
         return self._axes_names
@@ -561,6 +572,8 @@ class UnstructuredPoints(UnstructuredGrid):
     order : str, optional
         Data ordering.
         Either Fortran-like ("F") or C-like ("C"), by default "C"
+    axes_attributes : list of dict or None, optional
+        Axes attributes following the CF convention (in xyz order), by default None
     axes_names : list of str or None, optional
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
@@ -574,6 +587,7 @@ class UnstructuredPoints(UnstructuredGrid):
         self,
         points,
         order="C",
+        axes_attributes=None,
         axes_names=None,
         crs=None,
     ):
@@ -585,6 +599,7 @@ class UnstructuredPoints(UnstructuredGrid):
             cell_types=np.full(pnt_cnt, CellType.VERTEX, dtype=int),
             data_location=Location.POINTS,
             order=order,
+            axes_attributes=axes_attributes,
             axes_names=axes_names,
             crs=crs,
         )
