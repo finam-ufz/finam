@@ -196,6 +196,9 @@ class TestGridSpec(unittest.TestCase):
                 axes_names=["to_few"],
             )
 
+        with self.assertRaises(ValueError):
+            UnstructuredPoints(points=[[0.0, 0.0]], axes_attributes=[{"too": "short"}])
+
         self.assertEqual(grid.name, "UnstructuredGrid")
         self.assertEqual(grid2.name, "UnstructuredPoints")
         self.assertIsNone(grid.crs)
