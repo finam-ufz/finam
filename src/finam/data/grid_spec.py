@@ -120,6 +120,7 @@ class RectilinearGrid(StructuredGrid):
             cell_types=self.cell_types,
             data_location=self.data_location,
             order=self.order,
+            axes_attributes=self.axes_attributes,
             axes_names=self.axes_names,
             crs=self.crs,
         )
