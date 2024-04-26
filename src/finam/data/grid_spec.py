@@ -5,7 +5,6 @@ from pathlib import Path
 import numpy as np
 from pyevtk.hl import imageToVTK
 
-from ..tools.enum_helper import get_enum_value
 from .esri_tools import read_header
 from .grid_base import Grid, GridBase, StructuredGrid
 from .grid_tools import (
@@ -193,8 +192,7 @@ class RectilinearGrid(StructuredGrid):
     @data_location.setter
     def data_location(self, data_location):
         """Set location of the associated data (either CELLS or POINTS)."""
-        self._data_location = get_enum_value(data_location, Location)
-        self._check_location()
+        self._data_location = self._check_location(data_location)
 
 
 class UniformGrid(RectilinearGrid):
@@ -471,7 +469,8 @@ class UnstructuredGrid(Grid):
         self._points = np.asarray(np.atleast_2d(points), dtype=float)[:, :3]
         self._cells = np.asarray(np.atleast_2d(cells), dtype=int)
         self._cell_types = np.asarray(np.atleast_1d(cell_types), dtype=int)
-        self._data_location = get_enum_value(data_location, Location)
+        self._data_location = None
+        self.data_location = data_location
         self._order = order
         self._axes_attributes = axes_attributes or (self.dim * [{}])
         if len(self.axes_attributes) != self.dim:
@@ -543,8 +542,7 @@ class UnstructuredGrid(Grid):
     @data_location.setter
     def data_location(self, data_location):
         """Set location of the associated data (either CELLS or POINTS)."""
-        self._data_location = get_enum_value(data_location, Location)
-        self._check_location()
+        self._data_location = self._check_location(data_location)
 
     @property
     def order(self):
