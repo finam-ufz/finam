@@ -303,6 +303,25 @@ class UniformGrid(RectilinearGrid):
             spacing = self.spacing + (0.0,) * (3 - self.dim)
             imageToVTK(path, origin, spacing, **kw)
 
+    def to_rectilinear(self):
+        """
+        Cast grid to a rectilinear grid.
+
+        Returns
+        -------
+        UniformGrid
+            Grid as rectilinear grid.
+        """
+        return RectilinearGrid(
+            axes=self.axes,
+            data_location=self.data_location,
+            order=self.order,
+            axes_reversed=self.axes_reversed,
+            axes_attributes=self.axes_attributes,
+            axes_names=self.axes_names,
+            crs=self.crs,
+        )
+
 
 class EsriGrid(UniformGrid):
     """
@@ -387,6 +406,28 @@ class EsriGrid(UniformGrid):
         header["crs"] = crs
         header["axes_attributes"] = axes_attributes
         return cls(**header)
+
+    def to_uniform(self):
+        """
+        Cast grid to an uniform grid.
+
+        Returns
+        -------
+        UniformGrid
+            Grid as uniform grid.
+        """
+        return UniformGrid(
+            dims=self.dims,
+            spacing=self.spacing,
+            origin=self.origin,
+            data_location=self.data_location,
+            order=self.order,
+            axes_reversed=self.axes_reversed,
+            axes_increase=self.axes_increase,
+            axes_attributes=self.axes_attributes,
+            axes_names=self.axes_names,
+            crs=self.crs,
+        )
 
 
 class UnstructuredGrid(Grid):
