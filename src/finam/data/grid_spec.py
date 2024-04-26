@@ -321,7 +321,7 @@ class UniformGrid(RectilinearGrid):
         UniformGrid
             Grid as rectilinear grid.
         """
-        return RectilinearGrid(
+        grid = RectilinearGrid(
             axes=self.axes,
             data_location=self.data_location,
             order=self.order,
@@ -330,6 +330,9 @@ class UniformGrid(RectilinearGrid):
             axes_names=self.axes_names,
             crs=self.crs,
         )
+        # pylint: disable-next=protected-access
+        grid._axes_increase = self.axes_increase
+        return grid
 
 
 class EsriGrid(UniformGrid):
