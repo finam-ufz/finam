@@ -43,7 +43,7 @@ class GridBase(ABC):
         Parameters
         ----------
         deep : bool, optional
-            If false, only a shallow copy is returned to safe memory, by default False
+            If false, only a shallow copy is returned to save memory, by default False
 
         Returns
         -------
