@@ -58,7 +58,7 @@ class RectilinearGrid(StructuredGrid):
     Parameters
     ----------
     axes : list of np.ndarray
-        Axes defining the coordinates in each direction (xyz order).
+        Axes defining the point coordinates in each direction (xyz order).
     data_location : Location, str, int, optional
         Data location in the grid, by default Location.CELLS
     order : str, optional
@@ -196,6 +196,7 @@ class UniformGrid(RectilinearGrid):
     dims : iterable
         Dimensions of the uniform grid for each direction.
         Spatial dimension will be determined by ``len(dims)``.
+        Dimensions refer to the number of points, independent of ``data_location``.
     spacing : iterable, optional
         Spacing of the uniform in each dimension.  Defaults to
         ``(1.0, 1.0, 1.0)``. Must be positive.
@@ -303,9 +304,9 @@ class EsriGrid(UniformGrid):
     Parameters
     ----------
     ncols : int
-        Number of columns.
+        Number of grid columns, in cells.
     nrows : int
-        Number of rows.
+        Number of grid rows, in cells.
     cellsize : float, optional
         Cell size, by default 1.0
     xllcorner : float, optional
