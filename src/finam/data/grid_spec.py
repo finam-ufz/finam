@@ -1,4 +1,5 @@
 """Grid specifications to handle spatial data with FINAM."""
+
 from pathlib import Path
 
 import numpy as np
@@ -15,6 +16,15 @@ from .grid_tools import (
     prepare_vtk_data,
     prepare_vtk_kwargs,
 )
+
+
+def _check_location(grid, data_location):
+    # need to define this here to prevent circular imports
+    location = get_enum_value(data_location, Location)
+    if location not in grid.valid_locations:
+        msg = f"{grid.name}: data location {location} not valid."
+        raise ValueError(msg)
+    return location
 
 
 class NoGrid(GridBase):
@@ -89,7 +99,8 @@ class RectilinearGrid(StructuredGrid):
         # all axes made increasing
         self._axes_increase = check_axes_monotonicity(self.axes)
         self._dim = len(self.dims)
-        self._data_location = get_enum_value(data_location, Location)
+        self._data_location = None
+        self.data_location = data_location
         self._order = order
         self._axes_reversed = bool(axes_reversed)
         self._axes_attributes = axes_attributes or (self.dim * [{}])
@@ -118,6 +129,7 @@ class RectilinearGrid(StructuredGrid):
             cell_types=self.cell_types,
             data_location=self.data_location,
             order=self.order,
+            axes_attributes=self.axes_attributes,
             axes_names=self.axes_names,
             crs=self.crs,
         )
@@ -186,6 +198,11 @@ class RectilinearGrid(StructuredGrid):
     def data_location(self):
         """Location of the associated data (either CELLS or POINTS)."""
         return self._data_location
+
+    @data_location.setter
+    def data_location(self, data_location):
+        """Set location of the associated data (either CELLS or POINTS)."""
+        self._data_location = _check_location(self, data_location)
 
 
 class UniformGrid(RectilinearGrid):
@@ -296,6 +313,28 @@ class UniformGrid(RectilinearGrid):
             spacing = self.spacing + (0.0,) * (3 - self.dim)
             imageToVTK(path, origin, spacing, **kw)
 
+    def to_rectilinear(self):
+        """
+        Cast grid to a rectilinear grid.
+
+        Returns
+        -------
+        UniformGrid
+            Grid as rectilinear grid.
+        """
+        grid = RectilinearGrid(
+            axes=self.axes,
+            data_location=self.data_location,
+            order=self.order,
+            axes_reversed=self.axes_reversed,
+            axes_attributes=self.axes_attributes,
+            axes_names=self.axes_names,
+            crs=self.crs,
+        )
+        # pylint: disable-next=protected-access
+        grid._axes_increase = self.axes_increase
+        return grid
+
 
 class EsriGrid(UniformGrid):
     """
@@ -323,6 +362,9 @@ class EsriGrid(UniformGrid):
     crs : str or None, optional
         The coordinate reference system, by default None
     """
+
+    valid_locations = (Location.CELLS,)
+    """tuple: Valid locations for the grid."""
 
     def __init__(
         self,
@@ -378,6 +420,28 @@ class EsriGrid(UniformGrid):
         header["axes_attributes"] = axes_attributes
         return cls(**header)
 
+    def to_uniform(self):
+        """
+        Cast grid to an uniform grid.
+
+        Returns
+        -------
+        UniformGrid
+            Grid as uniform grid.
+        """
+        return UniformGrid(
+            dims=self.dims,
+            spacing=self.spacing,
+            origin=self.origin,
+            data_location=self.data_location,
+            order=self.order,
+            axes_reversed=self.axes_reversed,
+            axes_increase=self.axes_increase,
+            axes_attributes=self.axes_attributes,
+            axes_names=self.axes_names,
+            crs=self.crs,
+        )
+
 
 class UnstructuredGrid(Grid):
     """
@@ -396,6 +460,8 @@ class UnstructuredGrid(Grid):
     order : str, optional
         Data ordering.
         Either Fortran-like ("F") or C-like ("C"), by default "C"
+    axes_attributes : list of dict or None, optional
+        Axes attributes following the CF convention (in xyz order), by default None
     axes_names : list of str or None, optional
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
@@ -409,6 +475,7 @@ class UnstructuredGrid(Grid):
         cell_types,
         data_location=Location.CELLS,
         order="C",
+        axes_attributes=None,
         axes_names=None,
         crs=None,
     ):
@@ -416,8 +483,12 @@ class UnstructuredGrid(Grid):
         self._points = np.asarray(np.atleast_2d(points), dtype=float)[:, :3]
         self._cells = np.asarray(np.atleast_2d(cells), dtype=int)
         self._cell_types = np.asarray(np.atleast_1d(cell_types), dtype=int)
-        self._data_location = get_enum_value(data_location, Location)
+        self._data_location = None
+        self.data_location = data_location
         self._order = order
+        self._axes_attributes = axes_attributes or (self.dim * [{}])
+        if len(self.axes_attributes) != self.dim:
+            raise ValueError("UnstructuredGrid: wrong length of 'axes_attributes'")
         self._axes_names = axes_names or ["x", "y", "z"][: self.dim]
         if len(self.axes_names) != self.dim:
             raise ValueError("UnstructuredGrid: wrong length of 'axes_names'")
@@ -482,10 +553,20 @@ class UnstructuredGrid(Grid):
         """Location of the associated data (either CELLS or POINTS)."""
         return self._data_location
 
+    @data_location.setter
+    def data_location(self, data_location):
+        """Set location of the associated data (either CELLS or POINTS)."""
+        self._data_location = _check_location(self, data_location)
+
     @property
     def order(self):
         """str: Point, cell and data order (C-like or F-like for flatten)."""
         return self._order
+
+    @property
+    def axes_attributes(self):
+        """list of dict: Axes attributes following the CF convention (xyz order)."""
+        return self._axes_attributes
 
     @property
     def axes_names(self):
@@ -504,16 +585,22 @@ class UnstructuredPoints(UnstructuredGrid):
     order : str, optional
         Data ordering.
         Either Fortran-like ("F") or C-like ("C"), by default "C"
+    axes_attributes : list of dict or None, optional
+        Axes attributes following the CF convention (in xyz order), by default None
     axes_names : list of str or None, optional
         Axes names (in xyz order), by default ["x", "y", "z"]
     crs : str or None, optional
         The coordinate reference system, by default None
     """
 
+    valid_locations = (Location.POINTS,)
+    """tuple: Valid locations for the grid."""
+
     def __init__(
         self,
         points,
         order="C",
+        axes_attributes=None,
         axes_names=None,
         crs=None,
     ):
@@ -525,6 +612,7 @@ class UnstructuredPoints(UnstructuredGrid):
             cell_types=np.full(pnt_cnt, CellType.VERTEX, dtype=int),
             data_location=Location.POINTS,
             order=order,
+            axes_attributes=axes_attributes,
             axes_names=axes_names,
             crs=crs,
         )

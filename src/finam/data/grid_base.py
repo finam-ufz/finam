@@ -1,4 +1,6 @@
 """Grid abstract base classes for FINAM."""
+
+import copy as cp
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -34,6 +36,22 @@ class GridBase(ABC):
     def dim(self):
         """int: Dimension of the grid or data."""
 
+    def copy(self, deep=False):
+        """
+        Copy of this grid.
+
+        Parameters
+        ----------
+        deep : bool, optional
+            If false, only a shallow copy is returned to save memory, by default False
+
+        Returns
+        -------
+        Grid
+            The grid copy.
+        """
+        return cp.deepcopy(self) if deep else cp.copy(self)
+
     def to_canonical(self, data):
         """Convert grid specific data to canonical form."""
         return data
@@ -50,6 +68,9 @@ class GridBase(ABC):
 
 class Grid(GridBase):
     """Abstract grid specification."""
+
+    valid_locations = (Location.CELLS, Location.POINTS)
+    """tuple: Valid locations for the grid."""
 
     @property
     @abstractmethod
@@ -124,6 +145,11 @@ class Grid(GridBase):
     def data_location(self):
         """Location of the associated data (either CELLS or POINTS)."""
 
+    @data_location.setter
+    @abstractmethod
+    def data_location(self, data_location):
+        """Set location of the associated data (either CELLS or POINTS)."""
+
     @property
     def data_points(self):
         """Points of the associated data (either cell_centers or points)."""
@@ -150,6 +176,11 @@ class Grid(GridBase):
     @abstractmethod
     def axes_names(self):
         """list of str: Axes names (xyz order)."""
+
+    @property
+    @abstractmethod
+    def axes_attributes(self):
+        """list of dict: Axes attributes following the CF convention (xyz order)."""
 
     @property
     def data_axes_names(self):
@@ -271,11 +302,6 @@ class StructuredGrid(Grid):
     def axes_increase(self):
         """list of bool: False to indicate a bottom up axis (xyz order)."""
         # esri grids and some netcdf are given bottom up (northing/lat inverted)
-
-    @property
-    @abstractmethod
-    def axes_attributes(self):
-        """list of dict: Axes attributes following the CF convention (xyz order)."""
 
     @property
     @abstractmethod
