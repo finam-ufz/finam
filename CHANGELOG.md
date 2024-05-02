@@ -20,6 +20,12 @@
   * `get_cells_matrix`: convert `cells_connectivity` or `cells_definition` back to the default cells matrix used in the Grid class (can be used to convert VTK-grids into FINAM-grids)
   * `INV_VTK_TYPE_MAP`: inverse mapping to `VTK_TYPE_MAP` - FINAM cell type to VTK cell type
   * `VTK_CELL_DIM`: parametric dimension for each VTK cell type
+* Grid class now reusable when having different data locations and better grid type casting (!278)
+  * added `copy` method to grids with optional argument `deep` (`False` by default) to create a copy of a grid
+  * added setter for `data_location` in order to set a new data location (e.g. after copying a grid)
+  * added class attribute `valid_locations` in order to check the set data location (esri-grid only supports cells, unstructured-points only support points)
+  * added missing casting methods to convert esri to uniform and uniform to rectilinear (when you want to use point data on an esri-grid, you can cast it to uniform first)
+  * added `axes_attributes` also to unstructured grids
 
 ### Documentation
 
