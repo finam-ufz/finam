@@ -220,10 +220,14 @@ class Grid(GridBase):
         ):
             return False
 
-        if self.data_shape != other.data_shape:
+        if check_location and self.data_shape != other.data_shape:
             return False
 
-        return np.allclose(self.data_points, other.data_points)
+        return (
+            np.allclose(self.points, other.points)
+            and self.cells == other.cells
+            and self.cell_types == other.cell_types
+        )
 
     def __eq__(self, other):
         return self.compatible_with(other)
@@ -424,7 +428,7 @@ class StructuredGrid(Grid):
         ):
             return False
 
-        if self.data_shape != (
+        if check_location and self.data_shape != (
             other.data_shape[::-1]
             if self.axes_reversed != other.axes_reversed
             else other.data_shape
