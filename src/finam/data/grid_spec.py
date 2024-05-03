@@ -42,7 +42,7 @@ class NoGrid(GridBase):
         return f"{self.__class__.__name__} ({self.dim}D)"
 
     # pylint: disable-next=unused-argument
-    def compatible_with(self, other):
+    def compatible_with(self, other, check_location=True):
         """
         Check for compatibility with other Grid.
 
@@ -50,6 +50,8 @@ class NoGrid(GridBase):
         ----------
         other : instance of Grid
             Other grid to compatibility with.
+        check_location : bool, optional
+            Whether to check location for equality, by default True
 
         Returns
         -------

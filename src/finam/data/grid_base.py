@@ -190,7 +190,7 @@ class Grid(GridBase):
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D) {self.data_shape}"
 
-    def compatible_with(self, other):
+    def compatible_with(self, other, check_location=True):
         """
         Check for compatibility with other Grid.
 
@@ -198,6 +198,8 @@ class Grid(GridBase):
         ----------
         other : instance of Grid
             Other grid to compatibility with.
+        check_location : bool, optional
+            Whether to check location for equality, by default True
 
         Returns
         -------
@@ -214,7 +216,7 @@ class Grid(GridBase):
             self.dim == other.dim
             and self.crs == other.crs
             and self.order == other.order
-            and self.data_location == other.data_location
+            and (not check_location or self.data_location == other.data_location)
         ):
             return False
 
@@ -393,7 +395,7 @@ class StructuredGrid(Grid):
             np.maximum(dims - 1, 1) if self.data_location == Location.CELLS else dims
         )
 
-    def compatible_with(self, other):
+    def compatible_with(self, other, check_location=True):
         """
         Check for compatibility with other Grid.
 
@@ -401,6 +403,8 @@ class StructuredGrid(Grid):
         ----------
         other : instance of Grid
             Other grid to compatibility with.
+        check_location : bool, optional
+            Whether to check location for equality, by default True
 
         Returns
         -------
@@ -416,7 +420,7 @@ class StructuredGrid(Grid):
         if not (
             self.dim == other.dim
             and self.crs == other.crs
-            and self.data_location == other.data_location
+            and (not check_location or self.data_location == other.data_location)
         ):
             return False
 
