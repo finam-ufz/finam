@@ -292,6 +292,16 @@ class TestGridSpec(unittest.TestCase):
         self.assertTrue(us_grid == cp_grid1)
         self.assertFalse(us_grid == cp_grid2)
 
+    def test_location_check(self):
+        grid_s1 = UniformGrid((2, 2), data_location="CELLS")
+        grid_s2 = UniformGrid((2, 2), data_location="POINTS")
+        grid_u1 = grid_s1.to_unstructured()
+        grid_u2 = grid_s2.to_unstructured()
+        self.assertTrue(grid_s1.compatible_with(grid_s2, check_location=False))
+        self.assertFalse(grid_s1.compatible_with(grid_s2, check_location=True))
+        self.assertTrue(grid_u1.compatible_with(grid_u2, check_location=False))
+        self.assertFalse(grid_u1.compatible_with(grid_u2, check_location=True))
+
     def test_equality(self):
         grid1 = UniformGrid((2, 2), data_location=0)
         grid2 = UnstructuredGrid(
