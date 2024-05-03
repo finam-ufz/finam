@@ -26,6 +26,7 @@
   * added class attribute `valid_locations` in order to check the set data location (esri-grid only supports cells, unstructured-points only support points)
   * added missing casting methods to convert esri to uniform and uniform to rectilinear (when you want to use point data on an esri-grid, you can cast it to uniform first)
   * added `axes_attributes` also to unstructured grids
+* Grid method `compatible_with` now has a `check_location` argument to optionally check data location (!280)
 
 ### Documentation
 
