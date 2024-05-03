@@ -225,8 +225,8 @@ class Grid(GridBase):
 
         return (
             np.allclose(self.points, other.points)
-            and self.cells == other.cells
-            and self.cell_types == other.cell_types
+            and np.all(self.cells == other.cells)
+            and np.all(self.cell_types == other.cell_types)
         )
 
     def __eq__(self, other):
