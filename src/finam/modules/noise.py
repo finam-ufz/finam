@@ -328,6 +328,7 @@ def _generate_structured(grid, t, freq):
             grid.data_axes[2] * freq,
             np.asarray([t]),
         )
+    # pylint: disable-next=possibly-used-before-assignment
     return data[0, ...].T
 
 

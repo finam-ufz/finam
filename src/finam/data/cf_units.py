@@ -4,6 +4,7 @@ Source: cf-xarray (https://github.com/xarray-contrib/cf-xarray/blob/main/cf_xarr
 License: Apache License 2.0 (https://github.com/xarray-contrib/cf-xarray/blob/main/LICENSE)
 """
 
+# pylint: disable=W0212,W0613
 import functools
 import re
 import warnings
