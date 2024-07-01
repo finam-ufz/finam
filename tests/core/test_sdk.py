@@ -88,9 +88,8 @@ class TestComponent(unittest.TestCase):
         self.assertEqual(component.time, datetime(2000, 1, 1))
         self.assertEqual(component.status, ComponentStatus.CREATED)
 
-        composition = Composition([component])
-
         with self.assertRaises(FinamStatusError):
+            Composition([component])
 
     def test_connect_helper(self):
         component = MockupComponentIO()
