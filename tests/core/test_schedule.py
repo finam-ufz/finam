@@ -333,9 +333,9 @@ class TestComposition(unittest.TestCase):
         module1 = MockupComponent(
             callbacks={"Output": lambda t: t}, step=timedelta(1.0)
         )
-        composition = Composition([module1])
 
         with self.assertRaises(FinamStatusError):
+            Composition([module1])
 
     def test_fail_double_connect(self):
         module1 = MockupComponent(
