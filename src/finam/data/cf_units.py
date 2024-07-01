@@ -119,8 +119,7 @@ try:
 except ImportError:
     warnings.warn(
         "Import(s) unavailable to set up matplotlib support...skipping this portion "
-        "of the setup.",
-        UserWarning,
+        "of the setup."
     )
 # end of vendored code from MetPy
 
