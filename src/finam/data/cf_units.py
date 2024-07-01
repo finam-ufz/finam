@@ -3,60 +3,60 @@
 Source: cf-xarray (https://github.com/xarray-contrib/cf-xarray/blob/main/cf_xarray/units.py)
 License: Apache License 2.0 (https://github.com/xarray-contrib/cf-xarray/blob/main/LICENSE)
 """
+
 import functools
 import re
 import warnings
 
 import pint
+from packaging.version import Version
 
-# pylint: disable-next=unused-import
-from pint import DimensionalityError, UndefinedUnitError, UnitStrippedWarning
 
-# from `xclim`'s unit support module with permission of the maintainers
-try:
+@pint.register_unit_format("cf")
+def short_formatter(unit, registry, **options):
+    """Return a CF-compliant unit string from a `pint` unit.
 
-    @pint.register_unit_format("cf")  # pylint: disable-next=unused-argument
-    def short_formatter(unit, registry, **options):
-        """Return a CF-compliant unit string from a :mod:`pint` unit.
-        Parameters
-        ----------
-        unit : pint.UnitContainer
-            Input unit.
-        registry : pint.UnitRegistry
-            the associated registry
-        **options
-            Additional options (may be ignored)
-        Returns
-        -------
-        out : str
-            Units following CF-Convention, using symbols.
-        """
+    Parameters
+    ----------
+    unit : pint.UnitContainer
+        Input unit.
+    registry : pint.UnitRegistry
+        The associated registry
+    **options
+        Additional options (may be ignored)
 
-        # convert UnitContainer back to Unit
-        unit = registry.Unit(unit)
-        # Print units using abbreviations (millimeter -> mm)
-        s = f"{unit:~D}"
+    Returns
+    -------
+    out : str
+        Units following CF-Convention, using symbols.
+    """
+    # pint 0.24.1 gives this for dimensionless units
+    if unit == {"dimensionless": 1}:
+        return ""
 
-        # Search and replace patterns
-        pat = r"(?P<inverse>(?:1 )?/ )?(?P<unit>\w+)(?: \*\* (?P<pow>\d))?"
+    # If u is a name, get its symbol (same as pint's "~" pre-formatter)
+    # otherwise, assume a symbol (pint should have already raised on invalid units before this)
+    unit = pint.util.UnitsContainer(
+        {
+            registry._get_symbol(u) if u in registry._units else u: exp
+            for u, exp in unit.items()
+        }
+    )
 
-        def repl(m):
-            i, u, p = m.groups()
-            p = p or (1 if i else "")
-            neg = "-" if i else ""
+    # Change in formatter signature in pint 0.24
+    if Version(pint.__version__) < Version("0.24"):
+        args = (unit.items(),)
+    else:
+        # Numerators splitted from denominators
+        args = (
+            ((u, e) for u, e in unit.items() if e >= 0),
+            ((u, e) for u, e in unit.items() if e < 0),
+        )
 
-            return f"{u}{neg}{p}"
+    out = pint.formatter(*args, as_ratio=False, product_fmt=" ", power_fmt="{}{}")
+    # To avoid potentiel unicode problems in netCDF. In both case, this unit is not recognized by udunits
+    return out.replace("Δ°", "delta_deg")
 
-        out, _n = re.subn(pat, repl, s)
-
-        # Remove multiplications
-        out = out.replace(" * ", " ")
-        # Delta degrees:
-        out = out.replace("Δ°", "delta_deg")
-        return out.replace("percent", "%")
-
-except ImportError:
-    pass
 
 # ------
 # Reused with modification from MetPy under the terms of the BSD 3-Clause License.
@@ -75,7 +75,13 @@ units = pint.UnitRegistry(
     ],
     force_ndarray_like=True,
 )
+# ----- end block copied from metpy
 
+# need to insert to make sure this is the first preprocessor
+# This ensures we convert integer `1` to string `"1"`, as needed by pint.
+units.preprocessors.insert(0, str)
+
+# -----
 units.define("percent = 0.01 = %")
 
 # Define commonly encountered units (both CF and non-CF) not defined by pint
@@ -98,6 +104,8 @@ units.define(
 units.define(
     "degrees_east = degree = degrees_east = degrees_E = degreesE = degree_east = degree_E = degreeE"
 )
+# degrees for grid_longitude / grid_latitude for grid_mappings
+units.define("degrees = degree = degrees")
 units.define("[speed] = [length] / [time]")
 # ----- end block copied from xclim
 
@@ -110,7 +118,8 @@ try:
 except ImportError:
     warnings.warn(
         "Import(s) unavailable to set up matplotlib support...skipping this portion "
-        "of the setup."
+        "of the setup.",
+        UserWarning,
     )
 # end of vendored code from MetPy
 
