@@ -39,7 +39,6 @@ class SimpleRunBase(unittest.TestCase):
         )
 
         self.composition = fm.Composition([source, sink])
-        self.composition.initialize()
 
         source["Out"] >> sink["In"]
 

@@ -47,7 +47,6 @@ class TestCallback(unittest.TestCase):
         )
 
         composition = Composition([source, trans, consumer])
-        composition.initialize()
 
         _ = source.outputs["Out1"] >> trans.inputs["In1"]
         _ = trans.outputs["Out1"] >> consumer.inputs["In1"]

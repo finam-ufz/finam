@@ -91,12 +91,10 @@ class TestComponent(unittest.TestCase):
         composition = Composition([component])
 
         with self.assertRaises(FinamStatusError):
-            composition.initialize()
 
     def test_connect_helper(self):
         component = MockupComponentIO()
         composition = Composition([component])
-        composition.initialize()
 
         component.create_connector()
 

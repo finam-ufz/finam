@@ -36,9 +36,6 @@ Here is a simple example coupling two components:
     # Create a `Composition` containing all components
     composition = fm.Composition([generator, consumer])
 
-    # Initialize the `Composition`
-    composition.initialize()
-
     # Couple inputs to outputs
     generator.outputs["Noise"] >> consumer.inputs["Value"]
 
@@ -63,7 +60,7 @@ Note:
 The typical steps in a script are:
 
 #. Instantiate components and adapters (see next example)
-#. Create a :class:`.Composition` and initialize it
+#. Create a :class:`.Composition`
 #. Connect outputs to inputs using the overloaded ``>>`` operator (:meth:`.IOutput.__rshift__`)
 #. Run the :class:`.Composition`
 
@@ -132,9 +129,6 @@ time steps and an adapter:
 
     # Create a `Composition` containing all components
     composition = fm.Composition([generator, consumer_1, consumer_2])
-
-    # Initialize the `Composition`
-    composition.initialize()
 
     # Couple inputs to outputs, without an adapter
     (

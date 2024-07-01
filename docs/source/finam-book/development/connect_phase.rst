@@ -191,7 +191,6 @@ In the most simple case, all metadata is known in :meth:`.Component._initialize`
     )
 
     comp = fm.Composition([generator, simple_conn, consumer])
-    comp.initialize()
 
     generator.outputs["Output1"] >> simple_conn.inputs["A"]
     generator.outputs["Output2"] >> simple_conn.inputs["B"]
@@ -284,7 +283,6 @@ and the initial data should be generated from it.
     )
 
     comp = fm.Composition([generator, complex_conn, consumer])
-    comp.initialize()
 
     generator.outputs["Output1"] >> complex_conn.inputs["A"]
     generator.outputs["Output2"] >> complex_conn.inputs["B"]

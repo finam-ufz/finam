@@ -49,7 +49,6 @@ def run_model():
     )
 
     composition = fm.Composition([source, sink])
-    composition.initialize()
 
     source["Out"] >> sink["In"]
 

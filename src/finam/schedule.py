@@ -55,7 +55,6 @@ class Composition(Loggable):
         comp_b = AnotherComponent(...)
 
         composition = Composition([comp_a, comp_b])
-        composition.initialize()
 
         comp_b.outputs["Out"] >> SomeAdapter() >> comp_b.inputs["In"]
 

@@ -123,7 +123,6 @@ Both properties can also be set for individual :class:`.Output` and :class:`.Ada
 .. testcode:: memory-limit
 
     comp = finam.Composition([comp_a, comp_b])
-    comp.initialize()
 
     comp_a.outputs["Noise"].memory_limit = 256 * 2**20, # 256MB doctest: +ELLIPSIS
 
