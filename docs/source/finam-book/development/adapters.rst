@@ -78,7 +78,7 @@ File ``src/scale.py``:
     :hide:
 
     ...
-    0.5
+    0.5 1
 
 In :meth:`.Adapter._get_data`, we:
 
@@ -247,7 +247,7 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
     :hide:
 
     ...
-    15.0
+    15.0 1
 
 In :meth:`.Adapter._get_data`, the following happens:
 
