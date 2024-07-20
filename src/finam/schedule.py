@@ -17,6 +17,8 @@ from datetime import datetime
 from pathlib import Path
 from time import strftime
 
+from deprecated import deprecated
+
 from ._version import __version__
 from .errors import (
     FinamCircularCouplingError,
@@ -80,6 +82,12 @@ class Composition(Loggable):
         Location for storing data when exceeding ``slot_memory_limit``.
         Default: "temp".
     """
+
+    @deprecated(
+        "Compositions are now initialized when created. To be removed in v1.0.",
+        version="0.6",
+    )
+    def initialize(self): ...
 
     def __init__(
         self,
