@@ -87,7 +87,8 @@ class Composition(Loggable):
         "Compositions are now initialized when created. To be removed in v1.0.",
         version="0.6",
     )
-    def initialize(self): ...
+    def initialize(self):
+        ...
 
     def __init__(
         self,
