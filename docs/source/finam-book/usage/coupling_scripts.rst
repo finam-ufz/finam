@@ -228,7 +228,12 @@ You can configure the base logger when creating the :class:`.Composition` as sho
         print_log=True,
         log_file=True,
         log_level=logging.INFO,
-    )
+    ) # doctest: +ELLIPSIS
+
+.. testoutput:: composition
+    :hide:
+
+    ...
 
 There you have several options:
 
