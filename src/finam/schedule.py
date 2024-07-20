@@ -88,7 +88,7 @@ class Composition(Loggable):
         version="0.6",
     )
     def initialize(self):
-        ...
+        """Initialize all modules."""
 
     def __init__(
         self,
