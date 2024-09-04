@@ -115,8 +115,7 @@ We want our component to have a user-defined time step, so we add it here:
             self._step = step                                            # <--
             self.time = start
 
-        @property                                                        # <--
-        def next_time(self):                                             # <--
+        def _next_time(self):                                            # <--
             return self.time + self._step                                # <--
 
 
@@ -153,8 +152,7 @@ It is called internally by the :meth:`.TimeComponent.initialize` method.
         def __init__(self, start, step):
             # ...
 
-        @property
-        def next_time(self):
+        def _next_time(self):
             # ...
 
         def _initialize(self):                                             # <--
@@ -376,8 +374,8 @@ Here is the final code of the completed component.
             self._step = step
             self.time = start
 
-        @property
-        def next_time(self):
+
+        def _next_time(self):
             return self.time + self._step
 
         def _initialize(self):

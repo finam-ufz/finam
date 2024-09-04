@@ -82,8 +82,7 @@ class CsvWriter(TimeComponent):
 
         self._rows = []
 
-    @property
-    def next_time(self):
+    def _next_time(self):
         return self.time + self._step
 
     def _initialize(self):

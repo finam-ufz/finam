@@ -519,6 +519,7 @@ class TimeComponent(ITimeComponent, Component, ABC):
     * :meth:`._validate`
     * :meth:`._update`
     * :meth:`._finalize`
+    * :meth:`._next_time`
     """
 
     def __init__(self):
@@ -545,6 +546,20 @@ class TimeComponent(ITimeComponent, Component, ABC):
             with ErrorLogger(self.logger):
                 raise ValueError("Time must be of type datetime")
         self._time = time
+
+    @property
+    def next_time(self):
+        """The component's predicted simulation time of its next pulls.
+
+        Can be ``None`` if the component has no inputs.
+        """
+        return self._next_time()
+
+    def _next_time(self):
+        raise NotImplementedError(
+            "Method `_next_time` must be implemented by all time components, "
+            f"but implementation is missing in {self.name}."
+        )
 
 
 class IOType(IntEnum):

@@ -84,8 +84,7 @@ class CallbackComponent(TimeComponent):
         self._initial_pull = initial_pull
         self._data_generated = False
 
-    @property
-    def next_time(self):
+    def _next_time(self):
         return self.time + self._step
 
     def _initialize(self):

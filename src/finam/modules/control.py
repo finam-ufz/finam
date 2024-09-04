@@ -84,8 +84,7 @@ class TimeTrigger(TimeComponent):
         self._step = step
         self._start_from_input = start_from_input
 
-    @property
-    def next_time(self):
+    def _next_time(self):
         return self.time + self._step
 
     def _initialize(self):
@@ -213,8 +212,7 @@ class UserControl(TimeComponent):
         self.step = step
         self._counter = 0
 
-    @property
-    def next_time(self):
+    def _next_time(self):
         return None
 
     def _initialize(self):

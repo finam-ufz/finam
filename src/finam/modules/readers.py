@@ -75,8 +75,7 @@ class CsvReader(TimeComponent):
 
         self._output_units = outputs
 
-    @property
-    def next_time(self):
+    def _next_time(self):
         return None
 
     def _initialize(self):

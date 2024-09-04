@@ -32,8 +32,7 @@ Here is an example using the dummy model from the previous chapter:
             super().__init__()
             # your setup
 
-        @property
-        def next_time(self):
+        def _next_time(self):
             return self.time # + step
 
         def _initialize(self):
@@ -82,8 +81,7 @@ In order to show these errors in the logger, we provide a context manager :class
         def __init__(self):
             super().__init__()
 
-        @property
-        def next_time(self):
+        def _next_time(self):
             return self.time # + step
 
         def _initialize(self):
