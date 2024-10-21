@@ -135,6 +135,7 @@ multi_line_output = 3
         "C0103", # ignore invalid-names like "x", "y"
         "C0415", # ignore defered imports
         "R0801", # ignore code duplications
+        "R0917", # too-many-positional-arguments
     ]
 
     [tool.pylint.reports]
