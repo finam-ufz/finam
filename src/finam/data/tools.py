@@ -1,6 +1,8 @@
 """Data tools for FINAM."""
+
 import copy
 import datetime
+from enum import Enum
 
 import numpy as np
 import pandas as pd
@@ -20,6 +22,15 @@ UNITS = pint.application_registry
 _UNIT_PAIRS_CACHE = {}
 
 _MASK_INDICATORS = ["_FillValue", "missing_value"]
+
+
+class Mask(Enum):
+    """Mask settings for Info."""
+
+    FLEX = 0
+    """Data can be masked or unmasked."""
+    NONE = 1
+    """Data is expected to be unmasked and given as plain numpy arrays."""
 
 
 def prepare(data, info, time_entries=1, force_copy=False, report_conversion=False):
