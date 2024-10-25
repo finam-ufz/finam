@@ -26,7 +26,6 @@ class TestTimeTrigger(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -66,7 +65,6 @@ class TestTimeTrigger(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Out"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -109,7 +107,6 @@ class TestTimeTrigger(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Out"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -143,7 +140,6 @@ class TestTimeTrigger(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -178,7 +174,6 @@ class TestTimeTrigger(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]

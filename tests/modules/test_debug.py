@@ -48,7 +48,6 @@ class TestScheduleLogger(unittest.TestCase):
         )
 
         composition = fm.Composition([module1, module2, module3, schedule])
-        composition.initialize()
 
         module1.outputs["Out"] >> fm.adapters.Scale(1.0) >> module2.inputs["In"]
         module2.outputs["Out"] >> fm.adapters.Scale(1.0) >> module3.inputs["In"]
@@ -82,7 +81,6 @@ class TestPushDebugConsumer(unittest.TestCase):
         )
 
         composition = fm.Composition([module1, consumer])
-        composition.initialize()
 
         module1.outputs["Out"] >> consumer.inputs["In"]
 

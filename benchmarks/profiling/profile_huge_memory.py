@@ -38,7 +38,6 @@ def run_model():
     )
 
     composition = fm.Composition([source, sink], slot_memory_limit=500 * 2**20)
-    composition.initialize()
 
     source["Out"] >> sink["In"]
 

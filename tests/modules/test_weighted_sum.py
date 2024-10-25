@@ -52,7 +52,6 @@ class TestWeightedSum(unittest.TestCase):
         )
 
         composition = fm.Composition([generator1, generator2, merger, consumer])
-        composition.initialize()
 
         generator1.outputs["Value"] >> merger.inputs["In1"]
         generator1.outputs["Weight"] >> merger.inputs["In1_weight"]
@@ -111,7 +110,6 @@ class TestWeightedSum(unittest.TestCase):
         )
 
         composition = fm.Composition([generator1, generator2, merger, consumer])
-        composition.initialize()
 
         generator1.outputs["Value"] >> merger.inputs["In1"]
         generator1.outputs["Weight"] >> merger.inputs["In1_weight"]
@@ -170,7 +168,6 @@ class TestWeightedSum(unittest.TestCase):
         )
 
         composition = fm.Composition([generator1, generator2, merger, consumer])
-        composition.initialize()
 
         generator1.outputs["Value"] >> merger.inputs["In1"]
         generator1.outputs["Weight"] >> merger.inputs["In1_weight"]
@@ -226,7 +223,6 @@ class TestWeightedSum(unittest.TestCase):
         )
 
         composition = fm.Composition([generator1, generator2, merger, consumer])
-        composition.initialize()
 
         generator1.outputs["Value"] >> merger.inputs["In1"]
         generator1.outputs["Weight"] >> merger.inputs["In1_weight"]
@@ -281,7 +277,6 @@ class TestWeightedSum(unittest.TestCase):
         )
 
         composition = fm.Composition([generator1, generator2, merger, consumer])
-        composition.initialize()
 
         generator1.outputs["Value"] >> merger.inputs["In1"]
         generator1.outputs["Weight"] >> merger.inputs["In1_weight"]
@@ -336,7 +331,6 @@ class TestWeightedSum(unittest.TestCase):
         )
 
         composition = fm.Composition([generator1, generator2, merger, consumer])
-        composition.initialize()
 
         generator1.outputs["Value"] >> merger.inputs["In1"]
         generator1.outputs["Weight"] >> merger.inputs["In1_weight"]

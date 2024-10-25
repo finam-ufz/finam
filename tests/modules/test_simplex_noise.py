@@ -20,7 +20,6 @@ class TestSimplexNoise(unittest.TestCase):
         )
 
         composition = fm.Composition([source, consumer])
-        composition.initialize()
 
         _ = source.outputs["Noise"] >> consumer.inputs["Noise"]
 
@@ -43,7 +42,6 @@ class TestSimplexNoise(unittest.TestCase):
         )
 
         composition = fm.Composition([source, consumer])
-        composition.initialize()
 
         _ = source.outputs["Noise"] >> consumer.inputs["Noise"]
 

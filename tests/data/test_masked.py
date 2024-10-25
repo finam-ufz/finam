@@ -50,7 +50,6 @@ class TestMasked(unittest.TestCase):
         )
 
         composition = fm.Composition([source, sink])
-        composition.initialize()
         source.outputs["Output"] >> fm.adapters.Scale(scale=2.0) >> sink.inputs["Input"]
         composition.connect()
 

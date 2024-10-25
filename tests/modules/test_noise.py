@@ -28,7 +28,6 @@ class TestNoise(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -60,7 +59,6 @@ class TestNoise(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -92,7 +90,6 @@ class TestNoise(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -124,7 +121,6 @@ class TestNoise(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -156,7 +152,6 @@ class TestNoise(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -188,7 +183,6 @@ class TestNoise(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -220,7 +214,6 @@ class TestNoise(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -252,7 +245,6 @@ class TestNoise(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -293,7 +285,6 @@ class TestStaticNoise(unittest.TestCase):
         )
 
         composition = fm.Composition([source, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> sink.inputs["Input"]
 

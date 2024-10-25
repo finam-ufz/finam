@@ -57,7 +57,6 @@ class TestRegrid(unittest.TestCase):
         )
 
         composition = Composition([source, sink], log_level="DEBUG")
-        composition.initialize()
 
         (source.outputs["Output"] >> RegridNearest() >> sink.inputs["Input"])
 
@@ -108,7 +107,6 @@ class TestRegrid(unittest.TestCase):
         )
 
         composition = Composition([source, sink], log_level="DEBUG")
-        composition.initialize()
 
         (source.outputs["Output"] >> RegridNearest() >> sink.inputs["Input"])
 
@@ -153,7 +151,6 @@ class TestRegrid(unittest.TestCase):
         )
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         (source.outputs["Output"] >> RegridNearest() >> sink.inputs["Input"])
 
@@ -197,7 +194,6 @@ class TestRegrid(unittest.TestCase):
         )
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         (source.outputs["Output"] >> RegridLinear() >> sink.inputs["Input"])
 
@@ -245,7 +241,6 @@ class TestRegrid(unittest.TestCase):
         )
 
         composition = Composition([source, sink], log_level="DEBUG")
-        composition.initialize()
 
         (
             source.outputs["Output"]
@@ -288,7 +283,6 @@ class TestRegrid(unittest.TestCase):
         )
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         (
             source.outputs["Output"]
@@ -333,7 +327,6 @@ class TestRegrid(unittest.TestCase):
         )
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         (
             source.outputs["Output"]
@@ -377,7 +370,6 @@ class TestRegrid(unittest.TestCase):
         )
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         (source.outputs["Output"] >> RegridLinear() >> sink.inputs["Input"])
 
@@ -424,7 +416,6 @@ class TestRegrid(unittest.TestCase):
         regrid = RegridLinear()
 
         composition = Composition([source, sink_1, sink_2])
-        composition.initialize()
 
         source.outputs["Output"] >> regrid
         regrid >> sink_1.inputs["Input"]
@@ -479,7 +470,6 @@ class TestRegrid(unittest.TestCase):
         regrid = RegridLinear()
 
         composition = Composition([source, sink_1, sink_2])
-        composition.initialize()
 
         source.outputs["Output"] >> regrid
         regrid >> sink_1.inputs["Input"]
@@ -530,7 +520,6 @@ class TestRegrid(unittest.TestCase):
         )
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         (
             source.outputs["Output"]

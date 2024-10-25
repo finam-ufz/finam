@@ -78,7 +78,6 @@ Push-based components can use :class:`.CallbackInput` to get informed about inco
     push_comp = PushComponent()
 
     comp = fm.Composition([generator, push_comp])
-    comp.initialize()
 
     generator.outputs["Value"] >> push_comp.inputs["Input"]
 
@@ -153,7 +152,6 @@ Push-based components can use :class:`.CallbackOutput` to intercept data pulls.
     )
 
     comp = fm.Composition([pull_comp, consumer])
-    comp.initialize()
 
     pull_comp.outputs["Output"] >> consumer.inputs["Input"]
 
