@@ -16,8 +16,7 @@ class MockupConsumer(TimeComponent):
         self.info = info
         self.data = None
 
-    @property
-    def next_time(self):
+    def _next_time(self):
         return self.time + self.step
 
     def _initialize(self):
@@ -47,8 +46,7 @@ class MockupProducer(TimeComponent):
 
         self.out_info = None
 
-    @property
-    def next_time(self):
+    def _next_time(self):
         return self.time + self.step
 
     def _initialize(self):

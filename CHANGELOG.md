@@ -8,6 +8,7 @@
 * `Input.source` is private, `Input.get_source()` becomes property `Input.source`, `Input.set_source` becomes a getter (!273)
 * `Output.targets` is private, `Output.get_targets()` becomes property `Output.targets` (!273)
 * Composition metadata was restructured to hold components and adapters in separate sub-dictionaries (!274)
+* Time components implement method `_next_time` instead of property `next_time` (!283)
 
 ### Features
 

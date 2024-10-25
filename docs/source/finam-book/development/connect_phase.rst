@@ -148,8 +148,7 @@ In the most simple case, all metadata is known in :meth:`.Component._initialize`
             self.time = time
             self.step = step
 
-        @property
-        def next_time(self):
+        def _next_time(self):
             return self.time + self.step
 
         def _initialize(self):
@@ -227,8 +226,7 @@ and the initial data should be generated from it.
             self.time = time
             self.step = step
 
-        @property
-        def next_time(self):
+        def _next_time(self):
             return self.time + self.step
 
         def _initialize(self):

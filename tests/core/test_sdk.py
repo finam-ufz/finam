@@ -45,8 +45,7 @@ class MockupComponent(TimeComponent):
         super().__init__()
         self._time = datetime(2000, 1, 1)
 
-    @property
-    def next_time(self):
+    def _next_time(self):
         return self.time + timedelta(days=1)
 
     def _initialize(self):
@@ -58,8 +57,7 @@ class MockupComponentIO(TimeComponent):
         super().__init__()
         self._time = datetime(2000, 1, 1)
 
-    @property
-    def next_time(self):
+    def _next_time(self):
         return self.time + timedelta(days=1)
 
     def _initialize(self):
@@ -72,8 +70,7 @@ class MockupComponentIONameConflict(TimeComponent):
         super().__init__()
         self._time = datetime(2000, 1, 1)
 
-    @property
-    def next_time(self):
+    def _next_time(self):
         return self.time + timedelta(days=1)
 
     def _initialize(self):
@@ -811,8 +808,7 @@ class NotImplComponent(TimeComponent):
         super().__init__()
         self._time = datetime(2000, 1, 1)
 
-    @property
-    def next_time(self):
+    def _next_time(self):
         return self.time + timedelta(days=1)
 
 
