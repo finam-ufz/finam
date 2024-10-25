@@ -42,7 +42,6 @@ dependencies = [
     "pyproj>=3.4",
     "pandas>=1.3",
     "opensimplex>=0.4",
-    "deprecated",
 ]
 
 [project.urls]
