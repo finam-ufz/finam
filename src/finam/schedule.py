@@ -9,6 +9,7 @@ Composition
 
     :noindex: Composition
 """
+
 import logging
 import os
 import sys
@@ -54,7 +55,6 @@ class Composition(Loggable):
         comp_b = AnotherComponent(...)
 
         composition = Composition([comp_a, comp_b])
-        composition.initialize()
 
         comp_b.outputs["Out"] >> SomeAdapter() >> comp_b.inputs["In"]
 
@@ -123,7 +123,6 @@ class Composition(Loggable):
         self._dependencies = None
         self._input_owners = None
         self._output_owners = None
-        self._is_initialized = False
         self._is_connected = False
 
         self._time_frame = (None, None)
@@ -131,14 +130,8 @@ class Composition(Loggable):
         self._slot_memory_limit = slot_memory_limit
         self._slot_memory_location = slot_memory_location
 
-    def initialize(self):
-        """Initialize all modules.
-
-        After the call, module inputs and outputs are available for linking.
-        """
+        # initialize
         self.logger.info("init composition")
-        if self._is_initialized:
-            raise FinamStatusError("Composition was already initialized.")
 
         for mod in self._modules:
             self._check_status(mod, [ComponentStatus.CREATED])
@@ -162,8 +155,6 @@ class Composition(Loggable):
                     out.memory_location = self._slot_memory_location
 
             self._check_status(mod, [ComponentStatus.INITIALIZED])
-
-        self._is_initialized = True
 
     def connect(self, start_time=None):
         """Performs the connect and validate phases of the composition

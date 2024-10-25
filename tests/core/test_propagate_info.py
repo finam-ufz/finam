@@ -100,7 +100,6 @@ class TestPropagate(unittest.TestCase):
         )
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         (source.outputs["Output"] >> SpecAdapter() >> sink.inputs["Input"])
 
@@ -129,7 +128,6 @@ class TestPropagate(unittest.TestCase):
         )
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         source.outputs["Output"] >> sink.inputs["Input"]
 
@@ -154,7 +152,6 @@ class TestPropagate(unittest.TestCase):
         )
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         source.outputs["Output"] >> sink.inputs["Input"]
 
@@ -181,7 +178,6 @@ class TestPropagate(unittest.TestCase):
         )
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         source.outputs["Output"] >> sink.inputs["Input"]
 

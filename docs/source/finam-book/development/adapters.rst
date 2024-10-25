@@ -66,7 +66,6 @@ File ``src/scale.py``:
     adapter = Scale(0.5)
 
     comp = fm.Composition([generator, consumer])
-    comp.initialize()
 
     generator.outputs["Value"] >> adapter >> consumer.inputs["Input"]
 
@@ -235,7 +234,6 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
     adapter = TimeInterpolation()
 
     comp = fm.Composition([generator, consumer])
-    comp.initialize()
 
     generator.outputs["Value"] >> adapter >> consumer.inputs["Input"]
 

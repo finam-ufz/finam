@@ -256,7 +256,6 @@ For the tests, we need to set up a real coupling from here on, as the component'
             # set up a composition
             composition = fm.Composition([model, generator, consumer],
                                          log_level="DEBUG")
-            composition.initialize()
 
             # connect components
             generator.outputs["A"] >> model.inputs["A"]
@@ -422,7 +421,6 @@ Here is the final code of the completed component.
                 step=timedelta(days=7),
             )
             composition = fm.Composition([model, generator, consumer], log_level="DEBUG")
-            composition.initialize()
 
             generator.outputs["A"] >> model.inputs["A"]
             generator.outputs["B"] >> model.inputs["B"]

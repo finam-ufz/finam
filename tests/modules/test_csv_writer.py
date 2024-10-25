@@ -37,7 +37,6 @@ class TestCsvWriter(unittest.TestCase):
             )
 
             comp = Composition([generator, writer])
-            comp.initialize()
 
             generator.outputs["A"] >> writer.inputs["A"]
             generator.outputs["B"] >> writer.inputs["B"]

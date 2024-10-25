@@ -184,7 +184,6 @@ class TestComposition(unittest.TestCase):
     def test_init(self):
         module = MockupComponent(callbacks={"Output": lambda t: t}, step=timedelta(1.0))
         composition = Composition([module])
-        composition.initialize()
 
         self.assertEqual(module.status, ComponentStatus.INITIALIZED)
         self.assertEqual(len(module.outputs), 1)
@@ -196,7 +195,6 @@ class TestComposition(unittest.TestCase):
     def test_validate_branching(self):
         module = MockupComponent(callbacks={"Output": lambda t: t}, step=timedelta(1.0))
         composition = Composition([module])
-        composition.initialize()
 
         non_branching_adapter = (
             module.outputs["Output"]
@@ -275,7 +273,6 @@ class TestComposition(unittest.TestCase):
             step=timedelta(days=1),
         )
         composition = Composition([module])
-        composition.initialize()
 
         with self.assertRaises(FinamConnectError) as context:
             composition._validate_composition()
@@ -294,7 +291,6 @@ class TestComposition(unittest.TestCase):
             composition = Composition(
                 [module2, module1], log_level=logging.DEBUG, log_file=log_file
             )
-            composition.initialize()
 
             module1.outputs["Output"] >> module2.inputs["Input"]
 
@@ -313,7 +309,6 @@ class TestComposition(unittest.TestCase):
         module2 = MockupDependentComponent(step=timedelta(1.0))
 
         composition = Composition([module2, module1])
-        composition.initialize()
 
         ada = fm.adapters.Scale(1.0)
         module1.outputs["Output"] >> ada >> module2.inputs["Input"]
@@ -327,27 +322,15 @@ class TestComposition(unittest.TestCase):
             callbacks={"Output": lambda t: t}, step=timedelta(1.0)
         )
         composition = Composition([module1])
-        composition.initialize()
 
         with self.assertRaises(ValueError):
             composition.run(start_time=0, end_time=100)
-
-    def test_fail_double_initialize(self):
-        module1 = MockupComponent(
-            callbacks={"Output": lambda t: t}, step=timedelta(1.0)
-        )
-        composition = Composition([module1])
-        composition.initialize()
-
-        with self.assertRaises(FinamStatusError):
-            composition.initialize()
 
     def test_fail_double_connect(self):
         module1 = MockupComponent(
             callbacks={"Output": lambda t: t}, step=timedelta(1.0)
         )
         composition = Composition([module1])
-        composition.initialize()
         composition.connect(datetime(2000, 1, 1))
 
         with self.assertRaises(FinamStatusError):
@@ -364,7 +347,6 @@ class TestComposition(unittest.TestCase):
         module2 = MockupDependentComponent(step=timedelta(1.0))
 
         composition = Composition([module2, module1])
-        composition.initialize()
 
         module1.outputs["Output"] >> module2.inputs["Input"]
 
@@ -378,7 +360,6 @@ class TestComposition(unittest.TestCase):
         module3 = MockupDependentComponent(step=timedelta(1.0))
 
         composition = Composition([module3, module2, module1])
-        composition.initialize()
 
         module1.outputs["Output"] >> module2.inputs["Input"]
         module2.outputs["Output"] >> module3.inputs["Input"]
@@ -392,7 +373,6 @@ class TestComposition(unittest.TestCase):
         module2 = MockupDependentComponent(step=timedelta(1.0))
 
         composition = Composition([module2, module1])
-        composition.initialize()
 
         module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
 
@@ -405,7 +385,6 @@ class TestComposition(unittest.TestCase):
         module2 = MockupDependentComponent(step=timedelta(1.0))
 
         composition = Composition([module2, module1])
-        composition.initialize()
 
         module1.outputs["Output"] >> Scale(1.0) >> Scale(1.0) >> module2.inputs["Input"]
 
@@ -416,7 +395,6 @@ class TestComposition(unittest.TestCase):
         module2 = MockupCircularComponent(step=timedelta(1.0))
 
         composition = Composition([module1, module2])
-        composition.initialize()
 
         module1.outputs["Output"] >> module2.inputs["Input"]
         module2.outputs["Output"] >> module1.inputs["Input"]
@@ -430,7 +408,6 @@ class TestComposition(unittest.TestCase):
         module = NoTimeComponent()
 
         composition = Composition([module])
-        composition.initialize()
 
         with self.assertRaises(ValueError):
             composition.run(end_time=datetime(2000, 1, 31))
@@ -441,7 +418,6 @@ class TestComposition(unittest.TestCase):
         module = MockupComponent(callbacks={"Output": lambda t: t}, step=timedelta(1.0))
 
         composition = Composition([module])
-        composition.initialize()
 
         with self.assertRaises(ValueError):
             composition.run(end_time=None)
@@ -456,7 +432,6 @@ class TestComposition(unittest.TestCase):
             callbacks={"Output": lambda t: 1.0}, step=timedelta(days=31)
         )
         composition = Composition([module1, module2])
-        composition.initialize()
         composition.run(start_time=datetime(2000, 1, 1), end_time=datetime(2000, 1, 1))
 
     def test_missing_component_upstream(self):
@@ -466,7 +441,6 @@ class TestComposition(unittest.TestCase):
         module2 = MockupDependentComponent(step=timedelta(1.0))
 
         composition = Composition([module2])
-        composition.initialize()
 
         module1.outputs["Output"] >> Scale(1.0) >> Scale(1.0) >> module2.inputs["Input"]
 
@@ -482,7 +456,6 @@ class TestComposition(unittest.TestCase):
         module2 = MockupDependentComponent(step=timedelta(1.0))
 
         composition = Composition([module1])
-        composition.initialize()
 
         module1.outputs["Output"] >> Scale(1.0) >> Scale(1.0) >> module2.inputs["Input"]
 
@@ -496,7 +469,6 @@ class TestComposition(unittest.TestCase):
         module2 = MockupDependentComponent(step=timedelta(1.0))
 
         composition = Composition([module1, module2])
-        composition.initialize()
 
         module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
 
@@ -531,7 +503,6 @@ class TestComposition(unittest.TestCase):
         module4 = MockupDependentComponent(step=timedelta(1.0))
 
         composition = Composition([module1, module2, module3, module4])
-        composition.initialize()
 
         module1.outputs["Output"] >> Scale(1.0) >> module2.inputs["Input"]
         module1.outputs["Output"] >> Scale(1.0) >> module3.inputs["Input"]
@@ -593,7 +564,6 @@ class TestComposition(unittest.TestCase):
         )
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> Scale(1.0) >> sink.inputs["In"]
 
@@ -612,7 +582,6 @@ class TestComposition(unittest.TestCase):
         sink = MockupDependentComponent(step=timedelta(days=1), static=True)
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         source.outputs["Noise"] >> Scale(1.0) >> sink.inputs["Input"]
 
@@ -665,7 +634,6 @@ class TestComposition(unittest.TestCase):
             step=timedelta(days=8),
         )
         composition = Composition([module1, module2, module3])
-        composition.initialize()
 
         module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
         module2.outputs["Out"] >> Scale(1.0) >> module3.inputs["In"]
@@ -729,7 +697,6 @@ class TestComposition(unittest.TestCase):
             step=timedelta(days=1),
         )
         composition = Composition([module1, module2])
-        composition.initialize()
 
         module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
 
@@ -792,7 +759,6 @@ class TestComposition(unittest.TestCase):
             step=timedelta(days=1),
         )
         composition = Composition([module1, module2])
-        composition.initialize()
 
         module1.outputs["Out1"] >> Scale(1.0) >> module2.inputs["In1"]
         module1.outputs["Out2"] >> Scale(1.0) >> module2.inputs["In2"]
@@ -842,7 +808,6 @@ class TestComposition(unittest.TestCase):
             initial_pull=False,
         )
         composition = Composition([module1, module2])
-        composition.initialize()
 
         module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
         module2.outputs["Out"] >> Scale(1.0) >> module1.inputs["In"]
@@ -895,7 +860,6 @@ class TestComposition(unittest.TestCase):
         )
 
         composition = Composition([module1, module2, module3])
-        composition.initialize()
 
         module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
         module1.outputs["Out"] >> Scale(1.0) >> module3.inputs["A"]
@@ -951,7 +915,6 @@ class TestComposition(unittest.TestCase):
         )
 
         composition = Composition([module1, module2, module3])
-        composition.initialize()
 
         module1.outputs["Out"] >> Scale(1.0) >> module2.inputs["In"]
         module1.outputs["Out"] >> Scale(1.0) >> module3.inputs["A"]
@@ -972,7 +935,6 @@ class TestComposition(unittest.TestCase):
         module3 = MockupDependentComponent(step=timedelta(1.0))
 
         composition = Composition([module2, module1, module3])
-        composition.initialize()
 
         ada1 = fm.adapters.Scale(1.0)
         ada2 = fm.adapters.Scale(1.0)

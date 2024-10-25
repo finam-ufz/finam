@@ -75,7 +75,6 @@ class TestUnits(unittest.TestCase):
         sink = MockupConsumer(datetime(2000, 1, 1), UNITS.kilometer)
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         (source.outputs["Output"] >> sink.inputs["Input"])
 
@@ -108,7 +107,6 @@ class TestUnits(unittest.TestCase):
         sink = MockupConsumer(datetime(2000, 1, 1), UNITS.seconds)
 
         composition = Composition([source, sink])
-        composition.initialize()
 
         (source.outputs["Output"] >> sink.inputs["Input"])
 

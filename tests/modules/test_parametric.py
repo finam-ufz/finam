@@ -32,7 +32,6 @@ class TestParametricGrid(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -68,7 +67,6 @@ class TestParametricGrid(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -106,7 +104,6 @@ class TestParametricGrid(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -141,7 +138,6 @@ class TestParametricGrid(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -177,7 +173,6 @@ class TestParametricGrid(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -213,7 +208,6 @@ class TestParametricGrid(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -251,7 +245,6 @@ class TestParametricGrid(unittest.TestCase):
         )
 
         composition = fm.Composition([source, trigger, sink])
-        composition.initialize()
 
         source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
@@ -280,7 +273,6 @@ class TestStaticParametricGrid(unittest.TestCase):
         )
 
         composition = fm.Composition([source, sink])
-        composition.initialize()
 
         source.outputs["Grid"] >> sink.inputs["Input"]
 

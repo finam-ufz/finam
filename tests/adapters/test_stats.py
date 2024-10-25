@@ -24,7 +24,6 @@ class TestHistogram(unittest.TestCase):
         )
 
         composition = fm.Composition([source, sink])
-        composition.initialize()
 
         (
             source.outputs["Noise"]

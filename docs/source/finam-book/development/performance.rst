@@ -116,16 +116,23 @@ The limit and file location can be set for all slots of the composition:
         modules=[comp_a, comp_b],
         slot_memory_limit=256 * 2**20, # 256MB
         slot_memory_location="temp_dir",
-    )
+    ) # doctest: +ELLIPSIS
+
+.. testoutput:: memory-limit
+    :hide:
+
+    ...
 
 Both properties can also be set for individual :class:`.Output` and :class:`.Adapter` objects:
 
 .. testcode:: memory-limit
 
-    comp = finam.Composition([comp_a, comp_b])
-    comp.initialize()
+    comp_a = finam.modules.SimplexNoise()
+    comp_b = finam.modules.SimplexNoise()
 
-    comp_a.outputs["Noise"].memory_limit = 256 * 2**20, # 256MB doctest: +ELLIPSIS
+    comp = finam.Composition([comp_a, comp_b]) # doctest: +ELLIPSIS
+
+    comp_a.outputs["Noise"].memory_limit = 256 * 2**20 # 256MB
 
 .. testoutput:: memory-limit
     :hide:

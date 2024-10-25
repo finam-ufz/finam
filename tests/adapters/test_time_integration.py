@@ -196,7 +196,6 @@ class TestSumOverTime(unittest.TestCase):
         )
 
         self.comp = fm.Composition([self.source, self.consumer])
-        self.comp.initialize()
 
         self.source["Step"] >> self.adapter_lin >> self.consumer["In_lin"]
         self.source["Step"] >> self.adapter_00 >> self.consumer["In_00"]
@@ -284,7 +283,6 @@ class TestAbsSumOverTime(unittest.TestCase):
         )
 
         self.comp = fm.Composition([self.source, self.consumer])
-        self.comp.initialize()
 
         self.source["Step"] >> self.adapter_lin >> self.consumer["In_lin"]
         self.source["Step"] >> self.adapter_00 >> self.consumer["In_00"]

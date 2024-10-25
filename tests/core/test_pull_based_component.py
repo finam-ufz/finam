@@ -49,7 +49,6 @@ class TestPullBasedComponent(unittest.TestCase):
         )
 
         composition = fm.Composition([pull_comp, consumer], log_level="DEBUG")
-        composition.initialize()
 
         pull_comp.outputs["Out"] >> consumer.inputs["In"]
 
