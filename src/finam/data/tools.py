@@ -658,7 +658,8 @@ def quantify(xdata, units=None):
     ----------
     xdata : Any
         The given data array.
-    units :
+    units : UnitLike or Quantified or None, optional
+        units to use, dimensionless by default
 
     Returns
     -------
@@ -786,9 +787,11 @@ class Info:
 
     Parameters
     ----------
-    grid : Grid or NoGrid or None
+    time : datetime or None, optional
+        time specification
+    grid : Grid or NoGrid or None, optional
         grid specification
-    meta : dict
+    meta : dict, optional
         dictionary of metadata
     **meta_kwargs
         additional metadata by name, will overwrite entries in ``meta``
@@ -802,7 +805,7 @@ class Info:
 
     """
 
-    def __init__(self, time, grid, meta=None, **meta_kwargs):
+    def __init__(self, time=None, grid=None, meta=None, **meta_kwargs):
         if time is not None and not isinstance(time, datetime.datetime):
             raise FinamMetaDataError("Time in Info must be either None or a datetime")
         if grid is not None and not isinstance(grid, GridBase):
