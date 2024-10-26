@@ -47,6 +47,7 @@ Data tools
 
     :noindex: UNITS
     :noindex: Info
+    :noindex: Mask
     assert_type
     check
     check_quantified
@@ -92,6 +93,7 @@ from .grid_tools import (
 from .tools import (
     UNITS,
     Info,
+    Mask,
     assert_type,
     check,
     check_data_covers_domain,
@@ -139,6 +141,7 @@ __all__ += [
     "UNITS",
     "FinamDataError",
     "Info",
+    "Mask",
     "assert_type",
     "check",
     "check_quantified",

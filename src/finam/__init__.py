@@ -79,6 +79,7 @@ Utilities for data and metadata handling.
    :caption: Data tools
 
     Info
+    Mask
     UNITS
 
 Interfaces
@@ -135,6 +136,7 @@ Built-in components, adapters and tool functions.
     tools
 
 """
+
 from . import adapters, data, interfaces, modules, schedule, sdk, tools
 from .data.grid_spec import (
     EsriGrid,
@@ -145,7 +147,7 @@ from .data.grid_spec import (
     UnstructuredPoints,
 )
 from .data.grid_tools import CellType, Location
-from .data.tools import UNITS, Info
+from .data.tools import UNITS, Info, Mask
 from .errors import (
     FinamCircularCouplingError,
     FinamConnectError,
@@ -225,7 +227,7 @@ __all__ += [
     "UnstructuredPoints",
 ]
 __all__ += ["CellType", "Location"]
-__all__ += ["UNITS", "Info"]
+__all__ += ["UNITS", "Info", "Mask"]
 __all__ += [
     "FinamCircularCouplingError",
     "FinamConnectError",
