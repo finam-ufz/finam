@@ -893,7 +893,7 @@ class Info:
         )
 
     @property
-    def fill_vale(self):
+    def fill_value(self):
         """Fill value for masked data."""
         return self.meta.get(
             _MASK_INDICATORS[0], self.meta.get(_MASK_INDICATORS[1], None)
