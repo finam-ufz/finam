@@ -793,17 +793,68 @@ def assert_type(cls, slot, obj, types):
     )
 
 
+def _is_mask_compatible(this, incoming):
+    # None is incompatible
+    if incoming is None:
+        return False
+    # Mask.FLEX accepts anything, Mask.NONE only Mask.NONE
+    if this in list(Mask):
+        if incoming in list(Mask):
+            return this == Mask.FLEX or incoming == Mask.NONE
+        return this == Mask.FLEX
+    # if mask is specified, incoming mask must also be specified
+    if incoming in list(Mask):
+        return False
+    # if both mask given, compare them
+    return _mask_eq(this, incoming)
+
+
+def _mask_eq(this, other):
+    if this is None and other is None:
+        return True
+    if this in list(Mask) and other in list(Mask):
+        return this == other
+    # need a valid mask at this point
+    if not np.ma.is_mask(this) or np.ma.is_mask(other):
+        return False
+    # special treatment of "nomask"
+    if this is np.ma.nomask:
+        if other is np.ma.nomask:
+            return True
+        else:
+            return not np.any(other)
+    if other is np.ma.nomask:
+        return not np.any(this)
+    # compare masks
+    if not np.all(np.shape(this) == np.shape(other)):
+        return False
+    return np.all(this == other)
+
+
+def _format_mask(mask):
+    if mask not in list(Mask) + [None, np.ma.nomask]:
+        return "<ndarray>"
+    elif mask is np.ma.nomask:
+        return "nomask"
+    return str(mask)
+
+
 class Info:
     """Data info containing grid specification and metadata
 
     Parameters
     ----------
     time : datetime or None, optional
-        time specification
+        time specification, default: None
     grid : Grid or NoGrid or None, optional
-        grid specification
+        grid specification, default: None
     meta : dict, optional
-        dictionary of metadata
+        dictionary of metadata, default: None
+    mask : :any:`Mask` value or valid boolean mask for :any:`MaskedArray`, optional
+        masking specification of the data. Options:
+            * :any:`Mask.FLEX`: data can be masked or unmasked (default)
+            * :any:`Mask.NONE`: data is unmasked and given as plain numpy array
+            * valid boolean mask for MaskedArray
     **meta_kwargs
         additional metadata by name, will overwrite entries in ``meta``
 
@@ -813,10 +864,9 @@ class Info:
         grid specification
     meta : dict
         dictionary of metadata
-
     """
 
-    def __init__(self, time=None, grid=None, meta=None, **meta_kwargs):
+    def __init__(self, time=None, grid=None, meta=None, mask=Mask.FLEX, **meta_kwargs):
         if time is not None and not isinstance(time, datetime.datetime):
             raise FinamMetaDataError("Time in Info must be either None or a datetime")
         if grid is not None and not isinstance(grid, GridBase):
@@ -826,6 +876,9 @@ class Info:
 
         self.time = time
         self.grid = grid
+        if mask not in list(Mask) + [None]:
+            mask = np.ma.make_mask(mask, shrink=False)
+        self.mask = mask
         self.meta = meta or {}
         self.meta.update(meta_kwargs)
 
@@ -836,7 +889,16 @@ class Info:
     @property
     def is_masked(self):
         """bool: whether info indicates masked data ("_FillValue" or "missing_value" in meta)."""
-        return any(v in self.meta for v in _MASK_INDICATORS)
+        return self.mask not in list(Mask) or any(
+            v in self.meta for v in _MASK_INDICATORS
+        )
+
+    @property
+    def fill_vale(self):
+        """Fill value for masked data."""
+        return self.meta.get(
+            _MASK_INDICATORS[0], self.meta.get(_MASK_INDICATORS[1], None)
+        )
 
     def copy(self):
         """Copies the info object"""
@@ -852,7 +914,9 @@ class Info:
         **kwargs
             key values pairs for properties to change
         """
-        other = Info(time=self.time, grid=self.grid, meta=copy.copy(self.meta))
+        other = Info(
+            time=self.time, grid=self.grid, meta=copy.copy(self.meta), mask=self.mask
+        )
         for k, v in kwargs.items():
             if k == "time":
                 if v is not None or use_none:
@@ -860,6 +924,9 @@ class Info:
             elif k == "grid":
                 if v is not None or use_none:
                     other.grid = v
+            elif k == "mask":
+                if v is not None or use_none:
+                    other.mask = v
             elif k == "units":
                 if v is not None or use_none:
                     other.meta[k] = v if v is None else UNITS.Unit(v)
@@ -896,6 +963,11 @@ class Info:
                 fail_info["grid"] = (incoming.grid, self.grid)
                 success = False
 
+        if self.mask is not None and not _is_mask_compatible(self.mask, incoming.mask):
+            if not (ignore_none and incoming.mask is None):
+                fail_info["mask"] = (incoming.mask, self.mask)
+                success = False
+
         for k, v in self.meta.items():
             if v is not None and k in incoming.meta:
                 in_value = incoming.meta[k]
@@ -914,7 +986,7 @@ class Info:
 
     def __copy__(self):
         """Shallow copy of the info"""
-        return Info(time=self.time, grid=self.grid, meta=self.meta)
+        return Info(time=self.time, grid=self.grid, meta=self.meta, mask=self.mask)
 
     def __eq__(self, other):
         """Equality check for two infos
@@ -923,7 +995,11 @@ class Info:
         """
         if not isinstance(other, Info):
             return False
-        return self.grid == other.grid and self.meta == other.meta
+        return (
+            self.grid == other.grid
+            and self.meta == other.meta
+            and _mask_eq(self.mask, other.mask)
+        )
 
     def __getattr__(self, name):
         # only called if attribute is not present in class
@@ -944,12 +1020,13 @@ class Info:
         meta += ", ".join(
             f"{k}=" + ("None" if v is None else f"'{v}'") for k, v in self.meta.items()
         )
-        return f"Info(grid={grid}{meta})"
+        return f"Info(grid={grid}, mask={_format_mask(self.mask)}{meta})"
 
     def as_dict(self):
         """Returns a ``dict`` containing all metadata in this Info."""
         return {
             **self.meta,
+            "mask": _format_mask(self.mask),
             "grid": f"{self.grid}",
             "units": f"{self.units:~}",
         }
