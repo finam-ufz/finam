@@ -821,8 +821,7 @@ def _mask_eq(this, other):
     if this is np.ma.nomask:
         if other is np.ma.nomask:
             return True
-        else:
-            return not np.any(other)
+        return not np.any(other)
     if other is np.ma.nomask:
         return not np.any(this)
     # compare masks
@@ -834,7 +833,7 @@ def _mask_eq(this, other):
 def _format_mask(mask):
     if mask not in list(Mask) + [None, np.ma.nomask]:
         return "<ndarray>"
-    elif mask is np.ma.nomask:
+    if mask is np.ma.nomask:
         return "nomask"
     return str(mask)
 
