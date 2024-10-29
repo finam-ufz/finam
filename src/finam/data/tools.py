@@ -84,6 +84,7 @@ def prepare(data, info, time_entries=1, force_copy=False, report_conversion=Fals
                 np.ma.array(
                     data=data.magnitude,
                     mask=info.mask,
+                    shrink=False,
                     fill_value=info.fill_value,
                 ),
                 data.units,
@@ -99,6 +100,7 @@ def prepare(data, info, time_entries=1, force_copy=False, report_conversion=Fals
                 np.ma.array(
                     data=data,
                     mask=info.mask,
+                    shrink=False,
                     fill_value=info.fill_value,
                     copy=force_copy,
                 ),
