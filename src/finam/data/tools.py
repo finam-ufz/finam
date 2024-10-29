@@ -834,7 +834,7 @@ def _mask_eq(this, other):
     if this in list(Mask) and other in list(Mask):
         return this == other
     # need a valid mask at this point
-    if not np.ma.is_mask(this) or np.ma.is_mask(other):
+    if not np.ma.is_mask(this) or not np.ma.is_mask(other):
         return False
     # special treatment of "nomask"
     if this is np.ma.nomask:
@@ -844,6 +844,8 @@ def _mask_eq(this, other):
     if other is np.ma.nomask:
         return not np.any(this)
     # compare masks
+    if not np.ndim(this) == np.ndim(other):
+        return False
     if not np.all(np.shape(this) == np.shape(other)):
         return False
     return np.all(this == other)
