@@ -79,14 +79,33 @@ def prepare(data, info, time_entries=1, force_copy=False, report_conversion=Fals
                 f"Given data has incompatible units. "
                 f"Got {data.units}, expected {units}."
             )
+        if info.is_masked and not np.ma.isarray(data.magnitude):
+            data = UNITS.Quantity(
+                np.ma.array(
+                    data=data.magnitude,
+                    mask=info.mask,
+                    fill_value=info.fill_value,
+                ),
+                data.units,
+            )
         if not equivalent_units(data.units, units):
             units_converted = data.units, units
             data = data.to(units)
         elif force_copy:
             data = data.copy()
     else:
+        if info.is_masked and not np.ma.isarray(data):
+            data = UNITS.Quantity(
+                np.ma.array(
+                    data=data,
+                    mask=info.mask,
+                    fill_value=info.fill_value,
+                    copy=force_copy,
+                ),
+                units,
+            )
         # this covers masked arrays as well
-        if isinstance(data, np.ndarray):
+        elif isinstance(data, np.ndarray):
             if force_copy:
                 data = data.copy()
             data = UNITS.Quantity(data, units)
@@ -887,10 +906,8 @@ class Info:
 
     @property
     def is_masked(self):
-        """bool: whether info indicates masked data ("_FillValue" or "missing_value" in meta)."""
-        return self.mask not in list(Mask) or any(
-            v in self.meta for v in _MASK_INDICATORS
-        )
+        """bool: whether data is set to be masked."""
+        return self.mask not in list(Mask)
 
     @property
     def fill_value(self):
