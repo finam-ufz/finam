@@ -814,7 +814,22 @@ def assert_type(cls, slot, obj, types):
     )
 
 
-def _is_mask_compatible(this, incoming):
+def masks_compatible(this, incoming):
+    """
+    Check if an incoming mask is compatible with a given mask.
+
+    Parameters
+    ----------
+    this : :any:`Mask` value or valid boolean mask for :any:`MaskedArray` or None
+        mask specification to check against
+    incoming : :any:`Mask` value or valid boolean mask for :any:`MaskedArray` or None
+        incoming mask to check for compatibility
+
+    Returns
+    -------
+    bool
+        mask compatibility
+    """
     # None is incompatible
     if incoming is None:
         return False
@@ -827,10 +842,26 @@ def _is_mask_compatible(this, incoming):
     if incoming in list(Mask):
         return False
     # if both mask given, compare them
-    return _mask_eq(this, incoming)
+    return masks_equal(this, incoming)
 
 
-def _mask_eq(this, other):
+def masks_equal(this, other):
+    """
+    Check two masks for equality.
+
+    Parameters
+    ----------
+    this : :any:`Mask` value or valid boolean mask for :any:`MaskedArray` or None
+        first mask
+    incoming : :any:`Mask` value or valid boolean mask for :any:`MaskedArray` or None
+        second mask
+
+
+    Returns
+    -------
+    bool
+        mask equality
+    """
     if this is None and other is None:
         return True
     if this in list(Mask) and other in list(Mask):
@@ -986,7 +1017,7 @@ class Info:
                 fail_info["grid"] = (incoming.grid, self.grid)
                 success = False
 
-        if self.mask is not None and not _is_mask_compatible(self.mask, incoming.mask):
+        if self.mask is not None and not masks_compatible(self.mask, incoming.mask):
             if not (ignore_none and incoming.mask is None):
                 fail_info["mask"] = (incoming.mask, self.mask)
                 success = False
@@ -1014,7 +1045,7 @@ class Info:
         return (
             self.grid == other.grid
             and self.meta == other.meta
-            and _mask_eq(self.mask, other.mask)
+            and masks_equal(self.mask, other.mask)
         )
 
     def __getattr__(self, name):

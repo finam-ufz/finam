@@ -70,6 +70,8 @@ Data tools
     to_compressed
     from_compressed
     check_data_covers_domain
+    masks_compatible
+    masks_equal
 """
 
 from ..errors import FinamDataError
@@ -109,6 +111,8 @@ from .tools import (
     has_time_axis,
     is_masked_array,
     is_quantified,
+    masks_compatible,
+    masks_equal,
     prepare,
     quantify,
     strip_time,
@@ -166,4 +170,6 @@ __all__ += [
     "to_compressed",
     "from_compressed",
     "check_data_covers_domain",
+    "masks_compatible",
+    "masks_equal",
 ]
