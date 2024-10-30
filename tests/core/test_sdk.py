@@ -16,6 +16,7 @@ from finam import (
     CallbackOutput,
     ComponentStatus,
     Composition,
+    EsriGrid,
     FinamDataError,
     FinamLogError,
     FinamMetaDataError,
@@ -26,7 +27,6 @@ from finam import (
     Info,
     Input,
     NoGrid,
-    EsriGrid,
     Output,
     TimeComponent,
 )
