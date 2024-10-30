@@ -559,7 +559,7 @@ def to_masked(data, **kwargs):
     return np.ma.array(data, **kwargs)
 
 
-def to_compressed(xdata, order="C"):
+def to_compressed(xdata, order="C", mask=None):
     """
     Return all the non-masked data as a 1-D array respecting the given array order.
 
@@ -569,8 +569,8 @@ def to_compressed(xdata, order="C"):
         The reference object input.
     order : str
         order argument for :any:`numpy.ravel`
-    **kwargs
-        keyword arguments forwarded to :any:`numpy.ma.array`
+    mask : :any:`Mask` value or valid boolean mask for :any:`MaskedArray`, optional
+        mask to use when data is not masked already
 
     Returns
     -------
@@ -583,15 +583,17 @@ def to_compressed(xdata, order="C"):
     :func:`numpy.ma.compressed`:
         Numpy routine doing the same but only for C-order.
     """
-    if is_masked_array(xdata):
-        data = np.ravel(xdata.data, order)
-        if xdata.mask is not np.ma.nomask:
-            data = data.compress(np.logical_not(np.ravel(xdata.mask, order)))
+    is_masked = is_masked_array(xdata)
+    if is_masked or (mask is not None and mask_specified(mask)):
+        data = np.ravel(xdata.data if is_masked else xdata, order)
+        mask = xdata.mask if is_masked else mask
+        if mask is not np.ma.nomask:
+            data = data.compress(np.logical_not(np.ravel(mask, order)))
         return quantify(data, xdata.units) if is_quantified(xdata) else data
     return np.reshape(xdata, -1, order=order)
 
 
-def from_compressed(xdata, shape, order="C", **kwargs):
+def from_compressed(xdata, shape, order="C", mask=None, **kwargs):
     """
     Fill a (masked) array following a given mask or shape with the provided data.
 
@@ -607,6 +609,8 @@ def from_compressed(xdata, shape, order="C", **kwargs):
         shape argument for :any:`numpy.reshape`
     order : str
         order argument for :any:`numpy.reshape`
+    mask : :any:`Mask` value or valid boolean mask for :any:`MaskedArray`
+        mask to use
     **kwargs
         keyword arguments forwarded to :any:`numpy.ma.array`
 
@@ -630,25 +634,21 @@ def from_compressed(xdata, shape, order="C", **kwargs):
     -----
     If both `mask` and `shape` are given, they need to match in size.
     """
-    mask = kwargs.pop("mask", None)
-    if kwargs or mask not in list(Mask) + [None]:
-        if mask in list(Mask) and mask == Mask.NONE:
+    if mask is None or not mask_specified(mask):
+        if kwargs and mask is Mask.NONE:
             msg = "from_compressed: Can't create masked array with mask=Mask.NONE"
             raise FinamDataError(msg)
-        if mask not in [None, Mask.FLEX, np.ma.nomask]:
-            mask = np.reshape(mask, -1, order=order)
-            if is_quantified(xdata):
-                # pylint: disable-next=unexpected-keyword-arg
-                data = quantify(np.empty_like(xdata, shape=np.size(mask)), xdata.units)
-            else:
-                # pylint: disable-next=unexpected-keyword-arg
-                data = np.empty_like(xdata, shape=np.size(mask))
-            data[~mask] = xdata
-            data = np.reshape(data, shape, order=order)
-        else:
-            data = np.reshape(xdata, shape, order=order)
-        return to_masked(data, **kwargs)
-    return np.reshape(xdata, shape, order=order)
+        data = np.reshape(xdata, shape, order=order)
+        return to_masked(data, **kwargs) if kwargs else data
+    mask = mask if mask is np.ma.nomask else np.ravel(mask, order=order)
+    if is_quantified(xdata):
+        # pylint: disable-next=unexpected-keyword-arg
+        data = quantify(np.empty_like(xdata, shape=np.prod(shape)), xdata.units)
+    else:
+        # pylint: disable-next=unexpected-keyword-arg
+        data = np.empty_like(xdata, shape=np.prod(shape))
+    data[~mask] = xdata
+    return to_masked(np.reshape(data, shape, order=order), mask=mask, **kwargs)
 
 
 def check_data_covers_domain(data, mask=None):
@@ -902,7 +902,7 @@ def mask_specified(mask):
     bool
         False if mask is Mask.FLEX or Mask.NONE, True otherwise
     """
-    return mask not in list(Mask)
+    return not any(mask is val for val in list(Mask))
 
 
 def _format_mask(mask):
