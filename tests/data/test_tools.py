@@ -262,7 +262,7 @@ class TestDataTools(unittest.TestCase):
             info.accepts(finam.Info(time, grid=finam.NoGrid(), units="s"), {})
         )
 
-        self.assertFalse(
+        self.assertTrue(
             info.accepts(
                 finam.Info(time, grid=finam.NoGrid(), units="m", foo="baz"), {}
             )

@@ -957,7 +957,10 @@ class Info:
         return other
 
     def accepts(self, incoming, fail_info, ignore_none=False):
-        """Tests whether this info can accept/is compatible with an incoming info
+        """
+        Tests whether this info can accept/is compatible with an incoming info.
+
+        Tested attributes are: "grid", "mask" and "units"
 
         Parameters
         ----------
@@ -988,19 +991,12 @@ class Info:
                 fail_info["mask"] = (incoming.mask, self.mask)
                 success = False
 
-        for k, v in self.meta.items():
-            if v is not None and k in incoming.meta:
-                in_value = incoming.meta[k]
-                if k == "units":
-                    if not (ignore_none and in_value is None) and not compatible_units(
-                        v, in_value
-                    ):
-                        fail_info["meta." + k] = (in_value, v)
-                        success = False
-                else:
-                    if not (ignore_none and in_value is None) and in_value != v:
-                        fail_info["meta." + k] = (in_value, v)
-                        success = False
+        u1_none = (u1 := self.units) is None
+        u2_none = (u2 := incoming.units) is None
+        if not u1_none and (u2_none or not compatible_units(u1, u2)):
+            if not (ignore_none and u2_none):
+                fail_info["units"] = (u2, u1)
+                success = False
 
         return success
 
