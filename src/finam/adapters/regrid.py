@@ -3,6 +3,7 @@ Basic linear and nearest neighbour regridding adapters.
 
 See package `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_ for more advanced regridding.
 """
+
 from abc import ABC, abstractmethod
 
 import numpy as np
@@ -12,7 +13,7 @@ from scipy.spatial import KDTree
 
 from ..data import tools as dtools
 from ..data.grid_spec import StructuredGrid
-from ..errors import FinamMetaDataError
+from ..errors import FinamDataError, FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
 
@@ -26,10 +27,12 @@ __all__ = [
 class ARegridding(Adapter, ABC):
     """Abstract regridding class for handling data info"""
 
-    def __init__(self, in_grid=None, out_grid=None):
+    def __init__(self, in_grid=None, out_grid=None, out_mask=None):
         super().__init__()
         self.input_grid = in_grid
         self.output_grid = out_grid
+        self.output_mask = out_mask
+        self.input_mask = None
         self.input_meta = None
         self.transformer = None
         self._is_initialized = False
@@ -39,7 +42,7 @@ class ARegridding(Adapter, ABC):
         """set up interpolator"""
 
     def _get_info(self, info):
-        request = info.copy_with(grid=self.input_grid)
+        request = info.copy_with(grid=self.input_grid, mask=None)
         in_info = self.exchange_info(request)
 
         if self.output_grid is None and info.grid is None:
@@ -48,6 +51,13 @@ class ARegridding(Adapter, ABC):
         if self.input_grid is None and in_info.grid is None:
             with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Missing source grid specification")
+
+        if self.output_mask is None and info.mask is None:
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError("Missing target mask specification")
+        if self.input_mask is None and in_info.mask is None:
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError("Missing source mask specification")
 
         if (
             self.output_grid is not None
@@ -59,15 +69,27 @@ class ARegridding(Adapter, ABC):
                     "Target grid specification is already set, new specs differ"
                 )
 
+        if (
+            self.output_mask is not None
+            and info.mask is not None
+            and not dtools.masks_equal(self.output_mask, info.mask)
+        ):
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError(
+                    "Target mask specification is already set, new specs differ"
+                )
+
         self.input_grid = self.input_grid or in_info.grid
+        self.input_mask = self.input_mask or in_info.mask
         self.output_grid = self.output_grid or info.grid
+        self.output_mask = self.output_mask or info.mask
 
         if self.input_grid.crs is None and self.output_grid.crs is not None:
             raise FinamMetaDataError("Input grid has a CRS, but output grid does not")
         if self.output_grid.crs is None and self.input_grid.crs is not None:
             raise FinamMetaDataError("output grid has a CRS, but input grid does not")
 
-        out_info = in_info.copy_with(grid=self.output_grid)
+        out_info = in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
 
         if not self._is_initialized:
             self._update_grid_specs()
@@ -116,33 +138,56 @@ class RegridNearest(ARegridding):
         kwargs for :class:`scipy.spatial.KDTree`
     """
 
-    def __init__(self, in_grid=None, out_grid=None, tree_options=None):
-        super().__init__(in_grid, out_grid)
+    def __init__(self, in_grid=None, out_grid=None, out_mask=None, tree_options=None):
+        super().__init__(in_grid, out_grid, out_mask)
         self.tree_options = tree_options
         self.ids = None
 
     def _update_grid_specs(self):
         self.transformer = _create_transformer(self.output_grid, self.input_grid)
-        out_coords = self._do_transform(self.output_grid.data_points)
+        if (
+            dtools.mask_specified(self.output_mask)
+            and self.output_mask is not np.ma.nomask
+        ):
+            out_data_points = self.output_grid.data_points[
+                self.output_mask.ravel(order=self.output_grid.order)
+            ]
+        else:
+            out_data_points = self.output_grid.data_points
+        out_coords = self._do_transform(out_data_points)
 
         # generate IDs to select data
         kw = self.tree_options or {}
-        tree = KDTree(self.input_grid.data_points, **kw)
+        if (
+            dtools.mask_specified(self.input_mask)
+            and self.input_mask is not np.ma.nomask
+        ):
+            in_data_points = self.input_grid.data_points[
+                self.input_mask.ravel(order=self.input_grid.order)
+            ]
+        else:
+            in_data_points = self.input_grid.data_points
+        tree = KDTree(in_data_points, **kw)
+
         # only store IDs, since they will be constant
         self.ids = tree.query(out_coords)[1]
 
     def _get_data(self, time, target):
         in_data = self.pull_data(time, target)
 
-        if dtools.is_masked_array(in_data):
+        if dtools.is_masked_array(in_data) and not dtools.mask_specified(
+            self.input_mask
+        ):
             with ErrorLogger(self.logger):
-                msg = "Regridding is currently not implemented for masked data"
-                raise NotImplementedError(msg)
+                msg = "For regridding masked input data, you need to explicitly set the mask in the input info."
+                raise FinamDataError(msg)
 
-        res = in_data.reshape(-1, order=self.input_grid.order)[self.ids].reshape(
-            self.output_grid.data_shape, order=self.output_grid.order
+        return dtools.from_compressed(
+            dtools.to_compressed(in_data, order=self.input_grid.order)[self.ids],
+            shape=self.output_grid.data_shape,
+            order=self.output_grid.order,
+            mask=self.output_mask,
         )
-        return res
 
 
 class RegridLinear(ARegridding):

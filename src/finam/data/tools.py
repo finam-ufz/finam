@@ -630,9 +630,13 @@ def from_compressed(xdata, shape, order="C", **kwargs):
     -----
     If both `mask` and `shape` are given, they need to match in size.
     """
-    if kwargs:
-        if "mask" in kwargs:
-            mask = np.reshape(kwargs["mask"], -1, order=order)
+    mask = kwargs.pop("mask", None)
+    if kwargs or mask not in list(Mask) + [None]:
+        if mask in list(Mask) and mask == Mask.NONE:
+            msg = "from_compressed: Can't create masked array with mask=Mask.NONE"
+            raise FinamDataError(msg)
+        if mask not in [None, Mask.FLEX, np.ma.nomask]:
+            mask = np.reshape(mask, -1, order=order)
             if is_quantified(xdata):
                 # pylint: disable-next=unexpected-keyword-arg
                 data = quantify(np.empty_like(xdata, shape=np.size(mask)), xdata.units)
