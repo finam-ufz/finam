@@ -884,6 +884,23 @@ def masks_equal(this, other):
     return np.all(this == other)
 
 
+def mask_specified(mask):
+    """
+    Determine whether given mask selection indicates a masked array.
+
+    Parameters
+    ----------
+    mask : :any:`Mask` value or valid boolean mask for :any:`MaskedArray`
+        mask to check
+
+    Returns
+    -------
+    bool
+        False if mask is Mask.FLEX or Mask.NONE, True otherwise
+    """
+    return mask not in list(Mask)
+
+
 def _format_mask(mask):
     if mask not in list(Mask) + [None, np.ma.nomask]:
         return "<ndarray>"
@@ -942,7 +959,7 @@ class Info:
     @property
     def is_masked(self):
         """bool: whether data is set to be masked."""
-        return self.mask not in list(Mask)
+        return mask_specified(self.mask)
 
     @property
     def fill_value(self):

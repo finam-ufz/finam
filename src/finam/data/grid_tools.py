@@ -1,4 +1,5 @@
 """Grid tools for FINAM."""
+
 from enum import Enum, IntEnum
 from math import isclose, nan
 

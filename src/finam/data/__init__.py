@@ -72,6 +72,7 @@ Data tools
     check_data_covers_domain
     masks_compatible
     masks_equal
+    mask_specified
 """
 
 from ..errors import FinamDataError
@@ -111,6 +112,7 @@ from .tools import (
     has_time_axis,
     is_masked_array,
     is_quantified,
+    mask_specified,
     masks_compatible,
     masks_equal,
     prepare,
@@ -172,4 +174,5 @@ __all__ += [
     "check_data_covers_domain",
     "masks_compatible",
     "masks_equal",
+    "mask_specified",
 ]
