@@ -26,6 +26,7 @@ from finam import (
     Info,
     Input,
     NoGrid,
+    EsriGrid,
     Output,
     TimeComponent,
 )
@@ -162,7 +163,7 @@ class TestOutput(unittest.TestCase):
         counter = 0
         t = datetime(2000, 1, 1)
         info = Info(time=t, grid=NoGrid(), meta={"test": 0})
-        wrong_info = Info(time=t, grid=NoGrid(), meta={"test": 5})
+        wrong_info = Info(time=t, grid=EsriGrid(2, 2), meta={"test": 5})
 
         def callback(_clr, _time):
             nonlocal counter
