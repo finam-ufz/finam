@@ -1,6 +1,7 @@
 """
 Unit tests for data info propagation.
 """
+
 import unittest
 from datetime import datetime, timedelta
 
@@ -10,6 +11,7 @@ from finam import (
     UNITS,
     CellType,
     Composition,
+    FinamDataError,
     FinamMetaDataError,
     Info,
     Location,
@@ -110,7 +112,7 @@ class TestRegrid(unittest.TestCase):
 
         (source.outputs["Output"] >> RegridNearest() >> sink.inputs["Input"])
 
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(FinamDataError):
             composition.connect()
 
     def test_regrid_nearest_crs(self):
