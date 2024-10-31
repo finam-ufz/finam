@@ -92,6 +92,7 @@ class ARegridding(Adapter, ABC):
         out_info = in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
 
         if not self._is_initialized:
+            self.transformer = _create_transformer(self.output_grid, self.input_grid)
             self._update_grid_specs()
             self._is_initialized = True
 
@@ -103,6 +104,33 @@ class ARegridding(Adapter, ABC):
         if self.transformer is None:
             return points
         return np.asarray(list(self.transformer.itransform(points)))
+
+    def _need_mask(self, mask):
+        return dtools.mask_specified(mask) and mask is not np.ma.nomask
+
+    def _get_in_coords(self):
+        if self._need_mask(self.input_mask):
+            return self.input_grid.data_points[
+                ~self.input_mask.ravel(order=self.input_grid.order)
+            ]
+        return self.input_grid.data_points
+
+    def _get_out_coords(self):
+        if self._need_mask(self.output_mask):
+            out_data_points = self.output_grid.data_points[
+                ~self.output_mask.ravel(order=self.output_grid.order)
+            ]
+        else:
+            out_data_points = self.output_grid.data_points
+        return self._do_transform(out_data_points)
+
+    def _check_in_data(self, in_data):
+        if dtools.is_masked_array(in_data) and not dtools.mask_specified(
+            self.input_mask
+        ):
+            with ErrorLogger(self.logger):
+                msg = "For regridding masked input data, you need to explicitly set the mask in the input info."
+                raise FinamDataError(msg)
 
 
 class RegridNearest(ARegridding):
@@ -144,44 +172,15 @@ class RegridNearest(ARegridding):
         self.ids = None
 
     def _update_grid_specs(self):
-        self.transformer = _create_transformer(self.output_grid, self.input_grid)
-        if (
-            dtools.mask_specified(self.output_mask)
-            and self.output_mask is not np.ma.nomask
-        ):
-            out_data_points = self.output_grid.data_points[
-                self.output_mask.ravel(order=self.output_grid.order)
-            ]
-        else:
-            out_data_points = self.output_grid.data_points
-        out_coords = self._do_transform(out_data_points)
-
         # generate IDs to select data
         kw = self.tree_options or {}
-        if (
-            dtools.mask_specified(self.input_mask)
-            and self.input_mask is not np.ma.nomask
-        ):
-            in_data_points = self.input_grid.data_points[
-                self.input_mask.ravel(order=self.input_grid.order)
-            ]
-        else:
-            in_data_points = self.input_grid.data_points
-        tree = KDTree(in_data_points, **kw)
-
+        tree = KDTree(self._get_in_coords(), **kw)
         # only store IDs, since they will be constant
-        self.ids = tree.query(out_coords)[1]
+        self.ids = tree.query(self._get_out_coords())[1]
 
     def _get_data(self, time, target):
         in_data = self.pull_data(time, target)
-
-        if dtools.is_masked_array(in_data) and not dtools.mask_specified(
-            self.input_mask
-        ):
-            with ErrorLogger(self.logger):
-                msg = "For regridding masked input data, you need to explicitly set the mask in the input info."
-                raise FinamDataError(msg)
-
+        self._check_in_data(in_data)
         return dtools.from_compressed(
             dtools.to_compressed(in_data, order=self.input_grid.order)[self.ids],
             shape=self.output_grid.data_shape,
@@ -242,57 +241,64 @@ class RegridLinear(ARegridding):
         self.out_ids = None
         self.fill_ids = None
         self.out_coords = None
+        self.structured = False
 
     def _update_grid_specs(self):
-        self.transformer = _create_transformer(self.output_grid, self.input_grid)
-        self.out_coords = self._do_transform(self.output_grid.data_points)
+        self.out_coords = self._get_out_coords()
 
-        if isinstance(self.input_grid, StructuredGrid):
+        if isinstance(self.input_grid, StructuredGrid) and not self._need_mask(
+            self.input_mask
+        ):
+            self.structured = True
             self.inter = RegularGridInterpolator(
                 points=self.input_grid.data_axes,
                 values=np.zeros(self.input_grid.data_shape, dtype=np.double),
                 bounds_error=False,
             )
         else:
+            in_coords = self._get_in_coords()
             self.inter = LinearNDInterpolator(
-                points=self.input_grid.data_points,
-                values=np.zeros(np.prod(self.input_grid.data_shape), dtype=np.double),
+                points=in_coords,
+                values=np.zeros(len(in_coords), dtype=np.double),
             )
         if self.fill_with_nearest:
             # check for outliers once
-            points = self.out_coords
-            res = self.inter(points)
+            res = self.inter(self.out_coords)
             self.out_ids = np.isnan(res)
-            out_points = points[self.out_ids]
+            out_points = self.out_coords[self.out_ids]
             kw = self.tree_options or {}
             tree = KDTree(self.input_grid.data_points, **kw)
             self.fill_ids = tree.query(out_points)[1]
 
     def _get_data(self, time, target):
         in_data = self.pull_data(time, target)
+        self._check_in_data(in_data)
 
-        if dtools.is_masked_array(in_data):
-            with ErrorLogger(self.logger):
-                msg = "Regridding is currently not implemented for masked data"
-                raise NotImplementedError(msg)
-
-        if isinstance(self.input_grid, StructuredGrid):
+        if self.structured:
             self.inter.values = in_data[0, ...].magnitude
             res = self.inter(self.out_coords)
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values.flatten(
                     order=self.input_grid.order
                 )[self.fill_ids]
-        else:
-            self.inter.values = np.ascontiguousarray(
-                in_data[0, ...].magnitude.reshape((-1, 1), order=self.input_grid.order),
-                dtype=np.double,
-            )
-            res = self.inter(self.out_coords)
-            if self.fill_with_nearest:
-                res[self.out_ids] = self.inter.values[self.fill_ids, 0]
+            return res
 
-        return dtools.quantify(res, dtools.get_units(in_data))
+        in_data = dtools.to_compressed(
+            in_data[0, ...].magnitude, order=self.input_grid.order
+        )
+        self.inter.values = np.ascontiguousarray(
+            in_data.reshape((-1, 1)),
+            dtype=np.double,
+        )
+        res = self.inter(self.out_coords)
+        if self.fill_with_nearest:
+            res[self.out_ids] = self.inter.values[self.fill_ids, 0]
+        return dtools.from_compressed(
+            res,
+            shape=self.output_grid.data_shape,
+            order=self.output_grid.order,
+            mask=self.output_mask,
+        )
 
 
 def _create_transformer(input_grid, output_grid):
