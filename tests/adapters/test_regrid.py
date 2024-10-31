@@ -250,7 +250,7 @@ class TestRegrid(unittest.TestCase):
             >> sink.inputs["Input"]
         )
 
-        with self.assertRaises(NotImplementedError):
+        with self.assertRaises(FinamDataError):
             composition.connect()
 
     def test_regrid_linear_crs(self):
