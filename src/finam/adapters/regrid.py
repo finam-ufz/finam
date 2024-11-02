@@ -32,6 +32,7 @@ class ARegridding(Adapter, ABC):
         self.input_grid = in_grid
         self.output_grid = out_grid
         self.output_mask = out_mask
+        self.downstream_mask = None
         self.input_mask = None
         self.input_meta = None
         self.transformer = None
@@ -65,36 +66,27 @@ class ARegridding(Adapter, ABC):
             and self.output_grid != info.grid
         ):
             with ErrorLogger(self.logger):
-                raise FinamMetaDataError(
-                    "Target grid specification is already set, new specs differ"
-                )
-
-        if (
-            self.output_mask is not None
-            and info.mask is not None
-            and not dtools.masks_equal(self.output_mask, info.mask)
-        ):
-            with ErrorLogger(self.logger):
-                raise FinamMetaDataError(
-                    "Target mask specification is already set, new specs differ"
-                )
+                msg = "Target grid specification is already set, new specs differ"
+                raise FinamMetaDataError(msg)
 
         self.input_grid = self.input_grid or in_info.grid
         self.input_mask = self.input_mask or in_info.mask
         self.output_grid = self.output_grid or info.grid
-        self.output_mask = self.output_mask or info.mask
 
         if self.input_grid.crs is None and self.output_grid.crs is not None:
             raise FinamMetaDataError("Input grid has a CRS, but output grid does not")
         if self.output_grid.crs is None and self.input_grid.crs is not None:
             raise FinamMetaDataError("output grid has a CRS, but input grid does not")
 
-        out_info = in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
-
         if not self._is_initialized:
+            self.downstream_mask = info.mask
             self.transformer = _create_transformer(self.output_grid, self.input_grid)
             self._update_grid_specs()
             self._is_initialized = True
+
+        # self.output_mask may be determined by "_update_grid_specs"
+        self._check_and_set_out_mask()
+        out_info = in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
 
         self.input_meta = in_info.meta
 
@@ -105,20 +97,35 @@ class ARegridding(Adapter, ABC):
             return points
         return np.asarray(list(self.transformer.itransform(points)))
 
+    def _check_and_set_out_mask(self):
+        if (
+            self.output_mask is not None
+            and self.downstream_mask is not None
+            and not dtools.masks_compatible(
+                self.output_mask, self.downstream_mask, True
+            )
+        ):
+            with ErrorLogger(self.logger):
+                msg = "Target mask specification is already set, new specs differ"
+                raise FinamMetaDataError(msg)
+        self.output_mask = (
+            self.output_mask if self.output_mask is not None else self.downstream_mask
+        )
+
     def _need_mask(self, mask):
         return dtools.mask_specified(mask) and mask is not np.ma.nomask
 
     def _get_in_coords(self):
         if self._need_mask(self.input_mask):
             return self.input_grid.data_points[
-                ~self.input_mask.ravel(order=self.input_grid.order)
+                np.logical_not(self.input_mask.ravel(order=self.input_grid.order))
             ]
         return self.input_grid.data_points
 
     def _get_out_coords(self):
         if self._need_mask(self.output_mask):
             out_data_points = self.output_grid.data_points[
-                ~self.output_mask.ravel(order=self.output_grid.order)
+                np.logical_not(self.output_mask.ravel(order=self.output_grid.order))
             ]
         else:
             out_data_points = self.output_grid.data_points
@@ -172,6 +179,9 @@ class RegridNearest(ARegridding):
         self.ids = None
 
     def _update_grid_specs(self):
+        if self.input_grid.dim != self.output_grid.dim:
+            msg = "Input grid and output grid have different dimensions"
+            raise FinamMetaDataError(msg)
         # generate IDs to select data
         kw = self.tree_options or {}
         tree = KDTree(self._get_in_coords(), **kw)
