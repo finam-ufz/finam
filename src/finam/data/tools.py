@@ -893,6 +893,35 @@ def masks_equal(this, other):
     return np.all(this == other)
 
 
+def is_sub_mask(mask, submask):
+    """
+    Check for a sub-mask.
+
+    Parameters
+    ----------
+    mask : arraylike
+        The original mask.
+    submask : arraylike
+        The potential submask.
+
+    Returns
+    -------
+    bool
+        Whether 'submask' is a sub-mask of 'mask'.
+    """
+    if not np.ma.is_mask(mask) or not np.ma.is_mask(submask):
+        return False
+    if mask is np.ma.nomask:
+        return True
+    if submask is np.ma.nomask:
+        return not np.any(mask)
+    if not np.ndim(mask) == np.ndim(submask):
+        return False
+    if not np.all(np.shape(mask) == np.shape(submask)):
+        return False
+    return np.all(submask[mask])
+
+
 def mask_specified(mask):
     """
     Determine whether given mask selection indicates a masked array.

@@ -31,6 +31,8 @@ class ARegridding(Adapter, ABC):
         super().__init__()
         self.input_grid = in_grid
         self.output_grid = out_grid
+        if dtools.mask_specified(out_mask) and out_mask is not None:
+            out_mask = np.ma.make_mask(out_mask, shrink=False)
         self.output_mask = out_mask
         self.downstream_mask = None
         self.input_mask = None
@@ -82,15 +84,12 @@ class ARegridding(Adapter, ABC):
             self.downstream_mask = info.mask
             self.transformer = _create_transformer(self.output_grid, self.input_grid)
             self._update_grid_specs()
+            # self.output_mask may be determined by "_update_grid_specs"
+            self._check_and_set_out_mask()
             self._is_initialized = True
 
-        # self.output_mask may be determined by "_update_grid_specs"
-        self._check_and_set_out_mask()
-        out_info = in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
-
         self.input_meta = in_info.meta
-
-        return out_info
+        return in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
 
     def _do_transform(self, points):
         if self.transformer is None:
@@ -169,6 +168,12 @@ class RegridNearest(ARegridding):
         Input grid specification. Will be taken from source component if not specified.
     out_grid : Grid or None (optional)
         Output grid specification. Will be taken from target component if not specified.
+    out_mask : :any:`Mask` value or valid boolean mask for :any:`MaskedArray` or None, optional
+        masking specification of the regridding output. Options:
+            * :any:`Mask.FLEX`: data will be unmasked
+            * :any:`Mask.NONE`: data will be unmasked and given as plain numpy array
+            * valid boolean mask for MaskedArray
+            * None: will be determined by connected target
     tree_options : dict
         kwargs for :class:`scipy.spatial.KDTree`
     """
@@ -182,6 +187,8 @@ class RegridNearest(ARegridding):
         if self.input_grid.dim != self.output_grid.dim:
             msg = "Input grid and output grid have different dimensions"
             raise FinamMetaDataError(msg)
+        # out mask not restricted by nearest interpolation
+        self._check_and_set_out_mask()
         # generate IDs to select data
         kw = self.tree_options or {}
         tree = KDTree(self._get_in_coords(), **kw)
@@ -234,6 +241,12 @@ class RegridLinear(ARegridding):
         Input grid specification. Will be taken from source component if not specified.
     out_grid : Grid or None (optional)
         Output grid specification. Will be taken from target component if not specified.
+    out_mask : :any:`Mask` value or valid boolean mask for :any:`MaskedArray` or None, optional
+        masking specification of the regridding output. Options:
+            * :any:`Mask.FLEX`: data will be unmasked
+            * :any:`Mask.NONE`: data will be unmasked and given as plain numpy array
+            * valid boolean mask for MaskedArray
+            * None: will be determined by connected target
     fill_with_nearest : bool
         Whether out of bounds points should be filled with the nearest value. Default ``False``.
     tree_options : dict
@@ -241,9 +254,14 @@ class RegridLinear(ARegridding):
     """
 
     def __init__(
-        self, in_grid=None, out_grid=None, fill_with_nearest=False, tree_options=None
+        self,
+        in_grid=None,
+        out_grid=None,
+        out_mask=None,
+        fill_with_nearest=False,
+        tree_options=None,
     ):
-        super().__init__(in_grid, out_grid)
+        super().__init__(in_grid, out_grid, out_mask)
         self.tree_options = tree_options
         self.fill_with_nearest = bool(fill_with_nearest)
         self.ids = None
@@ -254,8 +272,6 @@ class RegridLinear(ARegridding):
         self.structured = False
 
     def _update_grid_specs(self):
-        self.out_coords = self._get_out_coords()
-
         if isinstance(self.input_grid, StructuredGrid) and not self._need_mask(
             self.input_mask
         ):
@@ -272,13 +288,42 @@ class RegridLinear(ARegridding):
                 values=np.zeros(len(in_coords), dtype=np.double),
             )
         if self.fill_with_nearest:
+            # out mask not restricted when filled with nearest
+            self._check_and_set_out_mask()
+            self.out_coords = self._get_out_coords()
             # check for outliers once
             res = self.inter(self.out_coords)
             self.out_ids = np.isnan(res)
             out_points = self.out_coords[self.out_ids]
             kw = self.tree_options or {}
-            tree = KDTree(self.input_grid.data_points, **kw)
+            tree = KDTree(self._get_in_coords(), **kw)
             self.fill_ids = tree.query(out_points)[1]
+        else:
+            mask_save = self.output_mask
+            # temporarily unmask
+            self.output_mask = np.ma.nomask
+            # check for outliers once
+            res = self.inter(self._get_out_coords())
+            # create mask from outliers
+            outlier_mask = np.ma.make_mask(
+                dtools.from_compressed(
+                    np.isnan(res), self.output_grid.data_shape, self.output_grid.order
+                )
+            )
+            # determine mask from outliers
+            if mask_save is None or mask_save is dtools.Mask.FLEX:
+                self.output_mask = outlier_mask
+            elif mask_save is dtools.Mask.NONE:
+                if np.any(outlier_mask):
+                    msg = "RegridLinear: interpolation is not covering desired domain."
+                    raise FinamDataError(msg)
+                self.output_mask = mask_save
+            else:
+                if not dtools.is_sub_mask(outlier_mask, mask_save):
+                    msg = "RegridLinear: interpolation is not covering desired masked domain."
+                    raise FinamDataError(msg)
+                self.output_mask = mask_save
+            self.out_coords = self._get_out_coords()
 
     def _get_data(self, time, target):
         in_data = self.pull_data(time, target)
@@ -291,18 +336,17 @@ class RegridLinear(ARegridding):
                 res[self.out_ids] = self.inter.values.flatten(
                     order=self.input_grid.order
                 )[self.fill_ids]
-            return res
-
-        in_data = dtools.to_compressed(
-            in_data[0, ...].magnitude, order=self.input_grid.order
-        )
-        self.inter.values = np.ascontiguousarray(
-            in_data.reshape((-1, 1)),
-            dtype=np.double,
-        )
-        res = self.inter(self.out_coords)
-        if self.fill_with_nearest:
-            res[self.out_ids] = self.inter.values[self.fill_ids, 0]
+        else:
+            in_data = dtools.to_compressed(
+                in_data[0, ...].magnitude, order=self.input_grid.order
+            )
+            self.inter.values = np.ascontiguousarray(
+                in_data.reshape((-1, 1)),
+                dtype=np.double,
+            )
+            res = self.inter(self.out_coords)
+            if self.fill_with_nearest:
+                res[self.out_ids] = self.inter.values[self.fill_ids, 0]
         return dtools.from_compressed(
             res,
             shape=self.output_grid.data_shape,
