@@ -396,8 +396,9 @@ def flatten_cells(cells):
     """
     if cells.ndim == 1:
         return cells
+    data = cells.ravel()
     # unused entries in "cells" marked with "-1"
-    return np.ma.masked_values(cells, -1).compressed()
+    return data.compress(data != -1)
 
 
 def get_cells_matrix(cell_types, cells, connectivity=False):
