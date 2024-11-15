@@ -39,6 +39,7 @@ class ARegridding(Adapter, ABC):
         self.input_meta = None
         self.transformer = None
         self._is_initialized = False
+        self._out_mask_checked = False
 
     @abstractmethod
     def _update_grid_specs(self):
@@ -97,6 +98,8 @@ class ARegridding(Adapter, ABC):
         return np.asarray(list(self.transformer.itransform(points)))
 
     def _check_and_set_out_mask(self):
+        if self._out_mask_checked:
+            return  # already done
         if (
             self.output_mask is not None
             and self.downstream_mask is not None
@@ -105,11 +108,14 @@ class ARegridding(Adapter, ABC):
             )
         ):
             with ErrorLogger(self.logger):
-                msg = "Target mask specification is already set, new specs differ"
+                msg = (
+                    "Regrid: Target mask specification is already set, new specs differ"
+                )
                 raise FinamMetaDataError(msg)
         self.output_mask = (
             self.output_mask if self.output_mask is not None else self.downstream_mask
         )
+        self._out_mask_checked = self.output_mask is not None
 
     def _need_mask(self, mask):
         return dtools.mask_specified(mask) and mask is not np.ma.nomask
@@ -122,6 +128,12 @@ class ARegridding(Adapter, ABC):
         return self.input_grid.data_points
 
     def _get_out_coords(self):
+        if not self._out_mask_checked:
+            with ErrorLogger(self.logger):
+                msg = (
+                    "Regrid: Output coordinates weren't checked for mask compatibility"
+                )
+                raise FinamMetaDataError(msg)
         if self._need_mask(self.output_mask):
             out_data_points = self.output_grid.data_points[
                 np.logical_not(self.output_mask.ravel(order=self.output_grid.order))
@@ -301,6 +313,7 @@ class RegridLinear(ARegridding):
         else:
             mask_save = self.output_mask
             # temporarily unmask
+            self._out_mask_checked = True
             self.output_mask = np.ma.nomask
             # check for outliers once
             res = self.inter(self._get_out_coords())
@@ -323,6 +336,8 @@ class RegridLinear(ARegridding):
                     msg = "RegridLinear: interpolation is not covering desired masked domain."
                     raise FinamDataError(msg)
                 self.output_mask = mask_save
+            self._out_mask_checked = False
+            self._check_and_set_out_mask()
             self.out_coords = self._get_out_coords()
 
     def _get_data(self, time, target):
