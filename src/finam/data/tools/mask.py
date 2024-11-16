@@ -1,4 +1,4 @@
-"""Data tools for FINAM."""
+"""Mask tools for FINAM."""
 
 from enum import Enum
 
