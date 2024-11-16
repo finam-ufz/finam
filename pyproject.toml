@@ -132,7 +132,6 @@ multi_line_output = 3
     [tool.pylint.message_control]
     max-line-length = 120
     disable = [
-        "C0302", # too many lines (data/tools.py)
         "C0103", # ignore invalid-names like "x", "y"
         "C0415", # ignore defered imports
         "R0801", # ignore code duplications
