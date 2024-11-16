@@ -1,6 +1,7 @@
 """
 Unit tests for masked data.
 """
+
 import unittest
 from datetime import datetime, timedelta
 

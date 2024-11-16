@@ -535,3 +535,7 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink.data["Input"][0, 0], 1.0 * UNITS.meter)
         self.assertEqual(sink.data["Input"][0, 1], 0.5 * UNITS.meter)
         self.assertEqual(sink.data["Input"][0, 9], 0.5 * UNITS.meter)
+
+
+if __name__ == "__main__":
+    unittest.main()

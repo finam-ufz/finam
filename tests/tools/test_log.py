@@ -58,3 +58,7 @@ class TestLog(unittest.TestCase):
         self.assertEqual(len(captured.records), 1)
         self.assertEqual(captured.records[0].levelno, logging.INFO)
         self.assertEqual(captured.records[0].message, "Hi from C")
+
+
+if __name__ == "__main__":
+    unittest.main()

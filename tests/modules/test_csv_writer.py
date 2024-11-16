@@ -68,3 +68,7 @@ class TestCsvWriter(unittest.TestCase):
                 step=1,
                 separator=",",
             )
+
+
+if __name__ == "__main__":
+    unittest.main()

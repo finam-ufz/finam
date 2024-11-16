@@ -90,3 +90,7 @@ class TestPushDebugConsumer(unittest.TestCase):
         composition.run(start_time=start, end_time=datetime(2000, 1, 10))
 
         self.assertEqual(consumer.data["In"][0, ...], 11)
+
+
+if __name__ == "__main__":
+    unittest.main()

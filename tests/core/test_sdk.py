@@ -1,6 +1,7 @@
 """
 Unit tests for the sdk implementations.
 """
+
 import logging
 import os.path
 import tempfile
