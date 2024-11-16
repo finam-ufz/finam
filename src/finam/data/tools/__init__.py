@@ -1,7 +1,6 @@
 """Data tools for FINAM."""
 
 from .core import (
-    Info,
     assert_type,
     check,
     filled,
@@ -12,6 +11,7 @@ from .core import (
     strip_time,
     to_datetime,
 )
+from .info import Info
 from .mask import (
     Mask,
     check_data_covers_domain,
