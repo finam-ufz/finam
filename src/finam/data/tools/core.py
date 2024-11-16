@@ -9,7 +9,6 @@ import pandas as pd
 from ...errors import FinamDataError
 from .. import grid_spec
 from ..grid_base import Grid
-from .mask import is_masked_array
 from .units import (
     UNITS,
     check_quantified,
