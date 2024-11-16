@@ -46,15 +46,14 @@ Data tools
    :toctree: generated
 
     :noindex: Info
-    assert_type
+    prepare
+    strip_time
     check
     full
     full_like
     has_time_axis
-    prepare
-    strip_time
     to_datetime
-    filled
+    assert_type
 
 
 Unit tools
@@ -64,13 +63,13 @@ Unit tools
    :toctree: generated
 
     :noindex: UNITS
+    quantify
+    to_units
+    is_quantified
     check_quantified
     get_dimensionality
     get_magnitude
     get_units
-    is_quantified
-    quantify
-    to_units
 
 
 Mask tools
@@ -82,6 +81,7 @@ Mask tools
     :noindex: Mask
     is_masked_array
     has_masked_values
+    filled
     to_masked
     to_compressed
     from_compressed
