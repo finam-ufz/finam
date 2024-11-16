@@ -6,7 +6,7 @@ import pint
 from ...errors import FinamDataError
 
 # pylint: disable-next=unused-import
-from .. import cf_units
+from . import cf_units
 
 # set default format to cf-convention for pint.dequantify
 # some problems with degree_Celsius and similar here
