@@ -2,25 +2,27 @@
 
 from .core import (
     Info,
-    Mask,
     assert_type,
     check,
-    check_data_covers_domain,
     filled,
-    from_compressed,
     full,
     full_like,
-    has_masked_values,
     has_time_axis,
+    prepare,
+    strip_time,
+    to_datetime,
+)
+from .mask import (
+    Mask,
+    check_data_covers_domain,
+    from_compressed,
+    has_masked_values,
     is_masked_array,
     is_sub_mask,
     mask_specified,
     masks_compatible,
     masks_equal,
-    prepare,
-    strip_time,
     to_compressed,
-    to_datetime,
     to_masked,
 )
 from .units import (
