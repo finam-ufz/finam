@@ -55,6 +55,41 @@ def has_masked_values(data):
     return np.ma.is_masked(data)
 
 
+def filled(data, fill_value=None):
+    """
+    Return input as an array with masked data replaced by a fill value.
+
+    This routine respects quantified and un-quantified data.
+
+    Parameters
+    ----------
+    data : :class:`pint.Quantity` or :class:`numpy.ndarray` or :class:`numpy.ma.MaskedArray`
+        The reference object input.
+    fill_value : array_like, optional
+        The value to use for invalid entries. Can be scalar or non-scalar.
+        If non-scalar, the resulting ndarray must be broadcastable over
+        input array. Default is None, in which case, the `fill_value`
+        attribute of the array is used instead.
+
+    Returns
+    -------
+    pint.Quantity or numpy.ndarray
+        New object with the same shape and type as other,
+        with the data filled with fill_value.
+        Units will be taken from the input if present.
+
+    See also
+    --------
+    :func:`numpy.ma.filled`:
+        Numpy routine doing the same.
+    """
+    if not is_masked_array(data):
+        return data
+    if is_quantified(data):
+        return UNITS.Quantity(data.magnitude.filled(fill_value), data.units)
+    return data.filled(fill_value)
+
+
 def to_masked(data, **kwargs):
     """
     Return a masked version of the data.

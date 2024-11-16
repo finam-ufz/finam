@@ -3,7 +3,6 @@
 from .core import (
     assert_type,
     check,
-    filled,
     full,
     full_like,
     has_time_axis,
@@ -15,6 +14,7 @@ from .info import Info
 from .mask import (
     Mask,
     check_data_covers_domain,
+    filled,
     from_compressed,
     has_masked_values,
     is_masked_array,
