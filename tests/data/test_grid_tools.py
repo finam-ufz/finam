@@ -89,7 +89,7 @@ class TestGridTools(unittest.TestCase):
         assert_array_equal(gen_cells((1,), order="F"), [[0]])
         assert_array_equal(gen_cells((2,), order="F"), [[0, 1]])
 
-        assert_array_equal(gen_cells((2, 2, 2), order="F"), [[2, 3, 1, 0, 6, 7, 5, 4]])
+        assert_array_equal(gen_cells((2, 2, 2), order="F"), [[6, 7, 5, 4, 2, 3, 1, 0]])
 
         # 0---1---2
         # |   |   |
