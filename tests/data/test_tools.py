@@ -284,10 +284,10 @@ class TestDataTools(unittest.TestCase):
             finam.Info(time, grid=finam.NoGrid()),
         )
 
-        finam.data.tools._check_shape(xdata.shape[1:], finam.NoGrid())
+        finam.data.tools.core._check_shape(xdata.shape[1:], finam.NoGrid())
 
         with self.assertRaises(finam.errors.FinamDataError):
-            finam.data.tools._check_shape(xdata.shape[1:], finam.NoGrid(dim=1))
+            finam.data.tools.core._check_shape(xdata.shape[1:], finam.NoGrid(dim=1))
 
     def test_quantify(self):
         xdata = np.asarray([1.0])
@@ -312,15 +312,19 @@ class TestDataTools(unittest.TestCase):
     def test_cache_units(self):
         finam.data.tools.clear_units_cache()
 
-        self.assertEqual({}, finam.data.tools._UNIT_PAIRS_CACHE)
+        self.assertEqual({}, finam.data.tools.units._UNIT_PAIRS_CACHE)
 
         eqiv = finam.data.tools.equivalent_units("mm", "L/m^2")
         self.assertTrue(eqiv)
         self.assertEqual(
             {(finam.UNITS.Unit("mm"), finam.UNITS.Unit("L/m^2")): (True, True)},
-            finam.data.tools._UNIT_PAIRS_CACHE,
+            finam.data.tools.units._UNIT_PAIRS_CACHE,
         )
 
         finam.data.tools.clear_units_cache()
 
-        self.assertEqual({}, finam.data.tools._UNIT_PAIRS_CACHE)
+        self.assertEqual({}, finam.data.tools.units._UNIT_PAIRS_CACHE)
+
+
+if __name__ == "__main__":
+    unittest.main()
