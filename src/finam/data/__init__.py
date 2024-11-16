@@ -45,27 +45,43 @@ Data tools
 .. autosummary::
    :toctree: generated
 
-    :noindex: UNITS
     :noindex: Info
-    :noindex: Mask
     assert_type
     check
-    check_quantified
     full
     full_like
+    has_time_axis
+    prepare
+    strip_time
+    to_datetime
+    filled
+
+
+Unit tools
+==========
+
+.. autosummary::
+   :toctree: generated
+
+    :noindex: UNITS
+    check_quantified
     get_dimensionality
     get_magnitude
     get_units
-    has_time_axis
     is_quantified
-    prepare
     quantify
-    strip_time
-    to_datetime
     to_units
+
+
+Mask tools
+==========
+
+.. autosummary::
+   :toctree: generated
+
+    :noindex: Mask
     is_masked_array
     has_masked_values
-    filled
     to_masked
     to_compressed
     from_compressed
