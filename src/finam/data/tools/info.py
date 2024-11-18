@@ -174,7 +174,7 @@ class Info:
         return (
             self.grid == other.grid
             and self.meta == other.meta
-            and masks_equal(self.mask, other.mask)
+            and masks_equal(self.mask, other.mask, self.grid, other.grid)
         )
 
     def __getattr__(self, name):
