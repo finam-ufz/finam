@@ -519,7 +519,9 @@ class StructuredGrid(Grid):
         ValueError
             When data has wrong shape.
         """
-        if not np.array_equal(np.shape(data), self.data_shape):
+        rev = -1 if self.axes_reversed else 1
+        d_shp, in_shp, shp_len = self.data_shape, np.shape(data), len(self.data_shape)
+        if not np.array_equal(d_shp[::rev], in_shp[::rev][:shp_len]):
             msg = "to_canonical: data has wrong shape."
             raise ValueError(msg)
         if self.axes_reversed and np.ndim(data) > 1:
@@ -552,7 +554,8 @@ class StructuredGrid(Grid):
             When data has wrong shape.
         """
         rev = -1 if self.axes_reversed else 1
-        if not np.array_equal(np.shape(data)[::rev], self.data_shape):
+        d_shp, in_shp, shp_len = self.data_shape, np.shape(data), len(self.data_shape)
+        if not np.array_equal(d_shp[::rev], in_shp[:shp_len]):
             msg = "from_canonical: data has wrong shape."
             raise ValueError(msg)
         for i, inc in enumerate(self.axes_increase):
