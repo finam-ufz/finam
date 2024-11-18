@@ -1,6 +1,7 @@
 """
 Abstract base implementation for adapters.
 """
+
 import logging
 from abc import ABC
 from datetime import datetime
@@ -56,6 +57,11 @@ class Adapter(IAdapter, Input, Output, ABC):
     @property
     def info(self):
         return self._output_info
+
+    @final
+    @property
+    def in_info(self):
+        return self._input_info
 
     @property
     def needs_pull(self):
