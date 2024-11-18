@@ -36,6 +36,11 @@ class GridBase(ABC):
     def dim(self):
         """int: Dimension of the grid or data."""
 
+    @property
+    @abstractmethod
+    def data_shape(self):
+        """tuple: Shape of the associated data."""
+
     def copy(self, deep=False):
         """
         Copy of this grid.
@@ -156,11 +161,6 @@ class Grid(GridBase):
         if self.data_location == Location.POINTS:
             return self.points
         return self.cell_centers
-
-    @property
-    @abstractmethod
-    def data_shape(self):
-        """tuple: Shape of the associated data."""
 
     @property
     def data_size(self):

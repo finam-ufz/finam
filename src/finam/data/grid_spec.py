@@ -38,6 +38,11 @@ class NoGrid(GridBase):
         """int: Dimension of the grid or data."""
         return self._dim
 
+    @property
+    def data_shape(self):
+        """tuple: Shape of the associated data."""
+        return tuple()
+
     def __repr__(self):
         return f"{self.__class__.__name__} ({self.dim}D)"
 
