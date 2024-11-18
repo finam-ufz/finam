@@ -47,24 +47,64 @@ class Info:
     """
 
     def __init__(self, time=None, grid=None, meta=None, mask=Mask.FLEX, **meta_kwargs):
-        if time is not None and not isinstance(time, datetime.datetime):
-            raise FinamMetaDataError("Time in Info must be either None or a datetime")
-        if grid is not None and not isinstance(grid, GridBase):
-            raise FinamMetaDataError(
-                "Grid in Info must be either None or of a sub-class of GridBase"
-            )
-
+        self._time = self._grid = self._mask = None
         self.time = time
         self.grid = grid
-        if mask_specified(mask) and mask is not None:
-            mask = np.ma.make_mask(mask, shrink=False)
         self.mask = mask
+        # set meta last (see __setattr__)
         self.meta = meta or {}
         self.meta.update(meta_kwargs)
-
+        # handle units
         units = self.meta.get("units", "")
         units = None if units is None else UNITS.Unit(units)
         self.meta["units"] = units
+
+    @property
+    def time(self):
+        """datetime: current time."""
+        return self._time
+
+    @time.setter
+    def time(self, time):
+        if time is not None and not isinstance(time, datetime.datetime):
+            msg = "Time in Info must be either None or a datetime"
+            raise FinamMetaDataError(msg)
+        self._time = time
+
+    @property
+    def grid(self):
+        """Grid: data grid."""
+        return self._grid
+
+    @grid.setter
+    def grid(self, grid):
+        if grid is not None and not isinstance(grid, GridBase):
+            msg = "Grid in Info must be either None or of a sub-class of GridBase"
+            raise FinamMetaDataError(msg)
+        self._grid = grid
+
+    @property
+    def mask(self):
+        """Mask or ndarray: data mask."""
+        return self._mask
+
+    @mask.setter
+    def mask(self, mask):
+        if mask_specified(mask) and mask is not None:
+            mask = np.ma.make_mask(mask, shrink=False)
+            if (
+                self.grid is not None
+                and mask is not np.ma.nomask
+                and not np.array_equal(self.grid_shape, np.shape(mask))
+            ):
+                msg = "Mask in Info not compatible with given grid."
+                raise FinamMetaDataError(msg)
+        self._mask = mask
+
+    @property
+    def grid_shape(self):
+        """tuple: shape of the data grid."""
+        return None if self.grid is None else self.grid.data_shape
 
     @property
     def is_masked(self):
