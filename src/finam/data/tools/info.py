@@ -145,7 +145,7 @@ class Info:
                 success = False
 
         if self.mask is not None and not masks_compatible(
-            self.mask, incoming.mask, incoming_donwstream
+            self.mask, incoming.mask, incoming_donwstream, self.grid, incoming.grid
         ):
             if not (incoming_donwstream and incoming.mask is None):
                 fail_info["mask"] = (incoming.mask, self.mask)
