@@ -61,6 +61,7 @@ class Adapter(IAdapter, Input, Output, ABC):
     @final
     @property
     def in_info(self):
+        """Info from connected source."""
         return self._input_info
 
     @property
