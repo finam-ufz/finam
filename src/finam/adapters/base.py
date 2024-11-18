@@ -1,6 +1,7 @@
 """
 Basic data transformation adapters.
 """
+
 import numpy as np
 
 from ..data.grid_spec import NoGrid
@@ -123,7 +124,6 @@ class ValueToGrid(Adapter):
     def __init__(self, grid):
         super().__init__()
         self.grid = grid
-        self._info = None
 
     def _get_data(self, time, target):
         """Get the output's data-set for the given time.
@@ -139,12 +139,7 @@ class ValueToGrid(Adapter):
             data-set for the requested time.
         """
         value = self.pull_data(time, target)
-        return quantify(
-            np.full(
-                self._info.grid.data_shape, get_magnitude(value), dtype=value.dtype
-            ),
-            get_units(value),
-        )
+        return np.full(self.info.grid_shape, get_magnitude(value))
 
     def _get_info(self, info):
         up_info = info.copy_with(grid=NoGrid())
@@ -157,7 +152,6 @@ class ValueToGrid(Adapter):
                     f"Grid specifications don't match. Target has {info.grid}, expected {out_info.grid}"
                 )
 
-        self._info = out_info
         return out_info
 
 

@@ -1,4 +1,5 @@
 """Adapters for time integration"""
+
 from abc import ABC
 from datetime import timedelta
 
@@ -14,7 +15,6 @@ class TimeIntegrationAdapter(TimeCachingAdapter, ABC):
     def __init__(self):
         super().__init__()
         self._prev_time = None
-        self._info = None
 
     def _source_updated(self, time):
         """Informs the input that a new output is available.
@@ -107,7 +107,6 @@ class AvgOverTime(TimeIntegrationAdapter):
         super().__init__()
         self._prev_time = None
         self._step = step
-        self._info = None
 
     def _interpolate(self, time):
         if len(self.data) == 1:
@@ -238,8 +237,6 @@ class SumOverTime(TimeIntegrationAdapter):
         self._per_time = per_time
         self._initial_interval = initial_interval
 
-        self._info = None
-
     def _interpolate(self, time):
         if len(self.data) == 1 or time <= self.data[0][0]:
             if self._per_time:
@@ -307,5 +304,4 @@ class SumOverTime(TimeIntegrationAdapter):
         else:
             out_info = in_info.copy_with()
 
-        self._info = out_info
         return out_info
