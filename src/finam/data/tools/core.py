@@ -154,20 +154,34 @@ def _check_input_shape(data, info, time_entries):
 
 def _check_input_shape_no_grid(data, info, time_entries):
     if len(data.shape) != info.grid.dim + 1:
-        if len(data.shape) == info.grid.dim:
+        if _no_grid_shape_valid(data.shape, info.grid):
             data = np.expand_dims(data, 0)
         else:
             raise FinamDataError(
-                f"quantify: number of dimensions in data doesn't match expected number. "
-                f"Got {len(data.shape)}, expected {info.grid.dim}"
+                f"Data shape not valid. "
+                f"Got {data.shape}, expected {info.grid.data_shape}"
             )
     else:
+        if not _no_grid_shape_valid(data.shape[1:], info.grid):
+            raise FinamDataError(
+                f"Data shape not valid. "
+                f"Got {data.shape[1:]}, expected {info.grid.data_shape}"
+            )
         if data.shape[0] != time_entries:
             raise FinamDataError(
-                f"quantify: number of time entries in data doesn't match expected number. "
+                f"Number of time entries in data doesn't match expected number. "
                 f"Got {data.shape[0]}, expected {time_entries}"
             )
     return data
+
+
+def _no_grid_shape_valid(data_shape, grid):
+    if len(data_shape) != grid.dim:
+        return False
+    dshp = np.array(data_shape)
+    gshp = np.array(grid.data_shape)
+    check = gshp != -1
+    return np.all(dshp[check] == gshp[check])
 
 
 def has_time_axis(xdata, grid):

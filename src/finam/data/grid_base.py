@@ -70,6 +70,9 @@ class GridBase(ABC):
         """Transformation between compatible grids."""
         return None
 
+    def __repr__(self):
+        return f"{self.name} ({self.dim}D) {self.data_shape}"
+
 
 class Grid(GridBase):
     """Abstract grid specification."""
@@ -186,9 +189,6 @@ class Grid(GridBase):
     def data_axes_names(self):
         """list of str: Axes names of the data."""
         return ["id"]
-
-    def __repr__(self):
-        return f"{self.__class__.__name__} ({self.dim}D) {self.data_shape}"
 
     def compatible_with(self, other, check_location=True):
         """
