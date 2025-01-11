@@ -180,8 +180,8 @@ def _no_grid_shape_valid(data_shape, grid):
         return False
     dshp = np.array(data_shape)
     gshp = np.array(grid.data_shape)
-    check = gshp != -1
-    return np.all(dshp[check] == gshp[check])
+    fix_dims = gshp != -1
+    return np.all(dshp[fix_dims] == gshp[fix_dims])
 
 
 def has_time_axis(xdata, grid):
