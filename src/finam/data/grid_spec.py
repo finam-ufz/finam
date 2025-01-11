@@ -31,8 +31,6 @@ class NoGrid(GridBase):
     """
     Indicator for data without a spatial grid.
 
-    Either dim or data_shape needed.
-
     Parameters
     ----------
     dim : int or None, optional
@@ -43,15 +41,12 @@ class NoGrid(GridBase):
     Raises
     ------
     ValueError
-        If none of dim or data_shape are given.
-    ValueError
         If dim does not match the length of data_shape.
     """
 
     def __init__(self, dim=None, data_shape=None):
         if dim is None and data_shape is None:
-            msg = "NoGrid: either dim or data_shape needed."
-            raise ValueError(msg)
+            dim, data_shape = 0, tuple()
         if data_shape is None:
             data_shape = (-1,) * dim
         if dim is None:
