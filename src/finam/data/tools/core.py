@@ -215,7 +215,8 @@ def to_datetime(date):
     if timestamp < 0:
         return _BASE_DATETIME + datetime.timedelta(seconds=timestamp)
 
-    return datetime.datetime.utcfromtimestamp(timestamp)
+    tz = datetime.timezone.utc
+    return datetime.datetime.fromtimestamp(timestamp, tz).replace(tzinfo=None)
 
 
 def strip_time(xdata, grid):
