@@ -293,13 +293,13 @@ class Composition(Loggable):
         deps = _find_dependencies(comp, self._output_owners, target_time)
 
         for dep, (local_time, delayed) in deps.items():
-            comp = self._output_owners[dep]
-            if isinstance(comp, ITimeComponent):
+            c = self._output_owners[dep]
+            if isinstance(c, ITimeComponent):
                 if dep.time < local_time:
                     chain[comp] = (local_time - dep.time, delayed)
-                    return self._update_recursive(comp, chain)
+                    return self._update_recursive(c, chain)
             else:
-                updated = self._update_recursive(comp, chain, local_time)
+                updated = self._update_recursive(c, chain, local_time)
                 if updated is not None:
                     return updated
 
