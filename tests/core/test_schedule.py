@@ -31,7 +31,12 @@ from finam import (
 from finam._version import __version__
 from finam.adapters.base import Scale
 from finam.adapters.time import DelayFixed, NextTime
-from finam.components import CallbackComponent, CallbackGenerator, DebugPushConsumer, debug
+from finam.components import (
+    CallbackComponent,
+    CallbackGenerator,
+    DebugPushConsumer,
+    debug,
+)
 from finam.schedule import _check_dead_links, _find_dependencies
 
 
