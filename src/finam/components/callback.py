@@ -28,7 +28,7 @@ class CallbackComponent(TimeComponent):
         import datetime as dt
         import finam as fm
 
-        component = fm.modules.CallbackComponent(
+        component = fm.components.CallbackComponent(
             inputs={
                 "A": fm.Info(time=None, grid=fm.NoGrid()),
                 "B": fm.Info(time=None, grid=fm.NoGrid()),

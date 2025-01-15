@@ -38,7 +38,7 @@ class TimeTrigger(TimeComponent):
         import datetime as dt
         import finam as fm
 
-        component = fm.modules.TimeTrigger(
+        component = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=dt.datetime(2000, 1, 1),
             step=dt.timedelta(days=1),
@@ -185,7 +185,7 @@ class UserControl(TimeComponent):
         import datetime as dt
         import finam as fm
 
-        component = fm.modules.UserControl(
+        component = fm.components.UserControl(
             start=dt.datetime(2000, 1, 1),
             step=dt.timedelta(days=1),
         )

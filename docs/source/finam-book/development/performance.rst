@@ -109,11 +109,11 @@ The limit and file location can be set for all slots of the composition:
 
 .. testcode:: memory-limit
 
-    comp_a = finam.modules.SimplexNoise()
-    comp_b = finam.modules.SimplexNoise()
+    comp_a = finam.components.SimplexNoise()
+    comp_b = finam.components.SimplexNoise()
 
     comp = finam.Composition(
-        modules=[comp_a, comp_b],
+        components=[comp_a, comp_b],
         slot_memory_limit=256 * 2**20, # 256MB
         slot_memory_location="temp_dir",
     ) # doctest: +ELLIPSIS
@@ -127,8 +127,8 @@ Both properties can also be set for individual :class:`.Output` and :class:`.Ada
 
 .. testcode:: memory-limit
 
-    comp_a = finam.modules.SimplexNoise()
-    comp_b = finam.modules.SimplexNoise()
+    comp_a = finam.components.SimplexNoise()
+    comp_b = finam.components.SimplexNoise()
 
     comp = finam.Composition([comp_a, comp_b]) # doctest: +ELLIPSIS
 
@@ -165,6 +165,6 @@ a component can do the aggregation internally with a daily sub-step.
 Benchmarking and profiling
 --------------------------
 
-This section gives advice on how to profile FINAM modules and compositions.
+This section gives advice on how to profile FINAM components and compositions.
 
 [TODO]

@@ -16,8 +16,8 @@ class TestInspect(unittest.TestCase):
         _s1 = fm.tools.inspect(ada)
 
     def test_inspect_component(self):
-        comp1 = fm.modules.WeightedSum(inputs=["A", "B", "C"])
-        comp2 = fm.modules.TimeTrigger(
+        comp1 = fm.components.WeightedSum(inputs=["A", "B", "C"])
+        comp2 = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None),
             start=dt.datetime(2000, 1, 1),
             step=dt.timedelta(days=1),

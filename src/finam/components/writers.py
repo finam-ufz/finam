@@ -34,7 +34,7 @@ class CsvWriter(TimeComponent):
         import datetime as dt
         import finam as fm
 
-        writer = fm.modules.CsvWriter(
+        writer = fm.components.CsvWriter(
             path="test.csv",
             inputs=["A", "B", "C"],
             time_column="T",

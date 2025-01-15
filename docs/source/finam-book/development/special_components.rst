@@ -70,7 +70,7 @@ Push-based components can use :class:`.CallbackInput` to get informed about inco
     def write_to_file(data):
         pass
 
-    generator = fm.modules.CallbackGenerator(
+    generator = fm.components.CallbackGenerator(
         {"Value": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid()))},
         start=datetime(2000, 1, 1),
         step=timedelta(days=30),
@@ -145,7 +145,7 @@ Push-based components can use :class:`.CallbackOutput` to intercept data pulls.
 
     pull_comp = PullComponent()
 
-    consumer = fm.modules.DebugConsumer(
+    consumer = fm.components.DebugConsumer(
         {"Input": fm.Info(time=None, grid=fm.NoGrid())},
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),

@@ -19,7 +19,7 @@ from finam import (
 )
 from finam import data as fdata
 from finam.adapters.regrid import RegridLinear, RegridNearest
-from finam.modules import debug, generators
+from finam.components import debug, generators
 
 
 class TestRegrid(unittest.TestCase):

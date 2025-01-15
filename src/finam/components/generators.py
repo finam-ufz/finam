@@ -27,7 +27,7 @@ class CallbackGenerator(TimeComponent):
         import datetime as dt
         import finam as fm
 
-        generator = fm.modules.CallbackGenerator(
+        generator = fm.components.CallbackGenerator(
             callbacks={
                 "Out1": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
                 "Out2": (lambda t: t.month, fm.Info(time=None, grid=fm.NoGrid()))
@@ -145,7 +145,7 @@ class StaticCallbackGenerator(Component):
 
         import finam as fm
 
-        generator = fm.modules.StaticCallbackGenerator(
+        generator = fm.components.StaticCallbackGenerator(
             callbacks={
                 "Out1": (lambda: 1.0, fm.Info(time=None, grid=fm.NoGrid())),
                 "Out2": (lambda: 2.0, fm.Info(time=None, grid=fm.NoGrid()))

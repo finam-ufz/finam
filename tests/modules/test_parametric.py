@@ -16,16 +16,16 @@ class TestParametricGrid(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.ParametricGrid(
+        source = fm.components.ParametricGrid(
             info=in_info,
             func=lambda t, x: x,
         )
-        trigger = fm.modules.TimeTrigger(
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -51,16 +51,16 @@ class TestParametricGrid(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.ParametricGrid(
+        source = fm.components.ParametricGrid(
             info=in_info,
             func=lambda t, x, y: x,
         )
-        trigger = fm.modules.TimeTrigger(
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -88,16 +88,16 @@ class TestParametricGrid(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.ParametricGrid(
+        source = fm.components.ParametricGrid(
             info=in_info,
             func=lambda t, x, y, z: x * y - z,
         )
-        trigger = fm.modules.TimeTrigger(
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -122,16 +122,16 @@ class TestParametricGrid(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.ParametricGrid(
+        source = fm.components.ParametricGrid(
             info=in_info,
             func=lambda t, x: x,
         )
-        trigger = fm.modules.TimeTrigger(
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -157,16 +157,16 @@ class TestParametricGrid(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.ParametricGrid(
+        source = fm.components.ParametricGrid(
             info=in_info,
             func=lambda t, x, y: x * y,
         )
-        trigger = fm.modules.TimeTrigger(
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -192,16 +192,16 @@ class TestParametricGrid(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.ParametricGrid(
+        source = fm.components.ParametricGrid(
             info=in_info,
             func=lambda t, x, y, z: x * y - z,
         )
-        trigger = fm.modules.TimeTrigger(
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -229,16 +229,16 @@ class TestParametricGrid(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.ParametricGrid(
+        source = fm.components.ParametricGrid(
             info=in_info,
             func=lambda t, x: x,
         )
-        trigger = fm.modules.TimeTrigger(
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -261,11 +261,11 @@ class TestStaticParametricGrid(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.StaticParametricGrid(
+        source = fm.components.StaticParametricGrid(
             info=in_info,
             func=lambda x, y: x,
         )
-        sink = fm.modules.DebugPushConsumer(
+        sink = fm.components.DebugPushConsumer(
             inputs={
                 "Input": fm.Info(time=None, grid=in_info.grid, units=None),
             },

@@ -4,7 +4,7 @@ from os import path
 from tempfile import TemporaryDirectory
 
 from finam import UNITS, ComponentStatus, Info, Input, NoGrid
-from finam.modules.readers import CsvReader
+from finam.components.readers import CsvReader
 
 
 class TestCsvReader(unittest.TestCase):

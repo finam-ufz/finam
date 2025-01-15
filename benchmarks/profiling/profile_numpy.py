@@ -35,12 +35,12 @@ def run_model():
         counter += 1
         return d
 
-    source = fm.modules.CallbackGenerator(
+    source = fm.components.CallbackGenerator(
         callbacks={"Out": (gen_data, info1.copy())},
         start=start_time,
         step=dt.timedelta(days=1),
     )
-    sink = fm.modules.DebugConsumer(
+    sink = fm.components.DebugConsumer(
         inputs={
             "In": info2.copy(),
         },

@@ -11,9 +11,9 @@ class TestSimplexNoise(unittest.TestCase):
         time = datetime(2000, 1, 1)
         grid = fm.UniformGrid((25, 15), origin=(10.0, 5.0))
 
-        source = fm.modules.SimplexNoise(octaves=3, frequency=0.01, seed=4)
+        source = fm.components.SimplexNoise(octaves=3, frequency=0.01, seed=4)
 
-        consumer = fm.modules.DebugConsumer(
+        consumer = fm.components.DebugConsumer(
             inputs={"Noise": fm.Info(None, grid=grid, units="")},
             start=time,
             step=timedelta(days=7),
@@ -33,9 +33,9 @@ class TestSimplexNoise(unittest.TestCase):
         time = datetime(2000, 1, 1)
         grid = fm.UnstructuredPoints(np.random.random((100, 2)) * 100)
 
-        source = fm.modules.SimplexNoise(octaves=3, frequency=0.01, seed=4)
+        source = fm.components.SimplexNoise(octaves=3, frequency=0.01, seed=4)
 
-        consumer = fm.modules.DebugConsumer(
+        consumer = fm.components.DebugConsumer(
             inputs={"Noise": fm.Info(None, grid=grid, units="")},
             start=time,
             step=timedelta(days=7),

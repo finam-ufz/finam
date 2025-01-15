@@ -16,7 +16,7 @@ from finam import (
     UniformGrid,
 )
 from finam import data as tools
-from finam.modules.generators import CallbackGenerator
+from finam.components.generators import CallbackGenerator
 
 
 class MockupConsumer(TimeComponent):

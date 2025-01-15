@@ -33,7 +33,7 @@ class SimplexNoise(Component):
 
         import finam as fm
 
-        component = fm.modules.SimplexNoise(
+        component = fm.components.SimplexNoise(
             info=fm.Info(time=None, grid=fm.UniformGrid((20, 15))),
             frequency=0.1,
             time_frequency=1 / (24 * 3600),
@@ -171,7 +171,7 @@ class StaticSimplexNoise(Component):
 
         import finam as fm
 
-        component = fm.modules.StaticSimplexNoise(
+        component = fm.components.StaticSimplexNoise(
             info=fm.Info(time=None, grid=fm.UniformGrid((20, 15))),
             frequency=0.1,
             octaves=3,

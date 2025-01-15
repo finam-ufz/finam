@@ -9,12 +9,12 @@ class TestScheduleLogger(unittest.TestCase):
         start = datetime(2000, 1, 1)
         info = fm.Info(time=start, grid=fm.NoGrid())
 
-        module1 = fm.modules.CallbackGenerator(
+        module1 = fm.components.CallbackGenerator(
             callbacks={"Out": (lambda t: t.day, info)},
             start=start,
             step=timedelta(days=2),
         )
-        module2 = fm.modules.CallbackComponent(
+        module2 = fm.components.CallbackComponent(
             inputs={
                 "In": fm.Info(time=None, grid=fm.NoGrid()),
             },
@@ -25,7 +25,7 @@ class TestScheduleLogger(unittest.TestCase):
             start=start,
             step=timedelta(days=5),
         )
-        module3 = fm.modules.CallbackComponent(
+        module3 = fm.components.CallbackComponent(
             inputs={
                 "In": fm.Info(time=None, grid=fm.NoGrid()),
             },
@@ -37,7 +37,7 @@ class TestScheduleLogger(unittest.TestCase):
             step=timedelta(days=8),
         )
 
-        schedule = fm.modules.ScheduleLogger(
+        schedule = fm.components.ScheduleLogger(
             inputs={
                 "M1": True,
                 "M2": True,
@@ -65,12 +65,12 @@ class TestPushDebugConsumer(unittest.TestCase):
         start = datetime(2000, 1, 1)
         info = fm.Info(time=start, grid=fm.NoGrid())
 
-        module1 = fm.modules.CallbackGenerator(
+        module1 = fm.components.CallbackGenerator(
             callbacks={"Out": (lambda t: t.day, info)},
             start=start,
             step=timedelta(days=2),
         )
-        consumer = fm.modules.DebugPushConsumer(
+        consumer = fm.components.DebugPushConsumer(
             inputs={
                 "In": fm.Info(time=None, grid=fm.NoGrid()),
             },

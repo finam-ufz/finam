@@ -5,7 +5,7 @@ import numpy as np
 
 import finam as fm
 from finam import Composition, Info, NoGrid
-from finam.modules import CallbackComponent, CallbackGenerator, DebugConsumer
+from finam.components import CallbackComponent, CallbackGenerator, DebugConsumer
 
 
 def transform(inputs, _time):

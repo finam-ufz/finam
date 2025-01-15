@@ -1,5 +1,5 @@
 """
-Specialized data types for exchanges between models/modules.
+Specialized data types for exchanges between models/components.
 
 Grids
 =====

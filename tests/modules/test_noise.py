@@ -15,13 +15,13 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.SimplexNoise(info=in_info)
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -46,13 +46,13 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.SimplexNoise(info=in_info)
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -77,13 +77,13 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.SimplexNoise(info=in_info)
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -108,13 +108,13 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.SimplexNoise(info=in_info)
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -139,13 +139,13 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.SimplexNoise(info=in_info)
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -170,13 +170,13 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.SimplexNoise(info=in_info)
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -201,13 +201,13 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.SimplexNoise(info=in_info)
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -232,13 +232,13 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.SimplexNoise(info=in_info)
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -254,9 +254,9 @@ class TestNoise(unittest.TestCase):
 
     def test_noise_fail(self):
         with self.assertRaises(ValueError):
-            _source = fm.modules.SimplexNoise(octaves=0)
+            _source = fm.components.SimplexNoise(octaves=0)
 
-        source = fm.modules.SimplexNoise(octaves=1)
+        source = fm.components.SimplexNoise(octaves=1)
         source._update()
 
 
@@ -268,16 +268,16 @@ class TestStaticNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.StaticSimplexNoise(info=in_info, seed=123)
+        source = fm.components.StaticSimplexNoise(info=in_info, seed=123)
         """
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
         )
         """
         # We want to get to a point where this works
-        sink = fm.modules.DebugPushConsumer(
+        sink = fm.components.DebugPushConsumer(
             inputs={
                 "Input": fm.Info(time=None, grid=fm.NoGrid(), units="m"),
             },

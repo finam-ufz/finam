@@ -131,11 +131,11 @@ Built-in components, adapters and tool functions.
 
     adapters
     data
-    modules
+    components
     tools
 
 """
-from . import adapters, data, interfaces, modules, schedule, sdk, tools
+from . import adapters, data, interfaces, components, schedule, sdk, tools
 from .data.grid_spec import (
     EsriGrid,
     NoGrid,
@@ -192,7 +192,7 @@ tools.log_helper.add_logging_level("PROFILE", 15)
 
 
 __all__ = ["__version__"]
-__all__ += ["adapters", "data", "interfaces", "modules", "schedule", "sdk", "tools"]
+__all__ += ["adapters", "data", "interfaces", "components", "schedule", "sdk", "tools"]
 __all__ += [
     "IComponent",
     "ITimeComponent",

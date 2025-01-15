@@ -11,7 +11,7 @@ import finam as fm
 from finam import FinamTimeError, Info, NoGrid, UniformGrid
 from finam import data as tools
 from finam.adapters.time_integration import AvgOverTime, SumOverTime
-from finam.modules import CallbackGenerator, DebugConsumer
+from finam.components import CallbackGenerator, DebugConsumer
 
 reg = pint.UnitRegistry(force_ndarray_like=True)
 

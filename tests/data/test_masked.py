@@ -32,7 +32,7 @@ class TestMasked(unittest.TestCase):
             missing_value=np.nan,
         )
 
-        source = fm.modules.generators.CallbackGenerator(
+        source = fm.components.generators.CallbackGenerator(
             callbacks={
                 "Output": (
                     lambda t: gen_masked(t.toordinal(), in_info.grid.data_shape),
@@ -43,7 +43,7 @@ class TestMasked(unittest.TestCase):
             step=timedelta(days=1),
         )
 
-        sink = fm.modules.debug.DebugConsumer(
+        sink = fm.components.debug.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=time,
             step=timedelta(days=1),
