@@ -36,7 +36,6 @@ class TestRegridMask(unittest.TestCase):
         )
 
     def test_regrid_nearest_out_mask(self):
-
         in_info = Info(grid=self.in_grid, units="", mask=self.in_mask)
         source = StaticSimplexNoise(in_info, 0.15, 3, 0.5)
         sink = debug.DebugPushConsumer({"Input": Info()})
@@ -56,7 +55,6 @@ class TestRegridMask(unittest.TestCase):
         self.assertAlmostEqual(i_data.mean(), o_data.mean(), 2)
 
     def test_regrid_nearest_filled(self):
-
         in_info = Info(grid=self.in_grid, units="", mask=self.in_mask)
         source = StaticSimplexNoise(in_info, 0.15, 3, 0.5)
         sink = debug.DebugPushConsumer({"Input": Info()})
@@ -75,7 +73,6 @@ class TestRegridMask(unittest.TestCase):
         self.assertAlmostEqual(i_data.mean(), data.mean(), 1)
 
     def test_regrid_linear_determine_mask(self):
-
         in_info = Info(grid=self.in_grid, units="", mask=self.in_mask)
         source = StaticSimplexNoise(in_info, 0.15, 3, 0.5)
         sink = debug.DebugPushConsumer({"Input": Info()})
@@ -97,7 +94,6 @@ class TestRegridMask(unittest.TestCase):
         self.assertAlmostEqual(i_data.mean(), o_data.mean(), 2)
 
     def test_regrid_linear_error_domain(self):
-
         in_info = Info(grid=self.in_grid, units="", mask=self.in_mask)
         source = StaticSimplexNoise(in_info, 0.15, 3, 0.5)
         sink = debug.DebugPushConsumer({"Input": Info()})
@@ -113,7 +109,6 @@ class TestRegridMask(unittest.TestCase):
             composition.connect()
 
     def test_regrid_linear_filled(self):
-
         in_info = Info(grid=self.in_grid, units="", mask=self.in_mask)
         source = StaticSimplexNoise(in_info, 0.15, 3, 0.5)
         sink = debug.DebugPushConsumer({"Input": Info()})
@@ -134,7 +129,6 @@ class TestRegridMask(unittest.TestCase):
         self.assertAlmostEqual(i_data.mean(), data.mean(), 1)
 
     def test_regrid_linear_filled_mask(self):
-
         in_info = Info(grid=self.in_grid, units="", mask=self.in_mask)
         source = StaticSimplexNoise(in_info, 0.15, 3, 0.5)
         sink = debug.DebugPushConsumer({"Input": Info()})
