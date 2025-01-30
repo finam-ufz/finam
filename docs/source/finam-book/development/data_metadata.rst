@@ -42,11 +42,23 @@ Masked arrays
 FINAM uses :class:`numpy.ma.MaskedArray` inside :class:`pint.Quantity` to represent masked data.
 Masked data does not require any special treatment and can be used like usual numpy arrays.
 
+By default FINAM will allow data to have flexible masks, which means they can change over time.
+In the :class:`.Info` object (see below), the mask of the data can be specified:
+
+* :any:`.Mask.FLEX`: data can be masked or unmasked and the mask could change over time (default)
+* :any:`.Mask.NONE`: data is unmasked and exchanged as plain numpy arrays
+* :class:`numpy.ndarray` or :class:`bool`: data is masked with a given mask that is constant over time
+
 Convenience functions for masked arrays are:
 
 * :func:`is_masked_array <.data.is_masked_array>` to check if the given data is a masked array
 * :func:`has_masked_values <.data.has_masked_values>` to check if the given data is a masked array and has some values masked
 * :func:`filled <.data.filled>` to create a copy of the data with masked entries filled with a given value, if it is a masked array
+* :func:`to_masked <.data.to_masked>` to create a masked version of the data
+* :func:`to_masked <.data.to_compressed>` to create a flattened version of the data only containing the unmasked values
+* :func:`to_masked <.data.from_compressed>` to create a full mask array from a compressed version of the data
+* :func:`to_masked <.data.masks_compatible>` to check if mask settings in info objects are compatiblemasks_equal
+* :func:`to_masked <.data.masks_equal>` to check if masks are equal
 
 .. warning::
     Due to a :mod:`numpy` bug, quantities should not be created from masked data using multiplication syntax (i.e. ``magnitude * units``).
@@ -88,14 +100,16 @@ The :class:`.Info` object
 Objects of type :class:`.Info` represent the metadata associated with an input or output.
 It has the following properties:
 
+* ``time`` - initial time stamp for the associated data
 * ``grid`` - for the `Grid specification`_
 * ``meta`` - a :class:`dict` for all other metadata
+* ``mask`` - the mask specification for the data, either :class:`.Mask`, :class:`numpy.ndarray` or :class:`bool`
 
 For convenience, entries in ``meta`` can be used like normal member variables:
 
 .. testsetup:: create-info
 
-    from finam import Info, NoGrid
+    from finam import Info, NoGrid, Mask
     from datetime import datetime
 
 .. testcode:: create-info
@@ -103,6 +117,7 @@ For convenience, entries in ``meta`` can be used like normal member variables:
     info = Info(
         time=datetime(2000, 1, 1),
         grid=NoGrid(),
+        mask=Mask.NONE,
         units="m",
         foo="bar"
     )
@@ -134,7 +149,7 @@ In component code, these two lines are equivalent:
 Metadata from source or target
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Any :class:`.Info` attributes initialized with `None` will be filled from the metadata on the other end of the coupling link.
+Any :class:`.Info` attributes initialized with `None` (default for all entries) will be filled from the metadata on the other end of the coupling link.
 E.g. if the grid specification of an input is intended to be taken from the connected output, the input can be initialized like this:
 
 .. testcode:: create-inputs
