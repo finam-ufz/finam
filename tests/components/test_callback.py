@@ -62,3 +62,7 @@ class TestCallback(unittest.TestCase):
         out_data = consumer.data["In1"]
         self.assertGreaterEqual(out_data, 2.0)
         self.assertLessEqual(out_data, 4.0)
+
+
+if __name__ == "__main__":
+    unittest.main()

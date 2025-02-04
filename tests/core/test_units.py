@@ -1,6 +1,7 @@
 """
 Unit tests for data info propagation.
 """
+
 import unittest
 from datetime import datetime, timedelta
 
@@ -112,3 +113,7 @@ class TestUnits(unittest.TestCase):
 
         with self.assertRaises(FinamMetaDataError):
             composition.run(start_time=time, end_time=datetime(2000, 1, 2))
+
+
+if __name__ == "__main__":
+    unittest.main()

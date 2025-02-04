@@ -298,3 +298,7 @@ class TestStaticNoise(unittest.TestCase):
         data_2 = sink.data["Input"][0, ...]
         self.assertEqual(data_1, data_2)
         self.assertEqual(data_2.shape, ())
+
+
+if __name__ == "__main__":
+    unittest.main()

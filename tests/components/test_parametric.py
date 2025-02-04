@@ -286,3 +286,7 @@ class TestStaticParametricGrid(unittest.TestCase):
         data_2 = sink.data["Input"][0, ...]
         assert_allclose(data_1.magnitude, data_2.magnitude)
         self.assertEqual(data_2.shape, (19, 14))
+
+
+if __name__ == "__main__":
+    unittest.main()

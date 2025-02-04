@@ -208,3 +208,7 @@ class TestTimeTrigger(unittest.TestCase):
         )
         with self.assertRaises(fm.FinamMetaDataError):
             trigger.initialize()
+
+
+if __name__ == "__main__":
+    unittest.main()

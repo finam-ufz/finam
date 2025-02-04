@@ -345,3 +345,7 @@ class TestGridSpec(unittest.TestCase):
         assert_array_equal(grid.cell_types, [CellType.HEX])
         grid = UniformGrid((2, 2, 3))
         assert_array_equal(grid.cell_types, [CellType.HEX, CellType.HEX])
+
+
+if __name__ == "__main__":
+    unittest.main()

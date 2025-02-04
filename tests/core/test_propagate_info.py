@@ -1,6 +1,7 @@
 """
 Unit tests for data info propagation.
 """
+
 import unittest
 from datetime import datetime, timedelta
 
@@ -199,3 +200,7 @@ class TestPropagate(unittest.TestCase):
             source.out_info.time,
             time,
         )
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -9,6 +9,15 @@
 * `Output.targets` is private, `Output.get_targets()` becomes property `Output.targets` (!273)
 * Composition metadata was restructured to hold components and adapters in separate sub-dictionaries (!274)
 * Time components implement method `_next_time` instead of property `next_time` (!283)
+* `Info` now has properties for `grid`, `time` and `mask` (!286)
+* all init-args of `Info` are now optional (!286)
+* `Info.accepts` has changed signature: renamed `ignore_none` to `incoming_donwstream` (!286)
+* `Info.accepts` now only checks: `grid`, `mask` and `units` (other meta data can differ) (!286)
+* `Grid.to_/from_canonical` now allows additional dimensions (!286)
+* `data_shape` now a property of `GridBase` (!286)
+  * `NoGrid` can be initialized with `dim` or `data_shape` now
+  * `NoGrid.data_shape` can have `-1` entries for variable size dimensions
+  * if only `dim` given to `NoGrid`, all entries in `data_shape` will be `-1`
 
 ### Features
 
@@ -28,6 +37,18 @@
   * added missing casting methods to convert esri to uniform and uniform to rectilinear (when you want to use point data on an esri-grid, you can cast it to uniform first)
   * added `axes_attributes` also to unstructured grids
 * Grid method `compatible_with` now has a `check_location` argument to optionally check data location (!280)
+* added `Mask` enum with two options: (!286)
+  * `Mask.FLEX` for flexible masking
+  * `Mask.NONE` to explicitly use plain numpy arrays
+* added `mask` attribute and init-arg to `Info` : can be a `Mask` value or a valid mask for `numpy.ma.MaskedArray` (!286)
+* `data.tools.prepare` now applies masks to data if set in `Info` object (!286)
+* `ARegridding` now has a `out_mask` arg (!286)
+* `RegridNearest` and `RegridLinear` now support explicitly masked data (input doesn't have `Mask.FLEX`) (!286)
+* adapters now have an `in_info` property (!286)
+
+### Bug fixes
+
+* cells for structured grids in 3D are now created correctly (no negative Volume in VTK/ESMF) (!286)
 
 ### Documentation
 

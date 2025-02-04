@@ -1,6 +1,7 @@
 """
 Implementations of IOutput
 """
+
 import logging
 import os
 from datetime import datetime
@@ -382,7 +383,7 @@ class Output(IOutput, Loggable):
             raise FinamNoDataError("No data info available")
 
         fail_info = {}
-        if not self._output_info.accepts(info, fail_info, ignore_none=True):
+        if not self._output_info.accepts(info, fail_info, incoming_donwstream=True):
             fail_info = "\n".join(
                 [
                     f"{name} - got {got}, expected {exp}"

@@ -28,3 +28,7 @@ class TestInspect(unittest.TestCase):
 
         _s1 = fm.tools.inspect(comp1)
         _s2 = fm.tools.inspect(comp2)
+
+
+if __name__ == "__main__":
+    unittest.main()

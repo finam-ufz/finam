@@ -29,3 +29,7 @@ class TestCfUnits(unittest.TestCase):
 
         self.assertEqual(u("m/s"), "m s-1")
         self.assertEqual(u("m s-1"), "m s-1")
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1,6 +1,7 @@
 """
 Unit tests for the sdk implementations.
 """
+
 import logging
 import os.path
 import tempfile
@@ -16,6 +17,7 @@ from finam import (
     CallbackOutput,
     ComponentStatus,
     Composition,
+    EsriGrid,
     FinamDataError,
     FinamLogError,
     FinamMetaDataError,
@@ -162,7 +164,7 @@ class TestOutput(unittest.TestCase):
         counter = 0
         t = datetime(2000, 1, 1)
         info = Info(time=t, grid=NoGrid(), meta={"test": 0})
-        wrong_info = Info(time=t, grid=NoGrid(), meta={"test": 5})
+        wrong_info = Info(time=t, grid=EsriGrid(2, 2), meta={"test": 5})
 
         def callback(_clr, _time):
             nonlocal counter

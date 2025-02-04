@@ -42,3 +42,7 @@ class TestStaticCallbackGenerator(unittest.TestCase):
 
         out_data_2 = consumer.data["In1"]
         self.assertEqual(out_data_1, out_data_2)
+
+
+if __name__ == "__main__":
+    unittest.main()

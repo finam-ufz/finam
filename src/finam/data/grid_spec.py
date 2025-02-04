@@ -28,18 +28,44 @@ def _check_location(grid, data_location):
 
 
 class NoGrid(GridBase):
-    """Indicator for data without a spatial grid."""
+    """
+    Indicator for data without a spatial grid.
 
-    def __init__(self, dim=0):
+    Parameters
+    ----------
+    dim : int or None, optional
+        Data dimensionality. Should match the length of data_shape.
+    data_shape : tuple of int or None, optional
+        Data shape. Can contain -1 to indicate flexible axis.
+
+    Raises
+    ------
+    ValueError
+        If dim does not match the length of data_shape.
+    """
+
+    def __init__(self, dim=None, data_shape=None):
+        if dim is None and data_shape is None:
+            dim, data_shape = 0, tuple()
+        if data_shape is None:
+            data_shape = (-1,) * dim
+        if dim is None:
+            dim = len(data_shape)
+        if dim != len(data_shape):
+            msg = "NoGrid: dim needs to match the length of data_shape."
+            raise ValueError(msg)
         self._dim = dim
+        self._data_shape = data_shape
 
     @property
     def dim(self):
         """int: Dimension of the grid or data."""
         return self._dim
 
-    def __repr__(self):
-        return f"{self.__class__.__name__} ({self.dim}D)"
+    @property
+    def data_shape(self):
+        """tuple: Shape of the associated data."""
+        return self._data_shape
 
     # pylint: disable-next=unused-argument
     def compatible_with(self, other, check_location=True):
@@ -58,7 +84,7 @@ class NoGrid(GridBase):
         bool
             compatibility
         """
-        return isinstance(other, NoGrid) and self.dim == other.dim
+        return isinstance(other, NoGrid) and self.data_shape == other.data_shape
 
     def __eq__(self, other):
         return self.compatible_with(other)

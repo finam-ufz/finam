@@ -1,6 +1,7 @@
 """
 Unit tests for masked data.
 """
+
 import unittest
 from datetime import datetime, timedelta
 
@@ -119,6 +120,60 @@ class TestMasked(unittest.TestCase):
 
         np.testing.assert_allclose(data[mask], ucdata_c[mask])
         np.testing.assert_allclose(data[mask], ucdata_f[mask])
+
+        # more specific routines
+        grid1 = fm.RectilinearGrid([(1.0, 2.0, 3.0, 4.0)])
+        grid2 = fm.RectilinearGrid([(1.0, 2.0, 3.0)])
+        grid3 = fm.RectilinearGrid([(1.0, 2.0, 3.0), (1.0, 2.0, 3.0)])
+        mask1 = np.array((1, 0, 0), dtype=bool)
+        mask2 = np.array((0, 0, 1), dtype=bool)
+        mask3 = np.array((1, 0, 1), dtype=bool)
+        mask4 = np.array((1, 1, 1), dtype=bool)
+        mask5 = np.array((0, 0, 0), dtype=bool)
+        mask6 = np.array((1, 0), dtype=bool)
+        mask7 = np.array(((0, 1), (0, 1)), dtype=bool)
+        data = np.ma.masked_array((10.0, 20.0, 30.0), mask1, fill_value=np.nan)
+
+        # submask check
+        self.assertFalse(fm.data.tools.is_sub_mask(mask1, mask2))
+        self.assertFalse(fm.data.tools.is_sub_mask(mask1, np.ma.nomask))
+        self.assertTrue(fm.data.tools.is_sub_mask(mask1, mask3))
+        self.assertTrue(fm.data.tools.is_sub_mask(mask2, mask3))
+        self.assertTrue(fm.data.tools.is_sub_mask(np.ma.nomask, mask1))
+        self.assertTrue(fm.data.tools.is_sub_mask(np.ma.nomask, mask2))
+        self.assertTrue(fm.data.tools.is_sub_mask(np.ma.nomask, mask3))
+        self.assertTrue(fm.data.tools.is_sub_mask(np.ma.nomask, mask4))
+        self.assertTrue(fm.data.tools.is_sub_mask(np.ma.nomask, mask5))
+        self.assertTrue(fm.data.tools.is_sub_mask(np.ma.nomask, np.ma.nomask))
+        self.assertTrue(fm.data.tools.is_sub_mask(mask5, np.ma.nomask))
+        self.assertFalse(fm.data.tools.is_sub_mask(mask1, mask6))
+        self.assertFalse(fm.data.tools.is_sub_mask(mask1, mask7))
+
+        # equal mask
+        self.assertTrue(fm.data.tools.masks_equal(None, None))
+        self.assertTrue(fm.data.tools.masks_equal(fm.Mask.NONE, fm.Mask.NONE))
+        self.assertTrue(fm.data.tools.masks_equal(fm.Mask.FLEX, fm.Mask.FLEX))
+        self.assertFalse(fm.data.tools.masks_equal(fm.Mask.FLEX, fm.Mask.NONE))
+        self.assertTrue(fm.data.tools.masks_equal(np.ma.nomask, np.ma.nomask))
+        self.assertTrue(fm.data.tools.masks_equal(np.ma.nomask, mask5))
+        self.assertTrue(fm.data.tools.masks_equal(mask5, np.ma.nomask))
+        self.assertFalse(fm.data.tools.masks_equal(mask1, mask6, grid1, grid2))
+        self.assertFalse(fm.data.tools.masks_equal(mask1, mask7, grid1, grid3))
+        self.assertFalse(fm.data.tools.masks_equal(mask1, mask2, grid1, grid1))
+
+        # cover domain
+        self.assertTrue(fm.data.tools.check_data_covers_domain(data, mask3))
+        self.assertFalse(fm.data.tools.check_data_covers_domain(data, mask2))
+        self.assertFalse(fm.data.tools.check_data_covers_domain(data, np.ma.nomask))
+
+        np.testing.assert_array_almost_equal(data, fm.data.tools.to_masked(data))
+        np.testing.assert_array_almost_equal((1, 2, 3), fm.data.tools.filled((1, 2, 3)))
+
+    def test_info_mask(self):
+        grid = fm.RectilinearGrid([(1.0, 2.0, 3.0)])
+        mask = np.array((1, 0, 0), dtype=bool)
+        with self.assertRaises(fm.FinamMetaDataError):
+            fm.Info(grid=grid, mask=mask)
 
 
 if __name__ == "__main__":
