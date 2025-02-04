@@ -1,6 +1,21 @@
 import datetime
+import inspect
+from enum import Enum
 
 from finam import __version__ as finam_version
+
+
+def skip_member(app, what, name, obj, skip, options):
+    # Check if we're dealing with an Enum
+    if inspect.isclass(obj) and issubclass(obj, Enum):
+        if name not in [e.name for e in obj]:
+            return True  # Skip anything that isn’t an enum member
+    return skip
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip_member)
+
 
 # Configuration file for the Sphinx documentation builder.
 #

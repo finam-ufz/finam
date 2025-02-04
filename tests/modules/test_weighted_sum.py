@@ -342,3 +342,7 @@ class TestWeightedSum(unittest.TestCase):
 
         with self.assertRaises(finam.errors.FinamMetaDataError):
             composition.run(start_time=start, end_time=start + timedelta(days=30))
+
+
+if __name__ == "__main__":
+    unittest.main()

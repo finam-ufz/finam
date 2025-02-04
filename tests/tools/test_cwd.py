@@ -28,3 +28,7 @@ class TestCWD(unittest.TestCase):
         self.assertEqual(Path(test2.cwd).resolve(), Path(test2.new_cwd).resolve())
         self.assertEqual(Path(".").resolve(), Path(cwd).resolve())
         self.assertNotEqual(Path(".").resolve(), Path(test2.cwd).resolve())
+
+
+if __name__ == "__main__":
+    unittest.main()

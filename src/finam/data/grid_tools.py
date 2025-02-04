@@ -1,4 +1,5 @@
 """Grid tools for FINAM."""
+
 from enum import Enum, IntEnum
 from math import isclose, nan
 
@@ -195,17 +196,17 @@ def gen_cells(dims, order="F"):
         c = np.empty((c_cnt, 8), dtype=int)
         # ? should upper and lower layer be swapped?
         # upper layer
-        c[:, 3] = c_rng
-        c[:, 3] += (c_dim[0] + c_dim[1] + 1) * (c_rng // (c_dim[0] * c_dim[1]))
-        c[:, 3] += (c_rng % (c_dim[0] * c_dim[1])) // c_dim[0]
-        c[:, 2] = c[:, 3] + 1
-        c[:, 1] = c[:, 3] + 2 + c_dim[0]
-        c[:, 0] = c[:, 1] - 1
-        # lower layer
-        c[:, 7] = c[:, 3] + (1 + c_dim[0]) * (1 + c_dim[1])
+        c[:, 7] = c_rng
+        c[:, 7] += (c_dim[0] + c_dim[1] + 1) * (c_rng // (c_dim[0] * c_dim[1]))
+        c[:, 7] += (c_rng % (c_dim[0] * c_dim[1])) // c_dim[0]
         c[:, 6] = c[:, 7] + 1
         c[:, 5] = c[:, 7] + 2 + c_dim[0]
         c[:, 4] = c[:, 5] - 1
+        # lower layer
+        c[:, 3] = c[:, 7] + (1 + c_dim[0]) * (1 + c_dim[1])
+        c[:, 2] = c[:, 3] + 1
+        c[:, 1] = c[:, 3] + 2 + c_dim[0]
+        c[:, 0] = c[:, 1] - 1
     if order == "C" and mesh_dim > 1:
         # inverse reorder point ids
         c = order_map(dims, of="C", to="F")[c]
@@ -395,8 +396,9 @@ def flatten_cells(cells):
     """
     if cells.ndim == 1:
         return cells
+    data = cells.ravel()
     # unused entries in "cells" marked with "-1"
-    return np.ma.masked_values(cells, -1).compressed()
+    return data.compress(data != -1)
 
 
 def get_cells_matrix(cell_types, cells, connectivity=False):

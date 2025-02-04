@@ -45,23 +45,40 @@ Data tools
 .. autosummary::
    :toctree: generated
 
-    :noindex: UNITS
     :noindex: Info
-    assert_type
+    prepare
+    strip_time
     check
-    check_quantified
     full
     full_like
+    has_time_axis
+    to_datetime
+    assert_type
+
+
+Unit tools
+==========
+
+.. autosummary::
+   :toctree: generated
+
+    :noindex: UNITS
+    quantify
+    to_units
+    is_quantified
+    check_quantified
     get_dimensionality
     get_magnitude
     get_units
-    has_time_axis
-    is_quantified
-    prepare
-    quantify
-    strip_time
-    to_datetime
-    to_units
+
+
+Mask tools
+==========
+
+.. autosummary::
+   :toctree: generated
+
+    :noindex: Mask
     is_masked_array
     has_masked_values
     filled
@@ -69,6 +86,9 @@ Data tools
     to_compressed
     from_compressed
     check_data_covers_domain
+    masks_compatible
+    masks_equal
+    mask_specified
 """
 
 from ..errors import FinamDataError
@@ -92,6 +112,7 @@ from .grid_tools import (
 from .tools import (
     UNITS,
     Info,
+    Mask,
     assert_type,
     check,
     check_data_covers_domain,
@@ -107,6 +128,9 @@ from .tools import (
     has_time_axis,
     is_masked_array,
     is_quantified,
+    mask_specified,
+    masks_compatible,
+    masks_equal,
     prepare,
     quantify,
     strip_time,
@@ -139,6 +163,7 @@ __all__ += [
     "UNITS",
     "FinamDataError",
     "Info",
+    "Mask",
     "assert_type",
     "check",
     "check_quantified",
@@ -163,4 +188,7 @@ __all__ += [
     "to_compressed",
     "from_compressed",
     "check_data_covers_domain",
+    "masks_compatible",
+    "masks_equal",
+    "mask_specified",
 ]

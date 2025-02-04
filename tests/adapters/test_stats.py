@@ -39,3 +39,7 @@ class TestHistogram(unittest.TestCase):
         self.assertEqual(fm.data.get_units(data), fm.UNITS.dimensionless)
 
         composition.run(end_time=datetime(2000, 1, 10))
+
+
+if __name__ == "__main__":
+    unittest.main()

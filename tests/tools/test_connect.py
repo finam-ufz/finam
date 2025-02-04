@@ -414,3 +414,7 @@ class TestConnectHelper(unittest.TestCase):
             connector.connect(
                 start_time=None, push_infos={"Out1": Info(time=None, grid=NoGrid())}
             )
+
+
+if __name__ == "__main__":
+    unittest.main()
