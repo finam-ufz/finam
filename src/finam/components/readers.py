@@ -29,7 +29,7 @@ class CsvReader(TimeComponent):
 
         import finam as fm
 
-        reader = fm.modules.CsvReader(
+        reader = fm.components.CsvReader(
             path="test.csv",
             time_column="T",
             outputs={

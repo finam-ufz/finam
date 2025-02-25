@@ -53,12 +53,12 @@ File ``src/scale.py``:
 
     from datetime import datetime, timedelta
 
-    generator = fm.modules.CallbackGenerator(
+    generator = fm.components.CallbackGenerator(
         {"Value": (lambda _t: 1.0, fm.Info(time=None, grid=fm.NoGrid()))},
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
     )
-    consumer = fm.modules.DebugConsumer(
+    consumer = fm.components.DebugConsumer(
         {"Input": fm.Info(None, grid=fm.NoGrid())},
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
@@ -221,12 +221,12 @@ In :meth:`.Adapter._get_data`, we can now do the interpolation whenever data is 
 
     from datetime import datetime, timedelta
 
-    generator = fm.modules.CallbackGenerator(
+    generator = fm.components.CallbackGenerator(
         {"Value": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid()))},
         start=datetime(2000, 1, 1),
         step=timedelta(days=30),
     )
-    consumer = fm.modules.DebugConsumer(
+    consumer = fm.components.DebugConsumer(
         {"Input": fm.Info(None, grid=fm.NoGrid())},
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),

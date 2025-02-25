@@ -27,7 +27,7 @@ class DebugConsumer(TimeComponent):
         import datetime as dt
         import finam as fm
 
-        component = fm.modules.DebugConsumer(
+        component = fm.components.DebugConsumer(
             inputs={
                 "A": fm.Info(time=None, grid=fm.NoGrid()),
                 "B": fm.Info(time=None, grid=fm.NoGrid()),
@@ -181,7 +181,7 @@ class DebugPushConsumer(Component):
         import datetime as dt
         import finam as fm
 
-        component = fm.modules.DebugPushConsumer(
+        component = fm.components.DebugPushConsumer(
             inputs={
                 "A": fm.Info(time=None, grid=fm.NoGrid()),
                 "B": fm.Info(time=None, grid=fm.NoGrid()),
@@ -300,7 +300,7 @@ class ScheduleLogger(Component):
         from datetime import timedelta
         import finam as fm
 
-        schedule = fm.modules.ScheduleLogger(
+        schedule = fm.components.ScheduleLogger(
             inputs={"Grid1": True, "Grid2": True},
             time_step=timedelta(days=1),
             log_level="DEBUG",

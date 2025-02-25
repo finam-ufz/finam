@@ -870,7 +870,7 @@ class TestNotImplemented(unittest.TestCase):
 
 class TestRename(unittest.TestCase):
     def test_rename_component(self):
-        comp = fm.modules.SimplexNoise().with_name("CompA")
+        comp = fm.components.SimplexNoise().with_name("CompA")
         self.assertEqual("CompA", comp.name)
 
     def test_rename_adapter(self):

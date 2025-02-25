@@ -20,13 +20,13 @@ Here is a simple example coupling two components:
     # Instantiate components, e.g. models
 
     # Here, we use simplex noise to get a value smoothly varying over time
-    generator = fm.modules.SimplexNoise(
+    generator = fm.components.SimplexNoise(
         time_frequency=0.000001,
         info=fm.Info(time=None, grid=fm.NoGrid()),
     )
 
     # A debug printing component
-    consumer = fm.modules.DebugConsumer(
+    consumer = fm.components.DebugConsumer(
         inputs={"Value": fm.Info(time=None, grid=fm.NoGrid())},
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
@@ -47,8 +47,8 @@ Here is a simple example coupling two components:
 
     ...
 
-In the above example, we couple a simplex noise generator component (:class:`.modules.SimplexNoise`)
-with a consumer component for debug printing (:class:`.modules.DebugConsumer`).
+In the above example, we couple a simplex noise generator component (:class:`.components.SimplexNoise`)
+with a consumer component for debug printing (:class:`.components.DebugConsumer`).
 
 Note:
     with package :mod:`finam` installed, simply run the above scripts with:
@@ -108,19 +108,19 @@ time steps and an adapter:
     # Instantiate components, e.g. models
 
     # Here, we use simplex noise to get a value smoothly varying over time
-    generator = fm.modules.SimplexNoise(
+    generator = fm.components.SimplexNoise(
         time_frequency=0.000001,
         info=fm.Info(time=None, grid=fm.NoGrid()),
     )
     # A debug printing component
-    consumer_1 = fm.modules.DebugConsumer(
+    consumer_1 = fm.components.DebugConsumer(
         inputs={"Value": fm.Info(time=None, grid=fm.NoGrid())},
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
         log_data="INFO",
     )
     # A second debug printing component with a different time step
-    consumer_2 = fm.modules.DebugConsumer(
+    consumer_2 = fm.components.DebugConsumer(
         inputs={"Value": fm.Info(time=None, grid=fm.NoGrid())},
         start=datetime(2000, 1, 1),
         step=timedelta(days=2.324732),

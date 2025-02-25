@@ -6,8 +6,8 @@ from tempfile import TemporaryDirectory
 from numpy.testing import assert_array_equal
 
 from finam import Composition, Info, NoGrid
-from finam.modules.generators import CallbackGenerator
-from finam.modules.writers import CsvWriter
+from finam.components.generators import CallbackGenerator
+from finam.components.writers import CsvWriter
 
 
 class TestCsvWriter(unittest.TestCase):

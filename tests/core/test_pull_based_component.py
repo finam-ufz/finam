@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from functools import partial
 
 import finam as fm
-from finam.modules.debug import DebugConsumer
+from finam.components.debug import DebugConsumer
 
 
 class PullComponent(fm.Component):

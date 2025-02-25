@@ -6,7 +6,7 @@ import unittest
 from datetime import datetime, timedelta
 
 from finam import Adapter, Composition, FinamMetaDataError, Info, NoGrid, TimeComponent
-from finam.modules.generators import CallbackGenerator
+from finam.components.generators import CallbackGenerator
 
 
 class MockupConsumer(TimeComponent):

@@ -1,5 +1,5 @@
 """
-Adapters to transform or interpolate data when passed between modules.
+Adapters to transform or interpolate data when passed between components.
 
 See also book chapter :doc:`/finam-book/usage/known_modules` for a list of
 other adapters that are not included in the core package.

@@ -15,7 +15,7 @@ class TestRegrid(unittest.TestCase):
         time = dt.datetime(2000, 1, 1)
         self.data = fm.data.full(1.0, fm.Info(time=time, grid=grid1))
 
-        self.source = fm.modules.CallbackGenerator(
+        self.source = fm.components.CallbackGenerator(
             callbacks={"Step": (lambda t: self.data, fm.Info(None, grid=grid1))},
             start=time,
             step=dt.timedelta(1.0),

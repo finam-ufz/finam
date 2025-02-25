@@ -29,7 +29,7 @@ In problem case 1:
     Output >/> RegridLinear >/> Input
 
 Here, the problem is a push-based component on the right side.
-An example could be :class:`SimplexNoise <.modules.SimplexNoise>` as source, and a push-based plot of file writer as target.
+An example could be :class:`SimplexNoise <.components.SimplexNoise>` as source, and a push-based plot of file writer as target.
 
 In problem case 2:
 
@@ -38,7 +38,7 @@ In problem case 2:
     Output >/> LinearTime >> Input
 
 Here, the problem is a time-interpolating adapter along the link.
-An example could be :class:`SimplexNoise <.modules.SimplexNoise>` as source,
+An example could be :class:`SimplexNoise <.components.SimplexNoise>` as source,
 and a :class:`LinearTime <.adapters.LinearTime>` adapter as shown in the above error message.
 
 Fixing the error
@@ -50,7 +50,7 @@ Push-based target problem
 The problem here is that both linked components have no time step, and none of them will initiate the exchange of data.
 
 The problem can be solved by putting another component with internal time step (i.e. a sub-class of :class:`.ITimeComponent`)
-between the two components. Exactly for this purpose, FINAM provides the :class:`TimeTrigger <.modules.TimeTrigger>` component.
+between the two components. Exactly for this purpose, FINAM provides the :class:`TimeTrigger <.components.TimeTrigger>` component.
 
 Time-interpolating adapter problem
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

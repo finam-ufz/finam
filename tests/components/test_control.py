@@ -13,13 +13,13 @@ class TestTimeTrigger(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.SimplexNoise(info=in_info)
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -41,7 +41,7 @@ class TestTimeTrigger(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.CallbackGenerator(
+        source = fm.components.CallbackGenerator(
             callbacks={
                 "Out": (
                     lambda t: t.day,
@@ -51,14 +51,14 @@ class TestTimeTrigger(unittest.TestCase):
             start=time,
             step=timedelta(days=1),
         )
-        trigger = fm.modules.TimeTrigger(
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             out_info=None,
             start=None,
             step=timedelta(days=1),
             start_from_input=True,
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": out_info},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -83,7 +83,7 @@ class TestTimeTrigger(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.CallbackGenerator(
+        source = fm.components.CallbackGenerator(
             callbacks={
                 "Out": (
                     lambda t: t.day,
@@ -93,14 +93,14 @@ class TestTimeTrigger(unittest.TestCase):
             start=time,
             step=timedelta(days=1),
         )
-        trigger = fm.modules.TimeTrigger(
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             out_info=fm.Info(time=None, grid=None, units=None),
             start=None,
             step=timedelta(days=1),
             start_from_input=True,
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": out_info},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -126,14 +126,14 @@ class TestTimeTrigger(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise()
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.SimplexNoise()
+        trigger = fm.components.TimeTrigger(
             out_info=fm.Info(time=None, grid=None, units=None),
             start=None,
             step=timedelta(days=1),
             start_from_input=False,
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": out_info},
             start=time,
             step=timedelta(days=1),
@@ -159,15 +159,15 @@ class TestTimeTrigger(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise()
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.SimplexNoise()
+        trigger = fm.components.TimeTrigger(
             in_info=out_info.copy_with(),
             out_info=fm.Info(time=None, grid=None, units=None),
             start=None,
             step=timedelta(days=1),
             start_from_input=False,
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": out_info},
             start=time,
             step=timedelta(days=1),
@@ -187,11 +187,11 @@ class TestTimeTrigger(unittest.TestCase):
     def test_time_trigger_fail(self):
         time = datetime(2000, 1, 1)
 
-        trigger = fm.modules.TimeTrigger(start=time, step=timedelta(days=1))
+        trigger = fm.components.TimeTrigger(start=time, step=timedelta(days=1))
         with self.assertRaises(fm.FinamMetaDataError):
             trigger.initialize()
 
-        trigger = fm.modules.TimeTrigger(
+        trigger = fm.components.TimeTrigger(
             out_info=fm.Info(time=None, grid=None, units=None),
             start=None,
             step=timedelta(days=1),
@@ -200,7 +200,7 @@ class TestTimeTrigger(unittest.TestCase):
         with self.assertRaises(fm.FinamMetaDataError):
             trigger.initialize()
 
-        trigger = fm.modules.TimeTrigger(
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=None,
             step=timedelta(days=1),

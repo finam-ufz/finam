@@ -338,7 +338,7 @@ class Component(IComponent, Loggable, ABC):
             import finam as fm
             import datetime as dt
 
-            self = fm.modules.CallbackComponent(
+            self = fm.components.CallbackComponent(
                 inputs={},
                 outputs={},
                 callback=lambda inp, _t: {},

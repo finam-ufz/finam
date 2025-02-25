@@ -12,7 +12,7 @@ import finam as fm
 from finam import UNITS, Info, NoGrid, UniformGrid
 from finam import data as fmdata
 from finam.adapters.base import Callback, GridToValue, Scale, ValueToGrid
-from finam.modules.generators import CallbackGenerator
+from finam.components.generators import CallbackGenerator
 
 
 class TestCallback(unittest.TestCase):

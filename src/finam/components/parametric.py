@@ -30,7 +30,7 @@ class ParametricGrid(Component):
 
         import finam as fm
 
-        component = fm.modules.ParametricGrid(
+        component = fm.components.ParametricGrid(
             info=fm.Info(time=None, grid=fm.UniformGrid((20, 15))),
             func=lambda t, x, y: x * y,
         )
@@ -120,7 +120,7 @@ class StaticParametricGrid(Component):
 
         import finam as fm
 
-        component = fm.modules.StaticParametricGrid(
+        component = fm.components.StaticParametricGrid(
             info=fm.Info(time=None, grid=fm.UniformGrid((20, 15))),
             func=lambda x, y: x * y,
         )

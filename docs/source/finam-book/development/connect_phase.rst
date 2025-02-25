@@ -172,7 +172,7 @@ In the most simple case, all metadata is known in :meth:`.Component._initialize`
 
     from datetime import datetime, timedelta
 
-    generator = fm.modules.CallbackGenerator(
+    generator = fm.components.CallbackGenerator(
         {
             "Output1": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid(), units=None)),
             "Output2": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid(), units=None)),
@@ -183,7 +183,7 @@ In the most simple case, all metadata is known in :meth:`.Component._initialize`
 
     simple_conn = SimpleConnect(datetime(2000, 1, 1), timedelta(days=1))
 
-    consumer = fm.modules.DebugConsumer(
+    consumer = fm.components.DebugConsumer(
         {"Input": fm.Info(None, grid=fm.NoGrid(), units=None)},
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),
@@ -263,7 +263,7 @@ and the initial data should be generated from it.
     def _generate_data(info):
         return 0
 
-    generator = fm.modules.CallbackGenerator(
+    generator = fm.components.CallbackGenerator(
         {
             "Output1": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid(), units=None)),
             "Output2": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid(), units=None)),
@@ -274,7 +274,7 @@ and the initial data should be generated from it.
 
     complex_conn = ComplexConnect(datetime(2000, 1, 1), timedelta(days=1))
 
-    consumer = fm.modules.DebugConsumer(
+    consumer = fm.components.DebugConsumer(
         {"Input": fm.Info(None, grid=fm.NoGrid(), units=None)},
         start=datetime(2000, 1, 1),
         step=timedelta(days=1),

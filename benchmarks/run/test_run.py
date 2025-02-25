@@ -25,12 +25,12 @@ class SimpleRunBase(unittest.TestCase):
         return np.copy(d)
 
     def run_simulation(self, gen_func):
-        source = fm.modules.CallbackGenerator(
+        source = fm.components.CallbackGenerator(
             callbacks={"Out": (gen_func, self.info1.copy())},
             start=self.start_time,
             step=dt.timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             inputs={
                 "In": self.info2.copy(),
             },

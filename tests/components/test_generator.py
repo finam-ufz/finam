@@ -5,7 +5,7 @@ import numpy as np
 
 import finam as fm
 from finam import Composition, Info, NoGrid
-from finam.modules import DebugPushConsumer, StaticCallbackGenerator
+from finam.components import DebugPushConsumer, StaticCallbackGenerator
 
 
 def consume(_inputs, _time):

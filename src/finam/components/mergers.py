@@ -30,7 +30,7 @@ class WeightedSum(Component):
 
         import finam as fm
 
-        component = fm.modules.WeightedSum(inputs=["A", "B", "C"])
+        component = fm.components.WeightedSum(inputs=["A", "B", "C"])
 
         # ... create and initialize composition
 

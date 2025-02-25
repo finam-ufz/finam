@@ -10,9 +10,9 @@ Included in FINAM core package
 Components
 ^^^^^^^^^^
 
-Several components, primarily for testing and debugging, are provided in module :mod:`finam.modules`.
+Several components, primarily for testing and debugging, are provided in module :mod:`finam.components`.
 
-.. currentmodule:: finam.modules
+.. currentmodule:: finam.components
 
 .. autosummary::
     CallbackComponent

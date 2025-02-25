@@ -16,8 +16,8 @@ class TestHistogram(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        sink = fm.modules.DebugConsumer(
+        source = fm.components.SimplexNoise(info=in_info)
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=time,
             step=timedelta(days=1),

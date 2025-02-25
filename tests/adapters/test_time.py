@@ -23,7 +23,7 @@ from finam.adapters.time import (
     interpolate,
     interpolate_step,
 )
-from finam.modules import CallbackGenerator
+from finam.components import CallbackGenerator
 
 reg = pint.UnitRegistry(force_ndarray_like=True)
 

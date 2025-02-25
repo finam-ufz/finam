@@ -5,9 +5,9 @@ import numpy as np
 
 import finam as fm
 import finam.errors
-from finam.modules.debug import DebugConsumer
-from finam.modules.generators import CallbackGenerator
-from finam.modules.mergers import WeightedSum
+from finam.components.debug import DebugConsumer
+from finam.components.generators import CallbackGenerator
+from finam.components.mergers import WeightedSum
 
 
 def generate_grid(grid):

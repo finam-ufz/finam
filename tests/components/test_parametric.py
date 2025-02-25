@@ -2,43 +2,13 @@ import unittest
 from datetime import datetime, timedelta
 
 import numpy as np
+from numpy.testing import assert_allclose
 
 import finam as fm
 
 
-class TestNoise(unittest.TestCase):
-    def test_noise_scalar_0d(self):
-        time = datetime(2000, 1, 1)
-        in_info = fm.Info(
-            time=None,
-            grid=fm.NoGrid(),
-            units="m",
-        )
-
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
-            in_info=fm.Info(time=None, grid=None, units=None),
-            start=time,
-            step=timedelta(days=1),
-        )
-        sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None, units=None)},
-            start=datetime(2000, 1, 1),
-            step=timedelta(days=1),
-        )
-
-        composition = fm.Composition([source, trigger, sink])
-
-        source.outputs["Noise"] >> trigger.inputs["In"]
-        trigger.outputs["Out"] >> sink.inputs["Input"]
-
-        composition.connect()
-        composition.run(end_time=datetime(2000, 1, 2))
-
-        data = sink.data["Input"][0, ...]
-        self.assertEqual(data.shape, ())
-
-    def test_noise_uniform_1d(self):
+class TestParametricGrid(unittest.TestCase):
+    def test_parametric_1d(self):
         time = datetime(2000, 1, 1)
         in_info = fm.Info(
             time=None,
@@ -46,13 +16,16 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.ParametricGrid(
+            info=in_info,
+            func=lambda t, x: x,
+        )
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -60,16 +33,17 @@ class TestNoise(unittest.TestCase):
 
         composition = fm.Composition([source, trigger, sink])
 
-        source.outputs["Noise"] >> trigger.inputs["In"]
+        source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
         composition.run(end_time=datetime(2000, 1, 2))
 
-        data = sink.data["Input"][0, ...]
-        self.assertEqual(data.shape, (19,))
+        data = sink.data["Input"]
+        self.assertEqual(data.shape, (1, 19))
+        assert_allclose(data[0].magnitude, in_info.grid.data_axes[0])
 
-    def test_noise_uniform_2d(self):
+    def test_parametric_2d(self):
         time = datetime(2000, 1, 1)
         in_info = fm.Info(
             time=None,
@@ -77,13 +51,16 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.ParametricGrid(
+            info=in_info,
+            func=lambda t, x, y: x,
+        )
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -91,16 +68,19 @@ class TestNoise(unittest.TestCase):
 
         composition = fm.Composition([source, trigger, sink])
 
-        source.outputs["Noise"] >> trigger.inputs["In"]
+        source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
         composition.run(end_time=datetime(2000, 1, 2))
 
-        data = sink.data["Input"][0, ...]
-        self.assertEqual(data.shape, (19, 14))
+        data = sink.data["Input"]
+        self.assertEqual(data.shape, (1, 19, 14))
+        self.assertEqual(data[0, 0, 0], 0.5 * fm.UNITS.Unit("m"))
+        self.assertEqual(data[0, 0, 2], 0.5 * fm.UNITS.Unit("m"))
+        self.assertEqual(data[0, 2, 2], 2.5 * fm.UNITS.Unit("m"))
 
-    def test_noise_uniform_3d(self):
+    def test_parametric_3d(self):
         time = datetime(2000, 1, 1)
         in_info = fm.Info(
             time=None,
@@ -108,13 +88,16 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.ParametricGrid(
+            info=in_info,
+            func=lambda t, x, y, z: x * y - z,
+        )
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -122,16 +105,16 @@ class TestNoise(unittest.TestCase):
 
         composition = fm.Composition([source, trigger, sink])
 
-        source.outputs["Noise"] >> trigger.inputs["In"]
+        source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
         composition.run(end_time=datetime(2000, 1, 2))
 
-        data = sink.data["Input"][0, ...]
-        self.assertEqual(data.shape, (19, 14, 9))
+        data = sink.data["Input"]
+        self.assertEqual(data.shape, (1, 19, 14, 9))
 
-    def test_noise_points_1d(self):
+    def test_parametric_points_1d(self):
         time = datetime(2000, 1, 1)
         in_info = fm.Info(
             time=None,
@@ -139,13 +122,16 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.ParametricGrid(
+            info=in_info,
+            func=lambda t, x: x,
+        )
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -153,16 +139,17 @@ class TestNoise(unittest.TestCase):
 
         composition = fm.Composition([source, trigger, sink])
 
-        source.outputs["Noise"] >> trigger.inputs["In"]
+        source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
         composition.run(end_time=datetime(2000, 1, 2))
 
-        data = sink.data["Input"][0, ...]
-        self.assertEqual(data.shape, (100,))
+        data = sink.data["Input"]
+        self.assertEqual(data.shape, (1, 100))
+        assert_allclose(data[0].magnitude, [p[0] for p in in_info.grid.points])
 
-    def test_noise_points_2d(self):
+    def test_parametric_points_2d(self):
         time = datetime(2000, 1, 1)
         in_info = fm.Info(
             time=None,
@@ -170,13 +157,16 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.ParametricGrid(
+            info=in_info,
+            func=lambda t, x, y: x * y,
+        )
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -184,16 +174,17 @@ class TestNoise(unittest.TestCase):
 
         composition = fm.Composition([source, trigger, sink])
 
-        source.outputs["Noise"] >> trigger.inputs["In"]
+        source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
         composition.run(end_time=datetime(2000, 1, 2))
 
-        data = sink.data["Input"][0, ...]
-        self.assertEqual(data.shape, (100,))
+        data = sink.data["Input"]
+        self.assertEqual(data.shape, (1, 100))
+        assert_allclose(data[0].magnitude, [p[0] * p[1] for p in in_info.grid.points])
 
-    def test_noise_points_3d(self):
+    def test_parametric_points_3d(self):
         time = datetime(2000, 1, 1)
         in_info = fm.Info(
             time=None,
@@ -201,13 +192,16 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.ParametricGrid(
+            info=in_info,
+            func=lambda t, x, y, z: x * y - z,
+        )
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -215,16 +209,19 @@ class TestNoise(unittest.TestCase):
 
         composition = fm.Composition([source, trigger, sink])
 
-        source.outputs["Noise"] >> trigger.inputs["In"]
+        source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         composition.connect(time)
         composition.run(end_time=datetime(2000, 1, 2))
 
-        data = sink.data["Input"][0, ...]
-        self.assertEqual(data.shape, (100,))
+        data = sink.data["Input"]
+        self.assertEqual(data.shape, (1, 100))
+        assert_allclose(
+            data[0].magnitude, [p[0] * p[1] - p[2] for p in in_info.grid.points]
+        )
 
-    def test_noise_fail_nogrid(self):
+    def test_parametric_fail_nogrid(self):
         time = datetime(2000, 1, 1)
         in_info = fm.Info(
             time=None,
@@ -232,13 +229,16 @@ class TestNoise(unittest.TestCase):
             units="m",
         )
 
-        source = fm.modules.SimplexNoise(info=in_info)
-        trigger = fm.modules.TimeTrigger(
+        source = fm.components.ParametricGrid(
+            info=in_info,
+            func=lambda t, x: x,
+        )
+        trigger = fm.components.TimeTrigger(
             in_info=fm.Info(time=None, grid=None, units=None),
             start=time,
             step=timedelta(days=1),
         )
-        sink = fm.modules.DebugConsumer(
+        sink = fm.components.DebugConsumer(
             {"Input": fm.Info(None, grid=None, units=None)},
             start=datetime(2000, 1, 1),
             step=timedelta(days=1),
@@ -246,58 +246,46 @@ class TestNoise(unittest.TestCase):
 
         composition = fm.Composition([source, trigger, sink])
 
-        source.outputs["Noise"] >> trigger.inputs["In"]
+        source.outputs["Grid"] >> trigger.inputs["In"]
         trigger.outputs["Out"] >> sink.inputs["Input"]
 
         with self.assertRaises(fm.FinamMetaDataError):
             composition.connect(time)
 
-    def test_noise_fail(self):
-        with self.assertRaises(ValueError):
-            _source = fm.modules.SimplexNoise(octaves=0)
 
-        source = fm.modules.SimplexNoise(octaves=1)
-        source._update()
-
-
-class TestStaticNoise(unittest.TestCase):
-    def test_static_noise(self):
+class TestStaticParametricGrid(unittest.TestCase):
+    def test_static_parametric(self):
         in_info = fm.Info(
             time=None,
-            grid=fm.NoGrid(),
+            grid=fm.UniformGrid((20, 15)),
             units="m",
         )
 
-        source = fm.modules.StaticSimplexNoise(info=in_info, seed=123)
-        """
-        sink = fm.modules.DebugConsumer(
-            {"Input": fm.Info(None, grid=None)},
-            start=datetime(2000, 1, 1),
-            step=timedelta(days=1),
+        source = fm.components.StaticParametricGrid(
+            info=in_info,
+            func=lambda x, y: x,
         )
-        """
-        # We want to get to a point where this works
-        sink = fm.modules.DebugPushConsumer(
+        sink = fm.components.DebugPushConsumer(
             inputs={
-                "Input": fm.Info(time=None, grid=fm.NoGrid(), units="m"),
+                "Input": fm.Info(time=None, grid=in_info.grid, units=None),
             },
             log_data="INFO",
         )
 
         composition = fm.Composition([source, sink])
 
-        source.outputs["Noise"] >> sink.inputs["Input"]
+        source.outputs["Grid"] >> sink.inputs["Input"]
 
         composition.connect(None)
         data_1 = sink.data["Input"][0, ...]
 
-        self.assertEqual(data_1.shape, ())
+        self.assertEqual(data_1.shape, (19, 14))
 
         composition.run(end_time=None)
 
         data_2 = sink.data["Input"][0, ...]
-        self.assertEqual(data_1, data_2)
-        self.assertEqual(data_2.shape, ())
+        assert_allclose(data_1.magnitude, data_2.magnitude)
+        self.assertEqual(data_2.shape, (19, 14))
 
 
 if __name__ == "__main__":

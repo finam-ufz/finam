@@ -32,7 +32,12 @@ from finam import (
 from finam._version import __version__
 from finam.adapters.base import Scale
 from finam.adapters.time import DelayFixed, NextTime
-from finam.modules import CallbackComponent, CallbackGenerator, DebugPushConsumer, debug
+from finam.components import (
+    CallbackComponent,
+    CallbackGenerator,
+    DebugPushConsumer,
+    debug,
+)
 from finam.schedule import _check_dead_links, _find_dependencies
 
 
@@ -557,8 +562,8 @@ class TestComposition(unittest.TestCase):
     def test_static_run(self):
         info = fm.Info(time=None, grid=fm.NoGrid())
 
-        source = fm.modules.StaticSimplexNoise(info=info, seed=123)
-        sink = fm.modules.DebugPushConsumer(
+        source = fm.components.StaticSimplexNoise(info=info, seed=123)
+        sink = fm.components.DebugPushConsumer(
             inputs={
                 "In": fm.Info(time=None, grid=fm.NoGrid()),
             },
@@ -579,7 +584,7 @@ class TestComposition(unittest.TestCase):
     def test_static_fail(self):
         info = fm.Info(time=None, grid=fm.NoGrid())
 
-        source = fm.modules.SimplexNoise(info=info, seed=123)
+        source = fm.components.SimplexNoise(info=info, seed=123)
         sink = MockupDependentComponent(step=timedelta(days=1), static=True)
 
         composition = Composition([source, sink])

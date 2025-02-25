@@ -23,6 +23,6 @@ Further, most code examples in the documentation are now automatically tested to
 
 On the :doc:`/api/index` side, the documentation was restructured for better accessibility.
 Further, API documentation was extended and examples were added to all end user-facing classes,
-particularly in :mod:`.modules` and :mod:`.adapters`.
+particularly in :mod:`.components` and :mod:`.adapters`.
 
 All the work was done by :ref:`author-sebastian-muller` and :ref:`author-martin-lange`.

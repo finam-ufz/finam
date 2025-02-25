@@ -15,7 +15,7 @@ For implementing components without internal time, see chapter :doc:`./special_c
 It is assumed that you have FINAM :doc:`installed <../usage/installation>`, as well as :mod:`pytest`.
 
 For component implementation examples, see the `FINAM Examples repository <https://git.ufz.de/FINAM/finam-examples>`_,
-or browse the source code of the included components in module :mod:`.modules`.
+or browse the source code of the included components in module :mod:`.components`.
 The source code of each API entry is linked in it's upper right corner under ``[source]``.
 
 Set up a Python project
@@ -237,7 +237,7 @@ For the tests, we need to set up a real coupling from here on, as the component'
                                step=timedelta(days=7))
 
             # a component to produce inputs, details not important
-            generator = fm.modules.generators.CallbackGenerator(
+            generator = fm.components.generators.CallbackGenerator(
                 callbacks={
                     "A": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
                     "B": (lambda t: t.day * 2, fm.Info(time=None, grid=fm.NoGrid()))
@@ -247,7 +247,7 @@ For the tests, we need to set up a real coupling from here on, as the component'
             )
 
             # a component to consume output, details not important
-            consumer = fm.modules.debug.DebugConsumer(
+            consumer = fm.components.debug.DebugConsumer(
                 inputs={"Sum": fm.Info(time=None, grid=fm.NoGrid())},
                 start=datetime(2000, 1, 1),
                 step=timedelta(days=7)
@@ -268,8 +268,8 @@ For the tests, we need to set up a real coupling from here on, as the component'
 
             self.assertEqual(consumer.data, {"Sum": 0})
 
-Here, we set up a complete coupling using a :class:`.modules.CallbackGenerator` as source.
-A :class:`.modules.DebugConsumer` is used as a sink to force the data flow and to allow us to inspect the result.
+Here, we set up a complete coupling using a :class:`.components.CallbackGenerator` as source.
+A :class:`.components.DebugConsumer` is used as a sink to force the data flow and to allow us to inspect the result.
 
 Update
 -------
@@ -407,7 +407,7 @@ Here is the final code of the completed component.
     class TestDummy(unittest.TestCase):
         def test_dummy_model(self):
             model = DummyModel(start=datetime(2000, 1, 1), step=timedelta(days=7))
-            generator = fm.modules.generators.CallbackGenerator(
+            generator = fm.components.generators.CallbackGenerator(
                 callbacks={
                     "A": (lambda t: t.day, fm.Info(time=None, grid=fm.NoGrid())),
                     "B": (lambda t: t.day * 2, fm.Info(time=None, grid=fm.NoGrid())),
@@ -415,7 +415,7 @@ Here is the final code of the completed component.
                 start=datetime(2000, 1, 1),
                 step=timedelta(days=7),
             )
-            consumer = fm.modules.debug.DebugConsumer(
+            consumer = fm.components.debug.DebugConsumer(
                 inputs={"Sum": fm.Info(time=None, grid=fm.NoGrid())},
                 start=datetime(2000, 1, 1),
                 step=timedelta(days=7),
