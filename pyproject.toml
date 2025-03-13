@@ -14,10 +14,11 @@ readme = "README.md"
 license = "LGPL-3.0"
 dynamic = ["version"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
     "Intended Audience :: Science/Research",
+    "Intended Audience :: Education",
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Natural Language :: English",
     "Operating System :: Unix",
@@ -29,6 +30,9 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development",
     "Topic :: Utilities",
@@ -93,7 +97,11 @@ packages = ["src/finam"]
 exclude = "_version.py"
 target-version = [
     "py38",
-    "py39"
+    "py39",
+    "py310",
+    "py311",
+    "py312",
+    # "py313",
 ]
 
 [tool.isort]

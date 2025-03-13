@@ -1,9 +1,12 @@
 # Release notes
 
-## [unpublished]
+## [v1.0.0]
 
 ### Breaking changes
 
+* submodule `modules` renamed to `components` for consistency (!289)
+* argument `modules` renamed to `components` in `Composition` for consistency (!289)
+* Components now implement `_next_time` instead of the property `next_time` for consistency (!283)
 * All fields of `Composition` are now private (!273)
 * `Input.source` is private, `Input.get_source()` becomes property `Input.source`, `Input.set_source` becomes a getter (!273)
 * `Output.targets` is private, `Output.get_targets()` becomes property `Output.targets` (!273)
@@ -49,6 +52,7 @@
 ### Bug fixes
 
 * cells for structured grids in 3D are now created correctly (no negative Volume in VTK/ESMF) (!286)
+* cf_units.py was broken for pint>=0.24 (!282)
 
 ### Documentation
 
@@ -257,7 +261,8 @@
 * initial release of FINAM
 
 
-[unpublished]: https://git.ufz.de/FINAM/finam/-/compare/v0.5.1...main
+[unpublished]: https://git.ufz.de/FINAM/finam/-/compare/v1.0.0...main
+[v1.0.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.5.1...v1.0.0
 [v0.5.1]: https://git.ufz.de/FINAM/finam/-/compare/v0.5.0...v0.5.1
 [v0.5.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.4.0-rc.2...v0.4.0
