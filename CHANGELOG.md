@@ -1,5 +1,11 @@
 # Release notes
 
+## [v1.0.1]
+
+### Bug fixes
+
+* make `GridToValue` and `ValueToGrid` compatible with masked data (!291)
+
 ## [v1.0.0]
 
 ### Breaking changes
