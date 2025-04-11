@@ -75,9 +75,13 @@ class TestScale(unittest.TestCase):
 class TestGridToValue(unittest.TestCase):
     def setUp(self):
         grid, data = create_grid(20, 10, 1.0)
+        mask = np.full_like(data, False, dtype=bool)
+        mask[0, :] = True
 
         self.source = CallbackGenerator(
-            callbacks={"Grid": (lambda t: data, Info(None, grid=grid, units="m"))},
+            callbacks={
+                "Grid": (lambda t: data, Info(None, grid=grid, mask=mask, units="m"))
+            },
             start=datetime(2000, 1, 1),
             step=timedelta(1.0),
         )
@@ -106,7 +110,7 @@ class TestGridToValue(unittest.TestCase):
         self.source.validate()
 
         result = self.adapter.get_data(datetime(2000, 1, 1), None)
-        self.assertEqual(result, 200.0 * UNITS.meter)
+        self.assertEqual(result, 190.0 * UNITS.meter)
 
 
 class TestValueToGrid(unittest.TestCase):
@@ -138,6 +142,25 @@ class TestValueToGrid(unittest.TestCase):
         _reference_grid, reference_data = create_grid(10, 10, 1.0)
         out_data = self.adapter.get_data(datetime(2000, 1, 1), None)
 
+        assert_allclose(fmdata.get_magnitude(out_data)[0, ...], reference_data)
+        self.assertEqual(fmdata.get_units(out_data), UNITS("m"))
+
+    def test_value_to_masked_grid(self):
+        grid, data = create_grid(10, 10, 1.0)
+        mask = np.full_like(data, False, dtype=bool)
+        mask[0, :] = True
+
+        self.adapter = ValueToGrid(grid)
+        self.source.outputs["Value"] >> self.adapter
+
+        self.adapter.get_info(Info(None, grid=grid, mask=mask, units=None))
+        self.source.connect(datetime(2000, 1, 1))
+        self.source.connect(datetime(2000, 1, 1))
+        self.source.validate()
+
+        _reference_grid, reference_data = create_grid(10, 10, 1.0)
+        out_data = self.adapter.get_data(datetime(2000, 1, 1), None)
+        reference_data = np.ma.array(reference_data, mask=mask)
         assert_allclose(fmdata.get_magnitude(out_data)[0, ...], reference_data)
         self.assertEqual(fmdata.get_units(out_data), UNITS("m"))
 

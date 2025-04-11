@@ -5,7 +5,7 @@ Basic data transformation adapters.
 import numpy as np
 
 from ..data.grid_spec import NoGrid
-from ..data.tools import Mask, get_magnitude, get_units, mask_specified, quantify
+from ..data.tools import Mask, get_magnitude, mask_specified
 from ..errors import FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
