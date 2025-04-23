@@ -5,7 +5,7 @@ Basic data transformation adapters.
 import numpy as np
 
 from ..data.grid_spec import NoGrid
-from ..data.tools import get_magnitude, get_units, quantify
+from ..data.tools import Mask, get_magnitude, mask_specified
 from ..errors import FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
@@ -116,14 +116,21 @@ class ValueToGrid(Adapter):
 
     Parameters
     ----------
-    grid: Grid
+    grid: :any:`Grid`, optional
         Grid specification to create grid for.
-        Can be ``None`` to get it from the target.
+        Will be ``None`` by default to get it from the target.
+    mask : :any:`Mask` value or valid boolean mask for :any:`MaskedArray`, optional
+        masking specification of the data. Options:
+            * :any:`Mask.FLEX`: data can be masked or unmasked
+            * :any:`Mask.NONE`: data is unmasked and given as plain numpy array
+            * valid boolean mask for MaskedArray
+        Will be ``None`` by default to get it from the target.
     """
 
-    def __init__(self, grid):
+    def __init__(self, grid=None, mask=None):
         super().__init__()
         self.grid = grid
+        self.mask = mask
 
     def _get_data(self, time, target):
         """Get the output's data-set for the given time.
@@ -139,12 +146,17 @@ class ValueToGrid(Adapter):
             data-set for the requested time.
         """
         value = self.pull_data(time, target)
-        return np.full(self.info.grid_shape, get_magnitude(value))
+        data = np.full(self.info.grid_shape, get_magnitude(value))
+        if mask_specified(self.info.mask):
+            return np.ma.array(data, mask=self.info.mask)
+        return data
 
     def _get_info(self, info):
-        up_info = info.copy_with(grid=NoGrid())
+        up_info = info.copy_with(grid=NoGrid(), mask=Mask.FLEX)
         in_info = self.exchange_info(up_info)
-        out_info = in_info.copy_with(grid=self.grid or info.grid, use_none=False)
+        out_info = in_info.copy_with(
+            grid=self.grid or info.grid, mask=self.mask or info.mask, use_none=False
+        )
 
         if info.grid is not None and info.grid != out_info.grid:
             with ErrorLogger(self.logger):
@@ -192,13 +204,10 @@ class GridToValue(Adapter):
             data-set for the requested time.
         """
         grid = self.pull_data(time, target)
-
-        func_result = quantify(self.func(get_magnitude(grid)), get_units(grid))
-
-        return func_result
+        return self.func(get_magnitude(grid))
 
     def _get_info(self, info):
         info = info.copy_with(grid=None)
         in_info = self.exchange_info(info)
-        out_info = in_info.copy_with(grid=NoGrid())
+        out_info = in_info.copy_with(grid=NoGrid(), mask=Mask.NONE)
         return out_info
