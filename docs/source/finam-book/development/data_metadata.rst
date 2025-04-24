@@ -45,8 +45,8 @@ Masked data does not require any special treatment and can be used like usual nu
 By default FINAM will allow data to have flexible masks, which means they can change over time.
 In the :class:`.Info` object (see below), the mask of the data can be specified:
 
-* :any:`.Mask.FLEX`: data can be masked or unmasked and the mask could change over time (default)
-* :any:`.Mask.NONE`: data is unmasked and exchanged as plain numpy arrays
+* :any:`Mask.FLEX`: data can be masked or unmasked and the mask could change over time (default)
+* :any:`Mask.NONE`: data is unmasked and exchanged as plain numpy arrays
 * :class:`numpy.ndarray` or :class:`bool`: data is masked with a given mask that is constant over time
 
 Convenience functions for masked arrays are:

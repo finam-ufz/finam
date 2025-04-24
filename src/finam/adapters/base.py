@@ -124,6 +124,7 @@ class ValueToGrid(Adapter):
             * :any:`Mask.FLEX`: data can be masked or unmasked
             * :any:`Mask.NONE`: data is unmasked and given as plain numpy array
             * valid boolean mask for MaskedArray
+
         Will be ``None`` by default to get it from the target.
     """
 
