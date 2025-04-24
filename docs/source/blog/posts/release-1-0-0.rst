@@ -27,7 +27,7 @@ Several significant API refinements ensure clarity and long-term stability:
 - Components now implement method ``_next_time`` instead of the ``next_time`` property.
 - Fields in :class:`.Composition`, :class:`.Input`, and :class:`.Output` are now private; access via properties.
 - Composition metadata restructured with separate sub-dictionaries for components and adapters.
-- Updates to :class:`.Info` class: new optional init-args, changed signature for :meth:`.Info.accepts`, and simplified metadata checks.
+- Updates to :class:`.Info` new optional init-args, changed signature for :meth:`.Info.accepts`, and simplified metadata checks.
 - Extended flexibility in grid handling (``data_shape``, support for variable dimensions).
 
 New features
