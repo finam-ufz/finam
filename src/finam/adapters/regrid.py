@@ -12,7 +12,7 @@ from scipy.interpolate import LinearNDInterpolator, RegularGridInterpolator
 from scipy.spatial import KDTree
 
 from ..data import tools as dtools
-from ..data.grid_spec import StructuredGrid
+from ..data.grid_spec import Grid, StructuredGrid, UnstructuredGrid
 from ..errors import FinamDataError, FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
@@ -21,6 +21,8 @@ __all__ = [
     "ARegridding",
     "RegridNearest",
     "RegridLinear",
+    "ToCRS",
+    "ToUnstructured",
 ]
 
 
@@ -83,7 +85,9 @@ class ARegridding(Adapter, ABC):
 
         if not self._is_initialized:
             self.downstream_mask = info.mask
-            self.transformer = _create_transformer(self.output_grid, self.input_grid)
+            self.transformer = _create_transformer(
+                self.output_grid.crs, self.input_grid.crs
+            )
             self._update_grid_specs()
             # self.output_mask may be determined by "_update_grid_specs"
             self._check_and_set_out_mask()
@@ -91,11 +95,6 @@ class ARegridding(Adapter, ABC):
 
         self.input_meta = in_info.meta
         return in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
-
-    def _do_transform(self, points):
-        if self.transformer is None:
-            return points
-        return np.asarray(list(self.transformer.itransform(points)))
 
     def _check_and_set_out_mask(self):
         if self._out_mask_checked:
@@ -140,7 +139,7 @@ class ARegridding(Adapter, ABC):
             ]
         else:
             out_data_points = self.output_grid.data_points
-        return self._do_transform(out_data_points)
+        return _transform_points(self.transformer, out_data_points)
 
     def _check_in_data(self, in_data):
         if dtools.is_masked_array(in_data) and not dtools.mask_specified(
@@ -208,7 +207,9 @@ class RegridNearest(ARegridding):
         self.ids = tree.query(self._get_out_coords())[1]
 
     def _get_data(self, time, target):
-        in_data = self.pull_data(time, target)
+        in_data = dtools.get_magnitude(
+            dtools.strip_time(self.pull_data(time, target), self.input_grid)
+        )
         self._check_in_data(in_data)
         return dtools.from_compressed(
             dtools.to_compressed(in_data, order=self.input_grid.order)[self.ids],
@@ -341,20 +342,20 @@ class RegridLinear(ARegridding):
             self.out_coords = self._get_out_coords()
 
     def _get_data(self, time, target):
-        in_data = self.pull_data(time, target)
+        in_data = dtools.get_magnitude(
+            dtools.strip_time(self.pull_data(time, target), self.input_grid)
+        )
         self._check_in_data(in_data)
 
         if self.structured:
-            self.inter.values = in_data[0, ...].magnitude
+            self.inter.values = in_data
             res = self.inter(self.out_coords)
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values.flatten(
                     order=self.input_grid.order
                 )[self.fill_ids]
         else:
-            in_data = dtools.to_compressed(
-                in_data[0, ...].magnitude, order=self.input_grid.order
-            )
+            in_data = dtools.to_compressed(in_data, order=self.input_grid.order)
             self.inter.values = np.ascontiguousarray(
                 in_data.reshape((-1, 1)),
                 dtype=np.double,
@@ -370,12 +371,187 @@ class RegridLinear(ARegridding):
         )
 
 
-def _create_transformer(input_grid, output_grid):
-    in_crs = None if input_grid.crs is None else crs.CRS(input_grid.crs)
-    out_crs = None if output_grid.crs is None else crs.CRS(output_grid.crs)
-    transformer = (
+class ToCRS(Adapter):
+    """
+    Convert Grid to another CRS.
+
+    This Adapter will always create an unstructured Grid.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.ToCRS(crs="WGS84")
+
+    Parameters
+    ----------
+    crs : str
+        A valid crs specifier for pyproj.
+    axes_attributes : list of dict or None, optional
+        Axes attributes following the CF convention (in xyz order), by default None
+    axes_names : list of str or None, optional
+        Axes names (in xyz order), by default ["x", "y", "z"]
+    assume_source_crs : str or None, optional
+        If input CRS is not specified, this one will be assumed if given, by default None
+    """
+
+    def __init__(
+        self, crs, axes_attributes=None, axes_names=None, assume_source_crs=None
+    ):
+        super().__init__()
+        self.output_crs = crs
+        self.input_crs = None
+        self.axes_attributes = axes_attributes
+        self.axes_names = axes_names
+        self.assume_source_crs = assume_source_crs
+        self.input_grid = None
+        self.output_grid = None
+        self.input_mask = None
+        self.output_mask = None
+
+    def _get_data(self, time, target):
+        in_data = dtools.get_magnitude(
+            dtools.strip_time(self.pull_data(time, target), self.input_grid)
+        )
+        return np.reshape(in_data, -1, order=self.input_grid.order)
+
+    def _get_info(self, info):
+        request = info.copy_with(grid=self.input_grid, mask=None)
+        in_info = self.exchange_info(request)
+        if self.input_grid is None and in_info.grid is None:
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError("Missing source grid specification")
+        if (
+            self.output_grid is not None
+            and info.grid is not None
+            and self.output_grid != info.grid
+        ):
+            with ErrorLogger(self.logger):
+                msg = "Target grid specification is already set, new specs differ"
+                raise FinamMetaDataError(msg)
+        if self.input_mask is None and in_info.mask is None:
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError("Missing source mask specification")
+        if (
+            dtools.mask_specified(self.input_mask)
+            and self.input_mask is not np.ma.nomask
+        ):
+            self.output_mask = np.reshape(self.input_mask, -1, self.input_grid.order)
+        else:
+            self.output_mask = self.input_mask
+        self.input_grid = self.input_grid or in_info.grid
+        self.input_crs = self.input_grid.crs
+        if self.input_crs is None:
+            self.input_crs = self.assume_source_crs
+        if self.input_crs is None:
+            raise FinamMetaDataError("Input grid has no CRS")
+        self.output_grid = self._create_unstructured()
+        out_info = in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
+        return out_info
+
+    def _create_unstructured(self):
+        if not isinstance(self.input_grid, Grid):
+            msg = "Given grid is not of type Grid"
+            raise FinamMetaDataError(msg)
+        transformer = _create_transformer(self.input_crs, self.output_crs)
+        return UnstructuredGrid(
+            points=_transform_points(transformer, self.input_grid.points),
+            cells=self.input_grid.cells,
+            cell_types=self.input_grid.cell_types,
+            data_location=self.input_grid.data_location,
+            order=self.input_grid.order,
+            axes_attributes=self.axes_attributes,
+            axes_names=self.axes_names,
+            crs=self.output_crs,
+        )
+
+
+class ToUnstructured(Adapter):
+    """
+    Convert Grid to an unstructured one.
+
+    Examples
+    --------
+
+    .. testcode:: constructor
+
+        import finam as fm
+
+        adapter = fm.adapters.ToUnstructured()
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.input_grid = None
+        self.output_grid = None
+        self.input_mask = None
+        self.output_mask = None
+
+    def _get_data(self, time, target):
+        in_data = dtools.get_magnitude(
+            dtools.strip_time(self.pull_data(time, target), self.input_grid)
+        )
+        return np.reshape(in_data, -1, order=self.input_grid.order)
+
+    def _get_info(self, info):
+        request = info.copy_with(grid=self.input_grid, mask=None)
+        in_info = self.exchange_info(request)
+        if self.input_grid is None and in_info.grid is None:
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError("Missing source grid specification")
+        if (
+            self.output_grid is not None
+            and info.grid is not None
+            and self.output_grid != info.grid
+        ):
+            with ErrorLogger(self.logger):
+                msg = "Target grid specification is already set, new specs differ"
+                raise FinamMetaDataError(msg)
+        if self.input_mask is None and in_info.mask is None:
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError("Missing source mask specification")
+        if (
+            dtools.mask_specified(self.input_mask)
+            and self.input_mask is not np.ma.nomask
+        ):
+            self.output_mask = np.reshape(self.input_mask, -1, self.input_grid.order)
+        else:
+            self.output_mask = self.input_mask
+        self.input_grid = self.input_grid or in_info.grid
+        self.output_grid = self._create_unstructured()
+        out_info = in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
+        return out_info
+
+    def _create_unstructured(self):
+        if not isinstance(self.input_grid, Grid):
+            msg = "Given grid is not of type Grid"
+            raise FinamMetaDataError(msg)
+        return UnstructuredGrid(
+            points=self.input_grid.points,
+            cells=self.input_grid.cells,
+            cell_types=self.input_grid.cell_types,
+            data_location=self.input_grid.data_location,
+            order=self.input_grid.order,
+            axes_attributes=self.input_grid.axes_attributes,
+            axes_names=self.input_grid.axes_names,
+            crs=self.input_grid.crs,
+        )
+
+
+def _create_transformer(in_crs, out_crs):
+    in_crs = None if in_crs is None else crs.CRS(in_crs)
+    out_crs = None if out_crs is None else crs.CRS(out_crs)
+    return (
         None
         if (in_crs is None and out_crs is None) or in_crs == out_crs
         else Transformer.from_crs(in_crs, out_crs)
     )
-    return transformer
+
+
+def _transform_points(transformer, points):
+    if transformer is None:
+        return points
+    return np.asarray(transformer.transform(*points.T)).T
