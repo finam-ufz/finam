@@ -26,22 +26,34 @@ class TestCallback(unittest.TestCase):
         )
 
         self.adapter = Callback(callback=lambda v, t: v * 2)
+        self.adapter_units = Callback(
+            callback=lambda v, t: v.magnitude * 2, units=UNITS.Unit("m")
+        )
 
         self.source.initialize()
 
         self.source.outputs["Step"] >> self.adapter
+        self.source.outputs["Step"] >> self.adapter_units
 
         self.adapter.get_info(Info(None, grid=NoGrid()))
+        self.adapter_units.get_info(Info(None, grid=NoGrid(), units="m"))
         self.source.connect(start)
         self.source.connect(start)
         self.source.validate()
 
     def test_callback_adapter(self):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1), None), 0)
+        unit_out = self.adapter_units.get_data(datetime(2000, 1, 1), None)
+        self.assertEqual(unit_out.magnitude, 0)
+        self.assertEqual(unit_out.units, UNITS.Unit("m"))
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2), None), 2)
+        unit_out = self.adapter_units.get_data(datetime(2000, 1, 2), None)
+        self.assertEqual(unit_out.magnitude, 2)
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3), None), 4)
+        unit_out = self.adapter_units.get_data(datetime(2000, 1, 3), None)
+        self.assertEqual(unit_out.magnitude, 4)
 
 
 class TestScale(unittest.TestCase):
@@ -54,22 +66,32 @@ class TestScale(unittest.TestCase):
         )
 
         self.adapter = Scale(scale=2.0)
+        self.adapter_units = Scale(scale=2.0 * UNITS("m"))
 
         self.source.initialize()
 
         self.source.outputs["Step"] >> self.adapter
+        self.source.outputs["Step"] >> self.adapter_units
 
         self.adapter.get_info(Info(None, grid=NoGrid()))
+        self.adapter_units.get_info(Info(None, grid=NoGrid(), units="m"))
         self.source.connect(start)
         self.source.connect(start)
         self.source.validate()
 
     def test_callback_adapter(self):
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 1), None), 0)
+        unit_out = self.adapter_units.get_data(datetime(2000, 1, 1), None)
+        self.assertEqual(unit_out.magnitude, 0)
+        self.assertEqual(unit_out.units, UNITS.Unit("m"))
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 2), None), 2)
+        unit_out = self.adapter_units.get_data(datetime(2000, 1, 2), None)
+        self.assertEqual(unit_out.magnitude, 2)
         self.source.update()
         self.assertEqual(self.adapter.get_data(datetime(2000, 1, 3), None), 4)
+        unit_out = self.adapter_units.get_data(datetime(2000, 1, 3), None)
+        self.assertEqual(unit_out.magnitude, 4)
 
 
 class TestGridToValue(unittest.TestCase):
