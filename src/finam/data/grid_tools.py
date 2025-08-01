@@ -4,6 +4,28 @@ from enum import Enum, IntEnum
 from math import isclose, nan
 
 import numpy as np
+import pyproj
+
+
+def gen_axes_attributes(crs, axes_attributes=None):
+    """
+    Generate axes attributes from CRS.
+
+    Parameters
+    ----------
+    crs : str
+        valid pyproj crs specifier.
+    axes_attributes : list of dict, optional
+        default axes attributes, by default None
+
+    Returns
+    -------
+    list of dict
+        axes attributes
+    """
+    if axes_attributes is not None or crs is None:
+        return axes_attributes
+    return pyproj.crs.CRS(crs).cs_to_cf()
 
 
 def point_order(order, axes_reversed=False):
