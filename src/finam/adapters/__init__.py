@@ -31,6 +31,8 @@ Regridding adapters
 
     RegridNearest
     RegridLinear
+    ToCRS
+    ToUnstructured
 
 Statistics adapters
 ===================
@@ -62,7 +64,7 @@ Time adapters
 from . import base, probe, regrid, time
 from .base import Callback, GridToValue, Scale, ValueToGrid
 from .probe import CallbackProbe
-from .regrid import RegridLinear, RegridNearest
+from .regrid import RegridLinear, RegridNearest, ToCRS, ToUnstructured
 from .stats import Histogram
 from .time import (
     DelayFixed,
@@ -88,6 +90,8 @@ __all__ += ["CallbackProbe"]
 __all__ += [
     "RegridNearest",
     "RegridLinear",
+    "ToCRS",
+    "ToUnstructured",
 ]
 __all__ += ["Histogram"]
 __all__ += [
