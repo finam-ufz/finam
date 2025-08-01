@@ -7,7 +7,7 @@ See package `finam-regrid <https://finam.pages.ufz.de/finam-regrid/>`_ for more 
 from abc import ABC, abstractmethod
 
 import numpy as np
-from pyproj import Transformer, crs
+import pyproj
 from scipy.interpolate import LinearNDInterpolator, RegularGridInterpolator
 from scipy.spatial import KDTree
 
@@ -542,12 +542,12 @@ class ToUnstructured(Adapter):
 
 
 def _create_transformer(in_crs, out_crs):
-    in_crs = None if in_crs is None else crs.CRS(in_crs)
-    out_crs = None if out_crs is None else crs.CRS(out_crs)
+    in_crs = None if in_crs is None else pyproj.crs.CRS(in_crs)
+    out_crs = None if out_crs is None else pyproj.crs.CRS(out_crs)
     return (
         None
         if (in_crs is None and out_crs is None) or in_crs == out_crs
-        else Transformer.from_crs(in_crs, out_crs)
+        else pyproj.Transformer.from_crs(in_crs, out_crs)
     )
 
 
