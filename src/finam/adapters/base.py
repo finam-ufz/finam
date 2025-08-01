@@ -49,15 +49,17 @@ class Callback(Adapter):
         return self.callback(self.pull_data(time, target), time)
 
     def _get_info(self, info):
-        in_info = self.exchange_info(info)
-        return in_info if self.units is None else in_info.copy_with(units=self.units)
+        if self.units is None:
+            return self.exchange_info(info)
+        in_info = self.exchange_info(info.copy_with(units=None))
+        return in_info.copy_with(units=self.units)
 
 
 class Scale(Adapter):
     """
     Scales the input.
 
-    if given scale is a quantity with units, the output units will be adjusted.
+    If given scale is a quantity with units, the output units will be adjusted.
 
     Examples
     --------
