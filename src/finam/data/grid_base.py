@@ -13,6 +13,7 @@ from .grid_tools import (
     VTK_TYPE_MAP,
     CellType,
     Location,
+    equal_crs,
     flatten_cells,
     gen_cells,
     gen_node_centers,
@@ -214,7 +215,7 @@ class Grid(GridBase):
 
         if not (
             self.dim == other.dim
-            and self.crs == other.crs
+            and equal_crs(self.crs, other.crs)
             and self.order == other.order
             and (not check_location or self.data_location == other.data_location)
         ):
@@ -423,7 +424,7 @@ class StructuredGrid(Grid):
 
         if not (
             self.dim == other.dim
-            and self.crs == other.crs
+            and equal_crs(self.crs, other.crs)
             and (not check_location or self.data_location == other.data_location)
         ):
             return False
