@@ -13,6 +13,7 @@ from .grid_tools import (
     Location,
     check_axes_monotonicity,
     gen_axes,
+    gen_axes_attributes,
     prepare_vtk_data,
     prepare_vtk_kwargs,
 )
@@ -131,14 +132,15 @@ class RectilinearGrid(StructuredGrid):
         self.data_location = data_location
         self._order = order
         self._axes_reversed = bool(axes_reversed)
-        self._axes_attributes = axes_attributes or (self.dim * [{}])
+        self._axes_attributes = gen_axes_attributes(crs, axes_attributes) or (
+            self.dim * [{}]
+        )
         if len(self.axes_attributes) != self.dim:
             raise ValueError("RectilinearGrid: wrong length of 'axes_attributes'")
         self._axes_names = axes_names or ["x", "y", "z"][: self.dim]
         if len(self.axes_names) != self.dim:
             raise ValueError("RectilinearGrid: wrong length of 'axes_names'")
         self._crs = crs
-
         self._data_shape = None
         self._data_size = None
 
@@ -514,13 +516,14 @@ class UnstructuredGrid(Grid):
         self._data_location = None
         self.data_location = data_location
         self._order = order
-        self._axes_attributes = axes_attributes or (self.dim * [{}])
+        self._axes_attributes = gen_axes_attributes(crs, axes_attributes) or (
+            self.dim * [{}]
+        )
         if len(self.axes_attributes) != self.dim:
             raise ValueError("UnstructuredGrid: wrong length of 'axes_attributes'")
         self._axes_names = axes_names or ["x", "y", "z"][: self.dim]
         if len(self.axes_names) != self.dim:
             raise ValueError("UnstructuredGrid: wrong length of 'axes_names'")
-
         self._crs = crs
 
     @property
