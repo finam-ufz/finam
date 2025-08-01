@@ -5,7 +5,7 @@ Basic data transformation adapters.
 import numpy as np
 
 from ..data.grid_spec import NoGrid
-from ..data.tools import Mask, get_magnitude, mask_specified
+from ..data.tools import Mask, get_magnitude, is_quantified, mask_specified
 from ..errors import FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
@@ -36,31 +36,28 @@ class Callback(Adapter):
     ----------
     callback : callable
         A callback ``callback(data, time)``, returning the transformed data.
+    units : UnitLike or None, optional
+        Units of the transformed data. Default: None (same as input).
     """
 
-    def __init__(self, callback):
+    def __init__(self, callback, units=None):
         super().__init__()
         self.callback = callback
+        self.units = units
 
     def _get_data(self, time, target):
-        """Get the output's data-set for the given time.
+        return self.callback(self.pull_data(time, target), time)
 
-        Parameters
-        ----------
-        time : datetime
-            Simulation time to get the data for.
-
-        Returns
-        -------
-        array_like
-            data-set for the requested time.
-        """
-        d = self.pull_data(time, target)
-        return self.callback(d, time)
+    def _get_info(self, info):
+        in_info = self.exchange_info(info)
+        return in_info if self.units is None else in_info.copy_with(units=self.units)
 
 
 class Scale(Adapter):
-    """Scales the input.
+    """
+    Scales the input.
+
+    if given scale is a quantity with units, the output units will be adjusted.
 
     Examples
     --------
@@ -73,29 +70,25 @@ class Scale(Adapter):
 
     Parameters
     ----------
-    scale : float
+    scale : Numerical or pint.Quantity
         Scale factor.
     """
 
     def __init__(self, scale):
         super().__init__()
+        self.scale_units = scale.units if is_quantified(scale) else None
         self.scale = scale
 
     def _get_data(self, time, target):
-        """Get the output's data-set for the given time.
+        return self.pull_data(time, target) * self.scale
 
-        Parameters
-        ----------
-        time : datetime
-            simulation time to get the data for.
-
-        Returns
-        -------
-        array_like
-            data-set for the requested time.
-        """
-        d = self.pull_data(time, target)
-        return d * self.scale
+    def _get_info(self, info):
+        if self.scale_units is None:
+            return self.exchange_info(info)
+        req_units = None if info.units is None else info.units / self.scale_units
+        in_info = self.exchange_info(info.copy_with(units=req_units))
+        units = None if in_info.units is None else in_info.units * self.scale_units
+        return in_info.copy_with(units=units)
 
 
 class ValueToGrid(Adapter):
