@@ -7,6 +7,29 @@ import numpy as np
 import pyproj
 
 
+def equal_crs(crs1, crs2):
+    """
+    Check two CRS for equality.
+
+    Parameters
+    ----------
+    crs1 : valid pyproj crs specifier or None
+        First crs
+    crs2 : valid pyproj crs specifier or None
+        Second crs
+
+    Returns
+    -------
+    bool
+        CRS equality
+    """
+    if crs1 is None and crs2 is None:
+        return True
+    if crs1 is None or crs2 is None:
+        return False
+    return pyproj.crs.CRS(crs1) == pyproj.crs.CRS(crs2)
+
+
 def gen_axes_attributes(crs, axes_attributes=None):
     """
     Generate axes attributes from CRS.
