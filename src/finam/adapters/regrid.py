@@ -424,6 +424,17 @@ class ToCRS(Adapter):
         if self.input_grid is None and in_info.grid is None:
             with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Missing source grid specification")
+        self.input_grid = in_info.grid
+        self.input_crs = self.input_grid.crs
+        if self.input_crs is None:
+            self.input_crs = self.assume_source_crs
+        if self.input_crs is None:
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError("Input grid has no CRS")
+        if self.input_mask is None and in_info.mask is None:
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError("Missing source mask specification")
+        self.input_mask = in_info.mask
         if (
             self.output_grid is not None
             and info.grid is not None
@@ -432,9 +443,6 @@ class ToCRS(Adapter):
             with ErrorLogger(self.logger):
                 msg = "Target grid specification is already set, new specs differ"
                 raise FinamMetaDataError(msg)
-        if self.input_mask is None and in_info.mask is None:
-            with ErrorLogger(self.logger):
-                raise FinamMetaDataError("Missing source mask specification")
         if (
             dtools.mask_specified(self.input_mask)
             and self.input_mask is not np.ma.nomask
@@ -442,20 +450,15 @@ class ToCRS(Adapter):
             self.output_mask = np.reshape(self.input_mask, -1, self.input_grid.order)
         else:
             self.output_mask = self.input_mask
-        self.input_grid = self.input_grid or in_info.grid
-        self.input_crs = self.input_grid.crs
-        if self.input_crs is None:
-            self.input_crs = self.assume_source_crs
-        if self.input_crs is None:
-            raise FinamMetaDataError("Input grid has no CRS")
         self.output_grid = self._create_unstructured()
         out_info = in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
         return out_info
 
     def _create_unstructured(self):
         if not isinstance(self.input_grid, Grid):
-            msg = "Given grid is not of type Grid"
-            raise FinamMetaDataError(msg)
+            with ErrorLogger(self.logger):
+                msg = "Given grid is not of type Grid"
+                raise FinamMetaDataError(msg)
         transformer = _create_transformer(self.input_crs, self.output_crs)
         return UnstructuredGrid(
             points=_transform_points(transformer, self.input_grid.points),
@@ -502,6 +505,11 @@ class ToUnstructured(Adapter):
         if self.input_grid is None and in_info.grid is None:
             with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Missing source grid specification")
+        self.input_grid = in_info.grid
+        if self.input_mask is None and in_info.mask is None:
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError("Missing source mask specification")
+        self.input_mask = in_info.mask
         if (
             self.output_grid is not None
             and info.grid is not None
@@ -510,9 +518,6 @@ class ToUnstructured(Adapter):
             with ErrorLogger(self.logger):
                 msg = "Target grid specification is already set, new specs differ"
                 raise FinamMetaDataError(msg)
-        if self.input_mask is None and in_info.mask is None:
-            with ErrorLogger(self.logger):
-                raise FinamMetaDataError("Missing source mask specification")
         if (
             dtools.mask_specified(self.input_mask)
             and self.input_mask is not np.ma.nomask
@@ -520,15 +525,15 @@ class ToUnstructured(Adapter):
             self.output_mask = np.reshape(self.input_mask, -1, self.input_grid.order)
         else:
             self.output_mask = self.input_mask
-        self.input_grid = self.input_grid or in_info.grid
         self.output_grid = self._create_unstructured()
         out_info = in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
         return out_info
 
     def _create_unstructured(self):
         if not isinstance(self.input_grid, Grid):
-            msg = "Given grid is not of type Grid"
-            raise FinamMetaDataError(msg)
+            with ErrorLogger(self.logger):
+                msg = "Given grid is not of type Grid"
+                raise FinamMetaDataError(msg)
         return UnstructuredGrid(
             points=self.input_grid.points,
             cells=self.input_grid.cells,
