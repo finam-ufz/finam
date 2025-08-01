@@ -54,8 +54,11 @@ class Masking(Adapter):
     """
     Mask data.
 
-    If mask is given as :any:`Mask.NONE` this will act like the
-    UnMasking adapter.
+    If mask is given as :attr:`Mask.NONE` this will act like the
+    :class:`UnMasking` adapter.
+
+    If the input data has flexible masking, we recommend applying
+    an :class:`UnMasking` adapter first.
 
     Examples
     --------
@@ -68,8 +71,14 @@ class Masking(Adapter):
 
     Parameters
     ----------
-    mask : arraylike of bool, optional
-        Mask to apply. By default the mask of the upstream data.
+    mask : :any:`Mask` value or valid boolean mask for :any:`MaskedArray`, optional
+        masking specification of the data. By default the upstream mask value.
+
+        Options:
+            * valid boolean mask for MaskedArray
+            * :any:`Mask.NONE`: data will be unmasked
+            * :any:`Mask.FLEX`: data is unchanged but converted to a masked array
+
     fill_value : float or None, optional
         Fill value for masked data.
     """
