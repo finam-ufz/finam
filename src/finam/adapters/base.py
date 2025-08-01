@@ -148,18 +148,16 @@ class ValueToGrid(Adapter):
         return data
 
     def _get_info(self, info):
-        up_info = info.copy_with(grid=NoGrid(), mask=Mask.FLEX)
-        in_info = self.exchange_info(up_info)
-        out_info = in_info.copy_with(
-            grid=self.grid or info.grid, mask=self.mask or info.mask, use_none=False
-        )
-
+        request = info.copy_with(grid=NoGrid(), mask=Mask.FLEX)
+        in_info = self.exchange_info(request)
+        self.mask = info.mask if self.mask is None else self.mask
+        self.grid = info.grid if self.grid is None else self.grid
+        out_info = in_info.copy_with(grid=self.grid, mask=self.mask, use_none=False)
         if info.grid is not None and info.grid != out_info.grid:
             with ErrorLogger(self.logger):
                 raise FinamMetaDataError(
                     f"Grid specifications don't match. Target has {info.grid}, expected {out_info.grid}"
                 )
-
         return out_info
 
 
@@ -203,7 +201,7 @@ class GridToValue(Adapter):
         return self.func(get_magnitude(grid))
 
     def _get_info(self, info):
-        info = info.copy_with(grid=None)
-        in_info = self.exchange_info(info)
+        request = info.copy_with(grid=None, mask=None)
+        in_info = self.exchange_info(request)
         out_info = in_info.copy_with(grid=NoGrid(), mask=Mask.NONE)
         return out_info
