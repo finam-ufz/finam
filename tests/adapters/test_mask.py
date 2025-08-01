@@ -57,6 +57,8 @@ class TestMasking(unittest.TestCase):
         self.adapter = fm.adapters.Masking(fill_value=0.0)
         self.source.outputs["Grid"] >> self.adapter
 
+        with self.assertRaises(fm.FinamMetaDataError):
+            self.adapter.get_info(Info(units=None, mask=None))
         self.adapter.get_info(Info(units=None, mask=self.mask))
         self.source.connect(datetime(2000, 1, 1))
         self.source.connect(datetime(2000, 1, 1))
@@ -66,6 +68,18 @@ class TestMasking(unittest.TestCase):
         self.assertTrue(fmdata.is_masked_array(result))
         self.assertAlmostEqual(result.fill_value, 0.0)
         assert_allclose(result[0].mask, self.mask)
+
+    def test_mask_from_upstream_flex(self):
+        self.adapter = fm.adapters.Masking(fill_value=0.0)
+        self.source.outputs["Grid"] >> self.adapter
+
+        self.adapter.get_info(Info(units=None, mask=fm.Mask.FLEX))
+        self.source.connect(datetime(2000, 1, 1))
+        self.source.connect(datetime(2000, 1, 1))
+        self.source.validate()
+
+        result = self.adapter.get_data(datetime(2000, 1, 1), None)
+        self.assertTrue(fmdata.is_masked_array(result))
 
     def test_sub_mask(self):
         self.adapter = fm.adapters.Masking(fill_value=0.0)
