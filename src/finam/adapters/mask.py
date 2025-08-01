@@ -51,7 +51,11 @@ class UnMasking(Adapter):
 
 
 class Masking(Adapter):
-    """Mask data.
+    """
+    Mask data.
+
+    If mask is given as :any:`Mask.NONE` this will act like the
+    UnMasking adapter.
 
     Examples
     --------
@@ -64,29 +68,39 @@ class Masking(Adapter):
 
     Parameters
     ----------
-    mask : arraylike of bool
-        Mask to apply.
+    mask : arraylike of bool, optional
+        Mask to apply. By default the mask of the upstream data.
     fill_value : float or None, optional
         Fill value for masked data.
     """
 
-    def __init__(self, mask, fill_value=None):
+    def __init__(self, mask=None, fill_value=None):
         super().__init__()
         self.mask = mask
         self.fill_value = fill_value
         self.grid = None
 
     def _get_data(self, time, target):
-        return to_masked(
-            strip_time(self.pull_data(time, target), self.grid),
-            mask=self.mask,
-            fill_value=self.fill_value,
-        )
+        if mask_specified(self.mask):
+            return to_masked(
+                strip_time(self.pull_data(time, target), self.grid),
+                mask=self.mask,
+                fill_value=self.fill_value,
+            )
+        if self.mask == Mask.NONE:
+            return filled(self.pull_data(time, target), self.fill_value)
+        # Mask.Flex
+        return to_masked(self.pull_data(time, target), fill_value=self.fill_value)
 
     def _get_info(self, info):
         in_info = self.exchange_info(info.copy_with(mask=None))
+        self.mask = info.mask if self.mask is None else self.mask
+        if self.mask is None:
+            with ErrorLogger(self.logger):
+                msg = "Output mask not given."
+                raise FinamMetaDataError(msg)
         if in_info.mask is not None and mask_specified(in_info.mask):
-            if not is_sub_mask(in_info.mask, self.mask):
+            if mask_specified(self.mask) and not is_sub_mask(in_info.mask, self.mask):
                 with ErrorLogger(self.logger):
                     msg = "Given mask needs to be a sub-mask of the data mask."
                     raise FinamMetaDataError(msg)
