@@ -174,7 +174,8 @@ class Clip(Adapter):
         if self.input_mask is None:  # we need a source mask
             with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Missing source mask specification")
-        self._get_output_specs()
+        if self.output_grid is None:
+            self._get_output_specs()
         return in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
 
     def _check_sel(self, sel, axis):
