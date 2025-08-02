@@ -550,7 +550,7 @@ def _create_transformer(in_crs, out_crs):
     return (
         None
         if (in_crs is None and out_crs is None) or in_crs == out_crs
-        else pyproj.Transformer.from_crs(in_crs, out_crs)
+        else pyproj.Transformer.from_crs(in_crs, out_crs, always_xy=True)
     )
 
 
