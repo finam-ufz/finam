@@ -1,6 +1,7 @@
 """
 Adapters for statistics over grids.
 """
+
 import numpy as np
 
 from ..data import get_magnitude
