@@ -1,6 +1,7 @@
 """
 Adapters that deal with time, like temporal interpolation and integration.
 """
+
 import os
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
