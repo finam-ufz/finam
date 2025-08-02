@@ -157,3 +157,4 @@ multi_line_output = 3
     max-public-methods = 25
     max-positional-arguments = 15
     max-returns = 10
+    max-branches = 15
