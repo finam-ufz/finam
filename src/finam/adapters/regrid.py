@@ -57,14 +57,9 @@ class ARegridding(Adapter, ABC):
         if self.input_grid is None and in_info.grid is None:
             with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Missing source grid specification")
-
-        if self.output_mask is None and info.mask is None:
-            with ErrorLogger(self.logger):
-                raise FinamMetaDataError("Missing target mask specification")
         if self.input_mask is None and in_info.mask is None:
             with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Missing source mask specification")
-
         if (
             self.output_grid is not None
             and info.grid is not None
@@ -114,7 +109,10 @@ class ARegridding(Adapter, ABC):
         self.output_mask = (
             self.output_mask if self.output_mask is not None else self.downstream_mask
         )
-        self._out_mask_checked = self.output_mask is not None
+        # we set it to FLEX by default if no mask info is given otherwise
+        if self.output_mask is None:
+            self.output_mask = dtools.Mask.FLEX
+        self._out_mask_checked = True
 
     def _need_mask(self, mask):
         return dtools.mask_specified(mask) and mask is not np.ma.nomask
