@@ -11,7 +11,6 @@ from finam import (
     UNITS,
     CellType,
     Composition,
-    FinamDataError,
     FinamMetaDataError,
     Info,
     Location,
@@ -112,7 +111,7 @@ class TestRegrid(unittest.TestCase):
 
         (source.outputs["Output"] >> RegridNearest() >> sink.inputs["Input"])
 
-        with self.assertRaises(FinamDataError):
+        with self.assertRaises(FinamMetaDataError):
             composition.connect()
 
     def test_regrid_nearest_crs(self):
@@ -250,7 +249,7 @@ class TestRegrid(unittest.TestCase):
             >> sink.inputs["Input"]
         )
 
-        with self.assertRaises(FinamDataError):
+        with self.assertRaises(FinamMetaDataError):
             composition.connect()
 
     def test_regrid_linear_crs(self):
