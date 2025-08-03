@@ -193,7 +193,7 @@ class RegridNearest(ARegridding):
     def _update_grid_specs(self):
         if self.input_grid.dim != self.output_grid.dim:
             msg = "Input grid and output grid have different dimensions"
-            raise FinamMetaDataError(msg)
+            raise FinamDataError(msg)
         # out mask not restricted by nearest interpolation
         self._check_and_set_out_mask()
         # generate IDs to select data
@@ -426,7 +426,7 @@ class ToCRS(Adapter):
             self.input_crs = self.assume_source_crs
         if self.input_crs is None:
             with ErrorLogger(self.logger):
-                raise FinamMetaDataError("Input grid has no CRS")
+                raise FinamDataError("Input grid has no CRS")
         if self.input_mask is None and in_info.mask is None:
             with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Missing source mask specification")
@@ -438,7 +438,7 @@ class ToCRS(Adapter):
         ):
             with ErrorLogger(self.logger):
                 msg = "Target grid specification is already set, new specs differ"
-                raise FinamMetaDataError(msg)
+                raise FinamDataError(msg)
         if (
             dtools.mask_specified(self.input_mask)
             and self.input_mask is not np.ma.nomask
