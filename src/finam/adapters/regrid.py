@@ -415,7 +415,7 @@ class ToCRS(Adapter):
         return np.reshape(in_data, -1, order=self.input_grid.order)
 
     def _get_info(self, info):
-        request = info.copy_with(grid=self.input_grid, mask=None)
+        request = info.copy_with(grid=None, mask=None)
         in_info = self.exchange_info(request)
         if self.input_grid is None and in_info.grid is None:
             with ErrorLogger(self.logger):
@@ -496,7 +496,7 @@ class ToUnstructured(Adapter):
         return np.reshape(in_data, -1, order=self.input_grid.order)
 
     def _get_info(self, info):
-        request = info.copy_with(grid=self.input_grid, mask=None)
+        request = info.copy_with(grid=None, mask=None)
         in_info = self.exchange_info(request)
         if self.input_grid is None and in_info.grid is None:
             with ErrorLogger(self.logger):
