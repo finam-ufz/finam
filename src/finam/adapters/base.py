@@ -6,7 +6,7 @@ import numpy as np
 
 from ..data.grid_spec import NoGrid
 from ..data.tools import Mask, get_magnitude, is_quantified, mask_specified
-from ..errors import FinamDataError
+from ..errors import FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
 
@@ -155,7 +155,7 @@ class ValueToGrid(Adapter):
         out_info = in_info.copy_with(grid=self.grid, mask=self.mask, use_none=False)
         if info.grid is not None and info.grid != out_info.grid:
             with ErrorLogger(self.logger):
-                raise FinamDataError(
+                raise FinamMetaDataError(
                     f"Grid specifications don't match. Target has {info.grid}, expected {out_info.grid}"
                 )
         return out_info

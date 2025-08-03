@@ -13,7 +13,7 @@ from scipy.spatial import KDTree
 
 from ..data import tools as dtools
 from ..data.grid_spec import Grid, StructuredGrid, UnstructuredGrid
-from ..errors import FinamDataError, FinamMetaDataError
+from ..errors import FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
 
@@ -66,16 +66,16 @@ class ARegridding(Adapter, ABC):
         ):
             with ErrorLogger(self.logger):
                 msg = "Target grid specification is already set, new specs differ"
-                raise FinamDataError(msg)
+                raise FinamMetaDataError(msg)
 
         self.input_grid = self.input_grid or in_info.grid
         self.input_mask = in_info.mask if self.input_mask is None else self.input_mask
         self.output_grid = self.output_grid or info.grid
 
         if self.input_grid.crs is None and self.output_grid.crs is not None:
-            raise FinamDataError("Input grid has a CRS, but output grid does not")
+            raise FinamMetaDataError("Input grid has a CRS, but output grid does not")
         if self.output_grid.crs is None and self.input_grid.crs is not None:
-            raise FinamDataError("output grid has a CRS, but input grid does not")
+            raise FinamMetaDataError("output grid has a CRS, but input grid does not")
 
         if not self._is_initialized:
             self.downstream_mask = info.mask
@@ -143,7 +143,7 @@ class ARegridding(Adapter, ABC):
         ):
             with ErrorLogger(self.logger):
                 msg = "For regridding masked input data, you need to explicitly set the mask in the input info."
-                raise FinamDataError(msg)
+                raise FinamMetaDataError(msg)
 
 
 class RegridNearest(ARegridding):
@@ -193,7 +193,7 @@ class RegridNearest(ARegridding):
     def _update_grid_specs(self):
         if self.input_grid.dim != self.output_grid.dim:
             msg = "Input grid and output grid have different dimensions"
-            raise FinamDataError(msg)
+            raise FinamMetaDataError(msg)
         # out mask not restricted by nearest interpolation
         self._check_and_set_out_mask()
         # generate IDs to select data
@@ -326,12 +326,12 @@ class RegridLinear(ARegridding):
             elif mask_save is dtools.Mask.NONE:
                 if np.any(outlier_mask):
                     msg = "RegridLinear: interpolation is not covering desired domain."
-                    raise FinamDataError(msg)
+                    raise FinamMetaDataError(msg)
                 self.output_mask = mask_save
             else:
                 if not dtools.is_sub_mask(outlier_mask, mask_save):
                     msg = "RegridLinear: interpolation is not covering desired masked domain."
-                    raise FinamDataError(msg)
+                    raise FinamMetaDataError(msg)
                 self.output_mask = mask_save
             self._out_mask_checked = False
             self._check_and_set_out_mask()
@@ -426,7 +426,7 @@ class ToCRS(Adapter):
             self.input_crs = self.assume_source_crs
         if self.input_crs is None:
             with ErrorLogger(self.logger):
-                raise FinamDataError("Input grid has no CRS")
+                raise FinamMetaDataError("Input grid has no CRS")
         if self.input_mask is None and in_info.mask is None:
             with ErrorLogger(self.logger):
                 raise FinamMetaDataError("Missing source mask specification")
@@ -438,7 +438,7 @@ class ToCRS(Adapter):
         ):
             with ErrorLogger(self.logger):
                 msg = "Target grid specification is already set, new specs differ"
-                raise FinamDataError(msg)
+                raise FinamMetaDataError(msg)
         if (
             dtools.mask_specified(self.input_mask)
             and self.input_mask is not np.ma.nomask
