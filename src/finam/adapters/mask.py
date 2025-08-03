@@ -19,7 +19,7 @@ from ..data.tools import (
     strip_time,
     to_masked,
 )
-from ..errors import FinamDataError, FinamMetaDataError
+from ..errors import FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
 
@@ -124,7 +124,7 @@ class Masking(Adapter):
             if mask_specified(self.mask) and not is_sub_mask(in_info.mask, self.mask):
                 with ErrorLogger(self.logger):
                     msg = "Given mask needs to be a sub-mask of the data mask."
-                    raise FinamDataError(msg)
+                    raise FinamMetaDataError(msg)
         self.grid = in_info.grid
         return in_info.copy_with(mask=self.mask)
 
@@ -185,7 +185,7 @@ class Clip(Adapter):
         if not (np.sum(sel) - shrink) > 0:
             with ErrorLogger(self.logger):
                 msg = f"Empty selection along {axis=} with given clipping limits."
-                raise FinamDataError(msg)
+                raise FinamMetaDataError(msg)
 
     def _mask_to_slice(self, sel):
         shrink = int(self.input_grid.data_location == Location.CELLS)
@@ -196,7 +196,7 @@ class Clip(Adapter):
         if not isinstance(self.input_grid, Grid):
             with ErrorLogger(self.logger):
                 msg = "Given grid is not of type Grid"
-                raise FinamDataError(msg)
+                raise FinamMetaDataError(msg)
         dim = self.input_grid.dim
         if isinstance(self.input_grid, StructuredGrid):
             select = dim * [slice(None)]
@@ -242,7 +242,7 @@ class Clip(Adapter):
             if not np.any(self.select):
                 with ErrorLogger(self.logger):
                     msg = "Empty selection for clipping limits."
-                    raise FinamDataError(msg)
+                    raise FinamMetaDataError(msg)
             # need a mapping of new point ids in cells definition
             pnt_map = np.full_like(pnt_select, -1, dtype=int)
             pnt_map[pnt_select] = np.arange(np.sum(pnt_select), dtype=int)
