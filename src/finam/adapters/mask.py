@@ -176,6 +176,14 @@ class Clip(Adapter):
                 raise FinamMetaDataError("Missing source mask specification")
         if self.output_grid is None:
             self._get_output_specs()
+        if (
+            self.output_grid is not None
+            and info.grid is not None
+            and self.output_grid != info.grid
+        ):
+            with ErrorLogger(self.logger):
+                msg = "Target grid specification is already set, new specs differ"
+                raise FinamMetaDataError(msg)
         return in_info.copy_with(grid=self.output_grid, mask=self.output_mask)
 
     def _check_sel(self, sel, axis):
@@ -201,6 +209,7 @@ class Clip(Adapter):
             axes = []
             for i in range(dim):
                 if self.bounds[i] is None:
+                    axes.append(self.input_grid.axes[i])
                     continue
                 ax = self.input_grid.axes[i]
                 sel = (ax >= self.bounds[i][0]) & (ax <= self.bounds[i][1])
