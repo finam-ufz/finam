@@ -90,11 +90,13 @@ class Scale(Adapter):
 
     def _get_info(self, info):
         if self.scale_units is None:
-            return self.exchange_info(info)
+            in_info = self.exchange_info(info)
+            self.grid = in_info.grid or info.grid
+            return in_info
         req_units = None if info.units is None else info.units / self.scale_units
         in_info = self.exchange_info(info.copy_with(units=req_units))
         units = None if in_info.units is None else in_info.units * self.scale_units
-        self.grid = in_info.grid
+        self.grid = in_info.grid or info.grid
         return in_info.copy_with(units=units)
 
 
