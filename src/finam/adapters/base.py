@@ -5,7 +5,7 @@ Basic data transformation adapters.
 import numpy as np
 
 from ..data.grid_spec import NoGrid
-from ..data.tools import Mask, get_magnitude, is_quantified, mask_specified
+from ..data.tools import Mask, get_magnitude, is_quantified, mask_specified, strip_time
 from ..errors import FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
@@ -80,9 +80,13 @@ class Scale(Adapter):
         super().__init__()
         self.scale_units = scale.units if is_quantified(scale) else None
         self.scale = scale
+        self.grid = None
 
     def _get_data(self, time, target):
-        return self.pull_data(time, target) * self.scale
+        return (
+            get_magnitude(strip_time(self.pull_data(time, target), self.grid))
+            * self.scale
+        )
 
     def _get_info(self, info):
         if self.scale_units is None:
@@ -90,6 +94,7 @@ class Scale(Adapter):
         req_units = None if info.units is None else info.units / self.scale_units
         in_info = self.exchange_info(info.copy_with(units=req_units))
         units = None if in_info.units is None else in_info.units * self.scale_units
+        self.grid = in_info.grid
         return in_info.copy_with(units=units)
 
 
