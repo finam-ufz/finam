@@ -193,14 +193,20 @@ class TestClip(unittest.TestCase):
     def test_clip_fail(self):
         clip_fail1 = fm.adapters.Clip(ylim=(20, 80))
         clip_fail2 = fm.adapters.Clip(ylim=(20, 80))
+        clip_grid_fail = fm.adapters.Clip(ylim=(3, 9))
         unst = fm.adapters.ToUnstructured()
+        grid = fm.UniformGrid((2, 3))
         self.source.outputs["Grid"] >> clip_fail1
         self.source.outputs["Grid"] >> unst >> clip_fail2
+        self.source.outputs["Grid"] >> clip_grid_fail
         # ylim creates empty selection
         with self.assertRaises(fm.FinamMetaDataError):
             clip_fail1.get_info(Info(units=None))
         with self.assertRaises(fm.FinamMetaDataError):
             clip_fail2.get_info(Info(units=None))
+        # wrong output grid
+        with self.assertRaises(fm.FinamMetaDataError):
+            clip_grid_fail.get_info(Info(units=None, grid=grid))
 
         static = StaticCallbackGenerator({"Grid": (lambda t: 0, Info())})
         static.initialize()
