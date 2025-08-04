@@ -188,7 +188,7 @@ class Clip(Adapter):
     def _mask_to_slice(self, sel):
         shrink = int(self.input_grid.data_location == Location.CELLS)
         where = np.where(sel)[0]
-        return slice(where[0], where[-1] - shrink)
+        return slice(where[0], where[-1] - shrink + 1)
 
     def _get_output_specs(self):
         if not isinstance(self.input_grid, Grid):
