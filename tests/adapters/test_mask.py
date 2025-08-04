@@ -150,6 +150,47 @@ class TestUnMasking(unittest.TestCase):
         assert_allclose(result[0].magnitude[self.mask], 0.0)
 
 
+class TestClip(unittest.TestCase):
+    def setUp(self):
+        grid, data = create_grid(20, 10, 1.0)
+        self.mask = np.full_like(data, False, dtype=bool)
+        self.mask[0, :] = True
+
+        self.source = CallbackGenerator(
+            callbacks={
+                "Grid": (lambda t: data, Info(grid=grid, mask=self.mask, units="m"))
+            },
+            start=datetime(2000, 1, 1),
+            step=timedelta(1.0),
+        )
+
+        self.source.initialize()
+
+    def test_clip(self):
+        self.clip1 = fm.adapters.Clip(xlim=(3, 9), ylim=(2, 8))
+        self.clip2 = fm.adapters.Clip(xlim=(3, 9), ylim=(2, 8))
+        self.unst1 = fm.adapters.ToUnstructured()
+        self.unst2 = fm.adapters.ToUnstructured()
+        self.source.outputs["Grid"] >> self.clip1 >> self.unst1
+        self.source.outputs["Grid"] >> self.unst2 >> self.clip2
+
+        self.unst1.get_info(Info(units=None))
+        self.clip2.get_info(Info(units=None))
+        self.source.connect(datetime(2000, 1, 1))
+        self.source.connect(datetime(2000, 1, 1))
+        self.source.validate()
+
+        res1 = self.unst1.get_data(datetime(2000, 1, 1), None)
+        res2 = self.clip2.get_data(datetime(2000, 1, 1), None)
+
+        assert_allclose(res1[0].magnitude, res2[0].magnitude)
+        self.assertTrue(self.unst1.output_grid == self.clip2.output_grid)
+        self.assertGreaterEqual(np.min(self.unst1.output_grid.points[:, 0]), 3)
+        self.assertLessEqual(np.min(self.unst1.output_grid.points[:, 0]), 9)
+        self.assertGreaterEqual(np.min(self.unst1.output_grid.points[:, 1]), 2)
+        self.assertLessEqual(np.min(self.unst1.output_grid.points[:, 1]), 8)
+
+
 def create_grid(cols, rows, value):
     grid = UniformGrid((cols, rows), data_location="POINTS")
 
