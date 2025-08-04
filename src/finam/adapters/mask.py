@@ -14,6 +14,7 @@ from ..data.grid_spec import (
 from ..data.tools import (
     Mask,
     filled,
+    get_magnitude,
     is_sub_mask,
     mask_specified,
     strip_time,
@@ -102,16 +103,13 @@ class Masking(Adapter):
         self.grid = None
 
     def _get_data(self, time, target):
+        data = get_magnitude(strip_time(self.pull_data(time, target), self.grid))
         if mask_specified(self.mask):
-            return to_masked(
-                strip_time(self.pull_data(time, target), self.grid),
-                mask=self.mask,
-                fill_value=self.fill_value,
-            )
+            return to_masked(data, mask=self.mask, fill_value=self.fill_value)
         if self.mask == Mask.NONE:
-            return filled(self.pull_data(time, target), self.fill_value)
+            return filled(data, self.fill_value)
         # Mask.FLEX
-        return to_masked(self.pull_data(time, target), fill_value=self.fill_value)
+        return to_masked(data, fill_value=self.fill_value)
 
     def _get_info(self, info):
         in_info = self.exchange_info(info.copy_with(mask=None))
