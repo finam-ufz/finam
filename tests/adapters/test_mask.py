@@ -11,7 +11,7 @@ from numpy.testing import assert_allclose
 import finam as fm
 from finam import Info, UniformGrid
 from finam import data as fmdata
-from finam.components.generators import CallbackGenerator
+from finam.components.generators import CallbackGenerator, StaticCallbackGenerator
 
 
 class TestMasking(unittest.TestCase):
@@ -167,33 +167,74 @@ class TestClip(unittest.TestCase):
         self.source.initialize()
 
     def test_clip(self):
-        self.clip1 = fm.adapters.Clip(xlim=(3, 9), ylim=(2, 8))
-        self.clip2 = fm.adapters.Clip(xlim=(3, 9), ylim=(2, 8))
-        self.unst1 = fm.adapters.ToUnstructured()
-        self.unst2 = fm.adapters.ToUnstructured()
-        self.source.outputs["Grid"] >> self.clip1 >> self.unst1
-        self.source.outputs["Grid"] >> self.unst2 >> self.clip2
+        clip1 = fm.adapters.Clip(xlim=(3, 9), ylim=(2, 8))
+        clip2 = fm.adapters.Clip(xlim=(3, 9), ylim=(2, 8))
+        unst1 = fm.adapters.ToUnstructured()
+        unst2 = fm.adapters.ToUnstructured()
+        self.source.outputs["Grid"] >> clip1 >> unst1
+        self.source.outputs["Grid"] >> unst2 >> clip2
 
-        self.unst1.get_info(Info(units=None))
-        self.clip2.get_info(Info(units=None))
+        unst1.get_info(Info(units=None))
+        clip2.get_info(Info(units=None))
         self.source.connect(datetime(2000, 1, 1))
         self.source.connect(datetime(2000, 1, 1))
         self.source.validate()
 
-        res1 = self.unst1.get_data(datetime(2000, 1, 1), None)
-        res2 = self.clip2.get_data(datetime(2000, 1, 1), None)
+        res1 = unst1.get_data(datetime(2000, 1, 1), None)
+        res2 = clip2.get_data(datetime(2000, 1, 1), None)
 
         assert_allclose(res1[0].magnitude, res2[0].magnitude)
-        self.assertTrue(self.unst1.output_grid == self.clip2.output_grid)
-        self.assertGreaterEqual(np.min(self.unst1.output_grid.points[:, 0]), 3)
-        self.assertLessEqual(np.min(self.unst1.output_grid.points[:, 0]), 9)
-        self.assertGreaterEqual(np.min(self.unst1.output_grid.points[:, 1]), 2)
-        self.assertLessEqual(np.min(self.unst1.output_grid.points[:, 1]), 8)
+        self.assertTrue(unst1.output_grid == clip2.output_grid)
+        self.assertGreaterEqual(np.min(unst1.output_grid.points[:, 0]), 3)
+        self.assertLessEqual(np.min(unst1.output_grid.points[:, 0]), 9)
+        self.assertGreaterEqual(np.min(unst1.output_grid.points[:, 1]), 2)
+        self.assertLessEqual(np.min(unst1.output_grid.points[:, 1]), 8)
+
+    def test_clip_fail(self):
+        clip_fail1 = fm.adapters.Clip(ylim=(20, 80))
+        clip_fail2 = fm.adapters.Clip(ylim=(20, 80))
+        unst = fm.adapters.ToUnstructured()
+        self.source.outputs["Grid"] >> clip_fail1
+        self.source.outputs["Grid"] >> unst >> clip_fail2
+        # ylim creates empty selection
+        with self.assertRaises(fm.FinamMetaDataError):
+            clip_fail1.get_info(Info(units=None))
+        with self.assertRaises(fm.FinamMetaDataError):
+            clip_fail2.get_info(Info(units=None))
+
+        static = StaticCallbackGenerator({"Grid": (lambda t: 0, Info())})
+        static.initialize()
+        clip_missing = fm.adapters.Clip()
+        static["Grid"] >> clip_missing
+        # no grid
+        with self.assertRaises(fm.FinamMetaDataError):
+            clip_missing.get_info(Info(units=None))
+
+        static = StaticCallbackGenerator(
+            {"Grid": (lambda t: 0, Info(grid=fm.NoGrid()))}
+        )
+        static.initialize()
+        clip_missing = fm.adapters.Clip()
+        static["Grid"] >> clip_missing
+        # wrong grid
+
+        with self.assertRaises(fm.FinamMetaDataError):
+            clip_missing.get_info(Info(units=None))
+
+        grid = fm.UniformGrid((2, 3))
+        static = StaticCallbackGenerator(
+            {"Grid": (lambda t: 0, Info(grid=grid, mask=None))}
+        )
+        static.initialize()
+        clip_missing = fm.adapters.Clip()
+        static["Grid"] >> clip_missing
+        # missing mask
+        with self.assertRaises(fm.FinamMetaDataError):
+            clip_missing.get_info(Info(units=None))
 
 
 def create_grid(cols, rows, value):
     grid = UniformGrid((cols, rows), data_location="POINTS")
-
     data = np.full(shape=grid.data_shape, fill_value=value, order=grid.order)
 
     return grid, data
