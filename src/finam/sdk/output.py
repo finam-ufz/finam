@@ -404,6 +404,14 @@ class Output(IOutput, Loggable):
 
                 self._output_info.grid = info.grid
 
+            if self._output_info.mask is None:
+                if info.mask is None:
+                    raise FinamMetaDataError(
+                        "Can't set property `mask` from target info, as it is not provided"
+                    )
+
+                self._output_info.mask = info.mask
+
             if self._output_info.time is None:
                 if not self.is_static and info.time is None:
                     raise FinamMetaDataError(
