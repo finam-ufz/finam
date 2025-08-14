@@ -6,11 +6,13 @@ import unittest
 from datetime import datetime, timedelta
 
 import numpy as np
+import pyproj as pp
 
 from finam import (
     UNITS,
     CellType,
     Composition,
+    EsriGrid,
     FinamDataError,
     FinamMetaDataError,
     Info,
@@ -20,7 +22,7 @@ from finam import (
     UnstructuredGrid,
 )
 from finam import data as fdata
-from finam.adapters.regrid import RegridLinear, RegridNearest
+from finam.adapters.regrid import RegridLinear, RegridNearest, ToCRS
 from finam.components import debug, generators
 
 
@@ -536,6 +538,65 @@ class TestRegrid(unittest.TestCase):
         self.assertEqual(sink.data["Input"][0, 1], 0.5 * UNITS.meter)
         self.assertEqual(sink.data["Input"][0, 9], 0.5 * UNITS.meter)
 
+    def test_remap_crs(self):
+        time = datetime(2000, 1, 1)
+
+        in_info = Info(
+            time=time,
+            grid=EsriGrid(
+                ncols=6,
+                nrows=9,
+                xllcorner=3973369,
+                yllcorner=2735847,
+                cellsize=24000,
+                crs="epsg:3035",
+            ),
+            units="m",
+        )
+
+        in_data = np.zeros(shape=in_info.grid.data_shape, order=in_info.grid.order)
+        in_data.data[0, 0] = 1.0
+
+        trans = pp.Transformer.from_crs("epsg:3035", "WGS84", always_xy=True)
+
+        source = generators.CallbackGenerator(
+            callbacks={
+                "Output": (
+                    lambda t: in_data,
+                    in_info,
+                )
+            },
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+
+        sink = debug.DebugConsumer(
+            {"Input": Info(grid=None, units=None)},
+            start=datetime(2000, 1, 1),
+            step=timedelta(days=1),
+        )
+
+        composition = Composition([source, sink], log_level="DEBUG")
+        source["Output"] >> ToCRS("WGS84") >> sink["Input"]
+        composition.connect()
+
+        points = in_info.grid.points
+        cells = in_info.grid.cell_centers
+        out_grid = sink.inputs["Input"].info.grid
+
+        # cell centers are close to mHM latlon file content, so this looks good
+        self.assertTrue(fdata.equal_crs(out_grid.crs, "WGS84"))
+        self.assertTrue(isinstance(out_grid, UnstructuredGrid))
+        np.testing.assert_allclose(
+            np.asarray(trans.transform(*points.T)).T, out_grid.points
+        )
+        # cell centers are a bit off, since latlon mean is not same as transformed projected mean
+        np.testing.assert_allclose(
+            np.asarray(trans.transform(*cells.T)).T, out_grid.cell_centers, atol=0.001
+        )
+        np.testing.assert_allclose(sink.data["Input"][0].magnitude, in_data.reshape(-1))
+
+        print(np.asarray(trans.transform(*cells.T)).T)
 
 if __name__ == "__main__":
     unittest.main()
