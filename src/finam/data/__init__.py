@@ -24,6 +24,7 @@ Grid tools
     check_axes_monotonicity
     check_axes_uniformity
     check_uniformity
+    equal_crs
     :noindex: CellType
     :noindex: Location
 
@@ -108,6 +109,7 @@ from .grid_tools import (
     check_axes_monotonicity,
     check_axes_uniformity,
     check_uniformity,
+    equal_crs,
 )
 from .tools import (
     UNITS,
@@ -158,6 +160,7 @@ __all__ += [
     "check_axes_monotonicity",
     "check_axes_uniformity",
     "check_uniformity",
+    "equal_crs",
 ]
 __all__ += [
     "UNITS",
