@@ -78,8 +78,12 @@ class Scale(Adapter):
 
     def __init__(self, scale):
         super().__init__()
-        self.scale_units = scale.units if is_quantified(scale) else None
-        self.scale = scale
+        if is_quantified(scale):
+            self.scale_units = scale.units
+            self.scale = scale.magnitude
+        else:
+            self.scale_units = None
+            self.scale = scale
         self.grid = None
 
     def _get_data(self, time, target):
