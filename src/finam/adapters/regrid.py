@@ -73,7 +73,7 @@ class ARegridding(Adapter, ABC):
                 raise FinamMetaDataError(msg)
 
         self.input_grid = self.input_grid or in_info.grid
-        self.input_mask = self.input_mask or in_info.mask
+        self.input_mask = in_info.mask if self.input_mask is None else self.input_mask
         self.output_grid = self.output_grid or info.grid
 
         if self.input_grid.crs is None and self.output_grid.crs is not None:
