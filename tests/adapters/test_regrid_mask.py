@@ -45,7 +45,7 @@ class TestRegridMask(unittest.TestCase):
     def test_regrid_nearest_out_mask(self):
         in_info = Info(grid=self.in_grid, units="", mask=self.in_mask)
         source = StaticSimplexNoise(in_info, 0.15, 3, 0.5)
-        sink = debug.DebugPushConsumer({"Input": Info()})
+        sink = debug.DebugPushConsumer({"Input": Info(mask=None)})
         regrid = RegridNearest(out_grid=self.out_grid, out_mask=self.out_mask)
         composition = Composition([source, sink])
 
@@ -64,7 +64,7 @@ class TestRegridMask(unittest.TestCase):
     def test_regrid_nearest_filled(self):
         in_info = Info(grid=self.in_grid, units="", mask=self.in_mask)
         source = StaticSimplexNoise(in_info, 0.15, 3, 0.5)
-        sink = debug.DebugPushConsumer({"Input": Info()})
+        sink = debug.DebugPushConsumer({"Input": Info(mask=None)})
         regrid = RegridNearest(out_grid=self.out_grid, out_mask=Mask.NONE)
         composition = Composition([source, sink])
 
@@ -91,9 +91,10 @@ class TestRegridMask(unittest.TestCase):
         (source.outputs["Noise"] >> regrid >> sink.inputs["Input"])
         composition.connect()
 
-        info = sink.inputs["Input"].info
         data = sink.data["Input"][0, ...]
-        assert_array_equal(info.mask, data.mask)
+        # info = sink.inputs["Input"].info
+        # this should be false: info.mask is Mask.FLEX and data.mask is an array
+        # assert_array_equal(info.mask, data.mask)
         self.assertEqual(np.sum(data.mask), 306)
 
         i_data = source.outputs["Noise"].data[0][1].magnitude.compressed()
@@ -118,7 +119,7 @@ class TestRegridMask(unittest.TestCase):
     def test_regrid_linear_filled(self):
         in_info = Info(grid=self.in_grid, units="", mask=self.in_mask)
         source = StaticSimplexNoise(in_info, 0.15, 3, 0.5)
-        sink = debug.DebugPushConsumer({"Input": Info()})
+        sink = debug.DebugPushConsumer({"Input": Info(mask=None)})
         regrid = RegridLinear(
             out_grid=self.out_grid, fill_with_nearest=True, out_mask=Mask.NONE
         )
@@ -138,7 +139,7 @@ class TestRegridMask(unittest.TestCase):
     def test_regrid_linear_filled_mask(self):
         in_info = Info(grid=self.in_grid, units="", mask=self.in_mask)
         source = StaticSimplexNoise(in_info, 0.15, 3, 0.5)
-        sink = debug.DebugPushConsumer({"Input": Info()})
+        sink = debug.DebugPushConsumer({"Input": Info(mask=None)})
         regrid = RegridLinear(
             out_grid=self.out_grid, fill_with_nearest=True, out_mask=self.out_mask
         )

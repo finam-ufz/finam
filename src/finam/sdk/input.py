@@ -1,6 +1,7 @@
 """
 Implementations of IInput
 """
+
 import logging
 from datetime import datetime
 
@@ -206,7 +207,7 @@ class Input(IInput, Loggable):
                 )
 
         self._input_info = src_info.copy_with(
-            use_none=False, time=info.time, grid=info.grid, **info.meta
+            use_none=False, time=info.time, grid=info.grid, mask=info.mask, **info.meta
         )
         self._in_info_exchanged = True
         with ErrorLogger(self.logger):
