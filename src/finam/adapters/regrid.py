@@ -326,12 +326,12 @@ class RegridLinear(ARegridding):
             elif mask_save is dtools.Mask.NONE:
                 if np.any(outlier_mask):
                     msg = "RegridLinear: interpolation is not covering desired domain."
-                    raise FinamMetaDataError(msg)
+                    raise FinamDataError(msg)
                 self.output_mask = mask_save
             else:
                 if not dtools.is_sub_mask(outlier_mask, mask_save):
                     msg = "RegridLinear: interpolation is not covering desired masked domain."
-                    raise FinamMetaDataError(msg)
+                    raise FinamDataError(msg)
                 self.output_mask = mask_save
             self._out_mask_checked = False
             self._check_and_set_out_mask()
