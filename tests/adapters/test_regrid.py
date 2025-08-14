@@ -596,7 +596,6 @@ class TestRegrid(unittest.TestCase):
         )
         np.testing.assert_allclose(sink.data["Input"][0].magnitude, in_data.reshape(-1))
 
-        print(np.asarray(trans.transform(*cells.T)).T)
 
 if __name__ == "__main__":
     unittest.main()
