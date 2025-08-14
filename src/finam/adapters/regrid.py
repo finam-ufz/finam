@@ -13,7 +13,7 @@ from scipy.spatial import KDTree
 
 from ..data import tools as dtools
 from ..data.grid_spec import Grid, StructuredGrid, UnstructuredGrid
-from ..errors import FinamMetaDataError
+from ..errors import FinamDataError, FinamMetaDataError
 from ..sdk import Adapter
 from ..tools.log_helper import ErrorLogger
 
@@ -143,7 +143,7 @@ class ARegridding(Adapter, ABC):
         ):
             with ErrorLogger(self.logger):
                 msg = "For regridding masked input data, you need to explicitly set the mask in the input info."
-                raise FinamMetaDataError(msg)
+                raise FinamDataError(msg)
 
 
 class RegridNearest(ARegridding):

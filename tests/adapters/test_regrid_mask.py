@@ -8,14 +8,7 @@ from pathlib import Path
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from finam import (
-    Composition,
-    FinamMetaDataError,
-    Info,
-    Mask,
-    UniformGrid,
-    UnstructuredGrid,
-)
+from finam import Composition, FinamDataError, Info, Mask, UniformGrid, UnstructuredGrid
 from finam import data as fdata
 from finam.adapters.regrid import RegridLinear, RegridNearest
 from finam.components import StaticSimplexNoise, debug
@@ -113,7 +106,7 @@ class TestRegridMask(unittest.TestCase):
         (source.outputs["Noise"] >> regrid >> sink.inputs["Input"])
 
         # not covering domain without fill
-        with self.assertRaises(FinamMetaDataError):
+        with self.assertRaises(FinamDataError):
             composition.connect()
 
     def test_regrid_linear_filled(self):
