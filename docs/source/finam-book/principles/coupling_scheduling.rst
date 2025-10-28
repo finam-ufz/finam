@@ -43,8 +43,8 @@ The algorithm in detail:
 
 * At each iteration, the component most back in time is selected as the *active component*.
 * It is checked whether the *active component* has any upstream components that are not yet at the time of it's next pull.
-* If there is any such upstream component component, it becomes the *active component*, and the check is repeated.
-* If there is no such upstream component component, the *active component* is updated once.
+* If there is any such upstream component, it becomes the *active component*, and the check is repeated.
+* If there is no such upstream component, the *active component* is updated once.
 
 This way, it is guaranteed that each components has the data for it's next pull available when updated.
 
