@@ -125,7 +125,7 @@ class Output(IOutput, Loggable):
         self.logger.trace("add target")
         if not isinstance(target, IInput):
             with ErrorLogger(self.logger):
-                raise ValueError("Only IInput can added as target for IOutput")
+                raise ValueError("Only IInput can be added as target for IOutput")
 
         self._targets.append(target)
 
