@@ -1,6 +1,7 @@
 """
 Adapters for direct probing from link connections.
 """
+
 from ..sdk import Adapter
 
 __all__ = ["CallbackProbe"]

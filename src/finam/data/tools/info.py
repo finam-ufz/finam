@@ -31,10 +31,13 @@ class Info:
     meta : dict, optional
         dictionary of metadata, default: None
     mask : :any:`Mask` value or valid boolean mask for :any:`MaskedArray`, optional
-        masking specification of the data. Options:
+        masking specification of the data.
+
+        Options:
             * :any:`Mask.FLEX`: data can be masked or unmasked (default)
             * :any:`Mask.NONE`: data is unmasked and given as plain numpy array
             * valid boolean mask for MaskedArray
+
     **meta_kwargs
         additional metadata by name, will overwrite entries in ``meta``
 

@@ -55,10 +55,10 @@ Convenience functions for masked arrays are:
 * :func:`has_masked_values <.data.has_masked_values>` to check if the given data is a masked array and has some values masked
 * :func:`filled <.data.filled>` to create a copy of the data with masked entries filled with a given value, if it is a masked array
 * :func:`to_masked <.data.to_masked>` to create a masked version of the data
-* :func:`to_masked <.data.to_compressed>` to create a flattened version of the data only containing the unmasked values
-* :func:`to_masked <.data.from_compressed>` to create a full mask array from a compressed version of the data
-* :func:`to_masked <.data.masks_compatible>` to check if mask settings in info objects are compatiblemasks_equal
-* :func:`to_masked <.data.masks_equal>` to check if masks are equal
+* :func:`to_compressed <.data.to_compressed>` to create a flattened version of the data only containing the unmasked values
+* :func:`from_compressed <.data.from_compressed>` to create a full mask array from a compressed version of the data
+* :func:`masks_compatible <.data.masks_compatible>` to check if mask settings in info objects are compatiblemasks_equal
+* :func:`masks_equal <.data.masks_equal>` to check if masks are equal
 
 .. warning::
     Due to a :mod:`numpy` bug, quantities should not be created from masked data using multiplication syntax (i.e. ``magnitude * units``).

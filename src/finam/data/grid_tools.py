@@ -4,6 +4,51 @@ from enum import Enum, IntEnum
 from math import isclose, nan
 
 import numpy as np
+import pyproj
+
+
+def equal_crs(crs1, crs2):
+    """
+    Check two CRS for equality.
+
+    Parameters
+    ----------
+    crs1 : valid pyproj crs specifier or None
+        First crs
+    crs2 : valid pyproj crs specifier or None
+        Second crs
+
+    Returns
+    -------
+    bool
+        CRS equality
+    """
+    if crs1 is None and crs2 is None:
+        return True
+    if crs1 is None or crs2 is None:
+        return False
+    return pyproj.crs.CRS(crs1) == pyproj.crs.CRS(crs2)
+
+
+def gen_axes_attributes(crs, axes_attributes=None):
+    """
+    Generate axes attributes from CRS.
+
+    Parameters
+    ----------
+    crs : str
+        valid pyproj crs specifier.
+    axes_attributes : list of dict, optional
+        default axes attributes, by default None
+
+    Returns
+    -------
+    list of dict
+        axes attributes
+    """
+    if axes_attributes is not None or crs is None:
+        return axes_attributes
+    return pyproj.crs.CRS(crs).cs_to_cf()
 
 
 def point_order(order, axes_reversed=False):
