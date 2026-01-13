@@ -344,7 +344,7 @@ class RegridLinear(ARegridding):
         self._check_in_data(in_data)
 
         if self.structured:
-            self.inter.values = in_data
+            self.inter.values[...] = in_data
             res = self.inter(self.out_coords)
             if self.fill_with_nearest:
                 res[self.out_ids] = self.inter.values.flatten(
