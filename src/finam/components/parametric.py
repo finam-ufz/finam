@@ -1,4 +1,5 @@
 """Parametric grid generator components"""
+
 import numpy as np
 
 from finam.data.grid_base import Grid
@@ -200,6 +201,6 @@ def _generate_grid(grid, time, cell_func):
             data[i] = cell_func(time, *p)
 
     if isinstance(grid, StructuredGrid):
-        data = np.reshape(data, newshape=grid.data_shape, order=grid.order)
+        data = np.reshape(data, grid.data_shape, order=grid.order)
 
     return data
