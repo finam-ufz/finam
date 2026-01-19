@@ -1,7 +1,20 @@
 """Pull-based components for merging multiple inputs into a single output"""
+
+import copy
+
+import numpy as np
+
 from finam.interfaces import ComponentStatus
 
-from ..data.tools import compatible_units, strip_time
+from ..data.tools import (
+    Mask,
+    compatible_units,
+    filled,
+    is_sub_mask,
+    mask_specified,
+    strip_time,
+    to_masked,
+)
 from ..errors import FinamMetaDataError
 from ..sdk import CallbackOutput, Component
 from ..tools.log_helper import ErrorLogger
@@ -59,13 +72,23 @@ class WeightedSum(Component):
         self._grid = grid
         self._units = None
         self._in_data = None
+        self._weights = None
         self._out_data = None
         self._last_update = None
 
     def _initialize(self):
         for name in self._input_names:
-            self.inputs.add(name=name, time=None, grid=self._grid, units=None)
-            self.inputs.add(name=name + "_weight", time=None, grid=self._grid, units="")
+            self.inputs.add(
+                name=name, time=None, grid=self._grid, units=None, mask=None
+            )
+            self.inputs.add(
+                name=name + "_weight",
+                time=None,
+                grid=self._grid,
+                units="",
+                mask=None,
+                static=True,
+            )
 
         self._grid = None
 
@@ -73,32 +96,69 @@ class WeightedSum(Component):
         self.create_connector(pull_data=list(self.inputs))
 
     def _connect(self, start_time):
-        push_infos = self._check_infos()
-        self.try_connect(start_time, push_infos=push_infos)
+        if (
+            self.connector.all_data_pulled
+            and not self.connector.infos_pushed["WeightedSum"] is None
+        ):
+            self._check_infos()
+            push_infos = self._create_out_info()
+            self.try_connect(start_time, push_infos=push_infos)
+        else:
+            self.try_connect(start_time)
 
         if self.status == ComponentStatus.CONNECTED:
-            # just to check for all inputs equal
-            _push_infos = self._check_infos()
-
-        if self.connector.all_data_pulled:
-            self._in_data = self.connector.in_data
+            self._in_data = {}
+            self._weights = {}
+            for name in self._input_names:
+                self._in_data[name] = self.connector.in_data[name]
+                self._weights[name] = self.connector.in_data[name + "_weight"]
+            self._normalize_weights()
 
     def _check_infos(self):
-        push_infos = {}
         for name in self._input_names:
             info = self.connector.in_infos[name]
-            if info is not None:
-                if not self.connector.infos_pushed["WeightedSum"]:
-                    push_infos["WeightedSum"] = info.copy_with()
 
+            if info is not None:
                 self._check_grid(info)
                 self._compatible_units(info)
+            if not mask_specified(info.mask) and info.mask == Mask.FLEX:
+                with ErrorLogger(self.logger):
+                    msg = "Mask type FLEX not supported."
+                    raise FinamMetaDataError(msg)
 
             weight_info = self.connector.in_infos[name + "_weight"]
             if weight_info is not None:
                 self._check_grid(weight_info)
+            if not mask_specified(weight_info.mask) and weight_info.mask == Mask.FLEX:
+                with ErrorLogger(self.logger):
+                    msg = "Mask type FLEX not supported for weights."
+                    raise FinamMetaDataError(msg)
 
-        return push_infos
+            if mask_specified(weight_info.mask) and not is_sub_mask(
+                weight_info.mask, info.mask
+            ):
+                with ErrorLogger(self.logger):
+                    msg = "Data mask must be a sub-mask of weight mask."
+                    raise FinamMetaDataError(msg)
+
+    def _create_out_info(self):
+        base_info = None
+        for name in self._input_names:
+            info = self.connector.in_infos[name]
+            if info is not None:
+                if base_info is None:
+                    base_info = info.copy_with()
+
+        out_mask = base_info.mask
+        for name in self._input_names:
+            info = self.connector.in_infos[name]
+            mask = info.mask
+            if not mask_specified(mask):
+                out_mask = Mask.NONE
+                break
+            out_mask &= mask
+
+        return {"WeightedSum": base_info.copy_with(mask=out_mask)}
 
     def _check_grid(self, info):
         if self._grid is None:
@@ -118,6 +178,20 @@ class WeightedSum(Component):
                         "All value inputs must have the same dimensions."
                     )
 
+    def _normalize_weights(self):
+        weights_sum = None
+        for name in self._input_names:
+            weight = strip_time(self._weights[name], self._grid)
+
+            if weights_sum is None:
+                weights_sum = copy.copy(weight)
+            else:
+                weights_sum += weight
+
+        for name in self._input_names:
+            weight = strip_time(self._weights[name], self._grid)
+            self._weights[name] = np.nan_to_num(weight / weights_sum, 0.0)
+
     def _validate(self):
         pass
 
@@ -133,22 +207,30 @@ class WeightedSum(Component):
 
         if time != self._last_update:
             if self.status == ComponentStatus.VALIDATED:
-                self._in_data = {
-                    name: inp.pull_data(time) for name, inp in self.inputs.items()
-                }
+                for name in self._input_names:
+                    self._in_data[name] = self.inputs[name].pull_data(time)
 
             result = None
+            mask = self._outputs["WeightedSum"].info.mask
 
             for name in self._input_names:
                 value = strip_time(self._in_data[name], self._grid)
-                weight = strip_time(self._in_data[name + "_weight"], self._grid)
+                weight = self._weights[name]
+
+                # Treat masked values as zero weight
+                v = filled(value, 0.0)
+                w = filled(weight, 0.0)
 
                 if result is None:
-                    result = value * weight
+                    result = v * w
                 else:
-                    result += value * weight
+                    result += v * w
 
-            self._out_data = result
+            if not mask_specified(mask):
+                self._out_data = result
+            else:
+                self._out_data = to_masked(result, mask=mask)
+
             self._last_update = time
 
         return self._out_data

@@ -1,17 +1,23 @@
 # Release notes
 
+## [unpublished]
+
+### Features
+
+* Adds mask support for `WeightedSum` component (!296)
+
 ## [v1.0.1]
 
 ### Bug fixes
 
-* make `GridToValue` and `ValueToGrid` compatible with masked data (!291)
+* Makes `GridToValue` and `ValueToGrid` compatible with masked data (!291)
 
 ## [v1.0.0]
 
 ### Breaking changes
 
-* submodule `modules` renamed to `components` for consistency (!289)
-* argument `modules` renamed to `components` in `Composition` for consistency (!289)
+* Submodule `modules` renamed to `components` for consistency (!289)
+* Argument `modules` renamed to `components` in `Composition` for consistency (!289)
 * Components now implement `_next_time` instead of the property `next_time` for consistency (!283)
 * All fields of `Composition` are now private (!273)
 * `Input.source` is private, `Input.get_source()` becomes property `Input.source`, `Input.set_source` becomes a getter (!273)
@@ -19,7 +25,7 @@
 * Composition metadata was restructured to hold components and adapters in separate sub-dictionaries (!274)
 * Time components implement method `_next_time` instead of property `next_time` (!283)
 * `Info` now has properties for `grid`, `time` and `mask` (!286)
-* all init-args of `Info` are now optional (!286)
+* All init-args of `Info` are now optional (!286)
 * `Info.accepts` has changed signature: renamed `ignore_none` to `incoming_donwstream` (!286)
 * `Info.accepts` now only checks: `grid`, `mask` and `units` (other meta data can differ) (!286)
 * `Grid.to_/from_canonical` now allows additional dimensions (!286)
