@@ -135,7 +135,7 @@ time steps and an adapter:
         generator.outputs["Noise"]
         >> consumer_1.inputs["Value"]
     )
-    # Couple inputs to outputs, with an adapters
+    # Couple inputs to outputs, with an adapter
     (
         generator.outputs["Noise"]
         >> fm.adapters.Scale(scale=10.0)
