@@ -6,6 +6,10 @@
 
 * Adds mask support for `WeightedSum` component (!296)
 
+### Bugfixes
+
+* Fixes wrong error messages from regrid adapter (!300)
+
 ## [v1.0.1]
 
 ### Bug fixes

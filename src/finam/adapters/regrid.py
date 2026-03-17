@@ -73,9 +73,15 @@ class ARegridding(Adapter, ABC):
         self.output_grid = self.output_grid or info.grid
 
         if self.input_grid.crs is None and self.output_grid.crs is not None:
-            raise FinamMetaDataError("Input grid has a CRS, but output grid does not")
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError(
+                    "Output grid has a CRS, but input grid does not"
+                )
         if self.output_grid.crs is None and self.input_grid.crs is not None:
-            raise FinamMetaDataError("output grid has a CRS, but input grid does not")
+            with ErrorLogger(self.logger):
+                raise FinamMetaDataError(
+                    "Input grid has a CRS, but output grid does not"
+                )
 
         if not self._is_initialized:
             self.downstream_mask = info.mask
