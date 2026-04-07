@@ -157,7 +157,7 @@ class Info:
 
         return other
 
-    def accepts(self, incoming, fail_info, incoming_donwstream=False):
+    def accepts(self, incoming, fail_info, incoming_downstream=False):
         """
         Tests whether this info can accept/is compatible with an incoming info.
 
@@ -169,7 +169,7 @@ class Info:
             Incoming/source info to check. This is the info from upstream.
         fail_info : dict
             Dictionary that will be filled with failed properties; name: (source, target).
-        incoming_donwstream : bool, optional
+        incoming_downstream : bool, optional
             Whether the incoming info is from downstream data. Default: False
 
         Returns
@@ -183,21 +183,21 @@ class Info:
 
         success = True
         if self.grid is not None and not self.grid.compatible_with(incoming.grid):
-            if not (incoming_donwstream and incoming.grid is None):
+            if not (incoming_downstream and incoming.grid is None):
                 fail_info["grid"] = (incoming.grid, self.grid)
                 success = False
 
         if self.mask is not None and not masks_compatible(
-            self.mask, incoming.mask, incoming_donwstream, self.grid, incoming.grid
+            self.mask, incoming.mask, incoming_downstream, self.grid, incoming.grid
         ):
-            if not (incoming_donwstream and incoming.mask is None):
+            if not (incoming_downstream and incoming.mask is None):
                 fail_info["mask"] = (incoming.mask, self.mask)
                 success = False
 
         u1_none = (u1 := self.units) is None
         u2_none = (u2 := incoming.units) is None
         if not u1_none and (u2_none or not compatible_units(u1, u2)):
-            if not (incoming_donwstream and u2_none):
+            if not (incoming_downstream and u2_none):
                 fail_info["units"] = (u2, u1)
                 success = False
 
