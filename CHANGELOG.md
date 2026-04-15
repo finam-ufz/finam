@@ -9,6 +9,7 @@
 ### Bugfixes
 
 * Fixes wrong error messages from regrid adapter (!300)
+* Fixes wrong order of axes attributes (!301)
 * Fixes transformation between compatible grids (!303)
 
 ## [v1.0.1]

@@ -48,7 +48,7 @@ def gen_axes_attributes(crs, axes_attributes=None):
     """
     if axes_attributes is not None or crs is None:
         return axes_attributes
-    return pyproj.crs.CRS(crs).cs_to_cf()
+    return pyproj.crs.CRS(crs).cs_to_cf()[::-1]
 
 
 def point_order(order, axes_reversed=False):
