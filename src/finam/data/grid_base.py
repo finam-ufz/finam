@@ -523,7 +523,7 @@ class StructuredGrid(Grid):
         rev = -1 if self.axes_reversed else 1
         d_shp, in_shp, shp_len = self.data_shape, np.shape(data), len(self.data_shape)
         if not np.array_equal(d_shp[::rev], in_shp[::rev][:shp_len]):
-            msg = "to_canonical: data has wrong shape."
+            msg = f"to_canonical: data has wrong shape. Expected {d_shp[::rev]}, got {in_shp[::rev][:shp_len]})."
             raise ValueError(msg)
         if self.axes_reversed and np.ndim(data) > 1:
             data = np.transpose(data)

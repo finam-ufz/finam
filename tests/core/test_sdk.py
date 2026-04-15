@@ -30,6 +30,7 @@ from finam import (
     NoGrid,
     Output,
     TimeComponent,
+    UniformGrid,
 )
 from finam.sdk.component import IOList
 
@@ -519,6 +520,28 @@ class TestInput(unittest.TestCase):
         data = in1.pull_data(t)
 
         self.assertTrue(fm.data.has_time_axis(data, info.grid))
+
+    def test_transform_compatible(self):
+        t = datetime(2000, 1, 1)
+        info = Info(time=t, grid=UniformGrid((300, 200), axes_reversed=True))
+        info2 = Info(time=t, grid=UniformGrid((300, 200)))
+
+        out = Output(name="Output")
+        in1 = Input(name="Input")
+
+        out >> in1
+
+        in1.ping()
+        out.push_info(info)
+        in1.exchange_info(info2)
+
+        in_data = fm.data.full(0, info)
+
+        out.push_data(in_data, t)
+        out_data = in1.pull_data(t)
+
+        self.assertEqual(in_data.shape, (1, 199, 299))
+        self.assertEqual(out_data.shape, (1, 299, 199))
 
 
 class TestCallbackInput(unittest.TestCase):

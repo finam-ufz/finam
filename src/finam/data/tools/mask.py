@@ -241,7 +241,7 @@ def _is_single_mask_value(mask):
 
 
 def masks_compatible(
-    this, incoming, incoming_donwstream, this_grid=None, incoming_grid=None
+    this, incoming, incoming_downstream, this_grid=None, incoming_grid=None
 ):
     """
     Check if an incoming mask is compatible with a given mask.
@@ -252,7 +252,7 @@ def masks_compatible(
         mask specification to check against
     incoming : :any:`Mask` value or valid boolean mask for :any:`MaskedArray` or None
         incoming mask to check for compatibility
-    incoming_donwstream : bool
+    incoming_downstream : bool
         Whether the incoming mask is from downstream data
     this_grid : Grid or NoGrid or None, optional
         grid for first mask (to check shape and value equality)
@@ -264,7 +264,7 @@ def masks_compatible(
     bool
         mask compatibility
     """
-    if incoming_donwstream:
+    if incoming_downstream:
         upstream, downstream = this, incoming
         up_grid, down_grid = this_grid, incoming_grid
     else:
