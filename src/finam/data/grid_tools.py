@@ -48,7 +48,14 @@ def gen_axes_attributes(crs, axes_attributes=None):
     """
     if axes_attributes is not None or crs is None:
         return axes_attributes
-    return pyproj.crs.CRS(crs).cs_to_cf()
+
+    axes = pyproj.crs.CRS(crs).cs_to_cf()
+    order = {"X": 0, "Y": 1, "Z": 2}
+    # sort by axis attr. (ignore unknown)
+    return sorted(
+        (axis for axis in axes if axis.get("axis") in order),
+        key=lambda axis: order[axis["axis"]],
+    )
 
 
 def point_order(order, axes_reversed=False):

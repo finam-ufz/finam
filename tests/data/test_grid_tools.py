@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 from numpy.testing import assert_allclose, assert_array_equal
+from pyproj import CRS
 
 from finam import CellType, EsriGrid, NoGrid, UniformGrid, UnstructuredGrid
 from finam.data.grid_tools import (
@@ -13,6 +14,7 @@ from finam.data.grid_tools import (
     check_axes_uniformity,
     flatten_cells,
     gen_axes,
+    gen_axes_attributes,
     gen_cells,
     gen_node_centers,
     gen_points,
@@ -255,6 +257,45 @@ class TestGridTools(unittest.TestCase):
 
         test_type = INV_VTK_TYPE_MAP[VTK_TYPE_MAP]
         assert_array_equal(test_type, range(6))
+
+    def test_axes_attributes(self):
+        attr = gen_axes_attributes("EPSG:4326")
+        self.assertEqual(
+            attr,
+            [
+                {
+                    "axis": "X",
+                    "standard_name": "longitude",
+                    "long_name": "longitude coordinate",
+                    "units": "degrees_east",
+                },
+                {
+                    "axis": "Y",
+                    "standard_name": "latitude",
+                    "long_name": "latitude coordinate",
+                    "units": "degrees_north",
+                },
+            ],
+        )
+
+        attr = gen_axes_attributes("EPSG:26917")
+        self.assertEqual(
+            attr,
+            [
+                {
+                    "axis": "X",
+                    "standard_name": "projection_x_coordinate",
+                    "long_name": "Easting",
+                    "units": "metre",
+                },
+                {
+                    "axis": "Y",
+                    "standard_name": "projection_y_coordinate",
+                    "long_name": "Northing",
+                    "units": "metre",
+                },
+            ],
+        )
 
 
 if __name__ == "__main__":
