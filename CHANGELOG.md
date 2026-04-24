@@ -9,7 +9,7 @@
 ### Bugfixes
 
 * Fixes wrong error messages from regrid adapter (!300)
-* Fixes transformation between compatible grids (!303)
+* Fixes transformation between compatible grids (!303, !305)
 
 ## [v1.0.1]
 
