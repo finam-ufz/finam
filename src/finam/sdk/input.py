@@ -142,7 +142,7 @@ class Input(IInput, Loggable):
         # transform compatible data between grids
         if self._transform is not None:
             with ErrorLogger(self.logger):
-                return np.stack([self._transform(d) for d in data], axis=0)
+                data = np.stack([self._transform(d) for d in data], axis=0)
             self.logger.profile(
                 "converted data between compatible grids (%d entries)", data.size
             )
