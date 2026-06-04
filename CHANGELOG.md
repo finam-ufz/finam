@@ -1,15 +1,29 @@
 # Release notes
 
-## [unpublished]
+## [v1.1.0]
 
 ### Features
 
+* Adds `Masking`, `UnMasking` and `Clip` adapters for explicit mask handling and grid clipping (!294)
+* Adds `ToCRS` and `ToUnstructured` adapters for CRS conversion and conversion to unstructured grids (!294)
+* Adds `equal_crs` helper to the data submodule and automatic axis attributes from CRS information (!294)
+* Adds unit handling to `Callback` and `Scale` adapters (!294)
 * Adds mask support for `WeightedSum` component (!296)
 
 ### Bugfixes
 
-* Fixes wrong error messages from regrid adapter (!300)
+* Fixes mask propagation through regridding adapters and through input/output info exchange (!293, !295)
+* Fixes `GridToValue` and `ValueToGrid` metadata handling for masks (!294)
+* Fixes CRS transformations in regridding adapters to keep axis order stable (!294)
+* Fixes regridding error types and wrong error messages from regrid adapters (!294, !300)
+* Fixes compatibility with NumPy's changed `reshape` parameter name (!297)
 * Fixes transformation between compatible grids (!303, !305)
+* Fixes generation order of CRS-derived axis attributes (!301)
+
+### Documentation
+
+* Adds blog posts for the FINAM v1.0 release and model-code changes for coupling with FINAM (!288, !292)
+* Fixes minor spelling, example and link issues in documentation (!294, !298)
 
 ## [v1.0.1]
 
@@ -278,7 +292,8 @@
 * initial release of FINAM
 
 
-[unpublished]: https://git.ufz.de/FINAM/finam/-/compare/v1.0.1...main
+[unpublished]: https://git.ufz.de/FINAM/finam/-/compare/v1.1.0...main
+[v1.1.0]: https://git.ufz.de/FINAM/finam/-/compare/v1.0.1...v1.1.0
 [v1.0.1]: https://git.ufz.de/FINAM/finam/-/compare/v1.0.0...v1.0.1
 [v1.0.0]: https://git.ufz.de/FINAM/finam/-/compare/v0.5.1...v1.0.0
 [v0.5.1]: https://git.ufz.de/FINAM/finam/-/compare/v0.5.0...v0.5.1
